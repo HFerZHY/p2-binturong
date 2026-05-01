@@ -105,14 +105,9 @@ Bind it to `E`, `Gamepad South`, or whichever input you prefer.
 ## Creating a Dialogue Graph (ScriptableObject)
 
 Right-click in the Project window:
-**Create → Dialogue System → Dialogue Graph**
-
-Fill in nodes in the Inspector. Each node needs:
-- A unique `id`
-- `nodeType` (Line / Branch / Terminal)
-- `speakerName` and `text` (for Line/Branch)
-- `nextNodeId` pointing to the next node's id (for Line nodes)
-- `choices` with `targetNodeId` entries (for Branch nodes)
+**Create → Dialogue System → Dialogue Graph**, 
+then use the Dialogue Graph Editor (blue button on the top of the inspector) 
+to edit and save the Dialogue Graph. 
 
 ---
 
