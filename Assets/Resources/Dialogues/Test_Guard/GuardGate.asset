@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6770324fb0354064596679047a234bee, type: 3}
-  m_Name: NewGraph
+  m_Name: GuardGate
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSystem.Data.DialogueGraph
   entryNodeId: guard_01
   nodes:
