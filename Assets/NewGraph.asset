@@ -1,0 +1,134 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6770324fb0354064596679047a234bee, type: 3}
+  m_Name: NewGraph
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueSystem.Data.DialogueGraph
+  entryNodeId: guard_01
+  nodes:
+  - id: guard_01
+    nodeType: 0
+    speakerName: Guard
+    speakerPortrait: {fileID: 0}
+    text: Halt! State your business, traveller.
+    nextNodeId: player_choice_01
+    choices: []
+    conditions: []
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: Talk
+  - id: player_choice_01
+    nodeType: 1
+    speakerName: 
+    speakerPortrait: {fileID: 0}
+    text: 
+    nextNodeId: 
+    choices:
+    - label: I am a merchant, here to sell wares.
+      targetNodeId: guard_merchant_response
+      conditions: []
+      showIfFailed: 0
+    - label: I carry a letter from the Baron.
+      targetNodeId: guard_letter_response
+      conditions:
+      - type: 1
+        key: BaronLetter
+        value: 1
+        negate: 0
+      showIfFailed: 1
+    - label: None of your business.
+      targetNodeId: guard_rude_response
+      conditions: []
+      showIfFailed: 0
+    conditions: []
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: guard_merchant_response
+    nodeType: 0
+    speakerName: Guard
+    speakerPortrait: {fileID: 0}
+    text: A merchant, eh? Very well. Move along, but keep out of trouble.
+    nextNodeId: guard_end
+    choices: []
+    conditions: []
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: guard_letter_response
+    nodeType: 0
+    speakerName: Guard
+    speakerPortrait: {fileID: 0}
+    text: The Baron's seal! My apologies for the delay. You may pass freely.
+    nextNodeId: guard_end
+    choices: []
+    conditions: []
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: Bow
+  - id: guard_rude_response
+    nodeType: 0
+    speakerName: Guard
+    speakerPortrait: {fileID: 0}
+    text: Watch your tongue. Get moving before I change my mind.
+    nextNodeId: guard_end
+    choices: []
+    conditions: []
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: Scowl
+  - id: guard_end
+    nodeType: 2
+    speakerName: 
+    speakerPortrait: {fileID: 0}
+    text: 
+    nextNodeId: 
+    choices: []
+    conditions: []
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
