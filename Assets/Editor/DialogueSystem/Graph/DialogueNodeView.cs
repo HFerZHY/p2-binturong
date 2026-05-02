@@ -47,6 +47,10 @@ namespace DialogueSystem.Editor
         private Label _textPreviewLabel;
         private Label _entryBadge;          // shown only when this is the entry node
 
+        // Choice port preview labels — one per choice, in order.
+        // Updated by RefreshLocalePreview so port names show the resolved label.
+        private readonly List<Label> _choicePortLabels = new();
+
         // ── Constructor ───────────────────────────────────────────────────────
 
         public DialogueNodeView(DialogueNode node, DialogueGraph graph, DialogueLocaleState localeState)
@@ -66,7 +70,10 @@ namespace DialogueSystem.Editor
             RegisterCallback<DetachFromPanelEvent>(_ =>
             {
                 if (localeState != null)
+                {
                     localeState.OnLocaleChanged -= RefreshLocalePreview;
+                    localeState.OnSpeakerValueChanged -= RefreshIfSpeakerChanged;
+                }
             });
         }
 
@@ -81,6 +88,8 @@ namespace DialogueSystem.Editor
         /// <summary>
         /// Re-resolves preview labels from the StringTable for the active locale.
         /// Does NOT rebuild ports or layout — O(1) label updates only.
+        /// For Branch nodes, updates each choice port's display name from the
+        /// resolved choice label rather than the raw labelKey.
         /// </summary>
         public void RefreshLocalePreview()
         {
@@ -88,6 +97,24 @@ namespace DialogueSystem.Editor
                 LocaleState?.ResolveSpeaker(NodeData.speakerNameKey));
             UpdatePreview(_textPreviewLabel,
                 LocaleState?.ResolveText(NodeData.textKey));
+
+            // Refresh choice port labels with the resolved locale string
+            for (int i = 0; i < _choicePortLabels.Count && i < NodeData.choices.Count; i++)
+            {
+                var choice = NodeData.choices[i];
+                string resolved = string.IsNullOrEmpty(choice.labelKey)
+                    ? null
+                    : LocaleState?.ResolveChoiceLabel(choice.labelKey);
+                string display = !string.IsNullOrEmpty(resolved)
+                    ? Truncate(resolved, 28)
+                    : (!string.IsNullOrEmpty(choice.labelKey)
+                        ? Truncate(choice.labelKey, 28)   // fallback: show raw key
+                        : $"Choice {i + 1}");
+
+                var label = _choicePortLabels[i];
+                if (label != null)
+                    label.text = display;
+            }
         }
 
         /// <summary>
@@ -104,9 +131,7 @@ namespace DialogueSystem.Editor
         private void RefreshIfSpeakerChanged(string speakerKey)
         {
             if (speakerKey == NodeData.speakerNameKey)
-            {
                 RefreshLocalePreview();
-            }
         }
 
         // ── Build ─────────────────────────────────────────────────────────────
@@ -226,6 +251,7 @@ namespace DialogueSystem.Editor
                 outputContainer.Remove(port);
             }
             ChoiceOutputPorts.Clear();
+            _choicePortLabels.Clear();
 
             if (OutputPort != null)
             {
@@ -251,13 +277,30 @@ namespace DialogueSystem.Editor
                 case NodeType.Branch:
                     for (int i = 0; i < NodeData.choices.Count; i++)
                     {
-                        string label = string.IsNullOrEmpty(NodeData.choices[i].label)
-                            ? $"Choice {i + 1}"
-                            : Truncate(NodeData.choices[i].label, 28);
-                        var port = CreateOutputPort(label);
+                        var choice = NodeData.choices[i];
+
+                        // Resolve the localized label for the port name.
+                        // If the table returns nothing yet, fall back to the raw labelKey,
+                        // then to the ordinal "Choice N".
+                        string resolved = string.IsNullOrEmpty(choice.labelKey)
+                            ? null
+                            : LocaleState?.ResolveChoiceLabel(choice.labelKey);
+                        string portName = !string.IsNullOrEmpty(resolved)
+                            ? Truncate(resolved, 28)
+                            : (!string.IsNullOrEmpty(choice.labelKey)
+                                ? Truncate(choice.labelKey, 28)
+                                : $"Choice {i + 1}");
+
+                        var port = CreateOutputPort(portName);
                         port.AddToClassList("choice-port");
                         outputContainer.Add(port);
                         ChoiceOutputPorts.Add(port);
+
+                        // Keep a reference to the portName label so RefreshLocalePreview
+                        // can update it without a full port rebuild.
+                        // The portName Label is the first Label child of the port.
+                        Label portLabel = port.Q<Label>();
+                        _choicePortLabels.Add(portLabel);
                     }
                     break;
             }

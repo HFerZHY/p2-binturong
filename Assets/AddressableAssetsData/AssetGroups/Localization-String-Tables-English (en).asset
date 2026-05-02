@@ -21,8 +21,14 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-en
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5622e555419d2dc44b5c26c064f4f396
+    m_Address: DialogueChoiceLabelTable_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f5a08ef23f64b8b449af535e13a3bb63
-    m_Address: DialogueSpeakerTable_en
+    m_Address: CharcterNameTable_en
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en

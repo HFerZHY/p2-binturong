@@ -36,8 +36,37 @@ MonoBehaviour:
     speakerNameKey: speakerTest
     speakerPortrait: {fileID: 0}
     textKey: speaker1text2
-    nextNodeId: 
+    nextNodeId: node_0003
     choices: []
+    conditions: []
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0003
+    nodeType: 1
+    speakerNameKey: 
+    speakerPortrait: {fileID: 0}
+    textKey: 
+    nextNodeId: 
+    choices:
+    - labelKey: Hello
+      targetNodeId: 
+      conditions: []
+      showIfFailed: 0
+    - labelKey: Hi
+      targetNodeId: 
+      conditions: []
+      showIfFailed: 0
+    - labelKey: Yo
+      targetNodeId: 
+      conditions: []
+      showIfFailed: 0
     conditions: []
     onEnter:
       m_PersistentCalls:

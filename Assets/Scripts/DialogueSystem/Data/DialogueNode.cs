@@ -19,13 +19,15 @@ namespace DialogueSystem.Data
         [Tooltip("The type of node — drives how DialogueManager processes it.")]
         public NodeType nodeType = NodeType.Line;
 
-        [FormerlySerializedAs("speakerName")]
-        [Header("Content")]
-        [Tooltip("Localization string table key. Points to the name displayed in the dialogue UI (e.g. 'Guard', 'Merchant').")]
-        public string speakerNameKey;
+        [FormerlySerializedAs("speakerName")] [Header("Content")]
+        // [Tooltip("Localization string table key. Points to the name displayed in the dialogue UI (e.g. 'Guard', 'Merchant').")]
+        // public string speakerNameKey;
+        //
+        // [Tooltip("Portrait sprite shown alongside the dialogue line.")]
+        // public Sprite speakerPortrait;
+        public Character speaker;
 
-        [Tooltip("Portrait sprite shown alongside the dialogue line.")]
-        public Sprite speakerPortrait;
+        public string speakerPortraitKey;
 
         [FormerlySerializedAs("text")]
         [TextArea(3, 6)]
@@ -66,8 +68,9 @@ namespace DialogueSystem.Data
     [Serializable]
     public class DialogueChoice
     {
-        [Tooltip("Text shown on the choice button.")]
-        public string label;
+        [FormerlySerializedAs("label")]
+        [Tooltip("Localization string table key. Points to the text shown on the choice button.")]
+        public string labelKey;
 
         [Tooltip("ID of the node to jump to when this choice is selected.")]
         public string targetNodeId;

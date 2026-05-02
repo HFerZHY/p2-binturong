@@ -31,7 +31,8 @@ namespace DialogueSystem.Serialization
                 {
                     id                 = node.id,
                     nodeType           = node.nodeType.ToString(),
-                    speakerNameKey     = node.speakerNameKey,
+                    speakerName        = node.speaker.name,
+                    speakerPortraitKey = node.speakerPortraitKey,
                     textKey            = node.textKey,
                     nextNodeId         = node.nextNodeId,
                     typewriterSpeed    = node.typewriterSpeed,
@@ -44,7 +45,7 @@ namespace DialogueSystem.Serialization
                 {
                     nodeDto.choices.Add(new DialogueChoiceJson
                     {
-                        label        = choice.label,
+                        labelKey     = choice.labelKey,
                         targetNodeId = choice.targetNodeId,
                         showIfFailed = choice.showIfFailed,
                         conditions   = ConvertConditions(choice.conditions)

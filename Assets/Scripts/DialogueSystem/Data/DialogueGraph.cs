@@ -65,7 +65,7 @@ namespace DialogueSystem.Data
             foreach (var node in nodes)
             {
                 if (string.IsNullOrEmpty(node.id))
-                    errors.Add($"A node has an empty id (speaker: '{node.speakerNameKey}').");
+                    errors.Add($"A node has an empty id (speaker: '{node.speaker.name}').");
                 else if (!ids.Add(node.id))
                     errors.Add($"Duplicate node id: '{node.id}'.");
 
@@ -74,8 +74,30 @@ namespace DialogueSystem.Data
 
                 foreach (var choice in node.choices)
                     if (!string.IsNullOrEmpty(choice.targetNodeId) && !_lookup.ContainsKey(choice.targetNodeId))
-                        errors.Add($"Node '{node.id}' choice '{choice.label}' references missing targetNodeId '{choice.targetNodeId}'.");
+                        errors.Add($"Node '{node.id}' choice '{choice.labelKey}' references missing targetNodeId '{choice.targetNodeId}'.");
             }
+
+            // ── Unique-key checks ─────────────────────────────────────────────
+            // textKey must be unique across all nodes
+            var textKeyCounts = nodes
+                .Where(n => !string.IsNullOrEmpty(n.textKey))
+                .GroupBy(n => n.textKey)
+                .Where(g => g.Count() > 1);
+
+            foreach (var g in textKeyCounts)
+                errors.Add($"Duplicate textKey '{g.Key}' found on nodes: " +
+                           string.Join(", ", g.Select(n => $"'{n.id}'")));
+
+            // labelKey must be unique across all choices in the graph
+            var allChoices = nodes.SelectMany(n => n.choices.Select(c => (NodeId: n.id, Choice: c)));
+            var labelKeyCounts = allChoices
+                .Where(x => !string.IsNullOrEmpty(x.Choice.labelKey))
+                .GroupBy(x => x.Choice.labelKey)
+                .Where(g => g.Count() > 1);
+
+            foreach (var g in labelKeyCounts)
+                errors.Add($"Duplicate labelKey '{g.Key}' found on choices in nodes: " +
+                           string.Join(", ", g.Select(x => $"'{x.NodeId}'")));
 
             return errors;
         }

@@ -15,6 +15,12 @@ MonoBehaviour:
   m_GroupName: Localization-String-Tables-Chinese (Simplified) (zh-Hans)
   m_GUID: 40e7f1c6952aa3f4ea9dc89f24d261fb
   m_SerializeEntries:
+  - m_GUID: 2bb8afe6c16d0b8449be396352711a37
+    m_Address: DialogueChoiceLabelTable_zh-Hans
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hans
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8542afbe09901c749b441db4f5784713
     m_Address: DialogueTextTable_zh-Hans
     m_ReadOnly: 1
@@ -22,7 +28,7 @@ MonoBehaviour:
     - Locale-zh-Hans
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9e64df77586d20e479f9bad0d7321503
-    m_Address: DialogueSpeakerTable_zh-Hans
+    m_Address: CharcterNameTable_zh-Hans
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-zh-Hans

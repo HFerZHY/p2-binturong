@@ -251,7 +251,7 @@ namespace DialogueSystem.Core
 
             if (string.IsNullOrEmpty(choice.targetNodeId))
             {
-                Debug.LogWarning($"[DialogueManager] Choice '{choice.label}' has no targetNodeId. Ending conversation.");
+                Debug.LogWarning($"[DialogueManager] Choice '{choice.labelKey}' has no targetNodeId. Ending conversation.");
                 EndConversation();
                 return;
             }

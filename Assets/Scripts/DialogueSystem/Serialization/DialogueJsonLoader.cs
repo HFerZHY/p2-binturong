@@ -100,12 +100,13 @@ namespace DialogueSystem.Serialization
 
             foreach (var n in dto.nodes)
             {
+                Character speaker = Resources.Load<Character>(n.speakerName);
                 var node = new DialogueNode
                 {
                     id              = n.id,
                     nodeType        = ParseEnum<NodeType>(n.nodeType, NodeType.Line),
-                    speakerNameKey     = n.speakerNameKey,
-                    textKey            = n.textKey,
+                    speaker         = speaker,
+                    textKey         = n.textKey,
                     nextNodeId      = n.nextNodeId,
                     typewriterSpeed = n.typewriterSpeed,
                     npcAnimatorTrigger = n.npcAnimatorTrigger
@@ -118,7 +119,7 @@ namespace DialogueSystem.Serialization
                     {
                         var choice = new DialogueChoice
                         {
-                            label        = c.label,
+                            labelKey        = c.labelKey,
                             targetNodeId = c.targetNodeId,
                             showIfFailed = c.showIfFailed,
                             conditions   = ConvertConditions(c.conditions)
@@ -210,9 +211,10 @@ namespace DialogueSystem.Serialization
     public class DialogueNodeJson
     {
         public string id;
-        public string nodeType        = "Line";
-        [FormerlySerializedAs("speakerName")] public string speakerNameKey;
-        [FormerlySerializedAs("text")] public string textKey;
+        public string nodeType = "Line";
+        public string speakerName;
+        public string speakerPortraitKey;
+        public string textKey;
         public string nextNodeId;
         public float  typewriterSpeed = 0.03f;
         public string npcAnimatorTrigger;
@@ -223,7 +225,7 @@ namespace DialogueSystem.Serialization
     [Serializable]
     public class DialogueChoiceJson
     {
-        public string label;
+        public string labelKey;
         public string targetNodeId;
         public bool   showIfFailed;
         public List<DialogueConditionJson> conditions;

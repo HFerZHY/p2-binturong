@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
-  m_Name: DialogueSpeakerTable_en
+  m_Name: CharcterNameTable_zh-Hans
   m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
   m_LocaleId:
-    m_Code: en
+    m_Code: zh-Hans
   m_SharedData: {fileID: 11400000, guid: 2553f081432045a46a75b6d70dede119, type: 2}
   m_Metadata:
     m_Items: []
   m_TableData:
-  - m_Id: 314401148928
-    m_Localized: s1-en321
+  - m_Id: 393803517952
+    m_Localized: st-zh-hans
     m_Metadata:
       m_Items: []
-  - m_Id: 393803517952
-    m_Localized: st-en1234
+  - m_Id: 314401148928
+    m_Localized: s1-hans
     m_Metadata:
       m_Items: []
   references:

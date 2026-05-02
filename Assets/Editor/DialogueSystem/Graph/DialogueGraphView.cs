@@ -36,6 +36,9 @@ namespace DialogueSystem.Editor
         // Stable map: nodeId → view, used when wiring edges and syncing positions.
         private readonly Dictionary<string, DialogueNodeView> _nodeViews = new();
 
+        /// <summary>All currently live node views on the canvas.</summary>
+        public IEnumerable<DialogueNodeView> AllNodeViews => _nodeViews.Values;
+
         // ── Constructor ───────────────────────────────────────────────────────
 
         public DialogueGraphView()

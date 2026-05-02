@@ -8,6 +8,7 @@ using DialogueSystem.Data;
 using DialogueSystem.Interfaces;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.Tables;
+using UnityEngine.Serialization;
 
 namespace DialogueSystem.UI
 {
@@ -30,8 +31,11 @@ namespace DialogueSystem.UI
     public class DialogueUIController : MonoBehaviour
     {
         // ── Inspector ─────────────────────────────────────────────────────────
+        [FormerlySerializedAs("stringTable")]
         [Header("Localization")] 
-        [SerializeField] private StringTable stringTable;
+        [SerializeField] private StringTable textStringTable;
+        [SerializeField] private StringTable speakerNameStringTable;
+        [SerializeField] private StringTable choiceLabelStringTable;
         
         [Header("Panel")]
         [SerializeField] private GameObject dialoguePanel;
@@ -83,17 +87,18 @@ namespace DialogueSystem.UI
 
             // Speaker
             if (speakerNameText != null)
-                speakerNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString(stringTable.name, node.speakerNameKey);
+                speakerNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString(speakerNameStringTable.name, node.speaker.name);
 
             // Portrait
             if (portraitImage != null)
             {
-                portraitImage.sprite = node.speakerPortrait;
-                portraitImage.gameObject.SetActive(node.speakerPortrait != null);
+                Sprite portait = node.speaker.portraits[node.speakerPortraitKey];
+                portraitImage.sprite = portait;
+                portraitImage.gameObject.SetActive(portait != null);
             }
 
             // Body text (typewriter)
-            _fullText = LocalizationSettings.StringDatabase.GetLocalizedString(stringTable.name, node.textKey);
+            _fullText = LocalizationSettings.StringDatabase.GetLocalizedString(textStringTable.name, node.textKey);
             _onTypingComplete = onTypingComplete;
 
             float speed = node.typewriterSpeed > 0 ? node.typewriterSpeed : defaultTypewriterSpeed;
@@ -125,7 +130,11 @@ namespace DialogueSystem.UI
             {
                 var btn = Instantiate(choiceButtonPrefab, choicesContainer);
                 var label = btn.GetComponentInChildren<TMP_Text>();
-                if (label != null) label.text = choice.label;
+                if (label != null)
+                {
+                    // label.text = choice.label;
+                    label.text = LocalizationSettings.StringDatabase.GetLocalizedString(choiceLabelStringTable.name, choice.labelKey);
+                }
                 btn.interactable = isInteractable;
 
                 // Capture for lambda

@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5be51871efa6c3e4eae1703925c8f5ac, type: 3}
-  m_Name: DialogueSpeakerTable
+  m_Name: DialogueChoiceLabelTable
   m_EditorClassIdentifier: Unity.Localization.Editor::UnityEditor.Localization.StringTableCollection
-  m_SharedTableData: {fileID: 11400000, guid: 2553f081432045a46a75b6d70dede119, type: 2}
+  m_SharedTableData: {fileID: 11400000, guid: 2323727ae86b3ba4b99f73f69e8090a9, type: 2}
   m_Tables:
-  - {fileID: 11400000, guid: f5a08ef23f64b8b449af535e13a3bb63, type: 2}
-  - {fileID: 11400000, guid: 9e64df77586d20e479f9bad0d7321503, type: 2}
+  - {fileID: 11400000, guid: 5622e555419d2dc44b5c26c064f4f396, type: 2}
+  - {fileID: 11400000, guid: 2bb8afe6c16d0b8449be396352711a37, type: 2}
   m_Extensions: []
   m_Group: String Table
   references:
