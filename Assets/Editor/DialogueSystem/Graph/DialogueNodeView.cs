@@ -58,7 +58,10 @@ namespace DialogueSystem.Editor
             Build();
 
             if (localeState != null)
+            {
                 localeState.OnLocaleChanged += RefreshLocalePreview;
+                localeState.OnSpeakerValueChanged += RefreshIfSpeakerChanged;
+            }
 
             RegisterCallback<DetachFromPanelEvent>(_ =>
             {
@@ -96,6 +99,14 @@ namespace DialogueSystem.Editor
             bool isEntry = GraphData != null && GraphData.entryNodeId == NodeData.id;
             if (_entryBadge != null)
                 _entryBadge.style.display = isEntry ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        private void RefreshIfSpeakerChanged(string speakerKey)
+        {
+            if (speakerKey == NodeData.speakerNameKey)
+            {
+                RefreshLocalePreview();
+            }
         }
 
         // ── Build ─────────────────────────────────────────────────────────────

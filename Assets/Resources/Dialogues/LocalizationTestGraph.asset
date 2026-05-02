@@ -33,7 +33,7 @@ MonoBehaviour:
     npcAnimatorTrigger: 
   - id: node_0002
     nodeType: 0
-    speakerNameKey: speaker1
+    speakerNameKey: speakerTest
     speakerPortrait: {fileID: 0}
     textKey: speaker1text2
     nextNodeId: 

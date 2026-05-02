@@ -24,6 +24,12 @@ namespace DialogueSystem.Editor
         /// Subscribers should refresh any locale-dependent display labels.
         /// </summary>
         public event Action OnLocaleChanged;
+        
+        /// <summary>
+        /// Fired when a speaker's translated value is edited in the inspector.
+        /// All node views whose speakerNameKey matches should refresh their preview.
+        /// </summary>
+        public event Action<string> OnSpeakerValueChanged;
 
         // ── State ─────────────────────────────────────────────────────────────
 
@@ -86,6 +92,9 @@ namespace DialogueSystem.Editor
             if (_activeLocale == null || string.IsNullOrEmpty(key)) return string.Empty;
             return LocalizationTableService.GetSpeakerEntry(_activeLocale, key);
         }
+        
+        public void NotifySpeakerValueChanged(string speakerKey)
+            => OnSpeakerValueChanged?.Invoke(speakerKey);
 
         /// <summary>Legacy single-table resolve — kept for callers that don't care which table.</summary>
         public string Resolve(string key) => ResolveText(key);

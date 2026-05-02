@@ -258,6 +258,11 @@ namespace DialogueSystem.Editor
                             capturedLocale, _node.speakerNameKey, e.newValue);
                         _nodeView?.RefreshLocalePreview();
                         Dirty();
+
+                        if (locale == _localeState.ActiveLocale)
+                        {
+                            _localeState.NotifySpeakerValueChanged(_node.speakerNameKey);
+                        }
                     });
                     row.Add(field);
                     localeBlock.Add(row);
