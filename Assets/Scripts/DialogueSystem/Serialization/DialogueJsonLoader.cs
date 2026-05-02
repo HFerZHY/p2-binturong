@@ -4,6 +4,7 @@ using System.IO;
 using UnityEngine;
 using DialogueSystem.Data;
 using UnityEditor;
+using UnityEngine.Serialization;
 
 namespace DialogueSystem.Serialization
 {
@@ -103,8 +104,8 @@ namespace DialogueSystem.Serialization
                 {
                     id              = n.id,
                     nodeType        = ParseEnum<NodeType>(n.nodeType, NodeType.Line),
-                    speakerName     = n.speakerName,
-                    text            = n.text,
+                    speakerNameKey     = n.speakerNameKey,
+                    textKey            = n.textKey,
                     nextNodeId      = n.nextNodeId,
                     typewriterSpeed = n.typewriterSpeed,
                     npcAnimatorTrigger = n.npcAnimatorTrigger
@@ -210,8 +211,8 @@ namespace DialogueSystem.Serialization
     {
         public string id;
         public string nodeType        = "Line";
-        public string speakerName;
-        public string text;
+        [FormerlySerializedAs("speakerName")] public string speakerNameKey;
+        [FormerlySerializedAs("text")] public string textKey;
         public string nextNodeId;
         public float  typewriterSpeed = 0.03f;
         public string npcAnimatorTrigger;

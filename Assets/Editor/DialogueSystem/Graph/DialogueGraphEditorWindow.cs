@@ -1,11 +1,12 @@
 using System.IO;
+using System.Linq;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 using DialogueSystem.Data;
 using DialogueSystem.Serialization;
-using UnityEditor.UIElements;
 
 namespace DialogueSystem.Editor
 {
@@ -14,18 +15,26 @@ namespace DialogueSystem.Editor
     ///
     /// Layout:
     ///   ┌─────────────────────────────────────────────────────┐
-    ///   │  [Toolbar]                                           │
+    ///   │  [Toolbar — graph picker | locale dropdown | ...]   │
     ///   ├──────────────────────────────────┬──────────────────┤
     ///   │                                  │                  │
     ///   │         GraphView canvas         │  Inspector Panel │
-    ///   │         (fills remaining space)  │  (320 px wide)   │
+    ///   │         (all nodes show text     │  (all locales    │
+    ///   │          for selected locale)    │   stacked)       │
     ///   │                                  │                  │
     ///   ├──────────────────────────────────┴──────────────────┤
     ///   │  [Validation / Status Bar]                          │
     ///   └─────────────────────────────────────────────────────┘
     ///
-    /// Open via:  Tools > Dialogue System > Open Graph Editor
-    ///       or:  double-click a DialogueGraph asset
+    /// Locale state is owned here and passed down to the graph view
+    /// and inspector panel on construction. The dropdown in the toolbar
+    /// mutates DialogueLocaleState.ActiveLocale, which fires an event
+    /// that every DialogueNodeView subscribes to for live preview refresh.
+    ///
+    /// On Save:
+    ///   1. Graph asset and editor data are marked dirty and saved.
+    ///   2. LocalizationTableService.SaveAll() flushes any StringTable
+    ///      edits made in the inspector panel to disk.
     /// </summary>
     public class DialogueGraphEditorWindow : EditorWindow
     {
@@ -35,39 +44,45 @@ namespace DialogueSystem.Editor
         public static void OpenWindow()
         {
             var window = GetWindow<DialogueGraphEditorWindow>();
-            window.titleContent = new GUIContent("Dialogue Graph", EditorGUIUtility.IconContent("d_NetworkAnimator Icon").image);
-            window.minSize = new Vector2(900, 600);
+            window.titleContent = new GUIContent("Dialogue Graph",
+                EditorGUIUtility.IconContent("d_NetworkAnimator Icon").image);
+            window.minSize = new Vector2(960, 600);
             window.Show();
         }
 
-        /// <summary>
-        /// Called by the custom DialogueGraph inspector's "Open in Editor" button.
-        /// </summary>
         public static void OpenWithGraph(DialogueGraph graph)
         {
             var window = GetWindow<DialogueGraphEditorWindow>();
             window.titleContent = new GUIContent("Dialogue Graph");
-            window.minSize = new Vector2(900, 600);
+            window.minSize = new Vector2(960, 600);
             window.LoadGraph(graph);
             window.Show();
         }
 
         // ── State ─────────────────────────────────────────────────────────────
 
-        private DialogueGraph            _graph;
-        private DialogueGraphEditorData  _editorData;
+        private DialogueGraph           _graph;
+        private DialogueGraphEditorData _editorData;
 
-        private DialogueGraphView         _graphView;
+        // Locale state is owned by the window; passed as a reference to children.
+        private DialogueLocaleState _localeState;
+
+        private DialogueGraphView          _graphView;
         private DialogueNodeInspectorPanel _inspectorPanel;
         private DialogueValidationPanel    _validationPanel;
+
+        // Toolbar dropdown reference — rebuilt when locales change
+        private DropdownField _localeDropdown;
 
         // ── Lifecycle ─────────────────────────────────────────────────────────
 
         private void OnEnable()
         {
+            // Create locale state first — children need it during UI construction
+            _localeState = new DialogueLocaleState();
+
             BuildUI();
 
-            // If we already had a graph open (after recompile), restore it
             if (_graph != null)
                 LoadGraph(_graph);
         }
@@ -85,33 +100,25 @@ namespace DialogueSystem.Editor
             rootVisualElement.styleSheets.Add(DialogueEditorResources.WindowStyle);
             rootVisualElement.AddToClassList("editor-window-root");
 
-            // Toolbar
             rootVisualElement.Add(BuildToolbar());
 
-            // Main area (canvas + inspector side-panel)
-            var mainArea = new TwoPaneSplitView(0, 320f, TwoPaneSplitViewOrientation.Horizontal);
-            mainArea.AddToClassList("main-area");
-
-            // IMPORTANT: TwoPaneSplitView renders first child as the "fixed" pane.
-            // We add the inspector first so it is the fixed 320 px pane on the right,
-            // and the graph view fills remaining space on the left.
-            // (We reverse the order by using the second overload that anchors on the right.)
-            var mainAreaRev = new TwoPaneSplitView(1, 320f, TwoPaneSplitViewOrientation.Horizontal);
-            mainAreaRev.AddToClassList("main-area");
+            // Graph view + inspector split (inspector anchored right at 320 px)
+            var split = new TwoPaneSplitView(1, 320f, TwoPaneSplitViewOrientation.Horizontal);
+            split.AddToClassList("main-area");
 
             _graphView = new DialogueGraphView();
             _graphView.AddToClassList("graph-view-fill");
-            _graphView.OnNodeSelected    += OnNodeSelected;
+            _graphView.OnNodeSelected     += OnNodeSelected;
             _graphView.OnSelectionCleared += OnSelectionCleared;
 
-            _inspectorPanel = new DialogueNodeInspectorPanel();
+            // Inspector panel receives the locale state so it can enumerate locales
+            _inspectorPanel = new DialogueNodeInspectorPanel(_localeState);
             _inspectorPanel.OnDataChanged += OnInspectorDataChanged;
 
-            mainAreaRev.Add(_graphView);
-            mainAreaRev.Add(_inspectorPanel);
-            rootVisualElement.Add(mainAreaRev);
+            split.Add(_graphView);
+            split.Add(_inspectorPanel);
+            rootVisualElement.Add(split);
 
-            // Validation bar at the bottom
             _validationPanel = new DialogueValidationPanel();
             rootVisualElement.Add(_validationPanel);
         }
@@ -121,12 +128,12 @@ namespace DialogueSystem.Editor
             var toolbar = new UnityEditor.UIElements.Toolbar();
             toolbar.AddToClassList("editor-toolbar");
 
-            // Graph object picker
+            // Graph picker
             var graphField = new UnityEditor.UIElements.ObjectField("Graph")
             {
-                objectType   = typeof(DialogueGraph),
+                objectType        = typeof(DialogueGraph),
                 allowSceneObjects = false,
-                value        = _graph
+                value             = _graph
             };
             graphField.AddToClassList("toolbar-graph-field");
             graphField.RegisterValueChangedCallback(e =>
@@ -138,7 +145,12 @@ namespace DialogueSystem.Editor
 
             toolbar.Add(new UnityEditor.UIElements.ToolbarSpacer());
 
-            // Add node dropdown
+            // ── Locale dropdown ───────────────────────────────────────────────
+            BuildLocaleDropdown(toolbar);
+
+            toolbar.Add(new UnityEditor.UIElements.ToolbarSpacer());
+
+            // Add node — ToolbarMenu is in UnityEditor.UIElements
             var addMenu = new ToolbarMenu { text = "+ Add Node" };
             addMenu.AddToClassList("toolbar-btn");
             addMenu.menu.AppendAction("Line",     _ => AddNode(NodeType.Line));
@@ -148,29 +160,58 @@ namespace DialogueSystem.Editor
 
             toolbar.Add(new UnityEditor.UIElements.ToolbarSpacer());
 
-            // Auto layout
             AddToolbarButton(toolbar, "Auto Layout", () => _graphView?.AutoLayout());
-
-            // Validate
-            AddToolbarButton(toolbar, "Validate", Validate);
+            AddToolbarButton(toolbar, "Validate",    Validate);
 
             toolbar.Add(new UnityEditor.UIElements.ToolbarSpacer());
 
-            // Import JSON
             AddToolbarButton(toolbar, "Import JSON", ImportJson);
-
-            // Export JSON
             AddToolbarButton(toolbar, "Export JSON", ExportJson);
 
             toolbar.Add(new UnityEditor.UIElements.ToolbarSpacer());
 
-            // Save
             AddToolbarButton(toolbar, "💾 Save", SaveAsset);
 
             return toolbar;
         }
 
-        private static void AddToolbarButton(UnityEditor.UIElements.Toolbar toolbar, string label, System.Action onClick)
+        private void BuildLocaleDropdown(UnityEditor.UIElements.Toolbar toolbar)
+        {
+            var localeNames = _localeState.AllLocales
+                .Select(l => l.LocaleName)
+                .ToList();
+
+            if (localeNames.Count == 0)
+            {
+                var warn = new UnityEditor.UIElements.ToolbarButton(() => { }) { text = "⚠ No locales" };
+                warn.AddToClassList("toolbar-btn");
+                warn.AddToClassList("toolbar-btn--warn");
+                toolbar.Add(warn);
+                return;
+            }
+
+            // Label
+            var localeLabel = new Label("Preview:");
+            localeLabel.AddToClassList("toolbar-locale-label");
+            toolbar.Add(localeLabel);
+
+            // Dropdown — value is locale display name
+            string initialName = _localeState.ActiveLocale?.LocaleName ?? localeNames[0];
+            _localeDropdown = new DropdownField(localeNames, localeNames.IndexOf(initialName));
+            _localeDropdown.AddToClassList("toolbar-locale-dropdown");
+            _localeDropdown.RegisterValueChangedCallback(e =>
+            {
+                // Find the Locale object matching the chosen display name and set it
+                var chosen = _localeState.AllLocales
+                    .FirstOrDefault(l => l.LocaleName == e.newValue);
+                if (chosen != null)
+                    _localeState.ActiveLocale = chosen; // fires OnLocaleChanged → all node views refresh
+            });
+            toolbar.Add(_localeDropdown);
+        }
+
+        private static void AddToolbarButton(UnityEditor.UIElements.Toolbar toolbar, string label,
+                                              System.Action onClick)
         {
             var btn = new UnityEditor.UIElements.ToolbarButton(onClick) { text = label };
             btn.AddToClassList("toolbar-btn");
@@ -182,11 +223,10 @@ namespace DialogueSystem.Editor
         private void LoadGraph(DialogueGraph graph)
         {
             _graph = graph;
-
             if (_graph == null) { UnloadGraph(); return; }
 
             _editorData = LoadOrCreateEditorData(graph);
-            _graphView.Populate(_graph, _editorData);
+            _graphView.Populate(_graph, _editorData, _localeState);
             _validationPanel.Refresh(_graph);
         }
 
@@ -194,7 +234,7 @@ namespace DialogueSystem.Editor
         {
             _graph      = null;
             _editorData = null;
-            _graphView.Populate(null, null);
+            _graphView.Populate(null, null, null);
             _inspectorPanel.Clear();
             _validationPanel.Refresh(null);
         }
@@ -221,11 +261,10 @@ namespace DialogueSystem.Editor
         {
             if (_graph == null)
             {
-                EditorUtility.DisplayDialog("No Graph", "Open or create a DialogueGraph asset first.", "OK");
+                EditorUtility.DisplayDialog("No Graph",
+                    "Open or create a DialogueGraph asset first.", "OK");
                 return;
             }
-
-            // Place new node near the centre of the visible canvas
             Vector2 centre = _graphView.contentRect.center;
             _graphView.AddNode(type, centre);
             _validationPanel.Refresh(_graph);
@@ -248,6 +287,7 @@ namespace DialogueSystem.Editor
             if (_graph == null) return;
             EditorUtility.SetDirty(_graph);
             _graphView.RefreshEdges();
+            _graphView.RefreshAllEntryBadges();
             _validationPanel.Refresh(_graph);
         }
 
@@ -270,12 +310,17 @@ namespace DialogueSystem.Editor
         private void SaveAsset()
         {
             if (_graph == null) return;
+
             _graphView.FlushPositions();
             EditorUtility.SetDirty(_graph);
             if (_editorData != null) EditorUtility.SetDirty(_editorData);
+
+            // Flush all StringTable edits made in the inspector panel
+            LocalizationTableService.SaveAll();
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log($"[DialogueEditor] Saved '{_graph.name}'.");
+            Debug.Log($"[DialogueEditor] Saved '{_graph.name}' and flushed StringTable.");
         }
 
         private void ImportJson()
@@ -283,16 +328,19 @@ namespace DialogueSystem.Editor
             string absolutePath = EditorUtility.OpenFilePanel("Import Dialogue JSON", "", "json");
             if (string.IsNullOrEmpty(absolutePath)) return;
 
-            string json = File.ReadAllText(absolutePath);
-            var graph = DialogueJsonLoader.ParseJson(json, Path.GetFileNameWithoutExtension(absolutePath));
+            string json  = File.ReadAllText(absolutePath);
+            var    graph = DialogueJsonLoader.ParseJson(json,
+                               Path.GetFileNameWithoutExtension(absolutePath));
             if (graph == null)
             {
-                EditorUtility.DisplayDialog("Import Failed", "Could not parse the JSON file. Check the console for details.", "OK");
+                EditorUtility.DisplayDialog("Import Failed",
+                    "Could not parse the JSON file. Check the console for details.", "OK");
                 return;
             }
 
             string savePath = EditorUtility.SaveFilePanelInProject(
-                "Save Imported Graph", graph.name, "asset", "Choose location for the new DialogueGraph asset");
+                "Save Imported Graph", graph.name, "asset",
+                "Choose location for the new DialogueGraph asset");
             if (string.IsNullOrEmpty(savePath)) return;
 
             AssetDatabase.CreateAsset(graph, savePath);
@@ -300,8 +348,6 @@ namespace DialogueSystem.Editor
             AssetDatabase.Refresh();
 
             LoadGraph(graph);
-
-            // Auto-layout since there are no stored positions
             _graphView.AutoLayout();
             SaveAsset();
         }
@@ -310,12 +356,13 @@ namespace DialogueSystem.Editor
         {
             if (_graph == null)
             {
-                EditorUtility.DisplayDialog("No Graph", "Open a DialogueGraph asset first.", "OK");
+                EditorUtility.DisplayDialog("No Graph",
+                    "Open a DialogueGraph asset first.", "OK");
                 return;
             }
-
-            string defaultName = _graph.name + ".json";
-            string absolutePath = EditorUtility.SaveFilePanel("Export Dialogue JSON", "", defaultName, "json");
+            string defaultName  = _graph.name + ".json";
+            string absolutePath = EditorUtility.SaveFilePanel(
+                "Export Dialogue JSON", "", defaultName, "json");
             if (string.IsNullOrEmpty(absolutePath)) return;
 
             DialogueJsonExporter.WriteToFile(_graph, absolutePath, prettyPrint: true);

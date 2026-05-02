@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 namespace DialogueSystem.Data
 {
@@ -18,16 +19,18 @@ namespace DialogueSystem.Data
         [Tooltip("The type of node — drives how DialogueManager processes it.")]
         public NodeType nodeType = NodeType.Line;
 
+        [FormerlySerializedAs("speakerName")]
         [Header("Content")]
-        [Tooltip("Name displayed in the dialogue UI (e.g. 'Guard', 'Merchant').")]
-        public string speakerName;
+        [Tooltip("Localization string table key. Points to the name displayed in the dialogue UI (e.g. 'Guard', 'Merchant').")]
+        public string speakerNameKey;
 
         [Tooltip("Portrait sprite shown alongside the dialogue line.")]
         public Sprite speakerPortrait;
 
+        [FormerlySerializedAs("text")]
         [TextArea(3, 6)]
-        [Tooltip("The dialogue text. Supports rich text tags.")]
-        public string text;
+        [Tooltip("Localization string table key. Points to the dialogue text.")]
+        public string textKey;
 
         [Header("Flow")]
         [Tooltip("ID of the next node to play after this one. Leave empty on choice/terminal nodes.")]

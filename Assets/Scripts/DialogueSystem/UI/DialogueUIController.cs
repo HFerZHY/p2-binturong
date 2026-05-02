@@ -6,6 +6,8 @@ using UnityEngine.UI;
 using TMPro;
 using DialogueSystem.Data;
 using DialogueSystem.Interfaces;
+using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.Tables;
 
 namespace DialogueSystem.UI
 {
@@ -28,7 +30,9 @@ namespace DialogueSystem.UI
     public class DialogueUIController : MonoBehaviour
     {
         // ── Inspector ─────────────────────────────────────────────────────────
-
+        [Header("Localization")] 
+        [SerializeField] private StringTable stringTable;
+        
         [Header("Panel")]
         [SerializeField] private GameObject dialoguePanel;
 
@@ -79,7 +83,7 @@ namespace DialogueSystem.UI
 
             // Speaker
             if (speakerNameText != null)
-                speakerNameText.text = node.speakerName;
+                speakerNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString(stringTable.name, node.speakerNameKey);
 
             // Portrait
             if (portraitImage != null)
@@ -89,7 +93,7 @@ namespace DialogueSystem.UI
             }
 
             // Body text (typewriter)
-            _fullText = node.text;
+            _fullText = LocalizationSettings.StringDatabase.GetLocalizedString(stringTable.name, node.textKey);
             _onTypingComplete = onTypingComplete;
 
             float speed = node.typewriterSpeed > 0 ? node.typewriterSpeed : defaultTypewriterSpeed;

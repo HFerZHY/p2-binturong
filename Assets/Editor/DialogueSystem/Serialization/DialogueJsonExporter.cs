@@ -31,8 +31,8 @@ namespace DialogueSystem.Serialization
                 {
                     id                 = node.id,
                     nodeType           = node.nodeType.ToString(),
-                    speakerName        = node.speakerName,
-                    text               = node.text,
+                    speakerNameKey     = node.speakerNameKey,
+                    textKey            = node.textKey,
                     nextNodeId         = node.nextNodeId,
                     typewriterSpeed    = node.typewriterSpeed,
                     npcAnimatorTrigger = node.npcAnimatorTrigger,

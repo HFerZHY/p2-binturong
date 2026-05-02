@@ -1,20 +1,33 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Localization;
 using UnityEngine.UIElements;
 using DialogueSystem.Data;
 
 namespace DialogueSystem.Editor
 {
     /// <summary>
-    /// Right-hand side panel drawn inside the DialogueGraphEditorWindow.
-    /// Displays all fields of the currently-selected DialogueNode that
-    /// don't fit neatly inside the canvas node box: conditions, events,
-    /// audio, animation trigger, typewriter speed, and choice management.
+    /// Right-hand inspector panel for the selected DialogueNode.
     ///
-    /// Communicates changes back via the OnDataChanged event so the
-    /// parent window can call SetDirty and RefreshEdges as needed.
+    /// LOCALIZED CONTENT SECTION
+    ///   Speaker name — rendered as a combobox: a dropdown of all existing
+    ///   speaker keys from the SpeakerTableCollection plus a text field + button
+    ///   to register a brand-new speaker key. Selecting or creating a speaker
+    ///   sets node.speakerNameKey and immediately writes/reads the per-locale
+    ///   values from the SpeakerTableCollection.
+    ///
+    ///   Dialogue text — one TextField per registered locale, reading from and
+    ///   writing to the DialogueTextTableCollection using node.textKey as the
+    ///   table key.
+    ///
+    /// STRING TABLE WRITES
+    ///   Every field change calls LocalizationTableService.SetSpeakerEntry /
+    ///   SetTextEntry immediately. SaveAll() is batched to the window Save button.
+    ///   After each write, _nodeView.RefreshLocalePreview() is called so the
+    ///   canvas updates in real time.
     /// </summary>
     public class DialogueNodeInspectorPanel : VisualElement
     {
@@ -24,19 +37,21 @@ namespace DialogueSystem.Editor
 
         // ── State ─────────────────────────────────────────────────────────────
 
-        private DialogueNodeView _nodeView;
-        private DialogueNode     _node;
-        private DialogueGraph    _graph;
+        private DialogueNodeView    _nodeView;
+        private DialogueNode        _node;
+        private DialogueGraph       _graph;
+        private DialogueLocaleState _localeState;
 
-        // Scroll container so long content doesn't overflow
         private readonly ScrollView    _scroll;
         private readonly VisualElement _content;
         private readonly Label         _emptyLabel;
 
         // ── Constructor ───────────────────────────────────────────────────────
 
-        public DialogueNodeInspectorPanel()
+        public DialogueNodeInspectorPanel(DialogueLocaleState localeState)
         {
+            _localeState = localeState;
+
             AddToClassList("inspector-panel");
 
             var header = new Label("NODE INSPECTOR");
@@ -85,28 +100,54 @@ namespace DialogueSystem.Editor
             _emptyLabel.style.display = DisplayStyle.None;
             _scroll.style.display     = DisplayStyle.Flex;
 
-            // ── ID (read-only for safety) ─────────────────────────────────────
+            // ── Identity ──────────────────────────────────────────────────────
             AddSection("Identity");
             AddReadOnlyField("Node ID", _node.id);
             AddReadOnlyField("Type",    _node.nodeType.ToString());
 
-            // ── Content ───────────────────────────────────────────────────────
+            // ── Entry node ────────────────────────────────────────────────────
+            if (_graph != null)
+            {
+                AddSection("Graph Role");
+                bool isEntry = _graph.entryNodeId == _node.id;
+
+                if (isEntry)
+                {
+                    var entryLabel = new Label("✓ This is the entry node.");
+                    entryLabel.AddToClassList("entry-node-active-label");
+                    _content.Add(entryLabel);
+                }
+                else
+                {
+                    var setEntryBtn = new Button(() =>
+                    {
+                        Undo.RecordObject(_graph, "Set Entry Node");
+                        _graph.entryNodeId = _node.id;
+                        EditorUtility.SetDirty(_graph);
+                        OnDataChanged?.Invoke();
+                        Rebuild(); // refresh "Graph Role" section
+                    })
+                    { text = "★  Set as Entry Node" };
+                    setEntryBtn.AddToClassList("set-entry-btn");
+                    _content.Add(setEntryBtn);
+                }
+            }
+
+            // ── Localized Content ─────────────────────────────────────────────
             if (_node.nodeType != NodeType.Terminal)
             {
-                AddSection("Content");
-                AddTextField("Speaker Name", _node.speakerName, v =>
-                {
-                    _node.speakerName = v;
-                    Dirty();
-                });
+                AddSection("Localized Content");
+
+                if (_node.nodeType == NodeType.Line || _node.nodeType == NodeType.Branch)
+                    BuildSpeakerCombobox();
 
                 if (_node.nodeType == NodeType.Line)
                 {
-                    AddTextAreaField("Dialogue Text", _node.text, v =>
-                    {
-                        _node.text = v;
-                        Dirty();
-                    });
+                    var spacer = new VisualElement();
+                    spacer.style.height = 8;
+                    _content.Add(spacer);
+                    BuildTextKeyField();
+                    BuildPerLocaleTextFields();
                 }
             }
 
@@ -117,11 +158,11 @@ namespace DialogueSystem.Editor
                 AddTextField("Next Node ID", _node.nextNodeId, v =>
                 {
                     _node.nextNodeId = v;
-                    Dirty(refreshEdges: true);
+                    DirtyFlow();
                 });
             }
 
-            // ── Choices (Branch) ──────────────────────────────────────────────
+            // ── Choices ───────────────────────────────────────────────────────
             if (_node.nodeType == NodeType.Branch)
             {
                 AddSection("Choices");
@@ -149,6 +190,196 @@ namespace DialogueSystem.Editor
             RebuildConditionList(_node.conditions, "Add Node Condition");
         }
 
+        // ── Speaker combobox ──────────────────────────────────────────────────
+
+        private void BuildSpeakerCombobox()
+        {
+            var sectionLabel = new Label("Speaker");
+            sectionLabel.AddToClassList("inspector-field-label");
+            sectionLabel.style.marginBottom = 4;
+            _content.Add(sectionLabel);
+
+            List<string> existingKeys = LocalizationTableService.GetAllSpeakerKeys();
+
+            // ── Dropdown of existing speakers ─────────────────────────────────
+            var dropdownRow = new VisualElement();
+            dropdownRow.AddToClassList("inspector-row");
+
+            var dropLabel = new Label("Select");
+            dropLabel.AddToClassList("inspector-field-label");
+            dropdownRow.Add(dropLabel);
+
+            // Build choices: blank option + all existing keys
+            var choices = new List<string> { "— none —" };
+            choices.AddRange(existingKeys);
+
+            int currentIndex = existingKeys.IndexOf(_node.speakerNameKey);
+            // +1 because index 0 is "— none —"
+            var dropdown = new DropdownField(choices, currentIndex >= 0 ? currentIndex + 1 : 0);
+            dropdown.AddToClassList("inspector-field");
+            dropdown.RegisterValueChangedCallback(e =>
+            {
+                string selected = e.newValue == "— none —" ? string.Empty : e.newValue;
+                _node.speakerNameKey = selected;
+                EditorUtility.SetDirty(_graph);
+                _nodeView?.RefreshLocalePreview();
+                Dirty();
+                // Rebuild to refresh the per-locale value display
+                Rebuild();
+            });
+            dropdownRow.Add(dropdown);
+            _content.Add(dropdownRow);
+
+            // ── Per-locale values for the selected speaker key ────────────────
+            if (!string.IsNullOrEmpty(_node.speakerNameKey))
+            {
+                var localeBlock = new VisualElement();
+                localeBlock.AddToClassList("locale-block");
+
+                foreach (var locale in _localeState.AllLocales)
+                {
+                    Locale capturedLocale = locale;
+                    string currentValue   = LocalizationTableService
+                        .GetSpeakerEntry(locale, _node.speakerNameKey);
+
+                    var row = new VisualElement();
+                    row.AddToClassList("locale-row");
+
+                    var badge = new Label(locale.Identifier.Code.ToUpper());
+                    badge.AddToClassList("locale-badge");
+                    row.Add(badge);
+
+                    var field = new TextField { value = currentValue };
+                    field.AddToClassList("locale-field");
+                    field.RegisterValueChangedCallback(e =>
+                    {
+                        // key = node.speakerNameKey (e.g. "Guard"), value = localized name
+                        LocalizationTableService.SetSpeakerEntry(
+                            capturedLocale, _node.speakerNameKey, e.newValue);
+                        _nodeView?.RefreshLocalePreview();
+                        Dirty();
+                    });
+                    row.Add(field);
+                    localeBlock.Add(row);
+                }
+                _content.Add(localeBlock);
+            }
+
+            // ── Add new speaker ───────────────────────────────────────────────
+            var addSpeakerSection = new VisualElement();
+            addSpeakerSection.AddToClassList("add-speaker-section");
+
+            var addLabel = new Label("New speaker key");
+            addLabel.AddToClassList("inspector-field-label");
+            addSpeakerSection.Add(addLabel);
+
+            var addRow = new VisualElement();
+            addRow.AddToClassList("inspector-row");
+
+            var newKeyField = new TextField {};
+            newKeyField.AddToClassList("inspector-field");
+            addRow.Add(newKeyField);
+
+            var addBtn = new Button(() =>
+            {
+                string newKey = newKeyField.value.Trim();
+                if (string.IsNullOrEmpty(newKey)) return;
+
+                bool added = LocalizationTableService.AddSpeakerKey(newKey);
+                if (added)
+                {
+                    // Auto-select the newly created key on this node
+                    _node.speakerNameKey = newKey;
+                    EditorUtility.SetDirty(_graph);
+                    Dirty();
+                    Rebuild(); // refresh dropdown with new key included
+                }
+                else
+                {
+                    Debug.LogWarning($"[DialogueEditor] Speaker key '{newKey}' already exists.");
+                }
+            })
+            { text = "+ Add" };
+            addBtn.AddToClassList("add-btn-small");
+            addRow.Add(addBtn);
+
+            addSpeakerSection.Add(addRow);
+            _content.Add(addSpeakerSection);
+        }
+
+        // ── Dialogue text fields ──────────────────────────────────────────────
+
+        private void BuildTextKeyField()
+        {
+            var row = MakeRow("Text Key");
+
+            var field = new TextField { value = _node.textKey ?? string.Empty };
+            field.AddToClassList("inspector-field");
+            field.AddToClassList("key-field");
+            field.RegisterValueChangedCallback(e =>
+            {
+                _node.textKey = e.newValue;
+                EditorUtility.SetDirty(_graph);
+                _nodeView?.RefreshLocalePreview();
+                Dirty();
+            });
+            row.Add(field);
+            _content.Add(row);
+        }
+
+        private void BuildPerLocaleTextFields()
+        {
+            var locales = _localeState?.AllLocales;
+            if (locales == null || locales.Count == 0)
+            {
+                var warn = new Label("⚠ No locales found.");
+                warn.AddToClassList("locale-warning");
+                _content.Add(warn);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_node.textKey))
+            {
+                var hint = new Label("Set a Text Key above to edit translations.");
+                hint.AddToClassList("locale-warning");
+                _content.Add(hint);
+                return;
+            }
+
+            var localeBlock = new VisualElement();
+            localeBlock.AddToClassList("locale-block");
+
+            foreach (var locale in locales)
+            {
+                Locale capturedLocale = locale;
+                // key = node.textKey (e.g. "guard_01_text"), per-locale value from table
+                string currentValue = LocalizationTableService
+                    .GetTextEntry(locale, _node.textKey);
+
+                var row = new VisualElement();
+                row.AddToClassList("locale-row");
+
+                var badge = new Label(locale.Identifier.Code.ToUpper());
+                badge.AddToClassList("locale-badge");
+                row.Add(badge);
+
+                var field = new TextField { value = currentValue, multiline = true };
+                field.AddToClassList("locale-textarea");
+                field.RegisterValueChangedCallback(e =>
+                {
+                    // Write to the DialogueTexts collection using node.textKey
+                    LocalizationTableService.SetTextEntry(
+                        capturedLocale, _node.textKey, e.newValue);
+                    _nodeView?.RefreshLocalePreview();
+                    Dirty();
+                });
+                row.Add(field);
+                localeBlock.Add(row);
+            }
+
+            _content.Add(localeBlock);
+        }
+
         // ── Choices ───────────────────────────────────────────────────────────
 
         private void RebuildChoices()
@@ -158,48 +389,37 @@ namespace DialogueSystem.Editor
 
             for (int i = 0; i < _node.choices.Count; i++)
             {
-                int idx = i; // capture
+                int idx    = i;
                 var choice = _node.choices[i];
-
-                var card = new VisualElement();
+                var card   = new VisualElement();
                 card.AddToClassList("choice-card");
 
-                // Header row: "Choice N" + remove button
                 var cardHeader = new VisualElement();
                 cardHeader.AddToClassList("choice-card-header");
-                var cardTitle = new Label($"Choice {i + 1}");
+                var cardTitle  = new Label($"Choice {i + 1}");
                 cardTitle.AddToClassList("choice-card-title");
-                var removeBtn = new Button(() => RemoveChoice(idx)) { text = "✕" };
+                var removeBtn  = new Button(() => RemoveChoice(idx)) { text = "✕" };
                 removeBtn.AddToClassList("remove-btn");
                 cardHeader.Add(cardTitle);
                 cardHeader.Add(removeBtn);
                 card.Add(cardHeader);
 
-                // Label
                 AddInlineTextField(card, "Label", choice.label, v =>
                 {
                     choice.label = v;
-                    Dirty(refreshEdges: true);
+                    DirtyFlow();
                 });
-
-                // Target node ID
                 AddInlineTextField(card, "Target Node ID", choice.targetNodeId, v =>
                 {
                     choice.targetNodeId = v;
-                    Dirty(refreshEdges: true);
+                    DirtyFlow();
                 });
 
-                // Show if failed toggle
                 var toggle = new Toggle("Show if conditions fail") { value = choice.showIfFailed };
                 toggle.AddToClassList("inspector-toggle");
-                toggle.RegisterValueChangedCallback(e =>
-                {
-                    choice.showIfFailed = e.newValue;
-                    Dirty();
-                });
+                toggle.RegisterValueChangedCallback(e => { choice.showIfFailed = e.newValue; Dirty(); });
                 card.Add(toggle);
 
-                // Choice conditions (inline)
                 var condHeader = new Label("Conditions");
                 condHeader.AddToClassList("subsection-label");
                 card.Add(condHeader);
@@ -210,8 +430,7 @@ namespace DialogueSystem.Editor
 
             _content.Add(container);
 
-            // Add choice button
-            var addBtn = new Button(() => AddChoice()) { text = "+ Add Choice" };
+            var addBtn = new Button(AddChoice) { text = "+ Add Choice" };
             addBtn.AddToClassList("add-btn");
             _content.Add(addBtn);
         }
@@ -219,7 +438,7 @@ namespace DialogueSystem.Editor
         private void AddChoice()
         {
             _node.choices.Add(new DialogueChoice { label = "New choice..." });
-            Dirty(refreshEdges: true);
+            DirtyFlow();
             Rebuild();
         }
 
@@ -227,15 +446,14 @@ namespace DialogueSystem.Editor
         {
             if (index < 0 || index >= _node.choices.Count) return;
             _node.choices.RemoveAt(index);
-            Dirty(refreshEdges: true);
+            DirtyFlow();
             Rebuild();
         }
 
         // ── Conditions ────────────────────────────────────────────────────────
 
         private void RebuildConditionList(List<DialogueCondition> conditions,
-                                          string addLabel,
-                                          VisualElement parent = null)
+                                          string addLabel, VisualElement parent = null)
         {
             parent ??= _content;
 
@@ -248,60 +466,41 @@ namespace DialogueSystem.Editor
 
             for (int i = 0; i < conditions.Count; i++)
             {
-                int  idx  = i;
-                var  cond = conditions[i];
-                var  row  = new VisualElement();
+                int idx  = i;
+                var cond = conditions[i];
+                var row  = new VisualElement();
                 row.AddToClassList("condition-row");
 
-                // Type dropdown
                 var typeEnum = new EnumField(cond.type);
                 typeEnum.AddToClassList("condition-type");
-                typeEnum.RegisterValueChangedCallback(e =>
-                {
-                    cond.type = (ConditionType)e.newValue;
-                    Dirty();
-                });
+                typeEnum.RegisterValueChangedCallback(e => { cond.type = (ConditionType)e.newValue; Dirty(); });
                 row.Add(typeEnum);
 
-                // Key
-                // var keyField = new TextField { value = cond.key, placeholderText = "key" };
                 var keyField = new TextField { value = cond.key};
                 keyField.AddToClassList("condition-field");
                 keyField.RegisterValueChangedCallback(e => { cond.key = e.newValue; Dirty(); });
                 row.Add(keyField);
 
-                // Value
-                // var valField = new TextField { value = cond.value, placeholderText = "value" };
                 var valField = new TextField { value = cond.value};
                 valField.AddToClassList("condition-field");
                 valField.RegisterValueChangedCallback(e => { cond.value = e.newValue; Dirty(); });
                 row.Add(valField);
 
-                // Negate
                 var negateToggle = new Toggle("¬") { value = cond.negate };
                 negateToggle.AddToClassList("condition-negate");
                 negateToggle.RegisterValueChangedCallback(e => { cond.negate = e.newValue; Dirty(); });
                 row.Add(negateToggle);
 
-                // Remove
-                var removeBtn = new Button(() =>
-                {
-                    conditions.RemoveAt(idx);
-                    Dirty();
-                    Rebuild();
-                }) { text = "✕" };
+                var removeBtn = new Button(() => { conditions.RemoveAt(idx); Dirty(); Rebuild(); })
+                    { text = "✕" };
                 removeBtn.AddToClassList("remove-btn");
                 row.Add(removeBtn);
 
                 parent.Add(row);
             }
 
-            var addCondBtn = new Button(() =>
-            {
-                conditions.Add(new DialogueCondition());
-                Dirty();
-                Rebuild();
-            }) { text = $"+ {addLabel}" };
+            var addCondBtn = new Button(() => { conditions.Add(new DialogueCondition()); Dirty(); Rebuild(); })
+                { text = $"+ {addLabel}" };
             addCondBtn.AddToClassList("add-btn-small");
             parent.Add(addCondBtn);
         }
@@ -310,9 +509,9 @@ namespace DialogueSystem.Editor
 
         private void AddSection(string title)
         {
-            var sectionLabel = new Label(title);
-            sectionLabel.AddToClassList("inspector-section");
-            _content.Add(sectionLabel);
+            var lbl = new Label(title);
+            lbl.AddToClassList("inspector-section");
+            _content.Add(lbl);
         }
 
         private void AddReadOnlyField(string label, string value)
@@ -334,18 +533,6 @@ namespace DialogueSystem.Editor
             _content.Add(row);
         }
 
-        private void AddTextAreaField(string label, string value, Action<string> onChange)
-        {
-            var lbl = new Label(label);
-            lbl.AddToClassList("inspector-field-label");
-            _content.Add(lbl);
-
-            var field = new TextField { value = value ?? string.Empty, multiline = true };
-            field.AddToClassList("inspector-textarea");
-            field.RegisterValueChangedCallback(e => onChange(e.newValue));
-            _content.Add(field);
-        }
-
         private void AddFloatField(string label, float value, Action<float> onChange)
         {
             var row   = MakeRow(label);
@@ -356,7 +543,8 @@ namespace DialogueSystem.Editor
             _content.Add(row);
         }
 
-        private void AddInlineTextField(VisualElement parent, string label, string value, Action<string> onChange)
+        private void AddInlineTextField(VisualElement parent, string label,
+                                         string value, Action<string> onChange)
         {
             var row   = MakeRow(label);
             var field = new TextField { value = value ?? string.Empty };
@@ -376,7 +564,7 @@ namespace DialogueSystem.Editor
             return row;
         }
 
-        // ── State helpers ─────────────────────────────────────────────────────
+        // ── Dirty helpers ─────────────────────────────────────────────────────
 
         private void ShowEmpty()
         {
@@ -384,11 +572,18 @@ namespace DialogueSystem.Editor
             _scroll.style.display     = DisplayStyle.None;
         }
 
-        private void Dirty(bool refreshEdges = false)
+        /// <summary>Marks graph dirty and notifies the window.</summary>
+        private void Dirty()
         {
+            if (_graph != null) EditorUtility.SetDirty(_graph);
             OnDataChanged?.Invoke();
-            // if (refreshEdges) _nodeView?.OnNodeDataChanged?.Invoke();
-            if (refreshEdges) _nodeView?.TriggerNodeDataChange();
+        }
+
+        /// <summary>Marks graph dirty, notifies window, AND triggers edge refresh.</summary>
+        private void DirtyFlow()
+        {
+            Dirty();
+            _nodeView?.TriggerNodeDataChange();
         }
     }
 }

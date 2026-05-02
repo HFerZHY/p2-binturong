@@ -286,6 +286,114 @@
     margin-bottom: 4px;
 }
 
+/* ── Locale dropdown (toolbar) ─────────────────────────────────── */
+
+.toolbar-locale-label {
+    color:       #8890b0;
+    font-size:   11px;
+    margin-left: 4px;
+    margin-right: 4px;
+    -unity-text-align: middle-left;
+}
+
+.toolbar-locale-dropdown {
+    min-width:   110px;
+    margin:      0 4px;
+}
+
+.toolbar-locale-dropdown .unity-base-field__label {
+    display: none;   /* hide the built-in label; we use toolbar-locale-label */
+}
+
+.toolbar-locale-dropdown .unity-base-popup-field__input {
+    background-color: #1e2236;
+    border-color:     #3a3d5c;
+    border-radius:    3px;
+    color:            #5b9cf6;
+    font-size:        11px;
+    padding:          1px 6px;
+}
+
+.toolbar-btn--warn {
+    color:        #e08050;
+    border-color: #5a3010;
+}
+
+/* ── Locale fields (inspector panel) ───────────────────────────── */
+
+.locale-block {
+    margin-bottom: 6px;
+}
+
+.locale-row {
+    flex-direction: row;
+    align-items:    flex-start;
+    margin-bottom:  4px;
+}
+
+/* Locale code badge: "EN", "FR", etc. */
+.locale-badge {
+    width:             28px;
+    min-width:         28px;
+    font-size:         9px;
+    -unity-font-style: bold;
+    color:             #ffffff;
+    background-color:  #2d3a5a;
+    border-color:      #3d5090;
+    border-width:      1px;
+    border-radius:     3px;
+    padding:           2px 3px;
+    margin-right:      6px;
+    margin-top:        2px;
+    -unity-text-align: middle-center;
+    flex-shrink:       0;
+}
+
+.locale-field {
+    flex-grow: 1;
+}
+
+.locale-field > .unity-text-field__input {
+    background-color: #111320;
+    border-color:     #3a3d5c;
+    border-radius:    3px;
+    color:            #c8cde8;
+    font-size:        11px;
+    padding:          2px 6px;
+}
+
+.locale-textarea {
+    flex-grow: 1;
+}
+
+.locale-textarea > .unity-text-field__input {
+    background-color: #111320;
+    border-color:     #3a3d5c;
+    border-radius:    3px;
+    color:            #c8cde8;
+    font-size:        11px;
+    padding:          4px 6px;
+    white-space:      normal;
+    min-height:       56px;
+}
+
+/* Key field — shows the raw StringTable key */
+.key-field > .unity-text-field__input {
+    background-color: #0e1020;
+    border-color:     #2a3060;
+    border-radius:    3px;
+    color:            #5b9cf6;
+    font-size:        10px;
+    padding:          2px 6px;
+    -unity-font-style: italic;
+}
+
+.locale-warning {
+    color:        #e08050;
+    font-size:    10px;
+    margin-bottom: 6px;
+}
+
 /* ── Validation bar ─────────────────────────────────────────────── */
 
 .validation-panel {

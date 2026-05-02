@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using DialogueSystem.Data;
+using UnityEngine.Localization.Tables;
 
 namespace DialogueSystem.Data
 {
@@ -64,7 +65,7 @@ namespace DialogueSystem.Data
             foreach (var node in nodes)
             {
                 if (string.IsNullOrEmpty(node.id))
-                    errors.Add($"A node has an empty id (speaker: '{node.speakerName}').");
+                    errors.Add($"A node has an empty id (speaker: '{node.speakerNameKey}').");
                 else if (!ids.Add(node.id))
                     errors.Add($"Duplicate node id: '{node.id}'.");
 

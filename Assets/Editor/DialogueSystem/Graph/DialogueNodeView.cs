@@ -10,56 +10,100 @@ namespace DialogueSystem.Editor
     /// <summary>
     /// A single node box on the dialogue graph canvas.
     ///
-    /// Visual structure:
-    ///   ┌─ [input port] ── [Header: id · type badge] ──────────────┐
-    ///   │  Speaker: ___________                                      │
-    ///   │  ┌─────────────────────────────────┐                       │
-    ///   │  │ dialogue text (textarea)        │ ── [output port]      │
-    ///   │  └─────────────────────────────────┘                       │
-    ///   │  (Branch) ┌── choice label ──┐ ── [choice output port]    │
-    ///   └───────────────────────────────────────────────────────────┘
+    /// The canvas body is read-only for localized text — it shows:
+    ///   • The raw key pill (speakerNameKey / textKey) stored on DialogueNode
+    ///   • A resolved preview label for the currently selected locale
     ///
-    /// Ports:
-    ///   - One INPUT port on the left  (all node types)
-    ///   - Line:     one OUTPUT port on the right
-    ///   - Branch:   one OUTPUT port per choice on the right
-    ///   - Terminal: no output ports
+    /// All editing of localized strings happens in DialogueNodeInspectorPanel.
+    /// Flow fields (nextNodeId, choices) and the entry-node badge are set here
+    /// and in the inspector panel.
+    ///
+    /// Public surface for the inspector panel:
+    ///   TriggerNodeDataChange() — signals graph view to refresh edges
+    ///   RefreshLocalePreview()  — re-resolves preview labels from StringTable
     /// </summary>
     public class DialogueNodeView : Node
     {
         // ── Events ────────────────────────────────────────────────────────────
 
-        /// <summary>Raised when any field in NodeData is mutated via this view.</summary>
+        /// <summary>Raised when flow data changes (nextNodeId, choice list) requiring edge refresh.</summary>
         public event Action OnNodeDataChanged;
 
         // ── Data ──────────────────────────────────────────────────────────────
 
-        public DialogueNode  NodeData  { get; private set; }
-        public DialogueGraph GraphData { get; private set; }
+        public DialogueNode        NodeData    { get; private set; }
+        public DialogueGraph       GraphData   { get; private set; }
+        public DialogueLocaleState LocaleState { get; private set; }
 
         // ── Ports ─────────────────────────────────────────────────────────────
 
-        public Port       InputPort        { get; private set; }
-        public Port       OutputPort       { get; private set; }    // Line only
+        public Port       InputPort         { get; private set; }
+        public Port       OutputPort        { get; private set; }
         public List<Port> ChoiceOutputPorts { get; private set; } = new();
+
+        // ── Internal UI refs (updated on locale switch) ───────────────────────
+
+        private Label _speakerPreviewLabel;
+        private Label _textPreviewLabel;
+        private Label _entryBadge;          // shown only when this is the entry node
 
         // ── Constructor ───────────────────────────────────────────────────────
 
-        public DialogueNodeView(DialogueNode node, DialogueGraph graph)
+        public DialogueNodeView(DialogueNode node, DialogueGraph graph, DialogueLocaleState localeState)
         {
-            NodeData  = node;
-            GraphData = graph;
+            NodeData    = node;
+            GraphData   = graph;
+            LocaleState = localeState;
+
             Build();
+
+            if (localeState != null)
+                localeState.OnLocaleChanged += RefreshLocalePreview;
+
+            RegisterCallback<DetachFromPanelEvent>(_ =>
+            {
+                if (localeState != null)
+                    localeState.OnLocaleChanged -= RefreshLocalePreview;
+            });
+        }
+
+        // ── Public API ────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Called by DialogueNodeInspectorPanel when flow data changes.
+        /// Raises OnNodeDataChanged so DialogueGraphView can refresh edges.
+        /// </summary>
+        public void TriggerNodeDataChange() => OnNodeDataChanged?.Invoke();
+
+        /// <summary>
+        /// Re-resolves preview labels from the StringTable for the active locale.
+        /// Does NOT rebuild ports or layout — O(1) label updates only.
+        /// </summary>
+        public void RefreshLocalePreview()
+        {
+            UpdatePreview(_speakerPreviewLabel,
+                LocaleState?.ResolveSpeaker(NodeData.speakerNameKey));
+            UpdatePreview(_textPreviewLabel,
+                LocaleState?.ResolveText(NodeData.textKey));
+        }
+
+        /// <summary>
+        /// Shows or hides the "ENTRY" badge. Called by DialogueGraphView
+        /// after the entry node changes.
+        /// </summary>
+        public void RefreshEntryBadge()
+        {
+            bool isEntry = GraphData != null && GraphData.entryNodeId == NodeData.id;
+            if (_entryBadge != null)
+                _entryBadge.style.display = isEntry ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         // ── Build ─────────────────────────────────────────────────────────────
 
         private void Build()
         {
-            // Title bar
             title = string.IsNullOrEmpty(NodeData.id) ? "(no id)" : NodeData.id;
 
-            // Color-coded stripe via USS class
             AddToClassList(NodeData.nodeType switch
             {
                 NodeType.Line     => "node-line",
@@ -68,19 +112,21 @@ namespace DialogueSystem.Editor
                 _                 => "node-line"
             });
 
-            // Type badge in title
-            var badge = new Label(NodeData.nodeType.ToString().ToUpper());
-            badge.AddToClassList("node-type-badge");
-            titleContainer.Add(badge);
+            // Type badge
+            var typeBadge = new Label(NodeData.nodeType.ToString().ToUpper());
+            typeBadge.AddToClassList("node-type-badge");
+            titleContainer.Add(typeBadge);
 
-            // Input port (all types)
+            // Entry node badge — visible only when this is the graph entry
+            _entryBadge = new Label("ENTRY");
+            _entryBadge.AddToClassList("node-entry-badge");
+            titleContainer.Add(_entryBadge);
+            RefreshEntryBadge();
+
             InputPort = CreateInputPort();
             inputContainer.Add(InputPort);
 
-            // Body fields
             BuildBody();
-
-            // Output ports
             RebuildOutputPorts();
 
             RefreshExpandedState();
@@ -92,6 +138,8 @@ namespace DialogueSystem.Editor
         private void BuildBody()
         {
             extensionContainer.Clear();
+            _speakerPreviewLabel = null;
+            _textPreviewLabel    = null;
 
             if (NodeData.nodeType == NodeType.Terminal)
             {
@@ -101,40 +149,31 @@ namespace DialogueSystem.Editor
                 return;
             }
 
-            // Speaker name
             if (NodeData.nodeType == NodeType.Line)
             {
-                var speakerRow = new VisualElement();
-                speakerRow.AddToClassList("node-row");
-
-                var speakerLabel = new Label("Speaker");
-                speakerLabel.AddToClassList("node-field-label");
-
-                var speakerField = new TextField { value = NodeData.speakerName };
-                speakerField.AddToClassList("node-field");
-                speakerField.RegisterValueChangedCallback(e =>
-                {
-                    NodeData.speakerName = e.newValue;
-                    OnNodeDataChanged?.Invoke();
-                });
-
-                speakerRow.Add(speakerLabel);
-                speakerRow.Add(speakerField);
+                // ── Speaker ───────────────────────────────────────────────────
+                var speakerRow = MakeKeyRow("Speaker", NodeData.speakerNameKey);
                 extensionContainer.Add(speakerRow);
 
-                // Dialogue text
-                var textField = new TextField
-                {
-                    value     = NodeData.text,
-                    multiline = true
-                };
-                textField.AddToClassList("node-text-field");
-                textField.RegisterValueChangedCallback(e =>
-                {
-                    NodeData.text = e.newValue;
-                    OnNodeDataChanged?.Invoke();
-                });
-                extensionContainer.Add(textField);
+                _speakerPreviewLabel = new Label();
+                _speakerPreviewLabel.AddToClassList("node-locale-preview");
+                _speakerPreviewLabel.AddToClassList("node-speaker-preview");
+                extensionContainer.Add(_speakerPreviewLabel);
+
+                var divider = new VisualElement();
+                divider.AddToClassList("node-divider");
+                extensionContainer.Add(divider);
+
+                // ── Text ──────────────────────────────────────────────────────
+                var textRow = MakeKeyRow("Text", NodeData.textKey);
+                extensionContainer.Add(textRow);
+
+                _textPreviewLabel = new Label();
+                _textPreviewLabel.AddToClassList("node-locale-preview");
+                _textPreviewLabel.AddToClassList("node-text-preview");
+                extensionContainer.Add(_textPreviewLabel);
+
+                RefreshLocalePreview();
             }
 
             if (NodeData.nodeType == NodeType.Branch)
@@ -145,12 +184,31 @@ namespace DialogueSystem.Editor
             }
         }
 
+        private static VisualElement MakeKeyRow(string fieldLabel, string key)
+        {
+            var row = new VisualElement();
+            row.AddToClassList("node-row");
+            var label = new Label(fieldLabel);
+            label.AddToClassList("node-field-label");
+            row.Add(label);
+            var pill = new Label(string.IsNullOrEmpty(key) ? "(no key)" : key);
+            pill.AddToClassList("node-key-pill");
+            row.Add(pill);
+            return row;
+        }
+
+        private static void UpdatePreview(Label label, string resolved)
+        {
+            if (label == null) return;
+            bool missing = string.IsNullOrEmpty(resolved);
+            label.text = missing ? "(no translation)" : resolved;
+            label.EnableInClassList("node-locale-preview--missing", missing);
+        }
+
         // ── Ports ─────────────────────────────────────────────────────────────
 
-        /// <summary>Recreates output ports to match current NodeData.choices. Called by GraphView after edits.</summary>
         public void RebuildPorts()
         {
-            // Disconnect and remove existing output ports/edges
             foreach (var port in ChoiceOutputPorts)
             {
                 port.DisconnectAll();
@@ -185,16 +243,11 @@ namespace DialogueSystem.Editor
                         string label = string.IsNullOrEmpty(NodeData.choices[i].label)
                             ? $"Choice {i + 1}"
                             : Truncate(NodeData.choices[i].label, 28);
-
-                        var choicePort = CreateOutputPort(label);
-                        choicePort.AddToClassList("choice-port");
-                        outputContainer.Add(choicePort);
-                        ChoiceOutputPorts.Add(choicePort);
+                        var port = CreateOutputPort(label);
+                        port.AddToClassList("choice-port");
+                        outputContainer.Add(port);
+                        ChoiceOutputPorts.Add(port);
                     }
-                    break;
-
-                case NodeType.Terminal:
-                    // No output ports
                     break;
             }
         }
@@ -202,10 +255,7 @@ namespace DialogueSystem.Editor
         private Port CreateInputPort()
         {
             var port = Port.Create<Edge>(
-                Orientation.Horizontal,
-                Direction.Input,
-                Port.Capacity.Multi,   // multiple edges can enter (for loops / merges)
-                typeof(bool));
+                Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(bool));
             port.portName = "In";
             port.AddToClassList("dialogue-port");
             return port;
@@ -214,23 +264,13 @@ namespace DialogueSystem.Editor
         private Port CreateOutputPort(string portName)
         {
             var port = Port.Create<Edge>(
-                Orientation.Horizontal,
-                Direction.Output,
-                Port.Capacity.Single,
-                typeof(bool));
+                Orientation.Horizontal, Direction.Output, Port.Capacity.Single, typeof(bool));
             port.portName = portName;
             port.AddToClassList("dialogue-port");
             return port;
         }
 
-        // ── Helpers ───────────────────────────────────────────────────────────
-
         private static string Truncate(string s, int maxLen) =>
             s.Length <= maxLen ? s : s[..maxLen] + "…";
-
-        public void TriggerNodeDataChange()
-        {
-            OnNodeDataChanged.Invoke();
-        }
     }
 }

@@ -29,8 +29,9 @@ namespace DialogueSystem.Editor
 
         // ── State ─────────────────────────────────────────────────────────────
 
-        private DialogueGraph        _graph;
+        private DialogueGraph           _graph;
         private DialogueGraphEditorData _editorData;
+        private DialogueLocaleState     _localeState;
 
         // Stable map: nodeId → view, used when wiring edges and syncing positions.
         private readonly Dictionary<string, DialogueNodeView> _nodeViews = new();
@@ -68,10 +69,11 @@ namespace DialogueSystem.Editor
         /// Populates the canvas from <paramref name="graph"/>.
         /// Clears any existing content first.
         /// </summary>
-        public void Populate(DialogueGraph graph, DialogueGraphEditorData editorData)
+        public void Populate(DialogueGraph graph, DialogueGraphEditorData editorData, DialogueLocaleState localeState)
         {
-            _graph      = graph;
-            _editorData = editorData;
+            _graph       = graph;
+            _editorData  = editorData;
+            _localeState = localeState;
 
             ClearGraph();
 
@@ -88,6 +90,7 @@ namespace DialogueSystem.Editor
             foreach (var node in graph.nodes)
                 ConnectNode(node);
 
+            RefreshAllEntryBadges();
             FrameAll();
         }
 
@@ -102,8 +105,8 @@ namespace DialogueSystem.Editor
             {
                 id          = GenerateUniqueId(),
                 nodeType    = type,
-                speakerName = type == NodeType.Line ? "Speaker" : string.Empty,
-                text        = type == NodeType.Line ? "..." : string.Empty,
+                speakerNameKey = type == NodeType.Line ? "Speaker" : string.Empty,
+                textKey        = type == NodeType.Line ? "..." : string.Empty,
                 typewriterSpeed = 0.03f
             };
 
@@ -155,6 +158,16 @@ namespace DialogueSystem.Editor
 
             EditorUtility.SetDirty(_graph);
             EditorUtility.SetDirty(_editorData);
+        }
+
+        /// <summary>
+        /// Re-evaluates the ENTRY badge on every node view.
+        /// Call after graph.entryNodeId changes.
+        /// </summary>
+        public void RefreshAllEntryBadges()
+        {
+            foreach (var kv in _nodeViews)
+                kv.Value.RefreshEntryBadge();
         }
 
         /// <summary>
@@ -275,7 +288,7 @@ namespace DialogueSystem.Editor
 
         private DialogueNodeView CreateNodeView(DialogueNode node, Vector2 position)
         {
-            var view = new DialogueNodeView(node, _graph);
+            var view = new DialogueNodeView(node, _graph, _localeState);
             view.SetPosition(new Rect(position, Vector2.zero));
             view.OnNodeDataChanged += () =>
             {

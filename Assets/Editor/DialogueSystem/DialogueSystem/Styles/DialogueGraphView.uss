@@ -1,0 +1,247 @@
+/* ═══════════════════════════════════════════════════════════════════
+   DialogueGraphView.uss
+   Styles for the GraphView canvas: nodes, ports, edges, background.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Canvas background ─────────────────────────────────────────── */
+
+GridBackground {
+    --grid-background-color: #1a1a2e;
+    --line-color:            rgba(255, 255, 255, 0.04);
+    --thick-line-color:      rgba(255, 255, 255, 0.08);
+    --spacing:               24;
+}
+
+/* ── Base node ─────────────────────────────────────────────────── */
+
+.node {
+    background-color: #1e2030;
+    border-color:     #3a3d5c;
+    border-width:     1px;
+    border-radius:    6px;
+    min-width:        220px;
+    max-width:        280px;
+}
+
+.node:selected {
+    border-color:  #5b9cf6;
+    border-width:  2px;
+}
+
+/* Title bar */
+.node > #title {
+    border-radius:          6px 6px 0 0;
+    padding:                6px 8px;
+    flex-direction:         row;
+    align-items:            center;
+    justify-content:        space-between;
+    background-color:       #2a2d45;
+}
+
+.node > #title > #title-label {
+    color:          #c8cde8;
+    font-size:      11px;
+    -unity-font-style: bold;
+    flex-shrink:    1;
+    overflow:       hidden;
+}
+
+/* Type badge */
+.node-type-badge {
+    font-size:        9px;
+    -unity-font-style: bold;
+    color:            #ffffff;
+    padding:          2px 6px;
+    border-radius:    3px;
+    margin-left:      4px;
+    background-color: #444877;
+}
+
+/* ── Node type colours ─────────────────────────────────────────── */
+
+/* Line — blue */
+.node-line > #title {
+    background-color: #1e3a5f;
+    border-bottom-color: #2d5a9e;
+    border-bottom-width: 2px;
+}
+.node-line > #title .node-type-badge { background-color: #2d5a9e; }
+
+/* Branch — amber */
+.node-branch > #title {
+    background-color: #3d2f0a;
+    border-bottom-color: #c07c1a;
+    border-bottom-width: 2px;
+}
+.node-branch > #title .node-type-badge { background-color: #c07c1a; }
+
+/* Terminal — red */
+.node-terminal > #title {
+    background-color: #3a1010;
+    border-bottom-color: #b03030;
+    border-bottom-width: 2px;
+}
+.node-terminal > #title .node-type-badge { background-color: #b03030; }
+
+/* ── Extension / body ──────────────────────────────────────────── */
+
+#extension {
+    padding: 6px 8px;
+}
+
+.node-row {
+    flex-direction: row;
+    align-items:    center;
+    margin-bottom:  4px;
+}
+
+.node-field-label {
+    color:       #8890b0;
+    font-size:   10px;
+    width:       52px;
+    flex-shrink: 0;
+}
+
+.node-field {
+    flex-grow: 1;
+}
+
+.node-field > .unity-text-field__input {
+    background-color: #111320;
+    border-color:     #3a3d5c;
+    border-radius:    3px;
+    color:            #c8cde8;
+    font-size:        11px;
+    padding:          2px 4px;
+}
+
+.node-text-field {
+    margin-top: 2px;
+}
+
+.node-text-field > .unity-text-field__input {
+    background-color: #111320;
+    border-color:     #3a3d5c;
+    border-radius:    3px;
+    color:            #c8cde8;
+    font-size:        11px;
+    padding:          4px;
+    white-space:      normal;
+    min-height:       48px;
+}
+
+.terminal-label {
+    color:     #b03030;
+    font-size: 11px;
+    padding:   4px 0;
+    -unity-font-style: italic;
+}
+
+.branch-hint-label {
+    color:     #c07c1a;
+    font-size: 10px;
+    padding:   4px 0;
+    -unity-font-style: italic;
+}
+
+/* ── Ports ─────────────────────────────────────────────────────── */
+
+.dialogue-port {
+    font-size:  10px;
+    color:      #8890b0;
+    flex-direction: row;
+    align-items: center;
+}
+
+.dialogue-port .unity-port__connector {
+    border-radius:    6px;
+    border-color:     #5b9cf6;
+    background-color: #1e3a5f;
+    width:            12px;
+    height:           12px;
+}
+
+.dialogue-port:hover .unity-port__connector {
+    background-color: #5b9cf6;
+}
+
+.choice-port {
+    font-size: 10px;
+    color:     #c07c1a;
+    border-top-color:  #2a2d45;
+    border-top-width:  1px;
+    padding:   3px 0;
+}
+
+.choice-port .unity-port__connector {
+    border-color:     #c07c1a;
+    background-color: #3d2f0a;
+}
+
+/* Entry node badge — gold, shown only on the designated entry node */
+.node-entry-badge {
+    font-size:         8px;
+    -unity-font-style: bold;
+    color:             #1a1200;
+    background-color:  #f0c040;
+    border-radius:     3px;
+    padding:           1px 5px;
+    margin-left:       4px;
+}
+
+/* Localization preview (canvas nodes) */
+
+/* Pill showing the raw StringTable key */
+.node-key-pill {
+    font-size:         9px;
+    color:             #5b9cf6;
+    background-color:  #0e1020;
+    border-color:      #2a3060;
+    border-width:      1px;
+    border-radius:     3px;
+    padding:           1px 5px;
+    -unity-font-style: italic;
+    flex-shrink:       1;
+    overflow:          hidden;
+}
+
+/* Resolved string preview — shown beneath the key pill */
+.node-locale-preview {
+    font-size:    11px;
+    color:        #c8cde8;
+    white-space:  normal;
+    padding:      2px 4px;
+    margin-top:   2px;
+}
+
+/* Speaker preview — slightly muted, single line */
+.node-speaker-preview {
+    color:             #a0a8c8;
+    font-size:         10px;
+    -unity-font-style: bold;
+}
+
+/* Text preview — full dialogue line, wraps */
+.node-text-preview {
+    min-height: 32px;
+}
+
+/* Missing translation state */
+.node-locale-preview--missing {
+    color:             #884422;
+    -unity-font-style: italic;
+}
+
+.node-divider {
+    height:           1px;
+    background-color: #2a2d45;
+    margin:           4px 0;
+}
+
+/* ── Edges ─────────────────────────────────────────────────────── */
+
+.edge {
+    --edge-color:         #5b9cf6;
+    --edge-ghost-color:   rgba(91, 156, 246, 0.4);
+    --edge-width:         2;
+}
