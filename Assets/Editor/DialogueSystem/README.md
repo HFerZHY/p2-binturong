@@ -195,11 +195,8 @@ Common validation errors and their fixes:
 ## File Structure
 
 ```
-DialogueSystem/
-├── Runtime/
-│   └── DialogueSystem.Runtime.asmdef
-└── Editor/
-    ├── DialogueSystem.Editor.asmdef
+Editor/
+└── DialogueSystem/
     ├── Data/
     │   ├── DialogueNodeEditorData.cs       # Per-node canvas position
     │   └── DialogueGraphEditorData.cs      # Companion asset storing all positions
@@ -222,8 +219,6 @@ DialogueSystem/
     └── Serialization/
         └── DialogueJsonExporter.cs         # DialogueGraph → JSON
 ```
-
-The runtime assembly (`DialogueSystem.Runtime`) contains `DialogueGraph`, `DialogueNode`, `DialogueJsonLoader`, and related data types. The editor assembly references it and is excluded from builds automatically by Unity's `Editor/` folder convention.
 
 ---
 
