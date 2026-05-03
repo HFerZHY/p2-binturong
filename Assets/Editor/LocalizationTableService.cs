@@ -139,6 +139,8 @@ public static class LocalizationTableService
         MarkAllDirty(LocalizationManager.Instance.characterNameTable);
         MarkAllDirty(LocalizationManager.Instance.dialogueTextTable);
         MarkAllDirty(LocalizationManager.Instance.dialogueChoiceLabelTable);
+        MarkAllDirty(LocalizationManager.Instance.itemNameTable);
+        MarkAllDirty(LocalizationManager.Instance.itemDescriptionTable);
         AssetDatabase.SaveAssets();
     }
 
@@ -315,5 +317,116 @@ public static class LocalizationTableService
     {
         return collection?.StringTables
             .FirstOrDefault(t => t.LocaleIdentifier == locale.Identifier);
+    }
+    
+    // ────────────────────────────────────────────────────────────────────────────
+    // Append these members to your existing LocalizationTableService class.
+    //
+    // They follow the identical pattern already used for characterNameTable /
+    // dialogueTextTable / dialogueChoiceLabelTable, but target:
+    //   LocalizationManager.Instance.itemNameTable
+    //   LocalizationManager.Instance.itemDescriptionTable
+    // ────────────────────────────────────────────────────────────────────────────
+
+    // ── Read ──────────────────────────────────────────────────────────────────────
+
+    /// <summary>Reads a localized item name for the given locale and nameKey.</summary>
+    public static string GetItemNameEntry(Locale locale, string key)
+        => ReadEntry(LocalizationManager.Instance.itemNameTable, locale, key);
+
+    /// <summary>Reads a localized item description for the given locale and descriptionKey.</summary>
+    public static string GetItemDescriptionEntry(Locale locale, string key)
+        => ReadEntry(LocalizationManager.Instance.itemDescriptionTable, locale, key);
+
+    // ── Write ─────────────────────────────────────────────────────────────────────
+
+    /// <summary>Writes a localized item name entry. Creates the entry if absent.</summary>
+    public static void SetItemNameEntry(Locale locale, string key, string value)
+        => WriteEntry(LocalizationManager.Instance.itemNameTable, locale, key, value);
+
+    /// <summary>Writes a localized item description entry. Creates the entry if absent.</summary>
+    public static void SetItemDescriptionEntry(Locale locale, string key, string value)
+        => WriteEntry(LocalizationManager.Instance.itemDescriptionTable, locale, key, value);
+
+    // ── Key existence checks ──────────────────────────────────────────────────────
+
+    /// <summary>Returns true if <paramref name="key"/> exists in the item name collection.</summary>
+    public static bool ItemNameKeyExists(string key)
+        => KeyExists(LocalizationManager.Instance.itemNameTable, key);
+
+    /// <summary>Returns true if <paramref name="key"/> exists in the item description collection.</summary>
+    public static bool ItemDescriptionKeyExists(string key)
+        => KeyExists(LocalizationManager.Instance.itemDescriptionTable, key);
+
+    // ── Key rename ────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Renames <paramref name="oldKey"/> to <paramref name="newKey"/> in the item name collection.
+    /// Preserves all per-locale values. Returns false if oldKey does not exist or newKey already exists.
+    /// </summary>
+    public static bool RenameItemNameKey(string oldKey, string newKey)
+        => RenameKey(LocalizationManager.Instance.itemNameTable, oldKey, newKey);
+
+    /// <summary>
+    /// Renames <paramref name="oldKey"/> to <paramref name="newKey"/> in the item description collection.
+    /// Preserves all per-locale values. Returns false if oldKey does not exist or newKey already exists.
+    /// </summary>
+    public static bool RenameItemDescriptionKey(string oldKey, string newKey)
+        => RenameKey(LocalizationManager.Instance.itemDescriptionTable, oldKey, newKey);
+
+    // ── Key creation ──────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Adds a new key to the item name collection for every locale with an empty initial value.
+    /// Returns false if the key already exists.
+    /// </summary>
+    public static bool AddItemNameKey(string key)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return false;
+
+        var collection = LocalizationManager.Instance.itemNameTable;
+        if (collection == null) return false;
+
+        if (collection.SharedData.Contains(key))
+        {
+            Debug.LogWarning($"[LocalizationTableService] Item name key '{key}' already exists.");
+            return false;
+        }
+
+        foreach (var table in collection.StringTables)
+        {
+            table.AddEntry(key, string.Empty);
+            EditorUtility.SetDirty(table);
+            EditorUtility.SetDirty(table.SharedData);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Adds a new key to the item description collection for every locale with an empty initial value.
+    /// Returns false if the key already exists.
+    /// </summary>
+    public static bool AddItemDescriptionKey(string key)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return false;
+
+        var collection = LocalizationManager.Instance.itemDescriptionTable;
+        if (collection == null) return false;
+
+        if (collection.SharedData.Contains(key))
+        {
+            Debug.LogWarning($"[LocalizationTableService] Item description key '{key}' already exists.");
+            return false;
+        }
+
+        foreach (var table in collection.StringTables)
+        {
+            table.AddEntry(key, string.Empty);
+            EditorUtility.SetDirty(table);
+            EditorUtility.SetDirty(table.SharedData);
+        }
+
+        return true;
     }
 }
