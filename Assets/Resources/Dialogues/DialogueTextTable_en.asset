@@ -26,6 +26,14 @@ MonoBehaviour:
     m_Localized: t2-en2
     m_Metadata:
       m_Items: []
+  - m_Id: 254758002937856
+    m_Localized: outcome 1 en
+    m_Metadata:
+      m_Items: []
+  - m_Id: 254943181459456
+    m_Localized: outcome 2 en
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

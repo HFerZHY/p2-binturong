@@ -111,12 +111,9 @@ namespace DialogueSystem.Editor
             _graphView.OnNodeSelected     += OnNodeSelected;
             _graphView.OnSelectionCleared += OnSelectionCleared;
 
-            // Inspector panel receives the locale state and a delegate to query all
-            // current node views — used when a shared speakerNameKey is renamed so
-            // every affected canvas node can refresh its preview immediately.
-            _inspectorPanel = new DialogueNodeInspectorPanel(
-                _localeState,
-                getAllNodeViews: () => _graphView?.AllNodeViews ?? Enumerable.Empty<DialogueNodeView>());
+            // Inspector panel receives the locale state so it can enumerate locales
+            // and resolve previews. Character management is handled by CharacterInspector.
+            _inspectorPanel = new DialogueNodeInspectorPanel(_localeState);
             _inspectorPanel.OnDataChanged += OnInspectorDataChanged;
 
             split.Add(_graphView);

@@ -13,38 +13,31 @@ namespace DialogueSystem.Editor
     /// Right-hand inspector panel for the selected DialogueNode.
     ///
     /// LOCALIZED CONTENT SECTION
-    ///   Speaker name — rendered as a combobox: a dropdown of all existing
-    ///   speaker keys from the SpeakerTableCollection plus a text field + button
-    ///   to register a brand-new speaker key. Selecting or creating a speaker
-    ///   sets node.speakerNameKey and immediately writes/reads the per-locale
-    ///   values from the SpeakerTableCollection.
+    ///   Speaker — an ObjectField dropdown listing all Character assets found in
+    ///   the project via AssetDatabase. Selecting one sets node.speaker directly.
+    ///   Character name localization is managed entirely in CharacterInspector;
+    ///   this panel shows the resolved name for the active locale as a read-only
+    ///   preview beneath the dropdown.
     ///
     ///   Dialogue text — one TextField per registered locale, reading from and
-    ///   writing to the DialogueTextTableCollection using node.textKey as the key.
+    ///   writing to the DialogueTextTable using node.textKey as the key.
     ///
     ///   Choice labels — one TextField per locale per choice, reading from and
-    ///   writing to the DialogueChoiceLabelTableCollection using choice.labelKey.
+    ///   writing to the DialogueChoiceLabelTable using choice.labelKey.
     ///
     /// KEY RENAMING
-    ///   speakerNameKey — a rename field checks if the old key is present in the
-    ///     SpeakerTableCollection and calls LocalizationTableService.RenameSpeakerKey.
-    ///     Because speaker keys are shared, all node views referencing the same key
-    ///     are notified via DialogueLocaleState.OnSpeakerValueChanged so they
-    ///     update their canvas preview; the graph is also walked to update every
-    ///     node.speakerNameKey that matched the old value.
-    ///
-    ///   textKey — checked for duplicates across all graph nodes; if a duplicate
-    ///     is found the rename is rejected and a warning label appears.  Duplicate
+    ///   textKey  — checked for duplicates across all graph nodes; if a duplicate
+    ///     is found the rename is rejected and a warning label appears. Duplicate
     ///     textKeys also block Save (surfaced through DialogueGraph.Validate()).
     ///
     ///   labelKey — same duplicate-prevention logic as textKey but checked across
     ///     all choices in the graph.
     ///
     /// STRING TABLE WRITES
-    ///   Every field change calls LocalizationTableService.SetSpeakerEntry /
-    ///   SetTextEntry / SetChoiceLabelEntry immediately. SaveAll() is batched to
-    ///   the window Save button.  After each write, _nodeView.RefreshLocalePreview()
-    ///   is called so the canvas updates in real time.
+    ///   Every field change calls LocalizationTableService.SetTextEntry /
+    ///   SetChoiceLabelEntry immediately. SaveAll() is batched to the window Save
+    ///   button. After each write, _nodeView.RefreshLocalePreview() is called so
+    ///   the canvas updates in real time.
     /// </summary>
     public class DialogueNodeInspectorPanel : VisualElement
     {
@@ -59,21 +52,15 @@ namespace DialogueSystem.Editor
         private DialogueGraph       _graph;
         private DialogueLocaleState _localeState;
 
-        // Supplied by the editor window so the panel can call RefreshLocalePreview
-        // on other node views when a shared speakerNameKey is renamed.
-        private Func<IEnumerable<DialogueNodeView>> _getAllNodeViews;
-
         private readonly ScrollView    _scroll;
         private readonly VisualElement _content;
         private readonly Label         _emptyLabel;
 
         // ── Constructor ───────────────────────────────────────────────────────
 
-        public DialogueNodeInspectorPanel(DialogueLocaleState localeState,
-                                          Func<IEnumerable<DialogueNodeView>> getAllNodeViews = null)
+        public DialogueNodeInspectorPanel(DialogueLocaleState localeState)
         {
-            _localeState      = localeState;
-            _getAllNodeViews   = getAllNodeViews;
+            _localeState = localeState;
 
             AddToClassList("inspector-panel");
 
@@ -162,7 +149,7 @@ namespace DialogueSystem.Editor
                 AddSection("Localized Content");
 
                 if (_node.nodeType == NodeType.Line || _node.nodeType == NodeType.Branch)
-                    BuildSpeakerCombobox();
+                    BuildCharacterDropdown();
 
                 if (_node.nodeType == NodeType.Line)
                 {
@@ -213,211 +200,147 @@ namespace DialogueSystem.Editor
             RebuildConditionList(_node.conditions, "Add Node Condition");
         }
 
-        // ── Speaker combobox ──────────────────────────────────────────────────
+        // ── Character dropdown ────────────────────────────────────────────────
 
-        private void BuildSpeakerCombobox()
+        /// <summary>
+        /// Builds a dropdown populated with all Character assets found in the project.
+        /// Selecting one assigns node.speaker and refreshes the canvas preview.
+        /// A read-only label below shows the character's localized name for the
+        /// active locale, resolved from CharacterNameTable.
+        /// Designers edit the localized name in the CharacterInspector, not here.
+        /// </summary>
+        private void BuildCharacterDropdown()
         {
             var sectionLabel = new Label("Speaker");
             sectionLabel.AddToClassList("inspector-field-label");
             sectionLabel.style.marginBottom = 4;
             _content.Add(sectionLabel);
 
-            List<string> existingKeys = LocalizationTableService.GetAllSpeakerKeys();
+            // Load every Character asset in the project
+            var allCharacters = LoadAllCharacters();
 
-            // ── Dropdown of existing speakers ─────────────────────────────────
+            // Build choice strings: "— none —" + one entry per Character asset,
+            // displaying the asset name. Index 0 is always "— none —".
+            var displayNames = new List<string> { "— none —" };
+            displayNames.AddRange(allCharacters.Select(c => c.name));
+
+            int currentIdx = _node.speaker != null
+                ? allCharacters.IndexOf(_node.speaker) + 1  // +1 for "— none —"
+                : 0;
+
             var dropdownRow = new VisualElement();
             dropdownRow.AddToClassList("inspector-row");
 
-            var dropLabel = new Label("Select");
+            var dropLabel = new Label("Character");
             dropLabel.AddToClassList("inspector-field-label");
             dropdownRow.Add(dropLabel);
 
-            var choices = new List<string> { "— none —" };
-            choices.AddRange(existingKeys);
-
-            int currentIndex = existingKeys.IndexOf(_node.speakerNameKey);
-            var dropdown = new DropdownField(choices, currentIndex >= 0 ? currentIndex + 1 : 0);
+            var dropdown = new DropdownField(displayNames, currentIdx);
             dropdown.AddToClassList("inspector-field");
             dropdown.RegisterValueChangedCallback(e =>
             {
-                string selected = e.newValue == "— none —" ? string.Empty : e.newValue;
-                _node.speakerNameKey = selected;
+                if (e.newValue == "— none —")
+                {
+                    _node.speaker = null;
+                }
+                else
+                {
+                    // Re-find by name in case the list order shifts between repaints
+                    _node.speaker = allCharacters.FirstOrDefault(c => c.name == e.newValue);
+                }
+
                 EditorUtility.SetDirty(_graph);
                 _nodeView?.RefreshLocalePreview();
                 Dirty();
+                // Rebuild so the locale preview label beneath updates immediately
                 Rebuild();
             });
             dropdownRow.Add(dropdown);
             _content.Add(dropdownRow);
 
-            // ── Rename the selected speaker key ───────────────────────────────
-            if (!string.IsNullOrEmpty(_node.speakerNameKey))
+            // ── Portrait key field ────────────────────────────────────────────
+            if (_node.speaker != null)
             {
-                BuildSpeakerKeyRenameRow(_node.speakerNameKey);
+                BuildPortraitKeyDropdown();
 
-                // ── Per-locale values for the selected speaker key ─────────────
-                var localeBlock = new VisualElement();
-                localeBlock.AddToClassList("locale-block");
+                // ── Resolved name preview (read-only) ─────────────────────────
+                // This tells the designer what name will be shown at runtime for
+                // the currently active preview locale.
+                string charKey = string.IsNullOrEmpty(_node.speaker.characterName)
+                    ? _node.speaker.name
+                    : _node.speaker.characterName;
+                string resolvedName = _localeState?.ResolveCharacterName(charKey) ?? string.Empty;
 
-                foreach (var locale in _localeState.AllLocales)
-                {
-                    Locale capturedLocale = locale;
-                    string currentValue   = LocalizationTableService
-                        .GetSpeakerEntry(locale, _node.speakerNameKey);
+                var previewRow = MakeRow("Name preview");
+                var previewLabel = new Label(
+                    string.IsNullOrEmpty(resolvedName)
+                        ? $"(no entry in CharacterNameTable for '{charKey}')"
+                        : resolvedName);
+                previewLabel.AddToClassList("readonly-value");
+                if (string.IsNullOrEmpty(resolvedName))
+                    previewLabel.AddToClassList("key-rename-warning");
+                previewRow.Add(previewLabel);
+                _content.Add(previewRow);
 
-                    var row = new VisualElement();
-                    row.AddToClassList("locale-row");
-
-                    var badge = new Label(locale.Identifier.Code.ToUpper());
-                    badge.AddToClassList("locale-badge");
-                    row.Add(badge);
-
-                    var field = new TextField { value = currentValue };
-                    field.AddToClassList("locale-field");
-                    field.RegisterValueChangedCallback(e =>
-                    {
-                        LocalizationTableService.SetSpeakerEntry(
-                            capturedLocale, _node.speakerNameKey, e.newValue);
-                        _nodeView?.RefreshLocalePreview();
-                        Dirty();
-
-                        if (locale == _localeState.ActiveLocale)
-                            _localeState.NotifySpeakerValueChanged(_node.speakerNameKey);
-                    });
-                    row.Add(field);
-                    localeBlock.Add(row);
-                }
-                _content.Add(localeBlock);
+                // Hint to open the Character asset inspector
+                var hint = new Label("Edit localized names in the Character asset inspector.");
+                hint.AddToClassList("locale-warning");
+                _content.Add(hint);
             }
-
-            // ── Add new speaker ───────────────────────────────────────────────
-            var addSpeakerSection = new VisualElement();
-            addSpeakerSection.AddToClassList("add-speaker-section");
-
-            var addLabel = new Label("New speaker key");
-            addLabel.AddToClassList("inspector-field-label");
-            addSpeakerSection.Add(addLabel);
-
-            var addRow = new VisualElement();
-            addRow.AddToClassList("inspector-row");
-
-            var newKeyField = new TextField {};
-            newKeyField.AddToClassList("inspector-field");
-            addRow.Add(newKeyField);
-
-            var addBtn = new Button(() =>
-            {
-                string newKey = newKeyField.value.Trim();
-                if (string.IsNullOrEmpty(newKey)) return;
-
-                bool added = LocalizationTableService.AddSpeakerKey(newKey);
-                if (added)
-                {
-                    _node.speakerNameKey = newKey;
-                    EditorUtility.SetDirty(_graph);
-                    Dirty();
-                    Rebuild();
-                }
-                else
-                {
-                    Debug.LogWarning($"[DialogueEditor] Speaker key '{newKey}' already exists.");
-                }
-            })
-            { text = "+ Add" };
-            addBtn.AddToClassList("add-btn-small");
-            addRow.Add(addBtn);
-
-            addSpeakerSection.Add(addRow);
-            _content.Add(addSpeakerSection);
         }
 
         /// <summary>
-        /// Builds the "Rename key" row for the currently-assigned speaker key.
-        /// On confirm: renames the key in the SpeakerTableCollection, updates
-        /// node.speakerNameKey on every node in the graph that used the old key,
-        /// and notifies all canvas node views to refresh their previews.
+        /// Builds a dropdown of portrait keys declared on the assigned Character asset.
+        /// Selecting one sets node.speakerPortraitKey.
         /// </summary>
-        private void BuildSpeakerKeyRenameRow(string currentKey)
+        private void BuildPortraitKeyDropdown()
         {
-            var renameContainer = new VisualElement();
-            renameContainer.AddToClassList("key-rename-container");
+            if (_node.speaker == null || _node.speaker.portraits == null
+                || _node.speaker.portraits.Count == 0)
+                return;
 
-            var renameLabel = new Label("Rename key");
-            renameLabel.AddToClassList("inspector-field-label");
-            renameContainer.Add(renameLabel);
+            var portraitKeys = new List<string> { "— default —" };
+            portraitKeys.AddRange(_node.speaker.portraits
+                .Where(p => !string.IsNullOrEmpty(p.Key))
+                .Select(p => p.Key));
 
-            var renameRow = new VisualElement();
-            renameRow.AddToClassList("inspector-row");
+            int idx = string.IsNullOrEmpty(_node.speakerPortraitKey)
+                ? 0
+                : portraitKeys.IndexOf(_node.speakerPortraitKey);
+            if (idx < 0) idx = 0;
 
-            var warningLabel = new Label();
-            warningLabel.AddToClassList("key-rename-warning");
-            warningLabel.style.display = DisplayStyle.None;
-
-            var newKeyField = new TextField { value = currentKey };
-            newKeyField.AddToClassList("inspector-field");
-            newKeyField.AddToClassList("key-field");
-            renameRow.Add(newKeyField);
-
-            var applyBtn = new Button(() =>
+            var row = MakeRow("Portrait");
+            var dropdown = new DropdownField(portraitKeys, idx);
+            dropdown.AddToClassList("inspector-field");
+            dropdown.RegisterValueChangedCallback(e =>
             {
-                string newKey = newKeyField.value.Trim();
-                if (string.IsNullOrEmpty(newKey) || newKey == currentKey) return;
-
-                // If the old key exists in the table, rename it; otherwise just
-                // update the node reference (the key may not have been saved yet).
-                if (LocalizationTableService.SpeakerKeyExists(currentKey))
-                {
-                    bool renamed = LocalizationTableService.RenameSpeakerKey(currentKey, newKey);
-                    if (!renamed)
-                    {
-                        warningLabel.text = $"⚠ Could not rename — '{newKey}' may already exist.";
-                        warningLabel.style.display = DisplayStyle.Flex;
-                        return;
-                    }
-                }
-
-                warningLabel.style.display = DisplayStyle.None;
-
-                // Walk the whole graph and update every node that shared this key
-                if (_graph != null)
-                {
-                    Undo.RecordObject(_graph, "Rename Speaker Key");
-                    foreach (var n in _graph.nodes)
-                    {
-                        if (n.speakerNameKey == currentKey)
-                            n.speakerNameKey = newKey;
-                    }
-                    EditorUtility.SetDirty(_graph);
-                }
-
-                // Notify all node views so their canvas previews update
-                if (_getAllNodeViews != null)
-                {
-                    foreach (var view in _getAllNodeViews())
-                        view.RefreshLocalePreview();
-                }
-                // Also fire the event so any other listeners update
-                _localeState?.NotifySpeakerValueChanged(newKey);
-
+                _node.speakerPortraitKey = e.newValue == "— default —" ? string.Empty : e.newValue;
+                EditorUtility.SetDirty(_graph);
                 Dirty();
-                Rebuild(); // rebuild to reflect the new key everywhere in the panel
-            })
-            { text = "Apply" };
-            applyBtn.AddToClassList("add-btn-small");
-            renameRow.Add(applyBtn);
+            });
+            row.Add(dropdown);
+            _content.Add(row);
+        }
 
-            renameContainer.Add(renameRow);
-            renameContainer.Add(warningLabel);
-            _content.Add(renameContainer);
+        /// <summary>
+        /// Returns all Character ScriptableObject assets in the project, sorted by name.
+        /// Uses AssetDatabase so it works regardless of whether assets are in a Resources folder.
+        /// </summary>
+        private static List<Character> LoadAllCharacters()
+        {
+            return AssetDatabase.FindAssets("t:Character")
+                .Select(guid => AssetDatabase.LoadAssetAtPath<Character>(
+                    AssetDatabase.GUIDToAssetPath(guid)))
+                .Where(c => c != null)
+                .OrderBy(c => c.name)
+                .ToList();
         }
 
         // ── Dialogue text fields ──────────────────────────────────────────────
 
         private void BuildTextKeyField()
         {
-            // ── Current key display + rename UI ───────────────────────────────
             var keyHeaderRow = MakeRow("Text Key");
-
             var keyValueLabel = new Label(_node.textKey ?? "(not set)");
             keyValueLabel.AddToClassList("readonly-value");
             keyHeaderRow.Add(keyValueLabel);
@@ -429,7 +352,6 @@ namespace DialogueSystem.Editor
         /// <summary>
         /// Builds the rename row for textKey.
         /// Validates that the new key is not already used by another node in the graph.
-        /// If a duplicate is found, shows a warning and does not apply.
         /// Duplicate textKeys also surface as validation errors blocking Save.
         /// </summary>
         private void BuildTextKeyRenameRow()
@@ -448,9 +370,7 @@ namespace DialogueSystem.Editor
             warningLabel.AddToClassList("key-rename-warning");
             warningLabel.style.display = DisplayStyle.None;
 
-            string capturedOldKey = _node.textKey ?? string.Empty;
-
-            var newKeyField = new TextField { value = capturedOldKey };
+            var newKeyField = new TextField { value = _node.textKey ?? string.Empty };
             newKeyField.AddToClassList("inspector-field");
             newKeyField.AddToClassList("key-field");
             renameRow.Add(newKeyField);
@@ -461,7 +381,6 @@ namespace DialogueSystem.Editor
                 string newKey = newKeyField.value.Trim();
                 if (string.IsNullOrEmpty(newKey) || newKey == oldKey) return;
 
-                // Check for duplicate textKey in the graph (must be unique per node)
                 if (_graph != null)
                 {
                     bool duplicateInGraph = _graph.nodes
@@ -474,9 +393,7 @@ namespace DialogueSystem.Editor
                     }
                 }
 
-                // Rename in the table if the old key exists there
-                if (!string.IsNullOrEmpty(oldKey) &&
-                    LocalizationTableService.TextKeyExists(oldKey))
+                if (!string.IsNullOrEmpty(oldKey) && LocalizationTableService.TextKeyExists(oldKey))
                 {
                     bool renamed = LocalizationTableService.RenameTextKey(oldKey, newKey);
                     if (!renamed)
@@ -488,7 +405,6 @@ namespace DialogueSystem.Editor
                 }
 
                 warningLabel.style.display = DisplayStyle.None;
-
                 Undo.RecordObject(_graph, "Rename Text Key");
                 _node.textKey = newKey;
                 EditorUtility.SetDirty(_graph);
@@ -510,17 +426,13 @@ namespace DialogueSystem.Editor
             var locales = _localeState?.AllLocales;
             if (locales == null || locales.Count == 0)
             {
-                var warn = new Label("⚠ No locales found.");
-                warn.AddToClassList("locale-warning");
-                _content.Add(warn);
+                _content.Add(MakeWarning("⚠ No locales found."));
                 return;
             }
 
             if (string.IsNullOrEmpty(_node.textKey))
             {
-                var hint = new Label("Set a Text Key above to edit translations.");
-                hint.AddToClassList("locale-warning");
-                _content.Add(hint);
+                _content.Add(MakeWarning("Set a Text Key above to edit translations."));
                 return;
             }
 
@@ -530,8 +442,7 @@ namespace DialogueSystem.Editor
             foreach (var locale in locales)
             {
                 Locale capturedLocale = locale;
-                string currentValue = LocalizationTableService
-                    .GetTextEntry(locale, _node.textKey);
+                string currentValue = LocalizationTableService.GetTextEntry(locale, _node.textKey);
 
                 var row = new VisualElement();
                 row.AddToClassList("locale-row");
@@ -544,8 +455,7 @@ namespace DialogueSystem.Editor
                 field.AddToClassList("locale-textarea");
                 field.RegisterValueChangedCallback(e =>
                 {
-                    LocalizationTableService.SetTextEntry(
-                        capturedLocale, _node.textKey, e.newValue);
+                    LocalizationTableService.SetTextEntry(capturedLocale, _node.textKey, e.newValue);
                     _nodeView?.RefreshLocalePreview();
                     Dirty();
                 });
@@ -570,7 +480,6 @@ namespace DialogueSystem.Editor
                 var card   = new VisualElement();
                 card.AddToClassList("choice-card");
 
-                // ── Card header ───────────────────────────────────────────────
                 var cardHeader = new VisualElement();
                 cardHeader.AddToClassList("choice-card-header");
                 var cardTitle  = new Label($"Choice {i + 1}");
@@ -581,21 +490,17 @@ namespace DialogueSystem.Editor
                 cardHeader.Add(removeBtn);
                 card.Add(cardHeader);
 
-                // ── Label key (read-only display) ─────────────────────────────
+                // Label key display + rename
                 var labelKeyRow = MakeRow("Label Key");
-                var labelKeyValue = new Label(string.IsNullOrEmpty(choice.labelKey)
-                    ? "(not set)" : choice.labelKey);
+                var labelKeyValue = new Label(
+                    string.IsNullOrEmpty(choice.labelKey) ? "(not set)" : choice.labelKey);
                 labelKeyValue.AddToClassList("readonly-value");
                 labelKeyRow.Add(labelKeyValue);
                 card.Add(labelKeyRow);
 
-                // ── Label key rename ──────────────────────────────────────────
                 BuildChoiceLabelKeyRenameRow(card, choice, idx);
-
-                // ── Per-locale label fields ────────────────────────────────────
                 BuildPerLocaleChoiceLabelFields(card, choice);
 
-                // ── Target node ───────────────────────────────────────────────
                 AddInlineTextField(card, "Target Node ID", choice.targetNodeId, v =>
                 {
                     choice.targetNodeId = v;
@@ -622,11 +527,6 @@ namespace DialogueSystem.Editor
             _content.Add(addBtn);
         }
 
-        /// <summary>
-        /// Builds the rename row for a single choice's labelKey.
-        /// Validates uniqueness across all choices in the graph before applying.
-        /// Duplicate labelKeys are also surfaced by DialogueGraph.Validate().
-        /// </summary>
         private void BuildChoiceLabelKeyRenameRow(VisualElement parent,
                                                    DialogueChoice choice, int choiceIndex)
         {
@@ -655,7 +555,6 @@ namespace DialogueSystem.Editor
                 string newKey = newKeyField.value.Trim();
                 if (string.IsNullOrEmpty(newKey) || newKey == oldKey) return;
 
-                // Check for duplicate labelKey across all choices in the graph
                 if (_graph != null)
                 {
                     bool duplicateInGraph = _graph.nodes
@@ -669,9 +568,7 @@ namespace DialogueSystem.Editor
                     }
                 }
 
-                // Rename in the table if the old key exists
-                if (!string.IsNullOrEmpty(oldKey) &&
-                    LocalizationTableService.ChoiceLabelKeyExists(oldKey))
+                if (!string.IsNullOrEmpty(oldKey) && LocalizationTableService.ChoiceLabelKeyExists(oldKey))
                 {
                     bool renamed = LocalizationTableService.RenameChoiceLabelKey(oldKey, newKey);
                     if (!renamed)
@@ -683,12 +580,11 @@ namespace DialogueSystem.Editor
                 }
 
                 warningLabel.style.display = DisplayStyle.None;
-
                 Undo.RecordObject(_graph, "Rename Choice Label Key");
                 choice.labelKey = newKey;
                 EditorUtility.SetDirty(_graph);
                 _nodeView?.RefreshLocalePreview();
-                DirtyFlow(); // ports need refresh so their labels update
+                DirtyFlow();
                 Rebuild();
             })
             { text = "Apply" };
@@ -700,11 +596,6 @@ namespace DialogueSystem.Editor
             parent.Add(renameContainer);
         }
 
-        /// <summary>
-        /// Builds per-locale label fields for a single choice inside a card.
-        /// Reads from and writes to the DialogueChoiceLabelTableCollection.
-        /// If choice.labelKey is empty, shows a helper to set one first.
-        /// </summary>
         private void BuildPerLocaleChoiceLabelFields(VisualElement parent, DialogueChoice choice)
         {
             var locales = _localeState?.AllLocales;
@@ -712,9 +603,7 @@ namespace DialogueSystem.Editor
 
             if (string.IsNullOrEmpty(choice.labelKey))
             {
-                var hint = new Label("Set a Label Key above to edit translations.");
-                hint.AddToClassList("locale-warning");
-                parent.Add(hint);
+                parent.Add(MakeWarning("Set a Label Key above to edit translations."));
                 return;
             }
 
@@ -742,7 +631,6 @@ namespace DialogueSystem.Editor
                 {
                     LocalizationTableService.SetChoiceLabelEntry(
                         capturedLocale, capturedChoice.labelKey, e.newValue);
-                    // Refresh canvas so port names show the updated resolved label
                     _nodeView?.RefreshLocalePreview();
                     Dirty();
                 });
@@ -755,10 +643,9 @@ namespace DialogueSystem.Editor
 
         private void AddChoice()
         {
-            // Generate a default labelKey that is unique within this graph's choices
-            string baseKey    = $"{_node.id}_choice";
-            int    suffix     = _node.choices.Count + 1;
-            var    usedKeys   = _graph?.nodes
+            string baseKey  = $"{_node.id}_choice";
+            int    suffix   = _node.choices.Count + 1;
+            var    usedKeys = _graph?.nodes
                 .SelectMany(n => n.choices)
                 .Select(c => c.labelKey)
                 .Where(k => !string.IsNullOrEmpty(k))
@@ -807,12 +694,12 @@ namespace DialogueSystem.Editor
                 typeEnum.RegisterValueChangedCallback(e => { cond.type = (ConditionType)e.newValue; Dirty(); });
                 row.Add(typeEnum);
 
-                var keyField = new TextField { value = cond.key};
+                var keyField = new TextField { value = cond.key };
                 keyField.AddToClassList("condition-field");
                 keyField.RegisterValueChangedCallback(e => { cond.key = e.newValue; Dirty(); });
                 row.Add(keyField);
 
-                var valField = new TextField { value = cond.value};
+                var valField = new TextField { value = cond.value };
                 valField.AddToClassList("condition-field");
                 valField.RegisterValueChangedCallback(e => { cond.value = e.newValue; Dirty(); });
                 row.Add(valField);
@@ -895,6 +782,13 @@ namespace DialogueSystem.Editor
             return row;
         }
 
+        private static Label MakeWarning(string text)
+        {
+            var lbl = new Label(text);
+            lbl.AddToClassList("locale-warning");
+            return lbl;
+        }
+
         // ── Dirty helpers ─────────────────────────────────────────────────────
 
         private void ShowEmpty()
@@ -903,14 +797,12 @@ namespace DialogueSystem.Editor
             _scroll.style.display     = DisplayStyle.None;
         }
 
-        /// <summary>Marks graph dirty and notifies the window.</summary>
         private void Dirty()
         {
             if (_graph != null) EditorUtility.SetDirty(_graph);
             OnDataChanged?.Invoke();
         }
 
-        /// <summary>Marks graph dirty, notifies window, AND triggers edge refresh.</summary>
         private void DirtyFlow()
         {
             Dirty();

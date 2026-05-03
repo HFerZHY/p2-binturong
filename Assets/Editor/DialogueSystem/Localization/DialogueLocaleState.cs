@@ -25,12 +25,6 @@ namespace DialogueSystem.Editor
         /// </summary>
         public event Action OnLocaleChanged;
 
-        /// <summary>
-        /// Fired when a speaker's translated value is edited in the inspector.
-        /// All node views whose speakerNameKey matches should refresh their preview.
-        /// </summary>
-        public event Action<string> OnSpeakerValueChanged;
-
         // ── State ─────────────────────────────────────────────────────────────
 
         private Locale       _activeLocale;
@@ -45,7 +39,7 @@ namespace DialogueSystem.Editor
 
         // ── Properties ────────────────────────────────────────────────────────
 
-        /// <summary>All locales available in the StringTable collection.</summary>
+        /// <summary>All locales available in the StringTable collections.</summary>
         public IReadOnlyList<Locale> AllLocales => _allLocales;
 
         /// <summary>
@@ -66,8 +60,8 @@ namespace DialogueSystem.Editor
         // ── Public API ────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Re-fetches available locales from the StringTable collection.
-        /// Call after the collection changes (e.g. a new locale was added).
+        /// Re-fetches available locales from the localization settings.
+        /// Call after the locale set changes (e.g. a new locale was added).
         /// </summary>
         public void Refresh()
         {
@@ -85,12 +79,13 @@ namespace DialogueSystem.Editor
         }
 
         /// <summary>
-        /// Resolves a speaker name key in the active locale from the speaker collection.
+        /// Resolves a character's localized display name in the active locale.
+        /// The key is Character.characterName.
         /// </summary>
-        public string ResolveSpeaker(string key)
+        public string ResolveCharacterName(string characterNameKey)
         {
-            if (_activeLocale == null || string.IsNullOrEmpty(key)) return string.Empty;
-            return LocalizationTableService.GetSpeakerEntry(_activeLocale, key);
+            if (_activeLocale == null || string.IsNullOrEmpty(characterNameKey)) return string.Empty;
+            return LocalizationTableService.GetCharacterNameEntry(_activeLocale, characterNameKey);
         }
 
         /// <summary>
@@ -101,9 +96,6 @@ namespace DialogueSystem.Editor
             if (_activeLocale == null || string.IsNullOrEmpty(key)) return string.Empty;
             return LocalizationTableService.GetChoiceLabelEntry(_activeLocale, key);
         }
-
-        public void NotifySpeakerValueChanged(string speakerKey)
-            => OnSpeakerValueChanged?.Invoke(speakerKey);
 
         /// <summary>Legacy single-table resolve — kept for callers that don't care which table.</summary>
         public string Resolve(string key) => ResolveText(key);

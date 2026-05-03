@@ -106,11 +106,11 @@ namespace DialogueSystem.Editor
 
             var node = new DialogueNode
             {
-                id          = GenerateUniqueId(),
-                nodeType    = type,
-                speakerNameKey = type == NodeType.Line ? "Speaker" : string.Empty,
-                textKey        = type == NodeType.Line ? "..." : string.Empty,
+                id              = GenerateUniqueId(),
+                nodeType        = type,
+                textKey         = type == NodeType.Line ? string.Empty : string.Empty,
                 typewriterSpeed = 0.03f
+                // speaker is intentionally null — the designer assigns it in the inspector
             };
 
             _graph.nodes.Add(node);

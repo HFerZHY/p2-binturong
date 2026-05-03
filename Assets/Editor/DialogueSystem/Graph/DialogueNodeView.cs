@@ -11,12 +11,12 @@ namespace DialogueSystem.Editor
     /// A single node box on the dialogue graph canvas.
     ///
     /// The canvas body is read-only for localized text — it shows:
-    ///   • The raw key pill (speakerNameKey / textKey) stored on DialogueNode
-    ///   • A resolved preview label for the currently selected locale
+    ///   • The character name resolved from CharacterNameTable for the active locale,
+    ///     with the raw Character asset name shown as the key pill.
+    ///   • The raw textKey pill and its resolved locale preview.
     ///
-    /// All editing of localized strings happens in DialogueNodeInspectorPanel.
-    /// Flow fields (nextNodeId, choices) and the entry-node badge are set here
-    /// and in the inspector panel.
+    /// All editing of localized strings happens in DialogueNodeInspectorPanel (for
+    /// text/choice labels) or CharacterInspector (for character names).
     ///
     /// Public surface for the inspector panel:
     ///   TriggerNodeDataChange() — signals graph view to refresh edges
@@ -45,10 +45,9 @@ namespace DialogueSystem.Editor
 
         private Label _speakerPreviewLabel;
         private Label _textPreviewLabel;
-        private Label _entryBadge;          // shown only when this is the entry node
+        private Label _entryBadge;
 
-        // Choice port preview labels — one per choice, in order.
-        // Updated by RefreshLocalePreview so port names show the resolved label.
+        // Choice port labels — updated by RefreshLocalePreview without a full port rebuild.
         private readonly List<Label> _choicePortLabels = new();
 
         // ── Constructor ───────────────────────────────────────────────────────
@@ -62,18 +61,12 @@ namespace DialogueSystem.Editor
             Build();
 
             if (localeState != null)
-            {
                 localeState.OnLocaleChanged += RefreshLocalePreview;
-                localeState.OnSpeakerValueChanged += RefreshIfSpeakerChanged;
-            }
 
             RegisterCallback<DetachFromPanelEvent>(_ =>
             {
                 if (localeState != null)
-                {
                     localeState.OnLocaleChanged -= RefreshLocalePreview;
-                    localeState.OnSpeakerValueChanged -= RefreshIfSpeakerChanged;
-                }
             });
         }
 
@@ -86,19 +79,40 @@ namespace DialogueSystem.Editor
         public void TriggerNodeDataChange() => OnNodeDataChanged?.Invoke();
 
         /// <summary>
-        /// Re-resolves preview labels from the StringTable for the active locale.
+        /// Re-resolves preview labels from the StringTables for the active locale.
         /// Does NOT rebuild ports or layout — O(1) label updates only.
-        /// For Branch nodes, updates each choice port's display name from the
-        /// resolved choice label rather than the raw labelKey.
+        ///
+        /// Speaker: reads CharacterNameTable using node.speaker.characterName as the key.
+        ///          Falls back to the asset name if the table has no entry yet.
+        /// Text:    reads DialogueTextTable using node.textKey.
+        /// Choices: reads DialogueChoiceLabelTable using choice.labelKey per choice.
         /// </summary>
         public void RefreshLocalePreview()
         {
-            UpdatePreview(_speakerPreviewLabel,
-                LocaleState?.ResolveSpeaker(NodeData.speakerNameKey));
-            UpdatePreview(_textPreviewLabel,
-                LocaleState?.ResolveText(NodeData.textKey));
+            // ── Speaker preview ───────────────────────────────────────────────
+            // Use the Character's characterName as the table key; fall back to
+            // the asset's Unity object name if characterName is not set.
+            string charKey = NodeData.speaker != null
+                ? (string.IsNullOrEmpty(NodeData.speaker.characterName)
+                    ? NodeData.speaker.name
+                    : NodeData.speaker.characterName)
+                : null;
 
-            // Refresh choice port labels with the resolved locale string
+            string resolvedName = charKey != null
+                ? LocaleState?.ResolveCharacterName(charKey)
+                : null;
+
+            // If the table has no entry yet, show the raw key so the designer
+            // knows what to fill in the CharacterInspector.
+            if (string.IsNullOrEmpty(resolvedName) && charKey != null)
+                resolvedName = $"({charKey})";
+
+            UpdatePreview(_speakerPreviewLabel, resolvedName);
+
+            // ── Text preview ──────────────────────────────────────────────────
+            UpdatePreview(_textPreviewLabel, LocaleState?.ResolveText(NodeData.textKey));
+
+            // ── Choice port labels ─────────────────────────────────────────────
             for (int i = 0; i < _choicePortLabels.Count && i < NodeData.choices.Count; i++)
             {
                 var choice = NodeData.choices[i];
@@ -108,12 +122,12 @@ namespace DialogueSystem.Editor
                 string display = !string.IsNullOrEmpty(resolved)
                     ? Truncate(resolved, 28)
                     : (!string.IsNullOrEmpty(choice.labelKey)
-                        ? Truncate(choice.labelKey, 28)   // fallback: show raw key
+                        ? Truncate(choice.labelKey, 28)
                         : $"Choice {i + 1}");
 
-                var label = _choicePortLabels[i];
-                if (label != null)
-                    label.text = display;
+                var portLabel = _choicePortLabels[i];
+                if (portLabel != null)
+                    portLabel.text = display;
             }
         }
 
@@ -126,12 +140,6 @@ namespace DialogueSystem.Editor
             bool isEntry = GraphData != null && GraphData.entryNodeId == NodeData.id;
             if (_entryBadge != null)
                 _entryBadge.style.display = isEntry ? DisplayStyle.Flex : DisplayStyle.None;
-        }
-
-        private void RefreshIfSpeakerChanged(string speakerKey)
-        {
-            if (speakerKey == NodeData.speakerNameKey)
-                RefreshLocalePreview();
         }
 
         // ── Build ─────────────────────────────────────────────────────────────
@@ -148,12 +156,10 @@ namespace DialogueSystem.Editor
                 _                 => "node-line"
             });
 
-            // Type badge
             var typeBadge = new Label(NodeData.nodeType.ToString().ToUpper());
             typeBadge.AddToClassList("node-type-badge");
             titleContainer.Add(typeBadge);
 
-            // Entry node badge — visible only when this is the graph entry
             _entryBadge = new Label("ENTRY");
             _entryBadge.AddToClassList("node-entry-badge");
             titleContainer.Add(_entryBadge);
@@ -188,7 +194,12 @@ namespace DialogueSystem.Editor
             if (NodeData.nodeType == NodeType.Line)
             {
                 // ── Speaker ───────────────────────────────────────────────────
-                var speakerRow = MakeKeyRow("Speaker", NodeData.speakerNameKey);
+                // Show the Character asset name as the key pill; the preview label
+                // below it shows the resolved localized name from CharacterNameTable.
+                string charAssetLabel = NodeData.speaker != null
+                    ? NodeData.speaker.name
+                    : "(none)";
+                var speakerRow = MakeKeyRow("Speaker", charAssetLabel);
                 extensionContainer.Add(speakerRow);
 
                 _speakerPreviewLabel = new Label();
@@ -279,9 +290,6 @@ namespace DialogueSystem.Editor
                     {
                         var choice = NodeData.choices[i];
 
-                        // Resolve the localized label for the port name.
-                        // If the table returns nothing yet, fall back to the raw labelKey,
-                        // then to the ordinal "Choice N".
                         string resolved = string.IsNullOrEmpty(choice.labelKey)
                             ? null
                             : LocaleState?.ResolveChoiceLabel(choice.labelKey);
@@ -296,9 +304,6 @@ namespace DialogueSystem.Editor
                         outputContainer.Add(port);
                         ChoiceOutputPorts.Add(port);
 
-                        // Keep a reference to the portName label so RefreshLocalePreview
-                        // can update it without a full port rebuild.
-                        // The portName Label is the first Label child of the port.
                         Label portLabel = port.Q<Label>();
                         _choicePortLabels.Add(portLabel);
                     }

@@ -12,16 +12,18 @@ namespace DialogueSystem.Editor
     /// All StringTable read/write operations for the dialogue editor.
     ///
     /// THREE SEPARATE COLLECTIONS
-    ///   SpeakerTableCollection — stores speaker name strings, keyed by a
-    ///     designer-chosen speaker identifier (e.g. "Guard", "Merchant").
-    ///     Keys are shared across nodes; one speaker entry is reused by many nodes.
+    ///   CharacterNameTable — stores localized character display names, keyed by
+    ///     Character.characterName (e.g. "Guard", "Merchant").
+    ///     One entry per Character asset; the key equals the asset's characterName.
+    ///     Managed exclusively through CharacterInspector — not editable in the
+    ///     node inspector panel.
     ///
-    ///   DialogueTextTableCollection — stores node dialogue text, keyed by
-    ///     the node's textKey (e.g. "guard_01_text").  One entry per node.
+    ///   DialogueTextTable — stores node dialogue text, keyed by
+    ///     DialogueNode.textKey (e.g. "guard_01_text").  One entry per node.
     ///
-    ///   DialogueChoiceLabelTableCollection — stores player choice button labels,
-    ///     keyed by the choice's labelKey (e.g. "guard_01_choice_a").
-    ///     One entry per choice; keys are unique across the graph.
+    ///   DialogueChoiceLabelTable — stores player choice button labels, keyed by
+    ///     DialogueChoice.labelKey (e.g. "guard_01_choice_a").
+    ///     One entry per choice; keys are unique across a graph.
     ///
     /// HOW KEYS WORK (per the Unity docs)
     ///   - A StringTableCollection has one StringTable per locale.
@@ -32,38 +34,34 @@ namespace DialogueSystem.Editor
     ///     StringTable maps those key IDs to localized values.
     ///
     /// READING
-    ///   GetTextEntry(locale, key)        — read from DialogueTextTableCollection
-    ///   GetSpeakerEntry(locale, key)     — read from SpeakerTableCollection
-    ///   GetChoiceLabelEntry(locale, key) — read from DialogueChoiceLabelTableCollection
+    ///   GetCharacterNameEntry(locale, key) — read from CharacterNameTable
+    ///   GetTextEntry(locale, key)          — read from DialogueTextTable
+    ///   GetChoiceLabelEntry(locale, key)   — read from DialogueChoiceLabelTable
     ///
     /// WRITING
-    ///   SetTextEntry(locale, key, value)        — write to DialogueTextTableCollection
-    ///   SetSpeakerEntry(locale, key, value)     — write to SpeakerTableCollection
-    ///   SetChoiceLabelEntry(locale, key, value) — write to DialogueChoiceLabelTableCollection
+    ///   SetCharacterNameEntry(locale, key, value) — write to CharacterNameTable
+    ///   SetTextEntry(locale, key, value)          — write to DialogueTextTable
+    ///   SetChoiceLabelEntry(locale, key, value)   — write to DialogueChoiceLabelTable
     ///   SaveAll() — call once after all writes to flush dirty assets
     ///
     /// RENAMING KEYS
-    ///   RenameTextKey(oldKey, newKey)        — renames in DialogueTextTableCollection
-    ///   RenameSpeakerKey(oldKey, newKey)     — renames in SpeakerTableCollection
-    ///   RenameChoiceLabelKey(oldKey, newKey) — renames in DialogueChoiceLabelTableCollection
+    ///   RenameCharacterNameKey(oldKey, newKey) — renames in CharacterNameTable
+    ///   RenameTextKey(oldKey, newKey)          — renames in DialogueTextTable
+    ///   RenameChoiceLabelKey(oldKey, newKey)   — renames in DialogueChoiceLabelTable
     ///   Each returns false if the old key does not exist or the new key already exists.
     ///
     /// KEY EXISTENCE CHECKS
-    ///   TextKeyExists(key)        — checks DialogueTextTableCollection
-    ///   SpeakerKeyExists(key)     — checks SpeakerTableCollection
-    ///   ChoiceLabelKeyExists(key) — checks DialogueChoiceLabelTableCollection
-    ///
-    /// SPEAKER ENUMERATION
-    ///   GetAllSpeakerKeys() — returns every key currently in the speaker
-    ///   collection (from SharedTableData), used to populate the speaker combobox.
+    ///   CharacterNameKeyExists(key) — checks CharacterNameTable
+    ///   TextKeyExists(key)          — checks DialogueTextTable
+    ///   ChoiceLabelKeyExists(key)   — checks DialogueChoiceLabelTable
     /// </summary>
     public static class LocalizationTableService
     {
         // ── Collection names — change these to match your project ─────────────
 
-        public const string SpeakerCollectionName     = "CharacterNameTable";
-        public const string DialogueCollectionName    = "DialogueTextTable";
-        public const string ChoiceLabelCollectionName = "DialogueChoiceLabelTable";
+        public const string CharacterNameCollectionName = "CharacterNameTable";
+        public const string DialogueCollectionName      = "DialogueTextTable";
+        public const string ChoiceLabelCollectionName   = "DialogueChoiceLabelTable";
 
         // ── Locale enumeration ────────────────────────────────────────────────
 
@@ -76,13 +74,13 @@ namespace DialogueSystem.Editor
 
         // ── Read ──────────────────────────────────────────────────────────────
 
+        /// <summary>Reads a localized character name for the given locale and characterName key.</summary>
+        public static string GetCharacterNameEntry(Locale locale, string key)
+            => ReadEntry(CharacterNameCollectionName, locale, key);
+
         /// <summary>Reads a dialogue text entry for the given locale and key.</summary>
         public static string GetTextEntry(Locale locale, string key)
             => ReadEntry(DialogueCollectionName, locale, key);
-
-        /// <summary>Reads a speaker name entry for the given locale and key.</summary>
-        public static string GetSpeakerEntry(Locale locale, string key)
-            => ReadEntry(SpeakerCollectionName, locale, key);
 
         /// <summary>Reads a choice label entry for the given locale and key.</summary>
         public static string GetChoiceLabelEntry(Locale locale, string key)
@@ -100,19 +98,19 @@ namespace DialogueSystem.Editor
         // ── Write ─────────────────────────────────────────────────────────────
 
         /// <summary>
+        /// Writes a localized character name entry for the given locale and key.
+        /// Creates the entry if it does not exist.
+        /// </summary>
+        public static void SetCharacterNameEntry(Locale locale, string key, string value)
+            => WriteEntry(CharacterNameCollectionName, locale, key, value);
+
+        /// <summary>
         /// Writes a dialogue text entry for the given locale and key.
         /// Creates the entry if it does not exist.
         /// Per the Unity docs, marks both the StringTable and its SharedData dirty.
         /// </summary>
         public static void SetTextEntry(Locale locale, string key, string value)
             => WriteEntry(DialogueCollectionName, locale, key, value);
-
-        /// <summary>
-        /// Writes a speaker name entry for the given locale and key.
-        /// Creates the entry if it does not exist.
-        /// </summary>
-        public static void SetSpeakerEntry(Locale locale, string key, string value)
-            => WriteEntry(SpeakerCollectionName, locale, key, value);
 
         /// <summary>
         /// Writes a choice label entry for the given locale and key.
@@ -134,9 +132,6 @@ namespace DialogueSystem.Editor
                 return;
             }
 
-            // AddEntry creates the entry if missing, or updates its value if it exists.
-            // Per the Unity Localization 1.5 docs, we must mark both the table
-            // AND its SharedData dirty after modifications.
             table.AddEntry(key, value);
             EditorUtility.SetDirty(table);
             EditorUtility.SetDirty(table.SharedData);
@@ -148,7 +143,7 @@ namespace DialogueSystem.Editor
         /// </summary>
         public static void SaveAll()
         {
-            MarkAllDirty(SpeakerCollectionName);
+            MarkAllDirty(CharacterNameCollectionName);
             MarkAllDirty(DialogueCollectionName);
             MarkAllDirty(ChoiceLabelCollectionName);
             AssetDatabase.SaveAssets();
@@ -167,13 +162,13 @@ namespace DialogueSystem.Editor
 
         // ── Key existence checks ──────────────────────────────────────────────
 
-        /// <summary>Returns true if <paramref name="key"/> exists in the text collection's SharedTableData.</summary>
+        /// <summary>Returns true if <paramref name="key"/> exists in the character name collection.</summary>
+        public static bool CharacterNameKeyExists(string key) => KeyExists(CharacterNameCollectionName, key);
+
+        /// <summary>Returns true if <paramref name="key"/> exists in the text collection.</summary>
         public static bool TextKeyExists(string key) => KeyExists(DialogueCollectionName, key);
 
-        /// <summary>Returns true if <paramref name="key"/> exists in the speaker collection's SharedTableData.</summary>
-        public static bool SpeakerKeyExists(string key) => KeyExists(SpeakerCollectionName, key);
-
-        /// <summary>Returns true if <paramref name="key"/> exists in the choice label collection's SharedTableData.</summary>
+        /// <summary>Returns true if <paramref name="key"/> exists in the choice label collection.</summary>
         public static bool ChoiceLabelKeyExists(string key) => KeyExists(ChoiceLabelCollectionName, key);
 
         private static bool KeyExists(string collectionName, string key)
@@ -186,20 +181,20 @@ namespace DialogueSystem.Editor
         // ── Key rename ────────────────────────────────────────────────────────
 
         /// <summary>
+        /// Renames <paramref name="oldKey"/> to <paramref name="newKey"/> in the character name collection.
+        /// All per-locale values are preserved under the new key.
+        /// Returns false if oldKey does not exist or newKey already exists.
+        /// </summary>
+        public static bool RenameCharacterNameKey(string oldKey, string newKey)
+            => RenameKey(CharacterNameCollectionName, oldKey, newKey);
+
+        /// <summary>
         /// Renames <paramref name="oldKey"/> to <paramref name="newKey"/> in the text collection.
         /// All per-locale values are preserved under the new key.
         /// Returns false if oldKey does not exist or newKey already exists.
         /// </summary>
         public static bool RenameTextKey(string oldKey, string newKey)
             => RenameKey(DialogueCollectionName, oldKey, newKey);
-
-        /// <summary>
-        /// Renames <paramref name="oldKey"/> to <paramref name="newKey"/> in the speaker collection.
-        /// All per-locale values are preserved under the new key.
-        /// Returns false if oldKey does not exist or newKey already exists.
-        /// </summary>
-        public static bool RenameSpeakerKey(string oldKey, string newKey)
-            => RenameKey(SpeakerCollectionName, oldKey, newKey);
 
         /// <summary>
         /// Renames <paramref name="oldKey"/> to <paramref name="newKey"/> in the choice label collection.
@@ -215,13 +210,13 @@ namespace DialogueSystem.Editor
         /// Unity's StringTableCollection does not expose a direct rename API, so the
         /// approach is:
         ///   1. Read all per-locale values for the old key.
-        ///   2. Remove the old key from SharedTableData (removes it from all tables).
+        ///   2. Remove the old key via StringTableCollection.RemoveEntry (clears all locales).
         ///   3. AddEntry with the new key and restored values to each per-locale table.
         /// </summary>
         private static bool RenameKey(string collectionName, string oldKey, string newKey)
         {
             if (string.IsNullOrEmpty(oldKey) || string.IsNullOrEmpty(newKey)) return false;
-            if (oldKey == newKey) return true; // no-op
+            if (oldKey == newKey) return true;
 
             var collection = GetCollection(collectionName);
             if (collection == null) return false;
@@ -242,7 +237,7 @@ namespace DialogueSystem.Editor
                 return false;
             }
 
-            // Step 1 — Snapshot per-locale values before we remove the old key
+            // Step 1 — snapshot per-locale values
             var values = new Dictionary<StringTable, string>();
             foreach (var table in collection.StringTables)
             {
@@ -250,12 +245,11 @@ namespace DialogueSystem.Editor
                 values[table] = entry?.LocalizedValue ?? string.Empty;
             }
 
-            // Step 2 — Remove the old key from every locale table and SharedTableData.
-            // StringTableCollection.RemoveEntry removes the shared key + all per-locale rows.
+            // Step 2 — remove the old key from all tables and SharedTableData
             collection.RemoveEntry(oldKey);
             EditorUtility.SetDirty(sharedData);
 
-            // Step 3 — Add the new key with the preserved values
+            // Step 3 — add the new key with the preserved values
             foreach (var (table, value) in values)
             {
                 table.AddEntry(newKey, value);
@@ -266,49 +260,27 @@ namespace DialogueSystem.Editor
             return true;
         }
 
-        // ── Speaker enumeration ───────────────────────────────────────────────
+        // ── Character name key management ─────────────────────────────────────
 
         /// <summary>
-        /// Returns all key names currently registered in the speaker collection's
-        /// SharedTableData. These are the stable key strings (e.g. "Guard",
-        /// "Merchant") that designers assign to nodes.
-        /// Order matches insertion order in the SharedTableData.
+        /// Adds a new key to the character name collection for every locale with an
+        /// empty initial value.  Returns false if the key already exists.
+        /// Called by CharacterInspector when a new Character asset is first inspected
+        /// or when a rename is committed.
         /// </summary>
-        public static List<string> GetAllSpeakerKeys()
-        {
-            var collection = GetCollection(SpeakerCollectionName);
-            if (collection == null) return new List<string>();
-
-            // SharedTableData.Entries is the canonical key list — same across all
-            // per-locale StringTables in the collection.
-            return collection.SharedData.Entries
-                .Select(e => e.Key)
-                .OrderBy(k => k)
-                .ToList();
-        }
-
-        /// <summary>
-        /// Adds a new key to the speaker collection for every locale, with an
-        /// empty string as the initial value. The caller should immediately call
-        /// SetSpeakerEntry per locale to populate the values.
-        /// Returns false if the key already exists.
-        /// </summary>
-        public static bool AddSpeakerKey(string key)
+        public static bool AddCharacterNameKey(string key)
         {
             if (string.IsNullOrWhiteSpace(key)) return false;
 
-            var collection = GetCollection(SpeakerCollectionName);
+            var collection = GetCollection(CharacterNameCollectionName);
             if (collection == null) return false;
 
-            // Check for duplicates via SharedTableData
             if (collection.SharedData.Contains(key))
             {
-                Debug.LogWarning($"[LocalizationTableService] Speaker key '{key}' already exists.");
+                Debug.LogWarning($"[LocalizationTableService] Character name key '{key}' already exists.");
                 return false;
             }
 
-            // AddEntry on each per-locale table creates the shared key once and
-            // stores a locale-specific empty string value.
             foreach (var table in collection.StringTables)
             {
                 table.AddEntry(key, string.Empty);

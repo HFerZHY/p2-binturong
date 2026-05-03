@@ -16,8 +16,8 @@ MonoBehaviour:
   nodes:
   - id: node_0001
     nodeType: 0
-    speakerNameKey: speakerTest
-    speakerPortrait: {fileID: 0}
+    speaker: {fileID: 11400000, guid: 5afef3ebce9b06047a3f82a9deb2ca4f, type: 2}
+    speakerPortraitKey: 
     textKey: speaker1text
     nextNodeId: node_0002
     choices: []
@@ -32,11 +32,36 @@ MonoBehaviour:
     voiceClip: {fileID: 0}
     npcAnimatorTrigger: 
   - id: node_0002
+    nodeType: 1
+    speaker: {fileID: 0}
+    speakerPortraitKey: 
+    textKey: 
+    nextNodeId: 
+    choices:
+    - labelKey: node_0002_choice_01
+      targetNodeId: node_0004
+      conditions: []
+      showIfFailed: 0
+    - labelKey: node_0002_choice_02
+      targetNodeId: node_0005
+      conditions: []
+      showIfFailed: 0
+    conditions: []
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0004
     nodeType: 0
-    speakerNameKey: speakerTest
-    speakerPortrait: {fileID: 0}
-    textKey: speaker1text2
-    nextNodeId: node_0003
+    speaker: {fileID: 11400000, guid: 5afef3ebce9b06047a3f82a9deb2ca4f, type: 2}
+    speakerPortraitKey: 
+    textKey: text_choice_1
+    nextNodeId: 
     choices: []
     conditions: []
     onEnter:
@@ -48,25 +73,13 @@ MonoBehaviour:
     typewriterSpeed: 0.03
     voiceClip: {fileID: 0}
     npcAnimatorTrigger: 
-  - id: node_0003
-    nodeType: 1
-    speakerNameKey: 
-    speakerPortrait: {fileID: 0}
-    textKey: 
+  - id: node_0005
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 5afef3ebce9b06047a3f82a9deb2ca4f, type: 2}
+    speakerPortraitKey: 
+    textKey: text_choice_2
     nextNodeId: 
-    choices:
-    - labelKey: Hello
-      targetNodeId: 
-      conditions: []
-      showIfFailed: 0
-    - labelKey: Hi
-      targetNodeId: 
-      conditions: []
-      showIfFailed: 0
-    - labelKey: Yo
-      targetNodeId: 
-      conditions: []
-      showIfFailed: 0
+    choices: []
     conditions: []
     onEnter:
       m_PersistentCalls:

@@ -30,12 +30,16 @@ namespace DialogueSystem.UI
     /// </summary>
     public class DialogueUIController : MonoBehaviour
     {
+        public const string CharacterNameCollectionName = "CharacterNameTable";
+        public const string DialogueCollectionName      = "DialogueTextTable";
+        public const string ChoiceLabelCollectionName   = "DialogueChoiceLabelTable";
+        
         // ── Inspector ─────────────────────────────────────────────────────────
-        [FormerlySerializedAs("stringTable")]
-        [Header("Localization")] 
-        [SerializeField] private StringTable textStringTable;
-        [SerializeField] private StringTable speakerNameStringTable;
-        [SerializeField] private StringTable choiceLabelStringTable;
+        // [FormerlySerializedAs("stringTable")]
+        // [Header("Localization")] 
+        // [SerializeField] private StringTable textStringTable;
+        // [SerializeField] private StringTable speakerNameStringTable;
+        // [SerializeField] private StringTable choiceLabelStringTable;
         
         [Header("Panel")]
         [SerializeField] private GameObject dialoguePanel;
@@ -86,11 +90,11 @@ namespace DialogueSystem.UI
             if (continueIndicator) continueIndicator.gameObject.SetActive(false);
 
             // Speaker
-            if (speakerNameText != null)
-                speakerNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString(speakerNameStringTable.name, node.speaker.name);
+            if (speakerNameText != null && node.speaker != null)
+                speakerNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString(CharacterNameCollectionName, node.speaker.name);
 
             // Portrait
-            if (portraitImage != null)
+            if (portraitImage != null && node.speaker != null && node.speaker.portraits != null)
             {
                 Sprite portait = node.speaker.portraits[node.speakerPortraitKey];
                 portraitImage.sprite = portait;
@@ -98,7 +102,7 @@ namespace DialogueSystem.UI
             }
 
             // Body text (typewriter)
-            _fullText = LocalizationSettings.StringDatabase.GetLocalizedString(textStringTable.name, node.textKey);
+            _fullText = LocalizationSettings.StringDatabase.GetLocalizedString(DialogueCollectionName, node.textKey);
             _onTypingComplete = onTypingComplete;
 
             float speed = node.typewriterSpeed > 0 ? node.typewriterSpeed : defaultTypewriterSpeed;
@@ -133,7 +137,7 @@ namespace DialogueSystem.UI
                 if (label != null)
                 {
                     // label.text = choice.label;
-                    label.text = LocalizationSettings.StringDatabase.GetLocalizedString(choiceLabelStringTable.name, choice.labelKey);
+                    label.text = LocalizationSettings.StringDatabase.GetLocalizedString(ChoiceLabelCollectionName, choice.labelKey);
                 }
                 btn.interactable = isInteractable;
 

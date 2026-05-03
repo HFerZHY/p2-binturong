@@ -230,14 +230,8 @@ namespace DialogueSystem.Core
 
         private void ProcessBranchNode(DialogueNode node)
         {
-            _state = ConversationState.Displaying;
-
-            // Show any preamble text first; reveal choices once typing finishes.
-            dialogueUIController.ShowLine(node, onTypingComplete: () =>
-            {
-                _state = ConversationState.Branch;
-                dialogueUIController.ShowChoices(BuildFilteredChoices(node.choices), OnChoiceSelected);
-            });
+            _state = ConversationState.Branch;
+            dialogueUIController.ShowChoices(BuildFilteredChoices(node.choices), OnChoiceSelected);
         }
 
         // ── Choice callback ───────────────────────────────────────────────────
