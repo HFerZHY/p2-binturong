@@ -6,7 +6,6 @@ using UnityEngine.UI;
 using TMPro;
 using DialogueSystem.Data;
 using DialogueSystem.Interfaces;
-using DialogueSystem.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.Tables;
 using UnityEngine.Serialization;
@@ -92,7 +91,7 @@ namespace DialogueSystem.UI
 
             // Speaker
             if (speakerNameText != null && node.speaker != null)
-                speakerNameText.text = DialogueLocalizationManager.Instance.GetCharacterName(node.speaker.characterName);
+                speakerNameText.text = LocalizationManager.Instance.GetCharacterName(node.speaker.characterName);
 
             // Portrait
             if (portraitImage != null && node.speaker != null && node.speaker.portraits != null)
@@ -103,7 +102,7 @@ namespace DialogueSystem.UI
             }
 
             // Body text (typewriter)
-            _fullText = DialogueLocalizationManager.Instance.GetDialogueText(node.textKey);
+            _fullText = LocalizationManager.Instance.GetDialogueText(node.textKey);
             _onTypingComplete = onTypingComplete;
 
             float speed = node.typewriterSpeed > 0 ? node.typewriterSpeed : defaultTypewriterSpeed;
@@ -137,7 +136,7 @@ namespace DialogueSystem.UI
                 var label = btn.GetComponentInChildren<TMP_Text>();
                 if (label != null)
                 {
-                    label.text = DialogueLocalizationManager.Instance.GetDialogueChoice(choice.labelKey);
+                    label.text = LocalizationManager.Instance.GetDialogueChoice(choice.labelKey);
                 }
                 btn.interactable = isInteractable;
 
