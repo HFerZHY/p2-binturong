@@ -1261,6 +1261,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1058229742}
   m_CullTransparentMesh: 1
+--- !u!1 &1257784143
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1257784145}
+  - component: {fileID: 1257784144}
+  m_Layer: 0
+  m_Name: DialogueLocalizationManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1257784144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1257784143}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0820bfee8a0a4d95b3207bd9eaf1c718, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueSystem.Localization.DialogueLocalizationManager
+  characterNameTable: {fileID: 11400000, guid: 7bda0f0728582fc499888cf26dc2fff3, type: 2}
+  dialogueChoiceLabelTable: {fileID: 11400000, guid: d58b96b37bdf7be4bb98a381b6907412, type: 2}
+  dialogueTextTable: {fileID: 11400000, guid: 29d948331c9922946a23b7c0709ba81e, type: 2}
+--- !u!4 &1257784145
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1257784143}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1345075389
 GameObject:
   m_ObjectHideFlags: 0
@@ -1915,3 +1962,4 @@ SceneRoots:
   - {fileID: 678025396}
   - {fileID: 1345075394}
   - {fileID: 676029317}
+  - {fileID: 1257784145}

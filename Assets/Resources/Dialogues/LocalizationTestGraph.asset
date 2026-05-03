@@ -46,6 +46,10 @@ MonoBehaviour:
       targetNodeId: node_0005
       conditions: []
       showIfFailed: 0
+    - labelKey: node_0002_choice_03
+      targetNodeId: node_0003
+      conditions: []
+      showIfFailed: 0
     conditions: []
     onEnter:
       m_PersistentCalls:
@@ -79,6 +83,23 @@ MonoBehaviour:
     speakerPortraitKey: 
     textKey: text_choice_2
     nextNodeId: 
+    choices: []
+    conditions: []
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0003
+    nodeType: 0
+    speaker: {fileID: 0}
+    speakerPortraitKey: 
+    textKey: cycleBack
+    nextNodeId: node_0001
     choices: []
     conditions: []
     onEnter:

@@ -20,11 +20,6 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 49e1fba9ac0477245a67394e5e609cdb
-    m_Address: Assets/Resources/Dialogues/DialogueStringTable Shared Data.asset
-    m_ReadOnly: 1
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d958ec060fec007479a5bd47aa80ef38
     m_Address: Assets/Resources/Dialogues/DialogueTextTable Shared Data.asset
     m_ReadOnly: 1

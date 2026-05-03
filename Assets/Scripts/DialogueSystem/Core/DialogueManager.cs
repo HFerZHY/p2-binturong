@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Base;
 using UnityEngine;
 using DialogueSystem.Data;
 using DialogueSystem.Interfaces;
@@ -32,11 +33,11 @@ namespace DialogueSystem.Core
     ///                                           │
     ///                                          Idle
     /// </summary>
-    public class DialogueManager : MonoBehaviour, IDialogueTrigger
+    public class DialogueManager : MonoSingleton<DialogueManager>, IDialogueTrigger
     {
         // ── Singleton ─────────────────────────────────────────────────────────
 
-        public static DialogueManager Instance { get; private set; }
+        // public static DialogueManager Instance { get; private set; }
 
         // ── Dependencies ──────────────────────────────────────────────────────
 
@@ -65,16 +66,16 @@ namespace DialogueSystem.Core
 
         // ── Unity lifecycle ───────────────────────────────────────────────────
 
-        private void Awake()
-        {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
+        // private void Awake()
+        // {
+        //     if (Instance != null && Instance != this)
+        //     {
+        //         Destroy(gameObject);
+        //         return;
+        //     }
+        //     Instance = this;
+        //     DontDestroyOnLoad(gameObject);
+        // }
 
         // ── Dependency registration ───────────────────────────────────────────
 

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using DialogueSystem.Localization;
 using UnityEditor;
 using UnityEditor.Localization;
 using UnityEngine;
@@ -57,12 +58,6 @@ namespace DialogueSystem.Editor
     /// </summary>
     public static class LocalizationTableService
     {
-        // ── Collection names — change these to match your project ─────────────
-
-        public const string CharacterNameCollectionName = "CharacterNameTable";
-        public const string DialogueCollectionName      = "DialogueTextTable";
-        public const string ChoiceLabelCollectionName   = "DialogueChoiceLabelTable";
-
         // ── Locale enumeration ────────────────────────────────────────────────
 
         /// <summary>
@@ -76,20 +71,20 @@ namespace DialogueSystem.Editor
 
         /// <summary>Reads a localized character name for the given locale and characterName key.</summary>
         public static string GetCharacterNameEntry(Locale locale, string key)
-            => ReadEntry(CharacterNameCollectionName, locale, key);
+            => ReadEntry(DialogueLocalizationManager.Instance.characterNameTable, locale, key);
 
         /// <summary>Reads a dialogue text entry for the given locale and key.</summary>
         public static string GetTextEntry(Locale locale, string key)
-            => ReadEntry(DialogueCollectionName, locale, key);
+            => ReadEntry(DialogueLocalizationManager.Instance.dialogueTextTable, locale, key);
 
         /// <summary>Reads a choice label entry for the given locale and key.</summary>
         public static string GetChoiceLabelEntry(Locale locale, string key)
-            => ReadEntry(ChoiceLabelCollectionName, locale, key);
+            => ReadEntry(DialogueLocalizationManager.Instance.dialogueChoiceLabelTable, locale, key);
 
-        private static string ReadEntry(string collectionName, Locale locale, string key)
+        private static string ReadEntry(StringTableCollection collection, Locale locale, string key)
         {
             if (locale == null || string.IsNullOrEmpty(key)) return string.Empty;
-            var table = GetTable(collectionName, locale);
+            var table = GetTable(collection, locale);
             if (table == null) return string.Empty;
             var entry = table.GetEntry(key);
             return entry?.LocalizedValue ?? string.Empty;
@@ -102,7 +97,7 @@ namespace DialogueSystem.Editor
         /// Creates the entry if it does not exist.
         /// </summary>
         public static void SetCharacterNameEntry(Locale locale, string key, string value)
-            => WriteEntry(CharacterNameCollectionName, locale, key, value);
+            => WriteEntry(DialogueLocalizationManager.Instance.characterNameTable, locale, key, value);
 
         /// <summary>
         /// Writes a dialogue text entry for the given locale and key.
@@ -110,25 +105,25 @@ namespace DialogueSystem.Editor
         /// Per the Unity docs, marks both the StringTable and its SharedData dirty.
         /// </summary>
         public static void SetTextEntry(Locale locale, string key, string value)
-            => WriteEntry(DialogueCollectionName, locale, key, value);
+            => WriteEntry(DialogueLocalizationManager.Instance.dialogueTextTable, locale, key, value);
 
         /// <summary>
         /// Writes a choice label entry for the given locale and key.
         /// Creates the entry if it does not exist.
         /// </summary>
         public static void SetChoiceLabelEntry(Locale locale, string key, string value)
-            => WriteEntry(ChoiceLabelCollectionName, locale, key, value);
+            => WriteEntry(DialogueLocalizationManager.Instance.dialogueChoiceLabelTable, locale, key, value);
 
-        private static void WriteEntry(string collectionName, Locale locale, string key, string value)
+        private static void WriteEntry(StringTableCollection collection, Locale locale, string key, string value)
         {
             if (locale == null || string.IsNullOrEmpty(key)) return;
 
-            var table = GetTable(collectionName, locale);
+            var table = GetTable(collection, locale);
             if (table == null)
             {
                 Debug.LogWarning(
                     $"[LocalizationTableService] No StringTable for locale '{locale.LocaleName}' " +
-                    $"in collection '{collectionName}'.");
+                    $"in collection '{collection.name}'.");
                 return;
             }
 
@@ -143,15 +138,14 @@ namespace DialogueSystem.Editor
         /// </summary>
         public static void SaveAll()
         {
-            MarkAllDirty(CharacterNameCollectionName);
-            MarkAllDirty(DialogueCollectionName);
-            MarkAllDirty(ChoiceLabelCollectionName);
+            MarkAllDirty(DialogueLocalizationManager.Instance.characterNameTable);
+            MarkAllDirty(DialogueLocalizationManager.Instance.dialogueTextTable);
+            MarkAllDirty(DialogueLocalizationManager.Instance.dialogueChoiceLabelTable);
             AssetDatabase.SaveAssets();
         }
 
-        private static void MarkAllDirty(string collectionName)
+        private static void MarkAllDirty(StringTableCollection collection)
         {
-            var collection = GetCollection(collectionName);
             if (collection == null) return;
             foreach (var table in collection.StringTables)
             {
@@ -163,18 +157,17 @@ namespace DialogueSystem.Editor
         // ── Key existence checks ──────────────────────────────────────────────
 
         /// <summary>Returns true if <paramref name="key"/> exists in the character name collection.</summary>
-        public static bool CharacterNameKeyExists(string key) => KeyExists(CharacterNameCollectionName, key);
+        public static bool CharacterNameKeyExists(string key) => KeyExists(DialogueLocalizationManager.Instance.characterNameTable, key);
 
         /// <summary>Returns true if <paramref name="key"/> exists in the text collection.</summary>
-        public static bool TextKeyExists(string key) => KeyExists(DialogueCollectionName, key);
+        public static bool TextKeyExists(string key) => KeyExists(DialogueLocalizationManager.Instance.dialogueTextTable, key);
 
         /// <summary>Returns true if <paramref name="key"/> exists in the choice label collection.</summary>
-        public static bool ChoiceLabelKeyExists(string key) => KeyExists(ChoiceLabelCollectionName, key);
+        public static bool ChoiceLabelKeyExists(string key) => KeyExists(DialogueLocalizationManager.Instance.dialogueChoiceLabelTable, key);
 
-        private static bool KeyExists(string collectionName, string key)
+        private static bool KeyExists(StringTableCollection collection, string key)
         {
             if (string.IsNullOrEmpty(key)) return false;
-            var collection = GetCollection(collectionName);
             return collection != null && collection.SharedData.Contains(key);
         }
 
@@ -186,7 +179,7 @@ namespace DialogueSystem.Editor
         /// Returns false if oldKey does not exist or newKey already exists.
         /// </summary>
         public static bool RenameCharacterNameKey(string oldKey, string newKey)
-            => RenameKey(CharacterNameCollectionName, oldKey, newKey);
+            => RenameKey(DialogueLocalizationManager.Instance.characterNameTable, oldKey, newKey);
 
         /// <summary>
         /// Renames <paramref name="oldKey"/> to <paramref name="newKey"/> in the text collection.
@@ -194,7 +187,7 @@ namespace DialogueSystem.Editor
         /// Returns false if oldKey does not exist or newKey already exists.
         /// </summary>
         public static bool RenameTextKey(string oldKey, string newKey)
-            => RenameKey(DialogueCollectionName, oldKey, newKey);
+            => RenameKey(DialogueLocalizationManager.Instance.dialogueTextTable, oldKey, newKey);
 
         /// <summary>
         /// Renames <paramref name="oldKey"/> to <paramref name="newKey"/> in the choice label collection.
@@ -202,7 +195,7 @@ namespace DialogueSystem.Editor
         /// Returns false if oldKey does not exist or newKey already exists.
         /// </summary>
         public static bool RenameChoiceLabelKey(string oldKey, string newKey)
-            => RenameKey(ChoiceLabelCollectionName, oldKey, newKey);
+            => RenameKey(DialogueLocalizationManager.Instance.dialogueChoiceLabelTable, oldKey, newKey);
 
         /// <summary>
         /// Renames a key inside a given collection, preserving all per-locale values.
@@ -213,12 +206,12 @@ namespace DialogueSystem.Editor
         ///   2. Remove the old key via StringTableCollection.RemoveEntry (clears all locales).
         ///   3. AddEntry with the new key and restored values to each per-locale table.
         /// </summary>
-        private static bool RenameKey(string collectionName, string oldKey, string newKey)
+        private static bool RenameKey(StringTableCollection collection, string oldKey, string newKey)
         {
             if (string.IsNullOrEmpty(oldKey) || string.IsNullOrEmpty(newKey)) return false;
             if (oldKey == newKey) return true;
 
-            var collection = GetCollection(collectionName);
+            // var collection = GetCollection(collectionName);
             if (collection == null) return false;
 
             var sharedData = collection.SharedData;
@@ -226,14 +219,14 @@ namespace DialogueSystem.Editor
             if (!sharedData.Contains(oldKey))
             {
                 Debug.LogWarning(
-                    $"[LocalizationTableService] RenameKey: old key '{oldKey}' not found in '{collectionName}'.");
+                    $"[LocalizationTableService] RenameKey: old key '{oldKey}' not found in '{collection.name}'.");
                 return false;
             }
 
             if (sharedData.Contains(newKey))
             {
                 Debug.LogWarning(
-                    $"[LocalizationTableService] RenameKey: new key '{newKey}' already exists in '{collectionName}'.");
+                    $"[LocalizationTableService] RenameKey: new key '{newKey}' already exists in '{collection.name}'.");
                 return false;
             }
 
@@ -272,7 +265,7 @@ namespace DialogueSystem.Editor
         {
             if (string.IsNullOrWhiteSpace(key)) return false;
 
-            var collection = GetCollection(CharacterNameCollectionName);
+            var collection = DialogueLocalizationManager.Instance.characterNameTable;
             if (collection == null) return false;
 
             if (collection.SharedData.Contains(key))
@@ -299,7 +292,7 @@ namespace DialogueSystem.Editor
         {
             if (string.IsNullOrWhiteSpace(key)) return false;
 
-            var collection = GetCollection(ChoiceLabelCollectionName);
+            var collection = DialogueLocalizationManager.Instance.dialogueChoiceLabelTable;
             if (collection == null) return false;
 
             if (collection.SharedData.Contains(key))
@@ -320,18 +313,17 @@ namespace DialogueSystem.Editor
 
         // ── Private helpers ───────────────────────────────────────────────────
 
-        private static StringTableCollection GetCollection(string name)
+        // private static StringTableCollection GetCollection(string name)
+        // {
+        //     var collection = LocalizationEditorSettings.GetStringTableCollection(name);
+        //     if (collection == null)
+        //         Debug.LogWarning(
+        //             $"[LocalizationTableService] StringTableCollection '{name}' not found.");
+        //     return collection;
+        // }
+        //
+        private static StringTable GetTable(StringTableCollection collection, Locale locale)
         {
-            var collection = LocalizationEditorSettings.GetStringTableCollection(name);
-            if (collection == null)
-                Debug.LogWarning(
-                    $"[LocalizationTableService] StringTableCollection '{name}' not found.");
-            return collection;
-        }
-
-        private static StringTable GetTable(string collectionName, Locale locale)
-        {
-            var collection = GetCollection(collectionName);
             return collection?.StringTables
                 .FirstOrDefault(t => t.LocaleIdentifier == locale.Identifier);
         }
