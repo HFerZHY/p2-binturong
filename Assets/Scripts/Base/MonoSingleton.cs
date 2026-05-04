@@ -13,7 +13,7 @@ namespace Base
         {
             get
             {
-                if (_isQuitting) return null;
+                if (_isQuitting && Application.isPlaying) return null;
                 if (_instance is null)
                 {
                     _instance = FindFirstObjectByType<T>(FindObjectsInactive.Include);

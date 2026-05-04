@@ -27,7 +27,7 @@ namespace DialogueSystem.NPC
 
         [Header("Interaction")]
         [Tooltip("Text shown in the interaction prompt (e.g. '[E] Talk').")]
-        [SerializeField] private string interactPrompt = "[E] Talk";
+        [SerializeField] private string interactPrompt = "[Space] Talk";
 
         [Tooltip("Set false to temporarily disable interaction (e.g. mid-cutscene).")]
         [SerializeField] private bool canInteract = true;

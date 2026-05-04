@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -352,7 +353,11 @@ public static class LocalizationTableService
 
     /// <summary>Returns true if <paramref name="key"/> exists in the item name collection.</summary>
     public static bool ItemNameKeyExists(string key)
-        => KeyExists(LocalizationManager.Instance.itemNameTable, key);
+    {
+        if (LocalizationManager.Instance is null) throw new NullReferenceException("localizationmanager is null");
+        if (LocalizationManager.Instance.itemNameTable is null) throw new NullReferenceException("itemNameTable is null");
+        return KeyExists(LocalizationManager.Instance.itemNameTable, key);
+    }
 
     /// <summary>Returns true if <paramref name="key"/> exists in the item description collection.</summary>
     public static bool ItemDescriptionKeyExists(string key)

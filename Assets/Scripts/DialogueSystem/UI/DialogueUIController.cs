@@ -30,17 +30,6 @@ namespace DialogueSystem.UI
     /// </summary>
     public class DialogueUIController : MonoBehaviour
     {
-        public const string CharacterNameCollectionName = "CharacterNameTable";
-        public const string DialogueCollectionName      = "DialogueTextTable";
-        public const string ChoiceLabelCollectionName   = "DialogueChoiceLabelTable";
-        
-        // ── Inspector ─────────────────────────────────────────────────────────
-        // [FormerlySerializedAs("stringTable")]
-        // [Header("Localization")] 
-        // [SerializeField] private StringTable textStringTable;
-        // [SerializeField] private StringTable speakerNameStringTable;
-        // [SerializeField] private StringTable choiceLabelStringTable;
-        
         [Header("Panel")]
         [SerializeField] private GameObject dialoguePanel;
 
