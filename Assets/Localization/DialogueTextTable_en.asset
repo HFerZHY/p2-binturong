@@ -10,32 +10,40 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
-  m_Name: DialogueTextTable_zh-Hans
+  m_Name: DialogueTextTable_en
   m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
   m_LocaleId:
-    m_Code: zh-Hans
+    m_Code: en
   m_SharedData: {fileID: 11400000, guid: d958ec060fec007479a5bd47aa80ef38, type: 2}
   m_Metadata:
     m_Items: []
   m_TableData:
   - m_Id: 416779915264
-    m_Localized: t1-zh-hans
+    m_Localized: t1-en
     m_Metadata:
       m_Items: []
   - m_Id: 528730083328
-    m_Localized: t2-zh-hans2
+    m_Localized: t2-en2
     m_Metadata:
       m_Items: []
   - m_Id: 254758002937856
-    m_Localized: outcome 1 zhs
+    m_Localized: outcome 1 en
     m_Metadata:
       m_Items: []
   - m_Id: 254943181459456
-    m_Localized: outcome 2 zhs
+    m_Localized: outcome 2 en
     m_Metadata:
       m_Items: []
   - m_Id: 280676478013440
-    m_Localized: cycling back zhs
+    m_Localized: cycling back en
+    m_Metadata:
+      m_Items: []
+  - m_Id: 644281157341184
+    m_Localized: following outcome 1 en
+    m_Metadata:
+      m_Items: []
+  - m_Id: 646972487028736
+    m_Localized: hello en
     m_Metadata:
       m_Items: []
   references:

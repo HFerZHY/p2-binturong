@@ -65,7 +65,7 @@ MonoBehaviour:
     speaker: {fileID: 11400000, guid: 5afef3ebce9b06047a3f82a9deb2ca4f, type: 2}
     speakerPortraitKey: 
     textKey: text_choice_1
-    nextNodeId: 
+    nextNodeId: node_0006
     choices: []
     conditions: []
     onEnter:
@@ -82,7 +82,7 @@ MonoBehaviour:
     speaker: {fileID: 11400000, guid: 5afef3ebce9b06047a3f82a9deb2ca4f, type: 2}
     speakerPortraitKey: 
     textKey: text_choice_2
-    nextNodeId: 
+    nextNodeId: node_0007
     choices: []
     conditions: []
     onEnter:
@@ -100,6 +100,40 @@ MonoBehaviour:
     speakerPortraitKey: 
     textKey: cycleBack
     nextNodeId: node_0001
+    choices: []
+    conditions: []
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0006
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 5afef3ebce9b06047a3f82a9deb2ca4f, type: 2}
+    speakerPortraitKey: 
+    textKey: text_choice_1_1
+    nextNodeId: 
+    choices: []
+    conditions: []
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0007
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 5afef3ebce9b06047a3f82a9deb2ca4f, type: 2}
+    speakerPortraitKey: 
+    textKey: text_choice_2_1
+    nextNodeId: 
     choices: []
     conditions: []
     onEnter:

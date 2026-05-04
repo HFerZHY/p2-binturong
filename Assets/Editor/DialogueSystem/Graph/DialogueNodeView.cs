@@ -43,7 +43,9 @@ namespace DialogueSystem.Editor
 
         // ── Internal UI refs (updated on locale switch) ───────────────────────
 
+        private Label _speakerPillLabel;
         private Label _speakerPreviewLabel;
+        private Label _textPillLabel;
         private Label _textPreviewLabel;
         private Label _entryBadge;
 
@@ -89,27 +91,29 @@ namespace DialogueSystem.Editor
         /// </summary>
         public void RefreshLocalePreview()
         {
-            // ── Speaker preview ───────────────────────────────────────────────
-            // Use the Character's characterName as the table key; fall back to
-            // the asset's Unity object name if characterName is not set.
+            // ── Speaker pill + preview ────────────────────────────────────────
             string charKey = NodeData.speaker != null
                 ? (string.IsNullOrEmpty(NodeData.speaker.characterName)
                     ? NodeData.speaker.name
                     : NodeData.speaker.characterName)
                 : null;
 
+            if (_speakerPillLabel != null)
+                _speakerPillLabel.text = charKey ?? "(none)";
+
             string resolvedName = charKey != null
                 ? LocaleState?.ResolveCharacterName(charKey)
                 : null;
-
-            // If the table has no entry yet, show the raw key so the designer
-            // knows what to fill in the CharacterInspector.
             if (string.IsNullOrEmpty(resolvedName) && charKey != null)
                 resolvedName = $"({charKey})";
 
             UpdatePreview(_speakerPreviewLabel, resolvedName);
 
-            // ── Text preview ──────────────────────────────────────────────────
+            // ── Text pill + preview ───────────────────────────────────────────
+            if (_textPillLabel != null)
+                _textPillLabel.text = string.IsNullOrEmpty(NodeData.textKey)
+                    ? "(no key)" : NodeData.textKey;
+
             UpdatePreview(_textPreviewLabel, LocaleState?.ResolveText(NodeData.textKey));
 
             // ── Choice port labels ─────────────────────────────────────────────
@@ -180,7 +184,9 @@ namespace DialogueSystem.Editor
         private void BuildBody()
         {
             extensionContainer.Clear();
+            _speakerPillLabel    = null;
             _speakerPreviewLabel = null;
+            _textPillLabel       = null;
             _textPreviewLabel    = null;
 
             if (NodeData.nodeType == NodeType.Terminal)
@@ -194,12 +200,11 @@ namespace DialogueSystem.Editor
             if (NodeData.nodeType == NodeType.Line)
             {
                 // ── Speaker ───────────────────────────────────────────────────
-                // Show the Character asset name as the key pill; the preview label
-                // below it shows the resolved localized name from CharacterNameTable.
                 string charAssetLabel = NodeData.speaker != null
                     ? NodeData.speaker.name
                     : "(none)";
-                var speakerRow = MakeKeyRow("Speaker", charAssetLabel);
+                VisualElement speakerRow;
+                (_speakerPillLabel, speakerRow) = MakeKeyRow("Speaker", charAssetLabel);
                 extensionContainer.Add(speakerRow);
 
                 _speakerPreviewLabel = new Label();
@@ -212,7 +217,8 @@ namespace DialogueSystem.Editor
                 extensionContainer.Add(divider);
 
                 // ── Text ──────────────────────────────────────────────────────
-                var textRow = MakeKeyRow("Text", NodeData.textKey);
+                VisualElement textRow;
+                (_textPillLabel, textRow) = MakeKeyRow("Text", NodeData.textKey);
                 extensionContainer.Add(textRow);
 
                 _textPreviewLabel = new Label();
@@ -231,7 +237,9 @@ namespace DialogueSystem.Editor
             }
         }
 
-        private static VisualElement MakeKeyRow(string fieldLabel, string key)
+        // MakeKeyRow now returns the pill Label so callers can store a reference
+        // to it for later mutation, avoiding a Q<Label> query on the row.
+        private static (Label pill, VisualElement row) MakeKeyRow(string fieldLabel, string key)
         {
             var row = new VisualElement();
             row.AddToClassList("node-row");
@@ -241,7 +249,7 @@ namespace DialogueSystem.Editor
             var pill = new Label(string.IsNullOrEmpty(key) ? "(no key)" : key);
             pill.AddToClassList("node-key-pill");
             row.Add(pill);
-            return row;
+            return (pill, row);
         }
 
         private static void UpdatePreview(Label label, string resolved)

@@ -25,6 +25,16 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6f7fb3c3e27a7db4983b66b411763e14
+    m_Address: Assets/Localization/ItemNameTable Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d1673489b09b27545bfa3c6cf02927ab
+    m_Address: Assets/Localization/ItemDescriptionTable Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d958ec060fec007479a5bd47aa80ef38
     m_Address: Assets/Resources/Dialogues/DialogueTextTable Shared Data.asset
     m_ReadOnly: 1

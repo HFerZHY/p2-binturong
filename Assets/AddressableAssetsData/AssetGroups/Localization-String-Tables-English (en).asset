@@ -15,6 +15,12 @@ MonoBehaviour:
   m_GroupName: Localization-String-Tables-English (en)
   m_GUID: a0df9bfd1049bdf47b1eee379dd10aed
   m_SerializeEntries:
+  - m_GUID: 088d50da7f16ead40a6f94a32f0d005c
+    m_Address: ItemNameTable_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 375c0c4b1425dff41beeed65a4cbaa8f
     m_Address: DialogueTextTable_en
     m_ReadOnly: 1
@@ -23,6 +29,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5622e555419d2dc44b5c26c064f4f396
     m_Address: DialogueChoiceLabelTable_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cce03602af4cb4e4c9a1a4e2310ef674
+    m_Address: ItemDescriptionTable_en
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en

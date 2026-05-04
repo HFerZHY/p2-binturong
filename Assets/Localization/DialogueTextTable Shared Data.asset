@@ -35,6 +35,14 @@ MonoBehaviour:
     m_Key: cycleBack
     m_Metadata:
       m_Items: []
+  - m_Id: 644281157341184
+    m_Key: text_choice_1_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 646972487028736
+    m_Key: text_choice_2_1
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

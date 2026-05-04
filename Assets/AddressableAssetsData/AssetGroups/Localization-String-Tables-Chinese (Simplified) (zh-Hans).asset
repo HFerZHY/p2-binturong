@@ -33,6 +33,18 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-zh-Hans
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: aaabb77a32411714db1e99f68dc0342b
+    m_Address: ItemNameTable_zh-Hans
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hans
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d55f383ccdc0c62439b8044aa47b14db
+    m_Address: ItemDescriptionTable_zh-Hans
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hans
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: 2d31769773d2aa442babff9251144f17, type: 2}
   m_SchemaSet:

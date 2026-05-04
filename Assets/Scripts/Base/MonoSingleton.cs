@@ -15,7 +15,11 @@ namespace Base
             {
                 if (_isQuitting) return null;
                 if (_instance is null)
-                    Debug.LogError($"No instance of {typeof(T).Name} found in scene.");
+                {
+                    _instance = FindFirstObjectByType<T>(FindObjectsInactive.Include);
+                    if (_instance is null)
+                        Debug.LogError($"No instance of {typeof(T).Name} found in scene.");
+                }
                 return _instance;
             }
         }
