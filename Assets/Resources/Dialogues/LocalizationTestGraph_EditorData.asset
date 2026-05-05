@@ -14,16 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp-Editor::DialogueSystem.Data.DialogueGraphEditorData
   nodePositions:
   - nodeId: node_0001
-    position: {x: 99.42857, y: 151.42856}
+    position: {x: 99.6, y: 151.6}
   - nodeId: node_0002
-    position: {x: 397.7143, y: 152}
+    position: {x: 397.6, y: 152}
   - nodeId: node_0004
-    position: {x: 727.4286, y: 113.71429}
+    position: {x: 727.6, y: 113.600006}
   - nodeId: node_0005
-    position: {x: 727.4286, y: 337.7143}
+    position: {x: 727.6, y: 337.6}
   - nodeId: node_0003
-    position: {x: 250.85715, y: 570.2857}
+    position: {x: 250.8, y: 570.4}
   - nodeId: node_0006
-    position: {x: 1045.1428, y: 113.71429}
+    position: {x: 1045.2, y: 113.600006}
   - nodeId: node_0007
-    position: {x: 1045.1428, y: 337.7143}
+    position: {x: 1045.2, y: 337.6}
+  - nodeId: node_0008
+    position: {x: 1318.4, y: 113.600006}

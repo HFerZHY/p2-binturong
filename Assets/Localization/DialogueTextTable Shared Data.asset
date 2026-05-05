@@ -43,6 +43,10 @@ MonoBehaviour:
     m_Key: text_choice_2_1
     m_Metadata:
       m_Items: []
+  - m_Id: 1311466584584192
+    m_Key: test_choice_1_2
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
