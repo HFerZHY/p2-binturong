@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 892f680744d841940a843ecae8e3a30b
+guid: c063ce9ca63ebc343b96895ac4b20348
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -144452564763597291
-    second: TestChar-Line_0
+      213: -3516461885995247734
+    second: YoungManLine_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: TestChar-Line_0
+      name: YoungManLine_0
       rect:
         serializedVersion: 2
-        x: 376
+        x: 62
         y: 0
-        width: 1353
-        height: 1998
+        width: 928
+        height: 913
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5162f5e582dcefdf0800000000000000
-      internalID: -144452564763597291
+      spriteID: a879d03bb84033fc0800000000000000
+      internalID: -3516461885995247734
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      TestChar-Line_0: -144452564763597291
+      YoungManLine_0: -3516461885995247734
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

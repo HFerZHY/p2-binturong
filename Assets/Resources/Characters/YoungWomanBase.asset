@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc8d897513a84e1089d3a4c2788c99d5, type: 3}
+  m_Name: YoungWomanBase
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterBase
+  lineArtTexture: {fileID: 2800000, guid: 4b785b71943dea944891e168808e8ec3, type: 3}
+  colorTexture: {fileID: 2800000, guid: a599b79c3e3b1d64cbdf70f075124e15, type: 3}
+  skinColors: {fileID: 11400000, guid: fbc428424b059254999291d2316e4ba2, type: 2}
+  hairColors: {fileID: 11400000, guid: afb605b92d1d783459a0f81cdb1db2b4, type: 2}
+  clothesColors: {fileID: 11400000, guid: 3fcec2b4804f32b41bc9a5f1ea69f0ef, type: 2}
+  lineColor: {r: 0, g: 0, b: 0, a: 0}
+  baseMaterial: {fileID: 2100000, guid: 0acce53815450514b9b226064e7454f8, type: 2}

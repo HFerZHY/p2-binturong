@@ -19,7 +19,7 @@ public class ColorPaletteSet : ScriptableObject
             if (palettes[i].colors.Length != paletteSize)
             {
                 Debug.LogWarning(
-                    $"[ColorPaletteSet] '{name}': palette '{palettes[i].name}' " +
+                    $"[ColorPaletteSet] '{name}': palette '{palettes[i].paletteName}' " +
                     $"(index {i}) has {palettes[i].colors.Length} colors but expected {paletteSize}.",
                     this
                 );
@@ -27,11 +27,4 @@ public class ColorPaletteSet : ScriptableObject
         }
     }
 #endif
-}
-
-[Serializable]
-public struct ColorPalette
-{
-    public string name;
-    public Color[] colors;
 }

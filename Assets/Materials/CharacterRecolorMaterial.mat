@@ -40,12 +40,20 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _ColorTexture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _LineTexture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: c1c6beb3f786dc6438a6ee35de8fea3b, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex_1:
-        m_Texture: {fileID: 2800000, guid: 892f680744d841940a843ecae8e3a30b, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskTex:
@@ -75,10 +83,13 @@ Material:
     m_Colors:
     - White: {r: 1, g: 1, b: 1, a: 1}
     - _BodyColor: {r: 0.4764151, g: 0.33657116, b: 0.24494928, a: 1}
+    - _ClothesColor: {r: 0.4686792, g: 0.57306623, b: 0.5999999, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EyebrowColor: {r: 0.8962264, g: 0.64876395, b: 0.49038804, a: 1}
+    - _HairColor: {r: 0.6301887, g: 0.43575117, b: 0.31152716, a: 1}
     - _LineColor: {r: 0.108992465, g: 0.10907296, b: 0.16226405, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _ShirtColor: {r: 0.41456032, g: 0.5940085, b: 0.6415094, a: 1}
+    - _SkinColor: {r: 0.7094339, g: 0.5678713, b: 0.47920245, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

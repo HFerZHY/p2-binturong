@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e08976853cb425f8fcbf4865565915f, type: 3}
+  m_Name: SkinPalette
+  m_EditorClassIdentifier: Assembly-CSharp::ColorPalette
+  paletteName: SkinColors
+  colors:
+  - {r: 0.95094335, g: 0.8481506, b: 0.7212815, a: 1}
+  - {r: 0.3018868, g: 0.20774193, b: 0.14012104, a: 1}
+  - {r: 0.95094335, g: 0.88461256, b: 0.81817013, a: 1}
+  - {r: 0.7056604, g: 0.5145749, b: 0.37280175, a: 1}
+  - {r: 0.80754715, g: 0.6549944, b: 0.4510075, a: 1}
