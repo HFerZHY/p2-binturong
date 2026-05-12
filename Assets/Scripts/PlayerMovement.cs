@@ -11,6 +11,13 @@ public class PlayerMovement : MonoBehaviour
     [Header("Camera")]
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private float cameraSmoothing = 0f;
+    
+    [Header("Animation")]
+    [SerializeField] private Animator animator;
+
+    // Exposed for the Animator
+    public bool IsMoving { get; private set; }
+    public bool FacingRight { get; private set; } = true;
 
     private InputAction _moveAction;
     private Rigidbody2D _rb;
@@ -38,6 +45,16 @@ public class PlayerMovement : MonoBehaviour
         _currentVelocity = Vector2.Lerp(targetVelocity, _currentVelocity, inertia);
 
         _rb.MovePosition(_rb.position + _currentVelocity * Time.fixedDeltaTime);
+
+        // Update animator properties
+        IsMoving = _currentVelocity.sqrMagnitude > 0.01f;
+        if (moveInput.x != 0f)
+            FacingRight = moveInput.x > 0f;
+        animator?.SetBool("isMoving", IsMoving);
+        animator?.SetBool("facingRight", FacingRight);
+        Vector3 localScale = transform.localScale;
+        localScale.x = FacingRight ? 1f : -1f;
+        transform.localScale = localScale;
     }
 
     private void LateUpdate()
