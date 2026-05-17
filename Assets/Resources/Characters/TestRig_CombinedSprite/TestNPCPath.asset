@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: TestNPCPath
   m_EditorClassIdentifier: Assembly-CSharp::NPCPath
   waypoints:
-  - position: {x: 2, y: 0}
+  - position: {x: 1.0102707, y: -3.5297384}
     stopDuration: 2
-  - position: {x: 6.5583296, y: 1.2139015}
+  - position: {x: 7.188958, y: -1.8165944}
     stopDuration: 2
-  - position: {x: 3.859358, y: 3.7856874}
+  - position: {x: 3.360113, y: 1.5785062}
     stopDuration: 2
   loop: 1
