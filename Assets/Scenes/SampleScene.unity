@@ -1211,24 +1211,6 @@ Tilemap:
       e31: 0
       e32: 0
       e33: 1
-  - m_RefCount: 0
-    m_Data:
-      e00: 0
-      e01: 0
-      e02: 0
-      e03: 0
-      e10: 0
-      e11: 0
-      e12: 0
-      e13: 0
-      e20: 0
-      e21: 0
-      e22: 0
-      e23: 0
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 0
   m_TileColorArray:
   - m_RefCount: 76
     m_Data: {r: 1, g: 1, b: 1, a: 1}
@@ -1294,6 +1276,7 @@ MonoBehaviour:
   inertia: 0.1
   cameraTransform: {fileID: 519420032}
   cameraSmoothing: 0
+  animator: {fileID: 419220495}
 --- !u!50 &419220490
 Rigidbody2D:
   serializedVersion: 5
