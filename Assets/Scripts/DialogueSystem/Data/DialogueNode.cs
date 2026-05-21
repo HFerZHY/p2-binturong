@@ -88,6 +88,9 @@ namespace DialogueSystem.Data
 
         [Tooltip("If true and conditions fail, the choice is shown greyed out rather than hidden.")]
         public bool showIfFailed = false;
+
+        [Tooltip("Items removed from the player's inventory when this choice is selected.")]
+        public List<DialogueItemCost> itemCosts = new();
     }
 
     // -------------------------------------------------------------------------
@@ -104,6 +107,17 @@ namespace DialogueSystem.Data
     }
     // -------------------------------------------------------------------------
 
+    [Serializable]
+    public class DialogueItemCost
+    {
+        [Tooltip("The item removed when this dialogue choice is selected.")]
+        public ItemData item;
+
+        [Tooltip("How many units of the item to remove.")]
+        [Min(1)]
+        public int amount = 1;
+    }
+    // -------------------------------------------------------------------------
 
     [Serializable]
     public class DialogueCondition
