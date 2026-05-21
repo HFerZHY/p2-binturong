@@ -35,6 +35,9 @@ public class NPCMovement : MonoBehaviour
 
     [Header("Animation")]
     [SerializeField] private Animator animator;
+    
+    [Header("Player")]
+    [SerializeField] private GameObject player;
 
     // ──────────────────────────────────────────────────────────────────────────
     // Public state (readable by Animator, AI, etc.)
@@ -61,6 +64,7 @@ public class NPCMovement : MonoBehaviour
 
     private int   _targetIndex;       // waypoint we are currently heading to
     private float _stopTimer;         // countdown while pausing at a waypoint
+    private float _cacheStopTimer;
     private bool  _facingRight = true;
     private bool  _pausing;           // true while serving a stop-duration
 
@@ -142,10 +146,22 @@ public class NPCMovement : MonoBehaviour
     }
 
     /// <summary>Pause the NPC in place (e.g. during dialogue).</summary>
-    public void Pause()  => _pausing = true;
+    public void Pause(){
+        _pausing = true;
+        _cacheStopTimer = _stopTimer;
+        _stopTimer = float.MaxValue;
+    }
 
     /// <summary>Resume walking after a manual <see cref="Pause"/>.</summary>
-    public void Resume() => _pausing = false;
+    public void Resume(){
+        _pausing = false;
+        _stopTimer = _cacheStopTimer;
+    }
+
+    public void TurnToPlayer()
+    {
+        _facingRight = this.transform.position.x < player.transform.position.x;
+    }
 
     // ──────────────────────────────────────────────────────────────────────────
     // Private helpers
