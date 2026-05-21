@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83ad2bec723d04b438fbc064728b310a, type: 3}
+  m_Name: Passenger Health
+  m_EditorClassIdentifier: Assembly-CSharp::StationWork.Data.PassengerData
+  passengerName: Health Seeker
+  avatar: {fileID: 0}
+  dialogue: I've heard that living here brings health and longevity. Is that true?
+  requiredLabel: Health
+  correctItem: {fileID: 11400000, guid: 2aa830de18cad8a47bb656234ce77b4c, type: 2}

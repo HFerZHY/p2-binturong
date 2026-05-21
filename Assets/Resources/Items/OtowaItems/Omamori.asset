@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 745f95b36910def4d9403433793b7514, type: 3}
+  m_Name: Omamori
+  m_EditorClassIdentifier: Assembly-CSharp::InventorySystem.Data.ItemData
+  nameKey: amulet
+  descriptionKey: amulet_desc
+  icon: {fileID: -5098722796299924958, guid: 07e6e36f1f0e15c4095193ab1b23cf74, type: 3}
+  labels:
+  - Hot Spring
+  - Mizuki
+  - Health
