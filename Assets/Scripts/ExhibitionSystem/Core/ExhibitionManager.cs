@@ -76,10 +76,36 @@ namespace ExhibitionSystem.Core
 
         // ── Unity Lifecycle ──────────────────────────────────────────────────────
 
+        protected override void Awake()
+        {
+            base.Awake();
+            LoadResourcesIfEmpty();
+        }
+
         private void Start()
         {
             if (_autoSelectFirstTheme && _allThemes.Count > 0)
                 SelectTheme(_allThemes[0]);
+        }
+
+        private void LoadResourcesIfEmpty()
+        {
+            // If not configured in Inspector, load from Resources folder
+            if (_allThemes == null || _allThemes.Count == 0)
+            {
+                _allThemes = new List<ExhibitionTheme>(
+                    Resources.LoadAll<ExhibitionTheme>("Exhibitions/Themes")
+                );
+                Debug.Log($"[ExhibitionManager] Loaded {_allThemes.Count} themes from Resources.");
+            }
+
+            if (_allItems == null || _allItems.Count == 0)
+            {
+                _allItems = new List<ExhibitItemData>(
+                    Resources.LoadAll<ExhibitItemData>("Exhibitions/Items")
+                );
+                Debug.Log($"[ExhibitionManager] Loaded {_allItems.Count} items from Resources.");
+            }
         }
 
         // ── Theme Selection ──────────────────────────────────────────────────────

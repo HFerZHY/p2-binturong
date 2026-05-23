@@ -29,6 +29,9 @@ namespace ExhibitionSystem.UI
 
         private readonly List<ThemeListItem> _items = new();
         private bool _isVisible;
+        private float _targetAlpha;
+        private float _currentAlpha;
+        private bool _isAnimating;
 
         // ── Unity Lifecycle ─────────────────────────────────────────────────────
 
@@ -37,7 +40,50 @@ namespace ExhibitionSystem.UI
             if (_closeButton != null)
                 _closeButton.onClick.AddListener(Hide);
 
-            Hide();
+            // Load prefab from Resources if not configured in Inspector
+            if (_itemPrefab == null)
+            {
+                _itemPrefab = Resources.Load<ThemeListItem>("Exhibitions/Prefabs/ThemeListItem");
+                if (_itemPrefab == null)
+                    Debug.LogError("[ThemeSelectionPopup] Failed to load ThemeListItem prefab from Resources.");
+            }
+
+            // Initialize in hidden state without animation
+            if (_panel != null)
+                _panel.SetActive(false);
+
+            if (_canvasGroup != null)
+                _canvasGroup.alpha = 0f;
+
+            _currentAlpha = 0f;
+            _targetAlpha = 0f;
+            _isVisible = false;
+            _isAnimating = false;
+        }
+
+        private void Update()
+        {
+            if (!_isAnimating) return;
+
+            float fadeSpeed = 1f / _fadeDuration;
+            _currentAlpha = Mathf.MoveTowards(_currentAlpha, _targetAlpha, fadeSpeed * Time.deltaTime);
+
+            if (_canvasGroup != null)
+                _canvasGroup.alpha = _currentAlpha;
+
+            // Check if animation completed
+            if (Mathf.Abs(_currentAlpha - _targetAlpha) < 0.01f)
+            {
+                _currentAlpha = _targetAlpha;
+                if (_canvasGroup != null)
+                    _canvasGroup.alpha = _currentAlpha;
+
+                _isAnimating = false;
+
+                // Deactivate panel after fade out
+                if (_targetAlpha < 0.01f && _panel != null)
+                    _panel.SetActive(false);
+            }
         }
 
         // ── Public Methods ──────────────────────────────────────────────────────
@@ -50,8 +96,13 @@ namespace ExhibitionSystem.UI
             if (_panel != null)
                 _panel.SetActive(true);
 
+            // Start fade in animation
+            _currentAlpha = 0f;
+            _targetAlpha = 1f;
+            _isAnimating = true;
+
             if (_canvasGroup != null)
-                _canvasGroup.alpha = 1f;
+                _canvasGroup.alpha = 0f;
 
             _isVisible = true;
             PopulateList();
@@ -62,13 +113,11 @@ namespace ExhibitionSystem.UI
         /// </summary>
         public void Hide()
         {
-            if (_panel != null)
-                _panel.SetActive(false);
-
-            if (_canvasGroup != null)
-                _canvasGroup.alpha = 0f;
-
+            // Start fade out animation
+            _targetAlpha = 0f;
+            _isAnimating = true;
             _isVisible = false;
+            // Panel will be deactivated in Update when fade completes
         }
 
         // ── Private Methods ─────────────────────────────────────────────────────
