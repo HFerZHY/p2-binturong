@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Brass Compass
   nameKey: item_compass
-  icon: {fileID: 0}
+  icon: {fileID: -7718089631497013394, guid: 98a749e0c522cb0429b63d4862aa13a3, type: 3}
   description: A finely crafted navigation instrument with a polished brass casing.
   descriptionKey: desc_compass
   isUnlocked: 1

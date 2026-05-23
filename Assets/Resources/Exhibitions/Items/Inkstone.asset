@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Inkstone
   nameKey: item_inkstone
-  icon: {fileID: 0}
+  icon: {fileID: -2759434670737541878, guid: 2e989773884d97a4da468d633f70155c, type: 3}
   description: A stone slab for grinding solid ink sticks into liquid ink for calligraphy.
   descriptionKey: desc_inkstone
   isUnlocked: 1

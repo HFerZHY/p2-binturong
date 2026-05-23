@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Pocket Watch
   nameKey: item_pocket_watch
-  icon: {fileID: 0}
+  icon: {fileID: 2690274267995810836, guid: e31e3a3e212f40743ab9019ef4b3ced9, type: 3}
   description: A precision timepiece essential for maintaining railway schedules.
   descriptionKey: desc_pocket_watch
   isUnlocked: 1

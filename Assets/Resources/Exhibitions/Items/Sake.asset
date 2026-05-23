@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Sake Bottle
   nameKey: item_sake
-  icon: {fileID: 0}
+  icon: {fileID: 1828843058721014722, guid: d3f13a375504af9479d9fdd9c93fbc92, type: 3}
   description: Traditional Japanese rice wine, aged in ceramic bottles for refined
     flavor.
   descriptionKey: desc_sake

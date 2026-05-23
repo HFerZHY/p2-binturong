@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Punch Ticket
   nameKey: item_punch_ticket
-  icon: {fileID: 0}
+  icon: {fileID: 4765518676241773232, guid: 439b67965dc09c443a39a7b6db0737b6, type: 3}
   description: A vintage cardboard ticket with characteristic punch holes marking
     the journey.
   descriptionKey: desc_punch_ticket

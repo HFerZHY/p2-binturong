@@ -177,8 +177,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -331,7 +331,7 @@ GameObject:
   - component: {fileID: 8585281890202028932}
   - component: {fileID: 1339184768535989396}
   - component: {fileID: 9127374753531862144}
-  - component: {fileID: 244267858602343302}
+  - component: {fileID: 6946988647476204424}
   m_Layer: 0
   m_Name: ThemeListItem
   m_TagString: Untagged
@@ -358,7 +358,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 300, y: 80}
+  m_SizeDelta: {x: 340, y: 90}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2682082067552251395
 CanvasRenderer:
@@ -455,10 +455,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
   m_Padding:
-    m_Left: 10
-    m_Right: 10
-    m_Top: 10
-    m_Bottom: 10
+    m_Left: 15
+    m_Right: 15
+    m_Top: 12
+    m_Bottom: 12
   m_ChildAlignment: 3
   m_Spacing: 10
   m_ChildForceExpandWidth: 0
@@ -468,7 +468,7 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!114 &244267858602343302
+--- !u!114 &6946988647476204424
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -477,7 +477,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6364979422480535341}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 0236d356f19b37741ae5ffeba32b07f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.UI.ThemeListItem
   _titleText: {fileID: 7272188597878369021}
@@ -577,8 +577,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 18
-  m_fontSizeBase: 18
+  m_fontSize: 26
+  m_fontSizeBase: 26
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

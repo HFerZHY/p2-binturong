@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Signal Lamp
   nameKey: item_signal_lamp
-  icon: {fileID: 0}
+  icon: {fileID: -4769719129161285021, guid: 8657eb22cec71b24ebc0a1bfc6ac5432, type: 3}
   description: A kerosene lamp used by railway workers to signal trains at night
     or in poor visibility.
   descriptionKey: desc_signal_lamp

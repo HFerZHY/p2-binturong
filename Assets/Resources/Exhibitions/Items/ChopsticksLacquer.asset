@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Lacquer Chopsticks
   nameKey: item_chopsticks
-  icon: {fileID: 0}
+  icon: {fileID: -5373949792807698244, guid: 50e27a39f3d4e064dbb271929251a7dd, type: 3}
   description: Elegant chopsticks with traditional urushi lacquer coating.
   descriptionKey: desc_chopsticks
   isUnlocked: 1

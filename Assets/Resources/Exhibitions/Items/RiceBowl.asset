@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Rice Bowl
   nameKey: item_rice_bowl
-  icon: {fileID: 0}
+  icon: {fileID: -3948470577174462018, guid: c22f29a34be3d1345b06284b18066403, type: 3}
   description: A hand-crafted ceramic bowl used for serving perfectly steamed rice.
   descriptionKey: desc_rice_bowl
   isUnlocked: 1

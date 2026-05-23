@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Sushi Knife
   nameKey: item_sushi_knife
-  icon: {fileID: 0}
+  icon: {fileID: -1545379965880211911, guid: c50eac0448d8ccc45babc05e29b563ea, type: 3}
   description: A single-beveled blade forged for precise fish cutting.
   descriptionKey: desc_sushi_knife
   isUnlocked: 1

@@ -272,8 +272,7 @@ namespace ExhibitionSystem.Core
                 ProcessCurrentVisitor();
                 _visitorIndex++;
 
-                if (_visitorIndex < _displaySlots.Count)
-                    yield return new WaitForSeconds(_visitorDelay);
+                yield return new WaitForSeconds(_visitorDelay);
             }
 
             EndExhibition();

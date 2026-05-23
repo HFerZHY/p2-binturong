@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Track Switch
   nameKey: item_track_switch
-  icon: {fileID: 0}
+  icon: {fileID: -5233972180137678507, guid: 65a6b0a2612c2da4c997838004f43dfc, type: 3}
   description: A mechanical lever used to change the direction of railway tracks.
   descriptionKey: desc_track_switch
   isUnlocked: 1

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Folding Fan
   nameKey: item_fan
-  icon: {fileID: 0}
+  icon: {fileID: -1452764176341939785, guid: fc8cd283957008b4ea2c83cf2bc8d3f8, type: 3}
   description: A painted silk fan depicting scenes of nature and seasonal beauty.
   descriptionKey: desc_fan
   isUnlocked: 1

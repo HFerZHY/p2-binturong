@@ -30,6 +30,7 @@ namespace ExhibitionSystem.UI
 
         [Header("Animation")]
         [SerializeField] private float _animationSpeed = 5f;
+        [SerializeField] private float _colorTransitionSpeed = 3f;
 
         // ── Runtime State ───────────────────────────────────────────────────────
 
@@ -37,6 +38,8 @@ namespace ExhibitionSystem.UI
         private int _threshold;
         private int _targetValue;
         private float _displayValue;
+        private Color _targetColor;
+        private Color _currentColor;
 
         // ── Unity Lifecycle ─────────────────────────────────────────────────────
 
@@ -58,11 +61,18 @@ namespace ExhibitionSystem.UI
 
         private void Update()
         {
-            // Smooth animation
+            // Smooth value animation
             if (Mathf.Abs(_displayValue - _targetValue) > 0.01f)
             {
                 _displayValue = Mathf.MoveTowards(_displayValue, _targetValue, _animationSpeed * Time.deltaTime);
                 UpdateSlider(_displayValue);
+            }
+
+            // Smooth color transition
+            if (_fillImage != null && _currentColor != _targetColor)
+            {
+                _currentColor = Color.Lerp(_currentColor, _targetColor, _colorTransitionSpeed * Time.deltaTime);
+                _fillImage.color = _currentColor;
             }
         }
 
@@ -95,7 +105,12 @@ namespace ExhibitionSystem.UI
 
             UpdateThresholdMarker();
             UpdateSlider(0);
-            UpdateColor();
+
+            // Initialize color state
+            _currentColor = _neutralColor;
+            _targetColor = _neutralColor;
+            if (_fillImage != null)
+                _fillImage.color = _currentColor;
 
             if (_labelText != null)
                 _labelText.text = "Visitor Satisfaction";
@@ -113,7 +128,12 @@ namespace ExhibitionSystem.UI
                 _slider.value = 0;
 
             UpdateSlider(0);
-            UpdateColor();
+
+            // Reset color to neutral
+            _currentColor = _neutralColor;
+            _targetColor = _neutralColor;
+            if (_fillImage != null)
+                _fillImage.color = _currentColor;
         }
 
         // ── Event Handlers ──────────────────────────────────────────────────────
@@ -154,14 +174,13 @@ namespace ExhibitionSystem.UI
 
         private void UpdateColor()
         {
-            if (_fillImage == null) return;
-
+            // Set target color for smooth transition
             if (_targetValue >= _threshold)
-                _fillImage.color = _aboveThresholdColor;
+                _targetColor = _aboveThresholdColor;
             else if (_targetValue > 0)
-                _fillImage.color = _belowThresholdColor;
+                _targetColor = _belowThresholdColor;
             else
-                _fillImage.color = _neutralColor;
+                _targetColor = _neutralColor;
         }
 
         private void UpdateThresholdMarker()

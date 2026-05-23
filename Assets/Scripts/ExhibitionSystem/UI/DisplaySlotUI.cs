@@ -18,10 +18,13 @@ namespace ExhibitionSystem.UI
 
         [Header("Display Slot")]
         [SerializeField] private Image _itemIcon;
-        [SerializeField] private Image _feedbackIcon;
-        [SerializeField] private Sprite _correctSprite;
-        [SerializeField] private Sprite _incorrectSprite;
+        [SerializeField] private Image _statusBadge;
         [SerializeField] private Sprite _emptySlotSprite;
+
+        [Header("Status Badge Colors")]
+        [SerializeField] private Color _badgeDefaultColor = Color.white;
+        [SerializeField] private Color _badgeCorrectColor = new Color(0.3f, 0.9f, 0.3f, 1f);
+        [SerializeField] private Color _badgeIncorrectColor = new Color(0.9f, 0.3f, 0.3f, 1f);
 
         [Header("Drag Settings")]
         [SerializeField] private Vector2 _ghostSize = new(80, 80);
@@ -82,7 +85,9 @@ namespace ExhibitionSystem.UI
                 }
             }
 
-            ClearFeedback();
+            // Hide status badge when setting item (only show during validation)
+            if (_statusBadge != null)
+                _statusBadge.enabled = false;
         }
 
         /// <summary>
@@ -98,27 +103,35 @@ namespace ExhibitionSystem.UI
                 _itemIcon.enabled = _emptySlotSprite != null;
             }
 
+            // Hide status badge
+            if (_statusBadge != null)
+                _statusBadge.enabled = false;
+
             ClearFeedback();
         }
 
         /// <summary>
-        /// Shows feedback icon (correct/incorrect) after evaluation.
+        /// Shows feedback via status badge color (green = correct, red = incorrect).
         /// </summary>
         public void ShowFeedback(bool isCorrect)
         {
-            if (_feedbackIcon == null) return;
+            if (_statusBadge == null) return;
 
-            _feedbackIcon.sprite = isCorrect ? _correctSprite : _incorrectSprite;
-            _feedbackIcon.enabled = true;
+            // Always show badge when showing feedback
+            _statusBadge.enabled = true;
+            _statusBadge.color = isCorrect ? _badgeCorrectColor : _badgeIncorrectColor;
         }
 
         /// <summary>
-        /// Clears the feedback icon.
+        /// Clears the feedback and resets status badge.
         /// </summary>
         public void ClearFeedback()
         {
-            if (_feedbackIcon != null)
-                _feedbackIcon.enabled = false;
+            if (_statusBadge != null)
+            {
+                _statusBadge.color = _badgeDefaultColor;
+                _statusBadge.enabled = false;
+            }
         }
 
         // ── DropSlot Implementation ─────────────────────────────────────────────

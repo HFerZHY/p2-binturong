@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Clay Teapot
   nameKey: item_teapot
-  icon: {fileID: 0}
+  icon: {fileID: 3449192545155241441, guid: 8e4d9402af098804593eb5e8a0e6078c, type: 3}
   description: An unglazed clay teapot that absorbs tea oils to enhance flavor over
     time.
   descriptionKey: desc_teapot

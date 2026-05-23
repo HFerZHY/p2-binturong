@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Miso Bucket
   nameKey: item_miso_bucket
-  icon: {fileID: 0}
+  icon: {fileID: -945249945044196904, guid: 367ad22fb9c999247ac9c2921a76daa4, type: 3}
   description: A wooden barrel used for fermenting soybeans into rich, savory miso
     paste.
   descriptionKey: desc_miso_bucket

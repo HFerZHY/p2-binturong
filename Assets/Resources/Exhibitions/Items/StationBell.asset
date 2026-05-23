@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Station Bell
   nameKey: item_station_bell
-  icon: {fileID: 0}
+  icon: {fileID: 860910309584662230, guid: d87331287aa89174b84a99e723b9650d, type: 3}
   description: A brass bell used to announce train arrivals and departures.
   descriptionKey: desc_station_bell
   isUnlocked: 1

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Paper Lantern
   nameKey: item_lantern
-  icon: {fileID: 0}
+  icon: {fileID: -4932037285597610171, guid: c904d6efd664edc45a386dc1629a893b, type: 3}
   description: A traditional paper lantern that casts warm, gentle light.
   descriptionKey: desc_lantern
   isUnlocked: 1

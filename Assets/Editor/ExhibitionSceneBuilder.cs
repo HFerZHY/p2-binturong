@@ -229,13 +229,23 @@ public static class ExhibitionSceneBuilder
         rt.anchoredPosition = new Vector2(-30, -30);
         rt.sizeDelta = new Vector2(DISPLAY_WIDTH, 0);
 
-        // Character image
-        var charObj = new GameObject("CharacterImage");
-        charObj.transform.SetParent(panelObj.transform, false);
-        var charImg = charObj.AddComponent<Image>();
-        charImg.color = new Color(0.5f, 0.45f, 0.4f, 1f);
-        charImg.raycastTarget = false;
-        var charRt = charObj.GetComponent<RectTransform>();
+        // Character container with CanvasGroup for fade transitions
+        var charContainerObj = new GameObject("CharacterContainer");
+        charContainerObj.transform.SetParent(panelObj.transform, false);
+        var charCanvasGroup = charContainerObj.AddComponent<CanvasGroup>();
+        charCanvasGroup.alpha = 0f; // Start hidden
+
+        // Character RawImage (uses RenderTexture)
+        var charRawImage = charContainerObj.AddComponent<RawImage>();
+        charRawImage.color = Color.white;
+        charRawImage.raycastTarget = false;
+
+        // Load RenderTexture
+        var visitorRT = AssetDatabase.LoadAssetAtPath<RenderTexture>("Assets/Resources/Exhibitions/VisitorRT.asset");
+        if (visitorRT != null)
+            charRawImage.texture = visitorRT;
+
+        var charRt = charContainerObj.GetComponent<RectTransform>();
         charRt.anchorMin = new Vector2(0, 0);
         charRt.anchorMax = new Vector2(1, 1);
         charRt.offsetMin = new Vector2(20, 80);
@@ -253,14 +263,14 @@ public static class ExhibitionSceneBuilder
         dialogueRt.anchorMax = new Vector2(1, 0);
         dialogueRt.pivot = new Vector2(0.5f, 0);
         dialogueRt.anchoredPosition = new Vector2(0, 10);
-        dialogueRt.sizeDelta = new Vector2(-40, 60);
+        dialogueRt.sizeDelta = new Vector2(-40, 80);
 
         // Dialogue text
         var textObj = new GameObject("DialogueText");
         textObj.transform.SetParent(dialogueObj.transform, false);
         var dialogueText = textObj.AddComponent<TextMeshProUGUI>();
         dialogueText.text = "Place items in the display slots to begin.";
-        dialogueText.fontSize = 16;
+        dialogueText.fontSize = 28;
         dialogueText.alignment = TextAlignmentOptions.Center;
         dialogueText.color = Color.white;
         var textRt = textObj.GetComponent<RectTransform>();
@@ -269,11 +279,31 @@ public static class ExhibitionSceneBuilder
         textRt.offsetMin = new Vector2(10, 5);
         textRt.offsetMax = new Vector2(-10, -5);
 
+        // VisitorCharacterGenerator component
+        var generator = panelObj.AddComponent<VisitorCharacterGenerator>();
+
+        // Load character bases from Resources
+        var characterBases = Resources.LoadAll<CharacterBase>("Characters");
+        if (characterBases.Length > 0)
+        {
+            SetPrivateField(generator, "_characterBases", characterBases);
+            Debug.Log($"[SceneBuilder] Found {characterBases.Length} character bases for VisitorPanel.");
+        }
+        else
+        {
+            Debug.LogWarning("[SceneBuilder] No CharacterBase assets found in Resources/Characters.");
+        }
+
+        if (visitorRT != null)
+            SetPrivateField(generator, "_renderTarget", visitorRT);
+
         // VisitorPanel script
         var panel = panelObj.AddComponent<VisitorPanel>();
-        SetPrivateField(panel, "_characterImage", charImg);
+        SetPrivateField(panel, "_characterRawImage", charRawImage);
+        SetPrivateField(panel, "_characterCanvasGroup", charCanvasGroup);
         SetPrivateField(panel, "_dialogueText", dialogueText);
         SetPrivateField(panel, "_dialoguePanel", dialogueCg);
+        SetPrivateField(panel, "_characterGenerator", generator);
 
         return panel;
     }
@@ -300,7 +330,7 @@ public static class ExhibitionSceneBuilder
         labelObj.transform.SetParent(barObj.transform, false);
         var labelText = labelObj.AddComponent<TextMeshProUGUI>();
         labelText.text = "Visitor Satisfaction";
-        labelText.fontSize = 16;
+        labelText.fontSize = 24;
         labelText.alignment = TextAlignmentOptions.Left;
         labelText.color = new Color(0.9f, 0.85f, 0.8f, 1f);
         var labelRt = labelObj.GetComponent<RectTransform>();
@@ -314,7 +344,7 @@ public static class ExhibitionSceneBuilder
         valueObj.transform.SetParent(barObj.transform, false);
         var valueText = valueObj.AddComponent<TextMeshProUGUI>();
         valueText.text = "0 / 0";
-        valueText.fontSize = 16;
+        valueText.fontSize = 24;
         valueText.alignment = TextAlignmentOptions.Right;
         valueText.color = Color.white;
         var valueRt = valueObj.GetComponent<RectTransform>();
@@ -477,7 +507,7 @@ public static class ExhibitionSceneBuilder
         titleObj.transform.SetParent(panelObj.transform, false);
         var titleText = titleObj.AddComponent<TextMeshProUGUI>();
         titleText.text = "Select a Theme";
-        titleText.fontSize = 24;
+        titleText.fontSize = 32;
         titleText.fontStyle = FontStyles.Bold;
         titleText.alignment = TextAlignmentOptions.Center;
         titleText.color = new Color(1f, 0.95f, 0.85f, 1f);
@@ -522,14 +552,14 @@ public static class ExhibitionSceneBuilder
         var windowRt = windowObj.GetComponent<RectTransform>();
         windowRt.anchorMin = new Vector2(0.5f, 0.5f);
         windowRt.anchorMax = new Vector2(0.5f, 0.5f);
-        windowRt.sizeDelta = new Vector2(400, 400);
+        windowRt.sizeDelta = new Vector2(450, 450);
 
         // Title
         var titleObj = new GameObject("Title");
         titleObj.transform.SetParent(windowObj.transform, false);
         var titleText = titleObj.AddComponent<TextMeshProUGUI>();
         titleText.text = "Select Exhibition Theme";
-        titleText.fontSize = 24;
+        titleText.fontSize = 32;
         titleText.fontStyle = FontStyles.Bold;
         titleText.alignment = TextAlignmentOptions.Center;
         titleText.color = Color.white;
@@ -538,7 +568,7 @@ public static class ExhibitionSceneBuilder
         titleRt.anchorMax = new Vector2(1, 1);
         titleRt.pivot = new Vector2(0.5f, 1);
         titleRt.anchoredPosition = new Vector2(0, -15);
-        titleRt.sizeDelta = new Vector2(-40, 40);
+        titleRt.sizeDelta = new Vector2(-40, 50);
 
         // List container
         var listObj = new GameObject("ListContainer");
@@ -553,8 +583,8 @@ public static class ExhibitionSceneBuilder
         var listRt = listObj.GetComponent<RectTransform>();
         listRt.anchorMin = new Vector2(0, 0);
         listRt.anchorMax = new Vector2(1, 1);
-        listRt.offsetMin = new Vector2(0, 60);
-        listRt.offsetMax = new Vector2(0, -60);
+        listRt.offsetMin = new Vector2(0, 70);
+        listRt.offsetMax = new Vector2(0, -70);
 
         // Close button
         var closeBtnObj = CreateButton(windowObj.transform, "CloseButton", "Close", 100);
@@ -702,7 +732,7 @@ public static class ExhibitionSceneBuilder
         textObj.transform.SetParent(btnObj.transform, false);
         var tmpText = textObj.AddComponent<TextMeshProUGUI>();
         tmpText.text = text;
-        tmpText.fontSize = 16;
+        tmpText.fontSize = 24;
         tmpText.alignment = TextAlignmentOptions.Center;
         tmpText.color = Color.white;
         var textRt = textObj.GetComponent<RectTransform>();
