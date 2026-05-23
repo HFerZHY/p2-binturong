@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59bba459f8de3b548a786ad00daa5442, type: 3}
+  m_Name: SignalLamp
+  m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
+  itemName: Signal Lamp
+  nameKey: item_signal_lamp
+  icon: {fileID: 0}
+  description: A kerosene lamp used by railway workers to signal trains at night
+    or in poor visibility.
+  descriptionKey: desc_signal_lamp
+  isUnlocked: 1
+  usedInExhibitions: []
