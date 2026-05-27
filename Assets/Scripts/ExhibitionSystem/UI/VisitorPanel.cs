@@ -189,13 +189,12 @@ namespace ExhibitionSystem.UI
             _isCharacterVisible = false;
         }
 
-        private void HandleVisitorReacted(int slotIndex, bool isCorrect, int satisfaction)
+        private void HandleVisitorReacted(int slotIndex, InspirationData inspiration, ExhibitItemData item, bool isCorrect, int satisfaction)
         {
             var manager = ExhibitionManager.Instance;
             if (manager == null) return;
 
-            var displaySlots = manager.DisplaySlots;
-            bool hasItem = slotIndex < displaySlots.Count && displaySlots[slotIndex] != null;
+            bool hasItem = item != null;
 
             string comment;
             if (!hasItem)
@@ -225,8 +224,8 @@ namespace ExhibitionSystem.UI
         private void HandleExhibitionEnded(bool success, int satisfaction, int threshold)
         {
             string message = success
-                ? $"{_successMessage}\nSatisfaction: {satisfaction}/{threshold} required"
-                : $"{_failureMessage}\nSatisfaction: {satisfaction}/{threshold} required";
+                ? $"{_successMessage}\nMatches: {satisfaction}/{threshold}"
+                : $"{_failureMessage}\nMatches: {satisfaction}/{threshold}. Rearrange the items and try again.";
 
             ShowDialogue(message);
 

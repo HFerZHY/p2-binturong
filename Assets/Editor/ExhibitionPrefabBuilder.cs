@@ -5,10 +5,6 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Editor tool that generates UI prefabs for the exhibition system.
-/// Run via Tools > Museum > Rebuild Prefabs.
-/// </summary>
 public static class ExhibitionPrefabBuilder
 {
     private const string PREFAB_PATH = "Assets/Resources/Exhibitions/Prefabs";
@@ -21,97 +17,55 @@ public static class ExhibitionPrefabBuilder
         CreateShelfSlotPrefab();
         CreateDisplaySlotPrefab();
         CreateThemeListItemPrefab();
+        CreateInspirationListItemPrefab();
+        CreateInspirationDisplaySlotPrefab();
         CreateItemTooltipPrefab();
         CreateOrUpdateVisitorRT();
         CreateVisitorPanelPrefab();
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-
-        EditorUtility.DisplayDialog("Prefab Builder",
-            "Prefabs rebuilt successfully!\n\n" +
-            $"Location: {PREFAB_PATH}",
-            "OK");
+        Debug.Log($"[PrefabBuilder] Prefabs rebuilt in {PREFAB_PATH}");
     }
-
-    // ── Prefab Creators ─────────────────────────────────────────────────────────
 
     private static void CreateShelfSlotPrefab()
     {
-        var root = new GameObject("ShelfSlot");
-
-        // Background image
+        var root = CreateUIObject("ShelfSlot", new Vector2(80, 80));
         var bg = root.AddComponent<Image>();
-        bg.color = new Color(0.3f, 0.25f, 0.2f, 0.8f);
+        bg.color = new Color(0.22f, 0.16f, 0.10f, 0.95f);
+        root.AddComponent<CanvasGroup>();
 
-        // CanvasGroup for drag
-        var cg = root.AddComponent<CanvasGroup>();
-
-        // RectTransform
-        var rt = root.GetComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(80, 80);
-
-        // Icon child
-        var iconObj = new GameObject("Icon");
-        iconObj.transform.SetParent(root.transform, false);
+        var iconObj = CreateChild(root.transform, "Icon");
         var icon = iconObj.AddComponent<Image>();
         icon.raycastTarget = false;
-        var iconRt = iconObj.GetComponent<RectTransform>();
-        iconRt.anchorMin = Vector2.zero;
-        iconRt.anchorMax = Vector2.one;
-        iconRt.offsetMin = new Vector2(5, 5);
-        iconRt.offsetMax = new Vector2(-5, -5);
+        Stretch(iconObj.GetComponent<RectTransform>(), 5);
 
-        // ShelfSlotUI script
         var slotUI = root.AddComponent<ShelfSlotUI>();
         SetPrivateField(slotUI, "_icon", icon);
 
-        SavePrefab(root, "ShelfSlot");
-        Object.DestroyImmediate(root);
+        SaveAndDestroy(root, "ShelfSlot");
     }
 
     private static void CreateDisplaySlotPrefab()
     {
-        var root = new GameObject("DisplaySlot");
-
-        // Background image
+        var root = CreateUIObject("DisplaySlot", new Vector2(96, 96));
         var bg = root.AddComponent<Image>();
-        bg.color = new Color(0.4f, 0.35f, 0.3f, 0.8f);
+        bg.color = new Color(0.4f, 0.35f, 0.3f, 0.85f);
+        root.AddComponent<CanvasGroup>();
 
-        // CanvasGroup
-        var cg = root.AddComponent<CanvasGroup>();
-
-        // RectTransform
-        var rt = root.GetComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(100, 100);
-
-        // Highlight child
-        var highlightObj = new GameObject("Highlight");
-        highlightObj.transform.SetParent(root.transform, false);
+        var highlightObj = CreateChild(root.transform, "Highlight");
         var highlight = highlightObj.AddComponent<Image>();
         highlight.color = new Color(1, 1, 1, 0.1f);
         highlight.raycastTarget = false;
-        var highlightRt = highlightObj.GetComponent<RectTransform>();
-        highlightRt.anchorMin = Vector2.zero;
-        highlightRt.anchorMax = Vector2.one;
-        highlightRt.offsetMin = Vector2.zero;
-        highlightRt.offsetMax = Vector2.zero;
+        Stretch(highlightObj.GetComponent<RectTransform>(), 0);
 
-        // Icon child
-        var iconObj = new GameObject("ItemIcon");
-        iconObj.transform.SetParent(root.transform, false);
+        var iconObj = CreateChild(root.transform, "ItemIcon");
         var icon = iconObj.AddComponent<Image>();
         icon.raycastTarget = false;
         icon.enabled = false;
-        var iconRt = iconObj.GetComponent<RectTransform>();
-        iconRt.anchorMin = Vector2.zero;
-        iconRt.anchorMax = Vector2.one;
-        iconRt.offsetMin = new Vector2(10, 10);
-        iconRt.offsetMax = new Vector2(-10, -10);
+        Stretch(iconObj.GetComponent<RectTransform>(), 10);
 
-        // Status badge (small square at top-right corner)
-        var badgeObj = new GameObject("StatusBadge");
-        badgeObj.transform.SetParent(root.transform, false);
+        var badgeObj = CreateChild(root.transform, "StatusBadge");
         var badge = badgeObj.AddComponent<Image>();
         badge.color = Color.white;
         badge.raycastTarget = false;
@@ -123,201 +77,266 @@ public static class ExhibitionPrefabBuilder
         badgeRt.sizeDelta = new Vector2(18, 18);
         badgeRt.anchoredPosition = new Vector2(-8, -8);
 
-        // DisplaySlotUI script
         var slotUI = root.AddComponent<DisplaySlotUI>();
         SetPrivateField(slotUI, "_highlight", highlight);
         SetPrivateField(slotUI, "_itemIcon", icon);
         SetPrivateField(slotUI, "_statusBadge", badge);
 
-        SavePrefab(root, "DisplaySlot");
-        Object.DestroyImmediate(root);
+        SaveAndDestroy(root, "DisplaySlot");
     }
 
     private static void CreateThemeListItemPrefab()
     {
-        var root = new GameObject("ThemeListItem");
-
-        // Background/Button
+        var root = CreateUIObject("ThemeListItem", new Vector2(760, 108));
         var bg = root.AddComponent<Image>();
-        bg.color = new Color(0.35f, 0.3f, 0.25f, 0.9f);
+        bg.color = new Color(0.78f, 0.66f, 0.46f, 0.98f);
         var button = root.AddComponent<Button>();
         button.targetGraphic = bg;
 
-        // RectTransform
-        var rt = root.GetComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(340, 90);
+        var frameObj = CreateChild(root.transform, "SelectionFrame");
+        var frame = frameObj.AddComponent<Image>();
+        frame.color = new Color(1f, 0.82f, 0.28f, 0.38f);
+        frame.raycastTarget = false;
+        frame.enabled = false;
+        frameObj.AddComponent<LayoutElement>().ignoreLayout = true;
+        Stretch(frameObj.GetComponent<RectTransform>(), 0);
 
-        // Layout
-        var hlg = root.AddComponent<HorizontalLayoutGroup>();
-        hlg.padding = new RectOffset(15, 15, 12, 12);
-        hlg.spacing = 10;
-        hlg.childAlignment = TextAnchor.MiddleLeft;
-        hlg.childControlWidth = false;
-        hlg.childControlHeight = true;
-        hlg.childForceExpandWidth = false;
-        hlg.childForceExpandHeight = true;
+        var layout = root.AddComponent<HorizontalLayoutGroup>();
+        layout.padding = new RectOffset(22, 22, 12, 12);
+        layout.spacing = 16;
+        layout.childControlHeight = true;
+        layout.childControlWidth = true;
+        layout.childForceExpandWidth = false;
+        layout.childAlignment = TextAnchor.MiddleLeft;
 
-        // Content container
-        var contentObj = new GameObject("Content");
-        contentObj.transform.SetParent(root.transform, false);
-        var contentLayout = contentObj.AddComponent<VerticalLayoutGroup>();
-        contentLayout.childAlignment = TextAnchor.MiddleLeft;
+        var flowerObj = CreateChild(root.transform, "StatusFlower");
+        var flower = flowerObj.AddComponent<Image>();
+        flower.color = new Color(0.72f, 0.24f, 0.18f, 1f);
+        var flowerLayout = flowerObj.AddComponent<LayoutElement>();
+        flowerLayout.preferredWidth = 34;
+        flowerLayout.preferredHeight = 34;
+
+        var content = CreateChild(root.transform, "Content");
+        var contentLayout = content.AddComponent<VerticalLayoutGroup>();
+        contentLayout.spacing = 4;
         contentLayout.childControlWidth = true;
         contentLayout.childControlHeight = false;
         contentLayout.childForceExpandWidth = true;
-        contentLayout.childForceExpandHeight = false;
-        contentLayout.spacing = 2;
-        var contentLe = contentObj.AddComponent<LayoutElement>();
-        contentLe.flexibleWidth = 1;
+        content.AddComponent<LayoutElement>().flexibleWidth = 1;
 
-        // Title text
-        var titleObj = new GameObject("Title");
-        titleObj.transform.SetParent(contentObj.transform, false);
-        var titleText = titleObj.AddComponent<TextMeshProUGUI>();
-        titleText.text = "Exhibition Title";
-        titleText.fontSize = 26;
-        titleText.fontStyle = FontStyles.Bold;
-        titleText.color = Color.white;
+        var titleText = CreateText(content.transform, "Title", "Theme", 26, FontStyles.Bold, TextAlignmentOptions.Left);
+        titleText.color = new Color(0.22f, 0.12f, 0.06f, 1f);
+        var descText = CreateText(content.transform, "Description", "Description", 16, FontStyles.Normal, TextAlignmentOptions.Left);
+        descText.color = new Color(0.30f, 0.20f, 0.12f, 1f);
+        descText.textWrappingMode = TextWrappingModes.Normal;
+        var slotsText = CreateText(content.transform, "Slots", "Day 2 • 3 ideas", 15, FontStyles.Italic, TextAlignmentOptions.Left);
+        slotsText.color = new Color(0.42f, 0.28f, 0.16f, 1f);
 
-        // Slots text
-        var slotsObj = new GameObject("Slots");
-        slotsObj.transform.SetParent(contentObj.transform, false);
-        var slotsText = slotsObj.AddComponent<TextMeshProUGUI>();
-        slotsText.text = "4 slots";
-        slotsText.fontSize = 20;
-        slotsText.color = new Color(0.8f, 0.8f, 0.8f, 1f);
-
-        // Completed icon
-        var completedObj = new GameObject("CompletedIcon");
-        completedObj.transform.SetParent(root.transform, false);
+        var completedObj = CreateChild(root.transform, "CompletedIcon");
         var completedIcon = completedObj.AddComponent<Image>();
-        completedIcon.color = new Color(0.3f, 0.9f, 0.3f, 1f);
-        completedIcon.enabled = false;
-        var completedLe = completedObj.AddComponent<LayoutElement>();
-        completedLe.minWidth = 30;
-        completedLe.minHeight = 30;
+        completedIcon.color = new Color(0.55f, 0.17f, 0.12f, 0.9f);
+        completedObj.SetActive(false);
+        var completedLayout = completedObj.AddComponent<LayoutElement>();
+        completedLayout.preferredWidth = 112;
+        completedLayout.preferredHeight = 34;
 
-        // ThemeListItem script
+        var completedText = CreateText(completedObj.transform, "Text", "Completed", 16, FontStyles.Bold, TextAlignmentOptions.Center);
+        completedText.color = new Color(1f, 0.86f, 0.68f, 1f);
+        Stretch(completedText.GetComponent<RectTransform>(), 0);
+
         var listItem = root.AddComponent<ThemeListItem>();
         SetPrivateField(listItem, "_titleText", titleText);
+        SetPrivateField(listItem, "_descriptionText", descText);
         SetPrivateField(listItem, "_slotsText", slotsText);
         SetPrivateField(listItem, "_completedIcon", completedIcon);
+        SetPrivateField(listItem, "_selectionFrame", frame);
+        SetPrivateField(listItem, "_background", bg);
         SetPrivateField(listItem, "_button", button);
 
-        SavePrefab(root, "ThemeListItem");
-        Object.DestroyImmediate(root);
+        SaveAndDestroy(root, "ThemeListItem");
+    }
+
+    private static void CreateInspirationListItemPrefab()
+    {
+        var root = CreateUIObject("InspirationListItem", new Vector2(620, 82));
+        var bg = root.AddComponent<Image>();
+        bg.color = new Color(0.74f, 0.63f, 0.48f, 0.98f);
+        var button = root.AddComponent<Button>();
+        button.targetGraphic = bg;
+
+        var frameObj = CreateChild(root.transform, "SelectionFrame");
+        var frame = frameObj.AddComponent<Image>();
+        frame.color = new Color(1f, 0.78f, 0.28f, 0.26f);
+        frame.raycastTarget = false;
+        frame.enabled = false;
+        frameObj.AddComponent<LayoutElement>().ignoreLayout = true;
+        Stretch(frameObj.GetComponent<RectTransform>(), 0);
+
+        var layout = root.AddComponent<HorizontalLayoutGroup>();
+        layout.padding = new RectOffset(16, 16, 10, 10);
+        layout.spacing = 14;
+        layout.childControlHeight = true;
+        layout.childControlWidth = false;
+        layout.childAlignment = TextAnchor.MiddleLeft;
+
+        var idText = CreateText(root.transform, "Id", "#1", 20, FontStyles.Bold, TextAlignmentOptions.Center);
+        idText.color = new Color(0.22f, 0.12f, 0.06f, 1f);
+        idText.gameObject.AddComponent<LayoutElement>().preferredWidth = 54;
+
+        var bodyText = CreateText(root.transform, "Body", "Idea text", 17, FontStyles.Bold, TextAlignmentOptions.Left);
+        bodyText.color = new Color(0.23f, 0.14f, 0.08f, 1f);
+        bodyText.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
+        bodyText.textWrappingMode = TextWrappingModes.Normal;
+
+        var matchText = CreateText(root.transform, "KnownMatch", "Known Match", 14, FontStyles.Bold, TextAlignmentOptions.Center);
+        matchText.color = new Color(0.72f, 0.95f, 0.68f, 1f);
+        matchText.enabled = false;
+        matchText.gameObject.AddComponent<LayoutElement>().preferredWidth = 96;
+
+        var item = root.AddComponent<InspirationListItem>();
+        SetPrivateField(item, "_idText", idText);
+        SetPrivateField(item, "_bodyText", bodyText);
+        SetPrivateField(item, "_matchText", matchText);
+        SetPrivateField(item, "_selectionImage", bg);
+        SetPrivateField(item, "_selectionFrame", frame);
+        SetPrivateField(item, "_button", button);
+
+        SaveAndDestroy(root, "InspirationListItem");
+    }
+
+    private static void CreateInspirationDisplaySlotPrefab()
+    {
+        var root = CreateUIObject("InspirationDisplaySlot", new Vector2(300, 154));
+        var bg = root.AddComponent<Image>();
+        bg.color = new Color(0.24f, 0.18f, 0.12f, 0.62f);
+
+        var layout = root.AddComponent<VerticalLayoutGroup>();
+        layout.padding = new RectOffset(12, 12, 4, 4);
+        layout.spacing = 4;
+        layout.childControlHeight = false;
+        layout.childControlWidth = true;
+        layout.childForceExpandHeight = false;
+        layout.childForceExpandWidth = true;
+        layout.childAlignment = TextAnchor.UpperCenter;
+
+        var labelObj = CreateChild(root.transform, "LabelStrip");
+        var labelBg = labelObj.AddComponent<Image>();
+        labelBg.color = new Color(0.75f, 0.62f, 0.42f, 0.95f);
+        labelObj.AddComponent<LayoutElement>().preferredHeight = 28;
+
+        var ideaText = CreateText(labelObj.transform, "InspirationText", "Jiro recreated...", 15, FontStyles.Bold, TextAlignmentOptions.Center);
+        ideaText.color = new Color(0.25f, 0.14f, 0.08f, 1f);
+        Stretch(ideaText.GetComponent<RectTransform>(), 6);
+
+        var slotFrameObj = CreateChild(root.transform, "SlotFrame");
+        var slotFrame = slotFrameObj.AddComponent<Image>();
+        slotFrame.color = new Color(0.54f, 0.37f, 0.18f, 0.78f);
+        slotFrameObj.AddComponent<LayoutElement>().preferredHeight = 88;
+
+        var displaySlotPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PREFAB_PATH}/DisplaySlot.prefab");
+        GameObject displaySlotObj;
+        if (displaySlotPrefab != null)
+            displaySlotObj = (GameObject)PrefabUtility.InstantiatePrefab(displaySlotPrefab, slotFrameObj.transform);
+        else
+            displaySlotObj = CreateUIObject("DisplaySlot", new Vector2(96, 96));
+
+        displaySlotObj.name = "DisplaySlot";
+        displaySlotObj.transform.SetParent(slotFrameObj.transform, false);
+        var displayRt = displaySlotObj.GetComponent<RectTransform>();
+        displayRt.anchorMin = new Vector2(0.5f, 0.5f);
+        displayRt.anchorMax = new Vector2(0.5f, 0.5f);
+        displayRt.pivot = new Vector2(0.5f, 0.5f);
+        displayRt.sizeDelta = new Vector2(82, 82);
+        displayRt.anchoredPosition = Vector2.zero;
+        var displaySlot = displaySlotObj.GetComponent<DisplaySlotUI>();
+
+        var statusText = CreateText(root.transform, "StatusText", "Find the item", 13, FontStyles.Italic, TextAlignmentOptions.Center);
+        statusText.color = new Color(0.8f, 0.75f, 0.65f, 1f);
+        statusText.gameObject.AddComponent<LayoutElement>().preferredHeight = 14;
+
+        var tooltipObj = CreateChild(root.transform, "InspirationTooltip");
+        var tooltipBg = tooltipObj.AddComponent<Image>();
+        tooltipBg.color = new Color(0.88f, 0.78f, 0.58f, 0.98f);
+        tooltipBg.raycastTarget = false;
+        tooltipObj.SetActive(false);
+        tooltipObj.AddComponent<LayoutElement>().ignoreLayout = true;
+        var tooltipRt = tooltipObj.GetComponent<RectTransform>();
+        tooltipRt.anchorMin = new Vector2(0.5f, 1);
+        tooltipRt.anchorMax = new Vector2(0.5f, 1);
+        tooltipRt.pivot = new Vector2(0.5f, 0);
+        tooltipRt.anchoredPosition = new Vector2(0, 6);
+        tooltipRt.sizeDelta = new Vector2(320, 92);
+
+        var tooltipText = CreateText(tooltipObj.transform, "Text", "Full inspiration text.", 16, FontStyles.Normal, TextAlignmentOptions.Center);
+        tooltipText.color = new Color(0.22f, 0.13f, 0.07f, 1f);
+        tooltipText.textWrappingMode = TextWrappingModes.Normal;
+        tooltipText.raycastTarget = false;
+        Stretch(tooltipText.GetComponent<RectTransform>(), 12);
+
+        var slot = root.AddComponent<InspirationDisplaySlot>();
+        SetPrivateField(slot, "_inspirationText", ideaText);
+        SetPrivateField(slot, "_statusText", statusText);
+        SetPrivateField(slot, "_displaySlot", displaySlot);
+        SetPrivateField(slot, "_tooltipPanel", tooltipObj);
+        SetPrivateField(slot, "_tooltipText", tooltipText);
+
+        SaveAndDestroy(root, "InspirationDisplaySlot");
     }
 
     private static void CreateItemTooltipPrefab()
     {
-        var root = new GameObject("ItemTooltip");
-
-        // Panel background
+        var root = CreateUIObject("ItemTooltip", new Vector2(320, 190));
         var panel = root.AddComponent<Image>();
         panel.color = new Color(0.15f, 0.12f, 0.1f, 0.95f);
-
-        // CanvasGroup
         var cg = root.AddComponent<CanvasGroup>();
         cg.alpha = 0f;
         cg.blocksRaycasts = false;
         cg.interactable = false;
 
-        // RectTransform
-        var rt = root.GetComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(280, 180);
-        rt.pivot = new Vector2(0, 1); // Top-left pivot
+        var layout = root.AddComponent<VerticalLayoutGroup>();
+        layout.padding = new RectOffset(18, 18, 18, 18);
+        layout.spacing = 8;
+        layout.childControlWidth = true;
+        layout.childControlHeight = false;
+        root.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-        // Vertical layout
-        var vlg = root.AddComponent<VerticalLayoutGroup>();
-        vlg.padding = new RectOffset(18, 18, 18, 18);
-        vlg.spacing = 8;
-        vlg.childAlignment = TextAnchor.UpperLeft;
-        vlg.childControlWidth = true;
-        vlg.childControlHeight = false;
-        vlg.childForceExpandWidth = true;
-        vlg.childForceExpandHeight = false;
+        var nameText = CreateText(root.transform, "NameText", "Item Name", 24, FontStyles.Bold, TextAlignmentOptions.Left);
+        var separatorObj = CreateChild(root.transform, "Separator");
+        var separator = separatorObj.AddComponent<Image>();
+        separator.color = new Color(0.5f, 0.45f, 0.4f, 0.5f);
+        separatorObj.AddComponent<LayoutElement>().preferredHeight = 1;
+        var descText = CreateText(root.transform, "DescriptionText", "Item description.", 18, FontStyles.Normal, TextAlignmentOptions.Left);
+        descText.textWrappingMode = TextWrappingModes.Normal;
 
-        // ContentSizeFitter to auto-resize
-        var csf = root.AddComponent<ContentSizeFitter>();
-        csf.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-        csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-
-        // Name text
-        var nameObj = new GameObject("NameText");
-        nameObj.transform.SetParent(root.transform, false);
-        var nameText = nameObj.AddComponent<TextMeshProUGUI>();
-        nameText.text = "Item Name";
-        nameText.fontSize = 26;
-        nameText.fontStyle = FontStyles.Bold;
-        nameText.color = new Color(1f, 0.95f, 0.85f, 1f);
-        var nameLe = nameObj.AddComponent<LayoutElement>();
-        nameLe.minHeight = 32;
-
-        // Separator
-        var sepObj = new GameObject("Separator");
-        sepObj.transform.SetParent(root.transform, false);
-        var sep = sepObj.AddComponent<Image>();
-        sep.color = new Color(0.5f, 0.45f, 0.4f, 0.5f);
-        var sepLe = sepObj.AddComponent<LayoutElement>();
-        sepLe.minHeight = 1;
-        sepLe.preferredHeight = 1;
-
-        // Description text
-        var descObj = new GameObject("DescriptionText");
-        descObj.transform.SetParent(root.transform, false);
-        var descText = descObj.AddComponent<TextMeshProUGUI>();
-        descText.text = "Item description goes here.";
-        descText.fontSize = 20;
-        descText.color = new Color(0.9f, 0.85f, 0.8f, 1f);
-        var descLe = descObj.AddComponent<LayoutElement>();
-        descLe.minHeight = 50;
-        descLe.preferredWidth = 244;
-
-        // History container
-        var historyObj = new GameObject("HistoryContainer");
-        historyObj.transform.SetParent(root.transform, false);
+        var historyObj = CreateChild(root.transform, "HistoryContainer");
         var historyLayout = historyObj.AddComponent<VerticalLayoutGroup>();
-        historyLayout.spacing = 2;
+        historyLayout.spacing = 3;
         historyLayout.childControlWidth = true;
         historyLayout.childControlHeight = false;
-        historyLayout.childForceExpandWidth = true;
-        historyLayout.childForceExpandHeight = false;
 
-        // History entry prefab (nested)
-        var historyEntryObj = new GameObject("HistoryEntry");
-        var historyEntryText = historyEntryObj.AddComponent<TextMeshProUGUI>();
-        historyEntryText.text = "✓ Used in: Exhibition";
-        historyEntryText.fontSize = 18;
-        historyEntryText.color = new Color(0.5f, 0.9f, 0.5f, 1f);
+        var historyEntryObj = CreateChild(historyObj.transform, "HistoryEntry");
+        var historyEntryText = CreateText(historyEntryObj.transform, "Text", "Matched idea", 15, FontStyles.Normal, TextAlignmentOptions.Left);
+        historyEntryText.color = new Color(0.55f, 0.9f, 0.55f, 1f);
+        Stretch(historyEntryText.GetComponent<RectTransform>(), 0);
         historyEntryObj.SetActive(false);
-        historyEntryObj.transform.SetParent(historyObj.transform, false);
 
-        // ItemTooltip script
         var tooltip = root.AddComponent<ItemTooltip>();
         SetPrivateField(tooltip, "_canvasGroup", cg);
-        SetPrivateField(tooltip, "_panel", rt);
+        SetPrivateField(tooltip, "_panel", root.GetComponent<RectTransform>());
         SetPrivateField(tooltip, "_nameText", nameText);
         SetPrivateField(tooltip, "_descriptionText", descText);
         SetPrivateField(tooltip, "_historyContainer", historyObj.transform);
         SetPrivateField(tooltip, "_historyEntryPrefab", historyEntryObj);
 
-        SavePrefab(root, "ItemTooltip");
-        Object.DestroyImmediate(root);
+        SaveAndDestroy(root, "ItemTooltip");
     }
 
     private static void CreateOrUpdateVisitorRT()
     {
         string rtPath = "Assets/Resources/Exhibitions/VisitorRT.asset";
-
-        // Check if already exists
         var existingRT = AssetDatabase.LoadAssetAtPath<RenderTexture>(rtPath);
-        if (existingRT != null)
-        {
-            Debug.Log($"[PrefabBuilder] RenderTexture already exists: {rtPath}");
-            return;
-        }
+        if (existingRT != null) return;
 
-        // Create new RenderTexture
         var rt = new RenderTexture(256, 256, 0, RenderTextureFormat.ARGB32)
         {
             name = "VisitorRT",
@@ -326,112 +345,87 @@ public static class ExhibitionPrefabBuilder
         };
 
         AssetDatabase.CreateAsset(rt, rtPath);
-        Debug.Log($"[PrefabBuilder] Created RenderTexture: {rtPath}");
     }
 
     private static void CreateVisitorPanelPrefab()
     {
-        var root = new GameObject("VisitorPanel");
+        var root = CreateUIObject("VisitorPanel", new Vector2(300, 220));
+        var layout = root.AddComponent<VerticalLayoutGroup>();
+        layout.padding = new RectOffset(10, 10, 10, 10);
+        layout.spacing = 8;
+        layout.childControlWidth = true;
+        layout.childControlHeight = false;
 
-        // RectTransform for root
-        var rootRt = root.AddComponent<RectTransform>();
-        rootRt.sizeDelta = new Vector2(300, 200);
-
-        // Vertical layout
-        var vlg = root.AddComponent<VerticalLayoutGroup>();
-        vlg.padding = new RectOffset(10, 10, 10, 10);
-        vlg.spacing = 8;
-        vlg.childAlignment = TextAnchor.MiddleCenter;
-        vlg.childControlWidth = true;
-        vlg.childControlHeight = false;
-        vlg.childForceExpandWidth = true;
-        vlg.childForceExpandHeight = false;
-
-        // ── Character Container ───────────────────────────────────────────────
-        var charContainer = new GameObject("CharacterContainer");
-        charContainer.transform.SetParent(root.transform, false);
-
+        var charContainer = CreateChild(root.transform, "CharacterContainer");
         var charCg = charContainer.AddComponent<CanvasGroup>();
         charCg.alpha = 0f;
+        var rawImage = charContainer.AddComponent<RawImage>();
+        rawImage.raycastTarget = false;
+        rawImage.texture = AssetDatabase.LoadAssetAtPath<RenderTexture>("Assets/Resources/Exhibitions/VisitorRT.asset");
+        charContainer.AddComponent<LayoutElement>().preferredHeight = 120;
 
-        var charRawImage = charContainer.AddComponent<RawImage>();
-        charRawImage.color = Color.white;
-        charRawImage.raycastTarget = false;
-
-        // Load RenderTexture and assign
-        var rt = AssetDatabase.LoadAssetAtPath<RenderTexture>("Assets/Resources/Exhibitions/VisitorRT.asset");
-        if (rt != null)
-            charRawImage.texture = rt;
-
-        var charRt = charContainer.GetComponent<RectTransform>();
-        charRt.sizeDelta = new Vector2(120, 120);
-        var charLe = charContainer.AddComponent<LayoutElement>();
-        charLe.minHeight = 120;
-        charLe.preferredHeight = 120;
-
-        // ── Dialogue Panel ────────────────────────────────────────────────────
-        var dialoguePanel = new GameObject("DialoguePanel");
-        dialoguePanel.transform.SetParent(root.transform, false);
-
-        var dialogueBg = dialoguePanel.AddComponent<Image>();
+        var dialogue = CreateChild(root.transform, "DialoguePanel");
+        var dialogueBg = dialogue.AddComponent<Image>();
         dialogueBg.color = new Color(0.15f, 0.12f, 0.1f, 0.9f);
+        var dialogueCg = dialogue.AddComponent<CanvasGroup>();
+        var dialogueText = CreateText(dialogue.transform, "DialogueText", "Place items in the display slots to begin.", 18, FontStyles.Normal, TextAlignmentOptions.Center);
+        Stretch(dialogueText.GetComponent<RectTransform>(), 8);
+        dialogue.AddComponent<LayoutElement>().preferredHeight = 70;
 
-        var dialogueCg = dialoguePanel.AddComponent<CanvasGroup>();
-        dialogueCg.alpha = 0f;
-
-        var dialogueRt = dialoguePanel.GetComponent<RectTransform>();
-        dialogueRt.sizeDelta = new Vector2(280, 60);
-        var dialogueLe = dialoguePanel.AddComponent<LayoutElement>();
-        dialogueLe.minHeight = 60;
-        dialogueLe.flexibleHeight = 1;
-
-        // Dialogue text
-        var dialogueTextObj = new GameObject("DialogueText");
-        dialogueTextObj.transform.SetParent(dialoguePanel.transform, false);
-
-        var dialogueText = dialogueTextObj.AddComponent<TextMeshProUGUI>();
-        dialogueText.text = "Place items in the display slots to begin.";
-        dialogueText.fontSize = 18;
-        dialogueText.color = new Color(0.95f, 0.9f, 0.85f, 1f);
-        dialogueText.alignment = TextAlignmentOptions.Center;
-
-        var dialogueTextRt = dialogueTextObj.GetComponent<RectTransform>();
-        dialogueTextRt.anchorMin = Vector2.zero;
-        dialogueTextRt.anchorMax = Vector2.one;
-        dialogueTextRt.offsetMin = new Vector2(10, 8);
-        dialogueTextRt.offsetMax = new Vector2(-10, -8);
-
-        // ── Character Generator ───────────────────────────────────────────────
         var generator = root.AddComponent<VisitorCharacterGenerator>();
-
-        // Load character bases from Resources
         var characterBases = Resources.LoadAll<CharacterBase>("Characters");
         if (characterBases.Length > 0)
-        {
             SetPrivateField(generator, "_characterBases", characterBases);
-            Debug.Log($"[PrefabBuilder] Found {characterBases.Length} character bases.");
-        }
-        else
-        {
-            Debug.LogWarning("[PrefabBuilder] No CharacterBase assets found in Resources/Characters.");
-        }
 
+        var rt = AssetDatabase.LoadAssetAtPath<RenderTexture>("Assets/Resources/Exhibitions/VisitorRT.asset");
         if (rt != null)
             SetPrivateField(generator, "_renderTarget", rt);
 
-        // ── VisitorPanel Script ───────────────────────────────────────────────
         var panel = root.AddComponent<VisitorPanel>();
-        SetPrivateField(panel, "_characterRawImage", charRawImage);
+        SetPrivateField(panel, "_characterRawImage", rawImage);
         SetPrivateField(panel, "_characterCanvasGroup", charCg);
         SetPrivateField(panel, "_dialogueText", dialogueText);
         SetPrivateField(panel, "_dialoguePanel", dialogueCg);
         SetPrivateField(panel, "_characterGenerator", generator);
 
-        SavePrefab(root, "VisitorPanel");
-        Object.DestroyImmediate(root);
+        SaveAndDestroy(root, "VisitorPanel");
     }
 
-    // ── Helpers ─────────────────────────────────────────────────────────────────
+    private static GameObject CreateUIObject(string name, Vector2 size)
+    {
+        var obj = new GameObject(name);
+        var rt = obj.AddComponent<RectTransform>();
+        rt.sizeDelta = size;
+        return obj;
+    }
+
+    private static GameObject CreateChild(Transform parent, string name)
+    {
+        var obj = new GameObject(name);
+        obj.transform.SetParent(parent, false);
+        obj.AddComponent<RectTransform>();
+        return obj;
+    }
+
+    private static TextMeshProUGUI CreateText(Transform parent, string name, string text, float size, FontStyles style, TextAlignmentOptions alignment)
+    {
+        var obj = CreateChild(parent, name);
+        var tmp = obj.AddComponent<TextMeshProUGUI>();
+        tmp.text = text;
+        tmp.fontSize = size;
+        tmp.fontStyle = style;
+        tmp.alignment = alignment;
+        tmp.color = Color.white;
+        return tmp;
+    }
+
+    private static void Stretch(RectTransform rt, float padding)
+    {
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = new Vector2(padding, padding);
+        rt.offsetMax = new Vector2(-padding, -padding);
+    }
 
     private static void EnsureDirectories()
     {
@@ -445,22 +439,26 @@ public static class ExhibitionPrefabBuilder
             AssetDatabase.CreateFolder("Assets/Resources/Exhibitions", "Prefabs");
     }
 
-    private static void SavePrefab(GameObject obj, string name)
+    private static void SaveAndDestroy(GameObject obj, string name)
     {
-        string path = $"{PREFAB_PATH}/{name}.prefab";
-        PrefabUtility.SaveAsPrefabAsset(obj, path);
-        Debug.Log($"[PrefabBuilder] Created: {path}");
+        PrefabUtility.SaveAsPrefabAsset(obj, $"{PREFAB_PATH}/{name}.prefab");
+        Object.DestroyImmediate(obj);
     }
 
     private static void SetPrivateField(object target, string fieldName, object value)
     {
-        var field = target.GetType().GetField(fieldName,
-            System.Reflection.BindingFlags.NonPublic |
-            System.Reflection.BindingFlags.Instance);
+        var type = target.GetType();
+        while (type != null)
+        {
+            var field = type.GetField(fieldName, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (field != null)
+            {
+                field.SetValue(target, value);
+                return;
+            }
+            type = type.BaseType;
+        }
 
-        if (field != null)
-            field.SetValue(target, value);
-        else
-            Debug.LogWarning($"[PrefabBuilder] Field not found: {fieldName}");
+        Debug.LogWarning($"[PrefabBuilder] Field not found: {target.GetType().Name}.{fieldName}");
     }
 }

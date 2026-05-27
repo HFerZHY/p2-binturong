@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0c05c6b8d6265f4892ffb9d7d579029, type: 3}
+  m_Name: Birdwatching
+  m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitionTheme
+  title: Birdwatching
+  titleKey: theme_birdwatching
+  description: An exhibition about birds, watchers, and local belief.
+  descriptionKey: desc_birdwatching
+  day: 3
+  requiredInspirations: 3
+  selectionMode: 0
+  validInspirationIds: 01000000020000000300000007000000
+  missingIdeaHints: []
+  fallbackMissingHint: 'Rin: (I am missing one of the ideas that really belongs to
+    this exhibition.)'
+  fallbackInvalidHint: 'Rin: (One of these ideas feels out of place for this exhibition.)'
+  isCompleted: 0

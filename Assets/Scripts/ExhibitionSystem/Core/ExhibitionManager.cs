@@ -8,116 +8,93 @@ using UnityEngine;
 
 namespace ExhibitionSystem.Core
 {
+    public enum ExhibitionState
+    {
+        ThemeSelection,
+        InspirationSelection,
+        DisplayArrangement,
+        ExhibitionRunning,
+        Result
+    }
+
     /// <summary>
-    /// Manages the museum exhibition gameplay loop.
-    /// Handles theme selection, item placement, and visitor evaluation.
-    ///
-    /// USAGE:
-    ///   1. Call SelectTheme() to choose an exhibition
-    ///   2. Call PlaceItem()/RemoveItem()/SwapItems() to arrange the display
-    ///   3. Call StartExhibition() to begin the evaluation phase
-    ///   4. Subscribe to events for UI updates
+    /// Manages the museum inspiration curation loop.
     /// </summary>
     public class ExhibitionManager : MonoSingleton<ExhibitionManager>
     {
-        // ── Configuration ────────────────────────────────────────────────────────
-
         [Header("Available Content")]
         [SerializeField] private List<ExhibitionTheme> _allThemes = new();
+        [SerializeField] private List<InspirationData> _allInspirations = new();
         [SerializeField] private List<ExhibitItemData> _allItems = new();
 
         [Header("Timing")]
         [SerializeField] private float _visitorDelay = 1.5f;
 
-        [Header("Auto")]
-        [Tooltip("Automatically select the first theme on Start")]
-        [SerializeField] private bool _autoSelectFirstTheme = true;
-
-        // ── Runtime State ────────────────────────────────────────────────────────
+        private static readonly HashSet<int> KnownInspirationMatchIds = new();
 
         private ExhibitionTheme _currentTheme;
-        private List<ExhibitItemData> _displaySlots;
+        private readonly List<InspirationData> _selectedInspirations = new();
+        private readonly List<ExhibitItemData> _displaySlots = new();
+        private readonly List<bool> _lockedSlots = new();
         private int _satisfaction;
         private int _visitorIndex;
         private bool _isRunning;
-
-        // ── Public Properties ────────────────────────────────────────────────────
+        private ExhibitionState _state = ExhibitionState.ThemeSelection;
 
         public ExhibitionTheme CurrentTheme => _currentTheme;
+        public IReadOnlyList<InspirationData> SelectedInspirations => _selectedInspirations;
         public IReadOnlyList<ExhibitItemData> DisplaySlots => _displaySlots;
         public IReadOnlyList<ExhibitionTheme> AllThemes => _allThemes;
+        public IReadOnlyList<InspirationData> AllInspirations => _allInspirations;
         public IReadOnlyList<ExhibitItemData> AllItems => _allItems;
         public int Satisfaction => _satisfaction;
         public bool IsRunning => _isRunning;
-        public int SlotCount => _displaySlots?.Count ?? 0;
+        public int SlotCount => _displaySlots.Count;
+        public ExhibitionState State => _state;
+        public bool HasConfirmedInspirations => _selectedInspirations.Count > 0;
 
-        // ── Events (static for easy subscription) ────────────────────────────────
-
-        /// <summary>Fired when a new theme is selected.</summary>
+        public static event Action<ExhibitionState> OnStateChanged;
         public static event Action<ExhibitionTheme> OnThemeSelected;
-
-        /// <summary>Fired when an item is placed in a slot.</summary>
+        public static event Action<IReadOnlyList<InspirationData>> OnInspirationsConfirmed;
         public static event Action<int, ExhibitItemData> OnItemPlaced;
-
-        /// <summary>Fired when an item is removed from a slot.</summary>
         public static event Action<int> OnItemRemoved;
-
-        /// <summary>Fired when two items are swapped.</summary>
         public static event Action<int, int> OnItemsSwapped;
-
-        /// <summary>Fired when the exhibition evaluation starts.</summary>
         public static event Action OnExhibitionStarted;
-
-        /// <summary>Fired for each visitor reaction. (slotIndex, isCorrect, currentSatisfaction)</summary>
-        public static event Action<int, bool, int> OnVisitorReacted;
-
-        /// <summary>Fired when the exhibition ends. (success, finalSatisfaction, threshold)</summary>
+        public static event Action<int, InspirationData, ExhibitItemData, bool, int> OnVisitorReacted;
         public static event Action<bool, int, int> OnExhibitionEnded;
-
-        // ── Unity Lifecycle ──────────────────────────────────────────────────────
+        public static event Action<string> OnPlayerHint;
 
         protected override void Awake()
         {
             base.Awake();
             LoadResourcesIfEmpty();
-        }
-
-        private void Start()
-        {
-            if (_autoSelectFirstTheme && _allThemes.Count > 0)
-                SelectTheme(_allThemes[0]);
+            SetState(ExhibitionState.ThemeSelection);
         }
 
         private void LoadResourcesIfEmpty()
         {
-            // If not configured in Inspector, load from Resources folder
             if (_allThemes == null || _allThemes.Count == 0)
-            {
-                _allThemes = new List<ExhibitionTheme>(
-                    Resources.LoadAll<ExhibitionTheme>("Exhibitions/Themes")
-                );
-                Debug.Log($"[ExhibitionManager] Loaded {_allThemes.Count} themes from Resources.");
-            }
+                _allThemes = Resources.LoadAll<ExhibitionTheme>("Exhibitions/Themes")
+                    .OrderBy(theme => theme.day)
+                    .ThenBy(theme => theme.title)
+                    .ToList();
+
+            if (_allInspirations == null || _allInspirations.Count == 0)
+                _allInspirations = Resources.LoadAll<InspirationData>("Exhibitions/Inspirations")
+                    .OrderBy(inspiration => inspiration.id)
+                    .ToList();
 
             if (_allItems == null || _allItems.Count == 0)
-            {
-                _allItems = new List<ExhibitItemData>(
-                    Resources.LoadAll<ExhibitItemData>("Exhibitions/Items")
-                );
-                Debug.Log($"[ExhibitionManager] Loaded {_allItems.Count} items from Resources.");
-            }
+                _allItems = Resources.LoadAll<ExhibitItemData>("Exhibitions/Items")
+                    .OrderBy(item => item.sortOrder)
+                    .ToList();
         }
 
-        // ── Theme Selection ──────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Selects a new exhibition theme, clearing current display slots.
-        /// </summary>
         public void SelectTheme(ExhibitionTheme theme)
         {
             if (theme == null)
             {
-                Debug.LogWarning("[ExhibitionManager] Cannot select null theme.");
+                Debug.LogWarning("[ExhibitionManager] Cannot select a null theme.");
                 return;
             }
 
@@ -127,103 +104,103 @@ namespace ExhibitionSystem.Core
                 return;
             }
 
-            // Clear current slots and initialize new ones
-            _displaySlots = new List<ExhibitItemData>(new ExhibitItemData[theme.requiredSlots]);
             _currentTheme = theme;
+            _selectedInspirations.Clear();
+            _displaySlots.Clear();
+            _lockedSlots.Clear();
             _satisfaction = 0;
             _visitorIndex = 0;
 
+            SetState(ExhibitionState.InspirationSelection);
             OnThemeSelected?.Invoke(theme);
         }
 
-        // ── Item Management ──────────────────────────────────────────────────────
+        public bool TryConfirmInspirations(IReadOnlyList<InspirationData> selectedInspirations, out string hint)
+        {
+            hint = string.Empty;
 
-        /// <summary>
-        /// Places an item in the specified display slot.
-        /// Returns the item that was previously in the slot (if any).
-        /// </summary>
+            if (_currentTheme == null)
+            {
+                hint = "Rin: (I should choose an exhibition theme first.)";
+                OnPlayerHint?.Invoke(hint);
+                return false;
+            }
+
+            if (selectedInspirations == null || selectedInspirations.Count != _currentTheme.requiredInspirations)
+            {
+                hint = $"Rin: (I need exactly {_currentTheme.requiredInspirations} ideas for this exhibition.)";
+                OnPlayerHint?.Invoke(hint);
+                return false;
+            }
+
+            if (!_currentTheme.IsSelectionValid(selectedInspirations))
+            {
+                hint = PickSelectionErrorHint(selectedInspirations);
+                OnPlayerHint?.Invoke(hint);
+                return false;
+            }
+
+            _selectedInspirations.Clear();
+            _selectedInspirations.AddRange(selectedInspirations.OrderBy(inspiration => inspiration.id));
+            BuildDisplaySlotsFromInspirations();
+
+            SetState(ExhibitionState.DisplayArrangement);
+            OnInspirationsConfirmed?.Invoke(_selectedInspirations);
+            return true;
+        }
+
         public ExhibitItemData PlaceItem(int slotIndex, ExhibitItemData item)
         {
             if (!ValidateSlotIndex(slotIndex)) return null;
-            if (_isRunning) return null;
-            if (item == null) return null;
+            if (_isRunning || IsSlotLocked(slotIndex) || item == null) return null;
 
-            // Check if item is already placed elsewhere
             int existingIndex = _displaySlots.IndexOf(item);
-            if (existingIndex >= 0 && existingIndex != slotIndex)
+            if (existingIndex >= 0 && existingIndex != slotIndex && !IsSlotLocked(existingIndex))
             {
-                // Remove from old position first
                 _displaySlots[existingIndex] = null;
                 OnItemRemoved?.Invoke(existingIndex);
             }
 
-            ExhibitItemData previousItem = _displaySlots[slotIndex];
+            var previousItem = _displaySlots[slotIndex];
             _displaySlots[slotIndex] = item;
-
             OnItemPlaced?.Invoke(slotIndex, item);
             return previousItem;
         }
 
-        /// <summary>
-        /// Removes the item from the specified slot.
-        /// Returns the removed item.
-        /// </summary>
         public ExhibitItemData RemoveItem(int slotIndex)
         {
             if (!ValidateSlotIndex(slotIndex)) return null;
-            if (_isRunning) return null;
+            if (_isRunning || IsSlotLocked(slotIndex)) return null;
 
-            ExhibitItemData removed = _displaySlots[slotIndex];
+            var removed = _displaySlots[slotIndex];
             _displaySlots[slotIndex] = null;
-
             if (removed != null)
                 OnItemRemoved?.Invoke(slotIndex);
 
             return removed;
         }
 
-        /// <summary>
-        /// Swaps items between two slots.
-        /// </summary>
         public void SwapItems(int slotA, int slotB)
         {
             if (!ValidateSlotIndex(slotA) || !ValidateSlotIndex(slotB)) return;
-            if (_isRunning) return;
-            if (slotA == slotB) return;
+            if (_isRunning || slotA == slotB) return;
+            if (IsSlotLocked(slotA) || IsSlotLocked(slotB)) return;
 
-            (_displaySlots[slotA], _displaySlots[slotB]) =
-                (_displaySlots[slotB], _displaySlots[slotA]);
-
+            (_displaySlots[slotA], _displaySlots[slotB]) = (_displaySlots[slotB], _displaySlots[slotA]);
             OnItemsSwapped?.Invoke(slotA, slotB);
         }
 
-        /// <summary>
-        /// Checks if an item is currently placed in any display slot.
-        /// </summary>
-        public bool IsItemPlaced(ExhibitItemData item)
-        {
-            return _displaySlots != null && _displaySlots.Contains(item);
-        }
-
-        /// <summary>
-        /// Gets the slot index where an item is placed, or -1 if not placed.
-        /// </summary>
-        public int GetItemSlotIndex(ExhibitItemData item)
-        {
-            return _displaySlots?.IndexOf(item) ?? -1;
-        }
-
-        // ── Exhibition Execution ─────────────────────────────────────────────────
-
-        /// <summary>
-        /// Starts the exhibition evaluation phase.
-        /// Visitors will evaluate each slot in sequence.
-        /// </summary>
         public void StartExhibition()
         {
             if (_currentTheme == null)
             {
                 Debug.LogWarning("[ExhibitionManager] No theme selected.");
+                return;
+            }
+
+            if (_selectedInspirations.Count == 0)
+            {
+                Debug.LogWarning("[ExhibitionManager] Inspirations have not been confirmed.");
                 return;
             }
 
@@ -236,28 +213,105 @@ namespace ExhibitionSystem.Core
             _satisfaction = 0;
             _visitorIndex = 0;
             _isRunning = true;
-
+            SetState(ExhibitionState.ExhibitionRunning);
             OnExhibitionStarted?.Invoke();
 
             StartCoroutine(ProcessVisitorsCoroutine());
         }
 
-        /// <summary>
-        /// Retries the current exhibition with the same slot configuration.
-        /// </summary>
         public void RetryExhibition()
         {
-            if (_currentTheme == null) return;
-            if (_isRunning) return;
-
+            if (_currentTheme == null || _selectedInspirations.Count == 0 || _isRunning) return;
             StartExhibition();
         }
 
-        // ── Private Methods ──────────────────────────────────────────────────────
+        public bool IsItemPlaced(ExhibitItemData item)
+        {
+            return item != null && _displaySlots.Contains(item);
+        }
+
+        public bool IsSlotLocked(int index)
+        {
+            return index >= 0 && index < _lockedSlots.Count && _lockedSlots[index];
+        }
+
+        public bool IsInspirationMatchKnown(InspirationData inspiration)
+        {
+            return inspiration != null && KnownInspirationMatchIds.Contains(inspiration.id);
+        }
+
+        public IEnumerable<InspirationData> GetKnownInspirationsForItem(ExhibitItemData item)
+        {
+            if (item == null) yield break;
+
+            foreach (var inspiration in _allInspirations)
+            {
+                if (inspiration != null &&
+                    inspiration.mappedItem == item &&
+                    KnownInspirationMatchIds.Contains(inspiration.id))
+                {
+                    yield return inspiration;
+                }
+            }
+        }
+
+        public IEnumerable<ExhibitItemData> GetAvailableItems()
+        {
+            return _allItems.Where(item => item != null && item.isUnlocked && !IsItemPlaced(item));
+        }
+
+        public int CountEmptySlots()
+        {
+            return _displaySlots.Count(item => item == null);
+        }
+
+        public bool AreAllSlotsFilled()
+        {
+            return _displaySlots.Count > 0 && CountEmptySlots() == 0;
+        }
+
+        private string PickSelectionErrorHint(IReadOnlyList<InspirationData> selectedInspirations)
+        {
+            var selectedIds = selectedInspirations
+                .Where(inspiration => inspiration != null)
+                .Select(inspiration => inspiration.id)
+                .ToHashSet();
+
+            var invalid = selectedInspirations.FirstOrDefault(inspiration =>
+                inspiration == null || !_currentTheme.IsInspirationValid(inspiration.id));
+
+            if (invalid != null && UnityEngine.Random.value < 0.5f)
+                return _currentTheme.GetInvalidHint();
+
+            var missingIds = _currentTheme.validInspirationIds
+                .Where(id => !selectedIds.Contains(id))
+                .ToList();
+
+            if (missingIds.Count > 0)
+            {
+                int id = missingIds[UnityEngine.Random.Range(0, missingIds.Count)];
+                return _currentTheme.GetHintForMissingId(id);
+            }
+
+            return _currentTheme.GetInvalidHint();
+        }
+
+        private void BuildDisplaySlotsFromInspirations()
+        {
+            _displaySlots.Clear();
+            _lockedSlots.Clear();
+
+            foreach (var inspiration in _selectedInspirations)
+            {
+                bool known = IsInspirationMatchKnown(inspiration);
+                _displaySlots.Add(known ? inspiration.mappedItem : null);
+                _lockedSlots.Add(known);
+            }
+        }
 
         private bool ValidateSlotIndex(int index)
         {
-            if (_displaySlots == null || index < 0 || index >= _displaySlots.Count)
+            if (index < 0 || index >= _displaySlots.Count)
             {
                 Debug.LogWarning($"[ExhibitionManager] Invalid slot index: {index}");
                 return false;
@@ -267,11 +321,10 @@ namespace ExhibitionSystem.Core
 
         private IEnumerator ProcessVisitorsCoroutine()
         {
-            while (_visitorIndex < _displaySlots.Count)
+            while (_visitorIndex < _selectedInspirations.Count)
             {
                 ProcessCurrentVisitor();
                 _visitorIndex++;
-
                 yield return new WaitForSeconds(_visitorDelay);
             }
 
@@ -280,58 +333,38 @@ namespace ExhibitionSystem.Core
 
         private void ProcessCurrentVisitor()
         {
-            ExhibitItemData item = _displaySlots[_visitorIndex];
-            bool isCorrect = _currentTheme.IsItemCorrect(item);
+            var inspiration = _selectedInspirations[_visitorIndex];
+            var item = _displaySlots[_visitorIndex];
+            bool isCorrect = inspiration != null && item != null && inspiration.mappedItem == item;
 
             if (isCorrect)
             {
                 _satisfaction++;
-
-                // Record usage history
-                if (item != null)
-                    item.RecordUsage(_currentTheme.title);
+                KnownInspirationMatchIds.Add(inspiration.id);
             }
 
-            OnVisitorReacted?.Invoke(_visitorIndex, isCorrect, _satisfaction);
+            OnVisitorReacted?.Invoke(_visitorIndex, inspiration, item, isCorrect, _satisfaction);
         }
 
         private void EndExhibition()
         {
             _isRunning = false;
 
-            int threshold = _currentTheme.SuccessThreshold;
+            int threshold = _selectedInspirations.Count;
             bool success = _satisfaction >= threshold;
 
             if (success)
                 _currentTheme.MarkCompleted();
 
+            SetState(ExhibitionState.Result);
             OnExhibitionEnded?.Invoke(success, _satisfaction, threshold);
         }
 
-        // ── Helper Methods for UI ────────────────────────────────────────────────
-
-        /// <summary>
-        /// Gets all unlocked items that are not currently placed.
-        /// </summary>
-        public IEnumerable<ExhibitItemData> GetAvailableItems()
+        private void SetState(ExhibitionState state)
         {
-            return _allItems.Where(item => item.isUnlocked && !IsItemPlaced(item));
-        }
-
-        /// <summary>
-        /// Counts empty slots in the current display.
-        /// </summary>
-        public int CountEmptySlots()
-        {
-            return _displaySlots?.Count(item => item == null) ?? 0;
-        }
-
-        /// <summary>
-        /// Checks if all slots are filled.
-        /// </summary>
-        public bool AreAllSlotsFilled()
-        {
-            return CountEmptySlots() == 0;
+            if (_state == state) return;
+            _state = state;
+            OnStateChanged?.Invoke(_state);
         }
     }
 }

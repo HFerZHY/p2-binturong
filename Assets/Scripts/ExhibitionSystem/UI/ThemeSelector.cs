@@ -6,13 +6,8 @@ using UnityEngine.UI;
 
 namespace ExhibitionSystem.UI
 {
-    /// <summary>
-    /// Bottom control panel for theme selection and exhibition start.
-    /// </summary>
     public class ThemeSelector : MonoBehaviour
     {
-        // ── Serialized Fields ───────────────────────────────────────────────────
-
         [Header("UI References")]
         [SerializeField] private TMP_Text _titleText;
         [SerializeField] private Button _selectButton;
@@ -24,30 +19,34 @@ namespace ExhibitionSystem.UI
         [SerializeField] private string _startText = "Start Exhibition";
         [SerializeField] private string _runningText = "In Progress...";
         [SerializeField] private string _retryText = "Retry";
-
-        // ── Runtime State ───────────────────────────────────────────────────────
+        [SerializeField] private string _lockedText = "Choose Ideas";
 
         private bool _canRetry;
-
-        // ── Unity Lifecycle ─────────────────────────────────────────────────────
 
         private void OnEnable()
         {
             ExhibitionManager.OnThemeSelected += HandleThemeSelected;
+            ExhibitionManager.OnInspirationsConfirmed += HandleInspirationsConfirmed;
+            ExhibitionManager.OnItemPlaced += HandleItemChanged;
+            ExhibitionManager.OnItemRemoved += HandleItemRemoved;
             ExhibitionManager.OnExhibitionStarted += HandleExhibitionStarted;
             ExhibitionManager.OnExhibitionEnded += HandleExhibitionEnded;
+            ExhibitionManager.OnStateChanged += HandleStateChanged;
         }
 
         private void OnDisable()
         {
             ExhibitionManager.OnThemeSelected -= HandleThemeSelected;
+            ExhibitionManager.OnInspirationsConfirmed -= HandleInspirationsConfirmed;
+            ExhibitionManager.OnItemPlaced -= HandleItemChanged;
+            ExhibitionManager.OnItemRemoved -= HandleItemRemoved;
             ExhibitionManager.OnExhibitionStarted -= HandleExhibitionStarted;
             ExhibitionManager.OnExhibitionEnded -= HandleExhibitionEnded;
+            ExhibitionManager.OnStateChanged -= HandleStateChanged;
         }
 
         private void Start()
         {
-            // Wire up buttons
             if (_selectButton != null)
                 _selectButton.onClick.AddListener(OnSelectClicked);
 
@@ -56,8 +55,6 @@ namespace ExhibitionSystem.UI
 
             UpdateUI();
         }
-
-        // ── Button Handlers ─────────────────────────────────────────────────────
 
         private void OnSelectClicked()
         {
@@ -71,20 +68,30 @@ namespace ExhibitionSystem.UI
             if (manager == null) return;
 
             if (_canRetry)
-            {
                 manager.RetryExhibition();
-            }
             else
-            {
                 manager.StartExhibition();
-            }
         }
-
-        // ── Event Handlers ──────────────────────────────────────────────────────
 
         private void HandleThemeSelected(ExhibitionTheme theme)
         {
             _canRetry = false;
+            UpdateUI();
+        }
+
+        private void HandleInspirationsConfirmed(System.Collections.Generic.IReadOnlyList<InspirationData> inspirations)
+        {
+            _canRetry = false;
+            UpdateUI();
+        }
+
+        private void HandleItemChanged(int slotIndex, ExhibitItemData item)
+        {
+            UpdateUI();
+        }
+
+        private void HandleItemRemoved(int slotIndex)
+        {
             UpdateUI();
         }
 
@@ -100,30 +107,35 @@ namespace ExhibitionSystem.UI
             UpdateUI();
         }
 
-        // ── Private Methods ─────────────────────────────────────────────────────
+        private void HandleStateChanged(ExhibitionState state)
+        {
+            UpdateUI();
+        }
 
         private void UpdateUI()
         {
             var manager = ExhibitionManager.Instance;
             var theme = manager?.CurrentTheme;
-
-            // Update title
-            if (_titleText != null)
-            {
-                _titleText.text = theme != null ? theme.title : "Select a Theme";
-            }
-
-            // Update buttons based on state
             bool isRunning = manager != null && manager.IsRunning;
             bool hasTheme = theme != null;
+            bool hasIdeas = manager != null && manager.HasConfirmedInspirations;
+            bool canStart = hasTheme && hasIdeas && !isRunning && manager.AreAllSlotsFilled();
+
+            if (_titleText != null)
+            {
+                if (theme == null)
+                    _titleText.text = "Select a Theme";
+                else if (!hasIdeas)
+                    _titleText.text = theme.title;
+                else
+                    _titleText.text = theme.title;
+            }
 
             if (_selectButton != null)
                 _selectButton.interactable = !isRunning;
 
             if (_startButton != null)
-            {
-                _startButton.interactable = hasTheme && !isRunning;
-            }
+                _startButton.interactable = _canRetry || canStart;
 
             if (_startButtonText != null)
             {
@@ -131,6 +143,8 @@ namespace ExhibitionSystem.UI
                     _startButtonText.text = _runningText;
                 else if (_canRetry)
                     _startButtonText.text = _retryText;
+                else if (!hasIdeas)
+                    _startButtonText.text = _lockedText;
                 else
                     _startButtonText.text = _startText;
             }

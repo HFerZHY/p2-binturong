@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59bba459f8de3b548a786ad00daa5442, type: 3}
+  m_Name: OctopusPot
+  m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
+  itemName: Octopus Pot
+  nameKey: item_octopus_pot
+  icon: {fileID: -7718089631497013394, guid: 98a749e0c522cb0429b63d4862aa13a3, type: 3}
+  sortOrder: 13
+  description: A takotsubo octopus trap carrying a memory of summer dreams.
+  descriptionKey: desc_octopus_pot
+  isUnlocked: 1
+  tags:
+  - Hot Springs
+  usedInExhibitions: []

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ExhibitionSystem.Core;
 using ExhibitionSystem.Data;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,6 +19,8 @@ namespace ExhibitionSystem.UI
         [SerializeField] private Transform _listContainer;
         [SerializeField] private ThemeListItem _itemPrefab;
         [SerializeField] private Button _closeButton;
+        [SerializeField] private Button _enterButton;
+        [SerializeField] private TMP_Text _hintText;
 
         [Header("Animation")]
         [SerializeField] private CanvasGroup _canvasGroup;
@@ -26,7 +29,7 @@ namespace ExhibitionSystem.UI
         // ── Runtime State ───────────────────────────────────────────────────────
 
         private readonly List<ThemeListItem> _items = new();
-        private bool _isVisible;
+        private ExhibitionTheme _selectedTheme;
         private float _targetAlpha;
         private float _currentAlpha;
         private bool _isAnimating;
@@ -37,6 +40,9 @@ namespace ExhibitionSystem.UI
         {
             if (_closeButton != null)
                 _closeButton.onClick.AddListener(Hide);
+
+            if (_enterButton != null)
+                _enterButton.onClick.AddListener(EnterSelectedTheme);
 
             // Load prefab from Resources if not configured in Inspector
             if (_itemPrefab == null)
@@ -58,7 +64,6 @@ namespace ExhibitionSystem.UI
 
             _currentAlpha = 0f;
             _targetAlpha = 0f;
-            _isVisible = false;
             _isAnimating = false;
         }
 
@@ -105,8 +110,9 @@ namespace ExhibitionSystem.UI
             if (_canvasGroup != null)
                 _canvasGroup.alpha = 0f;
 
-            _isVisible = true;
+            _selectedTheme = ExhibitionManager.Instance?.CurrentTheme;
             PopulateList();
+            UpdateSelectionVisuals();
         }
 
         /// <summary>
@@ -117,7 +123,6 @@ namespace ExhibitionSystem.UI
             // Start fade out animation
             _targetAlpha = 0f;
             _isAnimating = true;
-            _isVisible = false;
             // Panel will be deactivated in Update when fade completes
         }
 
@@ -138,7 +143,7 @@ namespace ExhibitionSystem.UI
             var manager = ExhibitionManager.Instance;
             if (manager == null) return;
 
-            // Create list items for each theme
+            // Create list items for each unlocked test theme
             foreach (var theme in manager.AllThemes)
             {
                 var item = Instantiate(_itemPrefab, _listContainer);
@@ -149,8 +154,41 @@ namespace ExhibitionSystem.UI
 
         private void OnThemeSelected(ExhibitionTheme theme)
         {
-            ExhibitionManager.Instance?.SelectTheme(theme);
+            _selectedTheme = theme;
+            UpdateSelectionVisuals();
+        }
+
+        private void EnterSelectedTheme()
+        {
+            if (_selectedTheme == null) return;
+
+            ExhibitionManager.Instance?.SelectTheme(_selectedTheme);
             Hide();
+            ExhibitionUIManager.Instance?.ShowInspirationPopup();
+        }
+
+        private void UpdateSelectionVisuals()
+        {
+            for (int i = 0; i < _items.Count; i++)
+            {
+                var item = _items[i];
+                if (item == null) continue;
+
+                var theme = ExhibitionManager.Instance != null && i < ExhibitionManager.Instance.AllThemes.Count
+                    ? ExhibitionManager.Instance.AllThemes[i]
+                    : null;
+                item.SetSelected(theme != null && theme == _selectedTheme);
+            }
+
+            if (_enterButton != null)
+                _enterButton.interactable = _selectedTheme != null;
+
+            if (_hintText != null)
+            {
+                _hintText.text = _selectedTheme != null
+                    ? $"Selected: {_selectedTheme.title}"
+                    : "Choose an exhibition theme.";
+            }
         }
     }
 }

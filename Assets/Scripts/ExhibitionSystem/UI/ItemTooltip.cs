@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ExhibitionSystem.Core;
 using ExhibitionSystem.Data;
 using TMPro;
 using UnityEngine;
@@ -172,18 +173,31 @@ namespace ExhibitionSystem.UI
             _historyEntries.Clear();
 
             if (_historyContainer == null || _historyEntryPrefab == null) return;
-            if (item.usedInExhibitions == null || item.usedInExhibitions.Count == 0) return;
 
-            // Create entries for each exhibition
-            foreach (var exhibitionTitle in item.usedInExhibitions)
+            if (item.usedInExhibitions != null)
             {
-                var entry = Instantiate(_historyEntryPrefab, _historyContainer);
-                var text = entry.GetComponentInChildren<TMP_Text>();
-                if (text != null)
-                    text.text = $"{_historyPrefix}{exhibitionTitle}";
-
-                _historyEntries.Add(entry);
+                foreach (var exhibitionTitle in item.usedInExhibitions)
+                    AddHistoryEntry($"{_historyPrefix}{exhibitionTitle}");
             }
+
+            var manager = ExhibitionManager.Instance;
+            if (manager == null) return;
+
+            foreach (var inspiration in manager.GetKnownInspirationsForItem(item))
+            {
+                AddHistoryEntry($"Matched idea: {inspiration.text}");
+            }
+        }
+
+        private void AddHistoryEntry(string content)
+        {
+            var entry = Instantiate(_historyEntryPrefab, _historyContainer);
+            var text = entry.GetComponentInChildren<TMP_Text>();
+            if (text != null)
+                text.text = content;
+
+            entry.SetActive(true);
+            _historyEntries.Add(entry);
         }
     }
 }

@@ -35,12 +35,14 @@ namespace ExhibitionSystem.UI
         private CanvasGroup _canvasGroup;
         private Canvas _rootCanvas;
         private bool _isDragging;
+        private bool _isLocked;
         private static GameObject _dragGhost;
 
         // ── Public Properties ───────────────────────────────────────────────────
 
         public ExhibitItemData PlacedItem => _placedItem;
         public bool HasItem => _placedItem != null;
+        public bool IsLocked => _isLocked;
 
         // ── Unity Lifecycle ─────────────────────────────────────────────────────
 
@@ -88,6 +90,17 @@ namespace ExhibitionSystem.UI
             // Hide status badge when setting item (only show during validation)
             if (_statusBadge != null)
                 _statusBadge.enabled = false;
+        }
+
+        public void SetLocked(bool locked)
+        {
+            _isLocked = locked;
+
+            if (_canvasGroup != null)
+            {
+                _canvasGroup.alpha = locked ? 0.75f : 1f;
+                _canvasGroup.blocksRaycasts = !locked;
+            }
         }
 
         /// <summary>
@@ -152,6 +165,7 @@ namespace ExhibitionSystem.UI
         protected override bool CanAcceptDrop(ExhibitItemData item)
         {
             if (item == null) return false;
+            if (_isLocked) return false;
 
             var manager = ExhibitionManager.Instance;
             if (manager == null) return false;
@@ -167,6 +181,12 @@ namespace ExhibitionSystem.UI
         public void OnBeginDrag(PointerEventData eventData)
         {
             if (_placedItem == null)
+            {
+                eventData.pointerDrag = null;
+                return;
+            }
+
+            if (_isLocked)
             {
                 eventData.pointerDrag = null;
                 return;
@@ -224,8 +244,8 @@ namespace ExhibitionSystem.UI
             // Restore slot
             if (_canvasGroup != null)
             {
-                _canvasGroup.alpha = 1f;
-                _canvasGroup.blocksRaycasts = true;
+                _canvasGroup.alpha = _isLocked ? 0.75f : 1f;
+                _canvasGroup.blocksRaycasts = !_isLocked;
             }
 
             // Destroy ghost

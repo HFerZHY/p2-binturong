@@ -1,18 +1,33 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace ExhibitionSystem.Data
 {
+    public enum InspirationSelectionMode
+    {
+        AnyFromPool,
+        ExactSet
+    }
+
+    [Serializable]
+    public class InspirationHint
+    {
+        public int inspirationId;
+
+        [TextArea(2, 4)]
+        public string hintText;
+    }
+
     /// <summary>
-    /// ScriptableObject defining an exhibition theme with its correct items.
-    /// Create via Assets > Create > Museum > Exhibition Theme.
+    /// ScriptableObject defining a museum curation level.
     /// </summary>
     [CreateAssetMenu(fileName = "NewExhibition", menuName = "Museum/Exhibition Theme")]
     public class ExhibitionTheme : ScriptableObject
     {
-        // ── Display Information ──────────────────────────────────────────────────
-
-        [Tooltip("Exhibition title, e.g., 'Railway Heritage Exhibition'")]
+        [Header("Display")]
+        [Tooltip("Exhibition title, e.g., 'Summer Festival'")]
         public string title;
 
         [Tooltip("Localization key for the title")]
@@ -25,52 +40,90 @@ namespace ExhibitionSystem.Data
         [Tooltip("Localization key for the description")]
         public string descriptionKey;
 
-        // ── Configuration ────────────────────────────────────────────────────────
+        [Header("Level")]
+        [Tooltip("Story day used for grouping in the test UI")]
+        public int day = 2;
 
-        [Tooltip("Number of display slots for this theme (4-6)")]
-        [Range(4, 6)]
-        public int requiredSlots = 4;
+        [Tooltip("Number of inspirations the player must select")]
+        [Range(1, 6)]
+        public int requiredInspirations = 3;
 
-        [Tooltip("Items that count as correct for this exhibition (can be > requiredSlots)")]
-        public List<ExhibitItemData> correctItems = new();
+        [Tooltip("How selected inspiration IDs are validated")]
+        public InspirationSelectionMode selectionMode = InspirationSelectionMode.AnyFromPool;
 
-        // ── State ────────────────────────────────────────────────────────────────
+        [Tooltip("IDs that are valid for this theme. ExactSet requires this exact set.")]
+        public List<int> validInspirationIds = new();
 
+        [Header("Hints")]
+        [Tooltip("Theme-specific missing idea hints, keyed by inspiration ID")]
+        public List<InspirationHint> missingIdeaHints = new();
+
+        [TextArea(2, 4)]
+        public string fallbackMissingHint = "Rin: (Some of the ideas I need are still missing.)";
+
+        [TextArea(2, 4)]
+        public string fallbackInvalidHint = "Rin: (Something in this set of ideas does not fit the theme.)";
+
+        [Header("State")]
         [Tooltip("Whether this exhibition has been successfully completed")]
         [HideInInspector]
         public bool isCompleted;
 
-        // ── Computed Properties ──────────────────────────────────────────────────
+        public int RequiredSlots => requiredInspirations;
+        public int SuccessThreshold => requiredInspirations;
 
-        /// <summary>
-        /// Satisfaction threshold for success: requiredSlots - 2 (minimum 1).
-        /// </summary>
-        public int SuccessThreshold => Mathf.Max(1, requiredSlots - 2);
-
-        // ── Public Methods ───────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Checks if the given item is correct for this theme.
-        /// </summary>
-        public bool IsItemCorrect(ExhibitItemData item)
+        public bool IsInspirationValid(int inspirationId)
         {
-            return item != null && correctItems.Contains(item);
+            return validInspirationIds != null && validInspirationIds.Contains(inspirationId);
         }
 
-        /// <summary>
-        /// Marks this exhibition as completed.
-        /// </summary>
+        public bool IsSelectionValid(IReadOnlyList<InspirationData> selectedInspirations)
+        {
+            if (selectedInspirations == null || selectedInspirations.Count != requiredInspirations)
+                return false;
+
+            var selectedIds = selectedInspirations.Select(inspiration => inspiration.id).ToList();
+            if (selectionMode == InspirationSelectionMode.ExactSet)
+                return SameSet(selectedIds, validInspirationIds);
+
+            return selectedIds.All(IsInspirationValid);
+        }
+
+        public string GetHintForMissingId(int inspirationId)
+        {
+            if (missingIdeaHints != null)
+            {
+                var match = missingIdeaHints.FirstOrDefault(hint => hint.inspirationId == inspirationId);
+                if (match != null && !string.IsNullOrWhiteSpace(match.hintText))
+                    return match.hintText;
+            }
+
+            return fallbackMissingHint;
+        }
+
+        public string GetInvalidHint()
+        {
+            return string.IsNullOrWhiteSpace(fallbackInvalidHint)
+                ? "Rin: (Something in this set of ideas does not fit the theme.)"
+                : fallbackInvalidHint;
+        }
+
         public void MarkCompleted()
         {
             isCompleted = true;
         }
 
-        /// <summary>
-        /// Resets the completion status (for testing/replay).
-        /// </summary>
         public void ResetCompletion()
         {
             isCompleted = false;
+        }
+
+        private static bool SameSet(IReadOnlyCollection<int> a, IReadOnlyCollection<int> b)
+        {
+            if (a == null || b == null || a.Count != b.Count)
+                return false;
+
+            return !a.Except(b).Any() && !b.Except(a).Any();
         }
     }
 }

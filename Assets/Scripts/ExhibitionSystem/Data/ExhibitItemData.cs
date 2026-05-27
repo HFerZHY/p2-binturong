@@ -21,6 +21,9 @@ namespace ExhibitionSystem.Data
         [Tooltip("Icon sprite shown in the shelf and display slots")]
         public Sprite icon;
 
+        [Tooltip("Stable display order in the exhibition shelf")]
+        public int sortOrder;
+
         [TextArea(2, 4)]
         [Tooltip("Description shown on hover (fallback if localization not found)")]
         public string description;
@@ -32,6 +35,9 @@ namespace ExhibitionSystem.Data
 
         [Tooltip("Whether this item is available for use")]
         public bool isUnlocked = true;
+
+        [Tooltip("Theme and story tags used by exhibition test data")]
+        public List<string> tags = new();
 
         [Tooltip("List of exhibition titles where this item was successfully used")]
         [HideInInspector]

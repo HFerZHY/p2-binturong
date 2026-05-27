@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 386bdbacd84756443a5235b8ba104527, type: 3}
+  m_Name: Idea_07
+  m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.InspirationData
+  id: 7
+  text: Legend has it that Otowa's Summer Festival originated from worshipping a
+    bird-shaped deity.
+  mappedItem: {fileID: 11400000, guid: 99f3df952a629a14d95a625de49bf2a9, type: 2}
+  isUnlocked: 1
+  fallbackHint: 'Rin: (This idea feels connected, but I need to place it in the right
+    context.)'
+  isItemMatchKnownByDefault: 0

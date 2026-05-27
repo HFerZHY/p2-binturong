@@ -7,36 +7,23 @@ using UnityEngine.UI;
 namespace ExhibitionSystem.UI
 {
     /// <summary>
-    /// Panel containing the display slots (4-6 curation slots).
-    /// Dynamically adjusts slot count based on selected theme.
+    /// Vertical display area where each selected inspiration owns one item slot.
     /// </summary>
     public class DisplayPanel : MonoBehaviour
     {
-        // ── Serialized Fields ───────────────────────────────────────────────────
-
         [Header("References")]
-        [SerializeField] private DisplaySlotUI _slotPrefab;
+        [SerializeField] private InspirationDisplaySlot _slotPrefab;
         [SerializeField] private Transform _slotContainer;
+        [SerializeField] private GridLayoutGroup _gridLayout;
 
-        [Header("Evaluation Visual")]
-        [SerializeField] private Color _evaluatingColor = new(1, 1, 0.5f, 0.3f);
-        [SerializeField] private float _evaluationHighlightDuration = 0.5f;
+        private readonly List<InspirationDisplaySlot> _slots = new();
 
-        // ── Runtime State ───────────────────────────────────────────────────────
-
-        private readonly List<DisplaySlotUI> _slots = new();
-        private int _currentEvaluatingSlot = -1;
-
-        // ── Public Properties ───────────────────────────────────────────────────
-
-        public IReadOnlyList<DisplaySlotUI> Slots => _slots;
+        public IReadOnlyList<InspirationDisplaySlot> Slots => _slots;
         public int SlotCount => _slots.Count;
-
-        // ── Unity Lifecycle ─────────────────────────────────────────────────────
 
         private void OnEnable()
         {
-            ExhibitionManager.OnThemeSelected += HandleThemeSelected;
+            ExhibitionManager.OnInspirationsConfirmed += HandleInspirationsConfirmed;
             ExhibitionManager.OnItemPlaced += HandleItemPlaced;
             ExhibitionManager.OnItemRemoved += HandleItemRemoved;
             ExhibitionManager.OnItemsSwapped += HandleItemsSwapped;
@@ -47,7 +34,7 @@ namespace ExhibitionSystem.UI
 
         private void OnDisable()
         {
-            ExhibitionManager.OnThemeSelected -= HandleThemeSelected;
+            ExhibitionManager.OnInspirationsConfirmed -= HandleInspirationsConfirmed;
             ExhibitionManager.OnItemPlaced -= HandleItemPlaced;
             ExhibitionManager.OnItemRemoved -= HandleItemRemoved;
             ExhibitionManager.OnItemsSwapped -= HandleItemsSwapped;
@@ -56,14 +43,8 @@ namespace ExhibitionSystem.UI
             ExhibitionManager.OnExhibitionEnded -= HandleExhibitionEnded;
         }
 
-        // ── Public Methods ──────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Rebuilds slots for the given number of required slots.
-        /// </summary>
-        public void RebuildSlots(int slotCount)
+        public void RebuildSlots(IReadOnlyList<InspirationData> inspirations)
         {
-            // Clear existing
             foreach (var slot in _slots)
             {
                 if (slot != null)
@@ -71,63 +52,51 @@ namespace ExhibitionSystem.UI
             }
             _slots.Clear();
 
-            if (_slotPrefab == null || _slotContainer == null) return;
+            if (_slotPrefab == null || _slotContainer == null || inspirations == null) return;
 
-            // Create new slots
-            for (int i = 0; i < slotCount; i++)
+            ConfigureGrid(inspirations.Count);
+
+            var manager = ExhibitionManager.Instance;
+            for (int i = 0; i < inspirations.Count; i++)
             {
                 var slot = Instantiate(_slotPrefab, _slotContainer);
-                slot.SetSlotIndex(i);
-                slot.ClearItem();
+                var item = manager != null && i < manager.DisplaySlots.Count ? manager.DisplaySlots[i] : null;
+                bool locked = manager != null && manager.IsSlotLocked(i);
+                slot.SetData(i, inspirations[i], item, locked);
                 _slots.Add(slot);
             }
         }
 
-        /// <summary>
-        /// Clears all feedback icons from slots.
-        /// </summary>
         public void ClearAllFeedback()
         {
             foreach (var slot in _slots)
                 slot?.ClearFeedback();
-
-            _currentEvaluatingSlot = -1;
         }
 
-        // ── Event Handlers ──────────────────────────────────────────────────────
-
-        private void HandleThemeSelected(ExhibitionTheme theme)
+        private void HandleInspirationsConfirmed(IReadOnlyList<InspirationData> inspirations)
         {
-            if (theme == null) return;
-
-            RebuildSlots(theme.requiredSlots);
+            RebuildSlots(inspirations);
         }
 
         private void HandleItemPlaced(int slotIndex, ExhibitItemData item)
         {
             if (slotIndex < 0 || slotIndex >= _slots.Count) return;
-
             _slots[slotIndex].SetItem(item);
         }
 
         private void HandleItemRemoved(int slotIndex)
         {
             if (slotIndex < 0 || slotIndex >= _slots.Count) return;
-
             _slots[slotIndex].ClearItem();
         }
 
         private void HandleItemsSwapped(int slotA, int slotB)
         {
-            // Re-sync from manager
             var manager = ExhibitionManager.Instance;
             if (manager == null) return;
 
-            var displaySlots = manager.DisplaySlots;
-            for (int i = 0; i < _slots.Count && i < displaySlots.Count; i++)
-            {
-                _slots[i].SetItem(displaySlots[i]);
-            }
+            for (int i = 0; i < _slots.Count && i < manager.DisplaySlots.Count; i++)
+                _slots[i].SetItem(manager.DisplaySlots[i]);
         }
 
         private void HandleExhibitionStarted()
@@ -135,17 +104,30 @@ namespace ExhibitionSystem.UI
             ClearAllFeedback();
         }
 
-        private void HandleVisitorReacted(int slotIndex, bool isCorrect, int satisfaction)
+        private void HandleVisitorReacted(int slotIndex, InspirationData inspiration, ExhibitItemData item, bool isCorrect, int satisfaction)
         {
             if (slotIndex < 0 || slotIndex >= _slots.Count) return;
-
-            _currentEvaluatingSlot = slotIndex;
             _slots[slotIndex].ShowFeedback(isCorrect);
         }
 
         private void HandleExhibitionEnded(bool success, int satisfaction, int threshold)
         {
-            _currentEvaluatingSlot = -1;
+        }
+
+        private void ConfigureGrid(int slotCount)
+        {
+            if (_gridLayout == null) return;
+
+            if (slotCount <= 3)
+            {
+                _gridLayout.constraintCount = Mathf.Max(1, slotCount);
+                _gridLayout.cellSize = new Vector2(205f, 154f);
+            }
+            else
+            {
+                _gridLayout.constraintCount = 2;
+                _gridLayout.cellSize = new Vector2(312f, 154f);
+            }
         }
     }
 }

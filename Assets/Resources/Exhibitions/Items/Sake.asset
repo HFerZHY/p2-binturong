@@ -12,11 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59bba459f8de3b548a786ad00daa5442, type: 3}
   m_Name: Sake
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
-  itemName: Sake Bottle
+  itemName: Sake
   nameKey: item_sake
   icon: {fileID: 1828843058721014722, guid: d3f13a375504af9479d9fdd9c93fbc92, type: 3}
-  description: Traditional Japanese rice wine, aged in ceramic bottles for refined
-    flavor.
+  sortOrder: 7
+  description: Otowa sake, once awarded in a local specialty competition.
   descriptionKey: desc_sake
   isUnlocked: 1
+  tags:
+  - Yuji
   usedInExhibitions: []

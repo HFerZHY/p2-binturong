@@ -24,6 +24,7 @@ namespace ExhibitionSystem.UI
         [Header("Controls")]
         [SerializeField] private ThemeSelector _themeSelector;
         [SerializeField] private ThemeSelectionPopup _themePopup;
+        [SerializeField] private InspirationSelectionPopup _inspirationPopup;
 
         [Header("Shared")]
         [SerializeField] private ItemTooltip _tooltip;
@@ -38,6 +39,7 @@ namespace ExhibitionSystem.UI
         public SatisfactionBar SatisfactionBar => _satisfactionBar;
         public ThemeSelector ThemeSelector => _themeSelector;
         public ThemeSelectionPopup ThemePopup => _themePopup;
+        public InspirationSelectionPopup InspirationPopup => _inspirationPopup;
         public ItemTooltip Tooltip => _tooltip;
 
         // ── Unity Lifecycle ─────────────────────────────────────────────────────
@@ -106,6 +108,18 @@ namespace ExhibitionSystem.UI
         {
             if (_themePopup != null)
                 _themePopup.Hide();
+        }
+
+        public void ShowInspirationPopup()
+        {
+            if (_inspirationPopup != null)
+                _inspirationPopup.Show();
+        }
+
+        public void HideInspirationPopup()
+        {
+            if (_inspirationPopup != null)
+                _inspirationPopup.Hide();
         }
     }
 }

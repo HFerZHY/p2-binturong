@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59bba459f8de3b548a786ad00daa5442, type: 3}
+  m_Name: ThreeColorDango
+  m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
+  itemName: Three-color Dango
+  nameKey: item_three_color_dango
+  icon: {fileID: 860910309584662230, guid: d87331287aa89174b84a99e723b9650d, type: 3}
+  sortOrder: 5
+  description: A colorful snack often served near the springs.
+  descriptionKey: desc_three_color_dango
+  isUnlocked: 1
+  tags:
+  - Hot Springs
+  - Jiro
+  usedInExhibitions: []
