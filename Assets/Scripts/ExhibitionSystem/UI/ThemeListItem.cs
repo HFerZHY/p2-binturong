@@ -14,8 +14,6 @@ namespace ExhibitionSystem.UI
         // ── Serialized Fields ───────────────────────────────────────────────────
 
         [SerializeField] private TMP_Text _titleText;
-        [SerializeField] private TMP_Text _descriptionText;
-        [SerializeField] private TMP_Text _slotsText;
         [SerializeField] private Image _completedIcon;
         [SerializeField] private Image _selectionFrame;
         [SerializeField] private Image _background;
@@ -49,12 +47,6 @@ namespace ExhibitionSystem.UI
 
             if (_titleText != null)
                 _titleText.text = theme.title;
-
-            if (_descriptionText != null)
-                _descriptionText.text = theme.description;
-
-            if (_slotsText != null)
-                _slotsText.text = $"Day {theme.day} • {theme.requiredInspirations} ideas";
 
             if (_completedIcon != null)
                 _completedIcon.gameObject.SetActive(theme.isCompleted);
