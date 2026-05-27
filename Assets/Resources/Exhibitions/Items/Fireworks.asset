@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Fireworks
   nameKey: item_fireworks
-  icon: {fileID: -5373949792807698244, guid: 50e27a39f3d4e064dbb271929251a7dd, type: 3}
+  icon: {fileID: 1287510331322305969, guid: 0fcb304ca0eccc145bba23b2f2beb2c4, type: 3}
+  iconScale: 0.65
   sortOrder: 10
   description: Yuji's crowd-pleasing summer specialty.
   descriptionKey: desc_fireworks

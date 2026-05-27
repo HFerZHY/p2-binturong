@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using ExhibitionSystem.Core;
 using ExhibitionSystem.Data;
 using TMPro;
 using UnityEngine;
@@ -24,7 +22,6 @@ namespace ExhibitionSystem.UI
         private Action<InspirationData> _onClick;
         private bool _selected;
         private bool _invalid;
-        private Coroutine _flashCoroutine;
 
         private void Awake()
         {
@@ -45,27 +42,18 @@ namespace ExhibitionSystem.UI
             _invalid = invalid;
 
             if (_idText != null)
-                _idText.text = inspiration != null ? $"#{inspiration.id}" : "#";
+                _idText.gameObject.SetActive(false);
 
             if (_bodyText != null)
-                _bodyText.text = inspiration != null ? inspiration.text : string.Empty;
-
-            if (_matchText != null)
             {
-                bool knownMatch = inspiration != null &&
-                    ExhibitionManager.Instance != null &&
-                    ExhibitionManager.Instance.IsInspirationMatchKnown(inspiration);
-                _matchText.text = knownMatch ? "Known Match" : string.Empty;
-                _matchText.enabled = knownMatch;
+                _bodyText.text = inspiration != null ? inspiration.text : string.Empty;
+                _bodyText.maxVisibleLines = 2;
             }
 
-            if (_flashCoroutine != null)
-                StopCoroutine(_flashCoroutine);
+            if (_matchText != null)
+                _matchText.gameObject.SetActive(false);
 
-            if (_invalid && animateInvalid)
-                _flashCoroutine = StartCoroutine(FlashInvalid());
-            else
-                UpdateVisual();
+            UpdateVisual();
         }
 
         public void SetSelected(bool selected)
@@ -77,14 +65,7 @@ namespace ExhibitionSystem.UI
         public void SetInvalid(bool invalid, bool animate)
         {
             _invalid = invalid;
-
-            if (_flashCoroutine != null)
-                StopCoroutine(_flashCoroutine);
-
-            if (_invalid && animate)
-                _flashCoroutine = StartCoroutine(FlashInvalid());
-            else
-                UpdateVisual();
+            UpdateVisual();
         }
 
         private void HandleClick()
@@ -102,24 +83,5 @@ namespace ExhibitionSystem.UI
                 _selectionFrame.enabled = _selected || _invalid;
         }
 
-        private IEnumerator FlashInvalid()
-        {
-            const int FLASH_COUNT = 2;
-            const float FLASH_TIME = 0.08f;
-
-            for (int i = 0; i < FLASH_COUNT; i++)
-            {
-                if (_selectionImage != null)
-                    _selectionImage.color = Color.white;
-                yield return new WaitForSeconds(FLASH_TIME);
-
-                if (_selectionImage != null)
-                    _selectionImage.color = _invalidColor;
-                yield return new WaitForSeconds(FLASH_TIME);
-            }
-
-            _flashCoroutine = null;
-            UpdateVisual();
-        }
     }
 }

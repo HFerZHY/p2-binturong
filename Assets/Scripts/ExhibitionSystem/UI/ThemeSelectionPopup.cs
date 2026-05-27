@@ -22,6 +22,10 @@ namespace ExhibitionSystem.UI
         [SerializeField] private Button _enterButton;
         [SerializeField] private TMP_Text _hintText;
 
+        [Header("List Layout")]
+        [SerializeField] private int _maxVisibleItems = 5;
+        [SerializeField] private float _minimumItemHeight = 82f;
+
         [Header("Animation")]
         [SerializeField] private CanvasGroup _canvasGroup;
         [SerializeField] private float _fadeDuration = 0.2f;
@@ -150,6 +154,47 @@ namespace ExhibitionSystem.UI
                 item.SetData(theme, OnThemeSelected);
                 _items.Add(item);
             }
+
+            FitItemsToViewport();
+        }
+
+        private void FitItemsToViewport()
+        {
+            if (_items.Count == 0 || _listContainer == null) return;
+
+            Canvas.ForceUpdateCanvases();
+
+            var listRect = _listContainer as RectTransform;
+            var viewportRect = _listContainer.parent as RectTransform;
+            var layout = _listContainer.GetComponent<VerticalLayoutGroup>();
+
+            int visibleCount = Mathf.Clamp(_items.Count, 1, Mathf.Max(1, _maxVisibleItems));
+            float viewportHeight = viewportRect != null ? viewportRect.rect.height : 0f;
+            float verticalPadding = layout != null ? layout.padding.top + layout.padding.bottom : 0f;
+            float totalSpacing = layout != null ? layout.spacing * Mathf.Max(0, visibleCount - 1) : 0f;
+            float itemHeight = _minimumItemHeight;
+
+            if (viewportHeight > 0f)
+                itemHeight = Mathf.Max(_minimumItemHeight, (viewportHeight - verticalPadding - totalSpacing) / visibleCount);
+
+            foreach (var item in _items)
+            {
+                if (item == null) continue;
+
+                var layoutElement = item.GetComponent<LayoutElement>();
+                if (layoutElement == null)
+                    layoutElement = item.gameObject.AddComponent<LayoutElement>();
+
+                layoutElement.minHeight = itemHeight;
+                layoutElement.preferredHeight = itemHeight;
+                layoutElement.flexibleHeight = 0f;
+
+                if (item.transform is RectTransform itemRect)
+                    itemRect.sizeDelta = new Vector2(itemRect.sizeDelta.x, itemHeight);
+            }
+
+            if (listRect != null)
+                LayoutRebuilder.ForceRebuildLayoutImmediate(listRect);
         }
 
         private void OnThemeSelected(ExhibitionTheme theme)

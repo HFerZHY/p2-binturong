@@ -19,7 +19,7 @@ namespace ExhibitionSystem.UI
         [SerializeField] private string _startText = "Start Exhibition";
         [SerializeField] private string _runningText = "In Progress...";
         [SerializeField] private string _retryText = "Retry";
-        [SerializeField] private string _lockedText = "Choose Ideas";
+        [SerializeField] private string _lockedText = "Start Exhibition";
 
         private bool _canRetry;
 

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Octopus Pot
   nameKey: item_octopus_pot
-  icon: {fileID: -7718089631497013394, guid: 98a749e0c522cb0429b63d4862aa13a3, type: 3}
+  icon: {fileID: -4566218714791175793, guid: 22240dc1405325b4289aa3eb55ca5e1a, type: 3}
+  iconScale: 0.85
   sortOrder: 13
   description: A takotsubo octopus trap carrying a memory of summer dreams.
   descriptionKey: desc_octopus_pot

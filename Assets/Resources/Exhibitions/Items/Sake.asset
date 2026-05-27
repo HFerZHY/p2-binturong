@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Sake
   nameKey: item_sake
-  icon: {fileID: 1828843058721014722, guid: d3f13a375504af9479d9fdd9c93fbc92, type: 3}
+  icon: {fileID: -1980771383947531119, guid: 93c3cc606b3d8454cbfbe4f52363b9de, type: 3}
+  iconScale: 1.15
   sortOrder: 7
   description: Otowa sake, once awarded in a local specialty competition.
   descriptionKey: desc_sake

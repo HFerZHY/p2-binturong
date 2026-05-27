@@ -79,11 +79,14 @@ namespace ExhibitionSystem.UI
                 {
                     _itemIcon.sprite = item.icon;
                     _itemIcon.enabled = true;
+                    _itemIcon.preserveAspect = true;
+                    _itemIcon.rectTransform.localScale = Vector3.one * DraggableItem.GetIconScale(item);
                 }
                 else
                 {
                     _itemIcon.sprite = _emptySlotSprite;
                     _itemIcon.enabled = _emptySlotSprite != null;
+                    _itemIcon.rectTransform.localScale = Vector3.one;
                 }
             }
 
@@ -114,6 +117,7 @@ namespace ExhibitionSystem.UI
             {
                 _itemIcon.sprite = _emptySlotSprite;
                 _itemIcon.enabled = _emptySlotSprite != null;
+                _itemIcon.rectTransform.localScale = Vector3.one;
             }
 
             // Hide status badge
@@ -279,10 +283,11 @@ namespace ExhibitionSystem.UI
             _dragGhost.transform.SetParent(_rootCanvas.transform, false);
 
             var rt = _dragGhost.AddComponent<RectTransform>();
-            rt.sizeDelta = _ghostSize;
+            rt.sizeDelta = _ghostSize * DraggableItem.GetIconScale(item);
 
             var img = _dragGhost.AddComponent<Image>();
             img.sprite = item.icon;
+            img.preserveAspect = true;
             img.raycastTarget = false;
 
             var cg = _dragGhost.AddComponent<CanvasGroup>();

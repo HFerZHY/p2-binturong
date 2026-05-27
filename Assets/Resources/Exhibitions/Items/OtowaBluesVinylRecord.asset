@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Otowa Blues Vinyl Record
   nameKey: item_otowa_blues_record
-  icon: {fileID: -2759434670737541878, guid: 2e989773884d97a4da468d633f70155c, type: 3}
+  icon: {fileID: -8938129548453741722, guid: 096d7dbd0c0d13b47a0c26e555ec73c7, type: 3}
+  iconScale: 1
   sortOrder: 16
   description: A vinyl record carrying a goodbye to Otowa town.
   descriptionKey: desc_otowa_blues_record

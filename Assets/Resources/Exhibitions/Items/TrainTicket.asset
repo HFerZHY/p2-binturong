@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Train Ticket
   nameKey: item_train_ticket
-  icon: {fileID: 3449192545155241441, guid: 8e4d9402af098804593eb5e8a0e6078c, type: 3}
+  icon: {fileID: 5995773944292865986, guid: 7c6e1bd6f055d6f4597cc3af7b8d39fe, type: 3}
+  iconScale: 1
   sortOrder: 11
   description: A ticket home to Otowa for wandering youths.
   descriptionKey: desc_train_ticket

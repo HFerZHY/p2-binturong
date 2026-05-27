@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Three-color Dango
   nameKey: item_three_color_dango
-  icon: {fileID: 860910309584662230, guid: d87331287aa89174b84a99e723b9650d, type: 3}
+  icon: {fileID: -2492037055045619036, guid: 095ee474fdddb324facde23345bc0a7a, type: 3}
+  iconScale: 1
   sortOrder: 5
   description: A colorful snack often served near the springs.
   descriptionKey: desc_three_color_dango

@@ -118,16 +118,8 @@ namespace ExhibitionSystem.UI
         {
             if (_gridLayout == null) return;
 
-            if (slotCount <= 3)
-            {
-                _gridLayout.constraintCount = Mathf.Max(1, slotCount);
-                _gridLayout.cellSize = new Vector2(205f, 154f);
-            }
-            else
-            {
-                _gridLayout.constraintCount = 2;
-                _gridLayout.cellSize = new Vector2(312f, 154f);
-            }
+            _gridLayout.constraintCount = Mathf.Clamp(slotCount, 1, 4);
+            _gridLayout.cellSize = new Vector2(240f, 230f);
         }
     }
 }

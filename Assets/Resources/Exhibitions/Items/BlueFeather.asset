@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Blue Feather
   nameKey: item_blue_feather
-  icon: {fileID: -4769719129161285021, guid: 8657eb22cec71b24ebc0a1bfc6ac5432, type: 3}
+  icon: {fileID: -7756818922074667314, guid: 8a614ac922fe3674ca416cee181fa63a, type: 3}
+  iconScale: 1
   sortOrder: 1
   description: A soft blue feather from a rare bird in the Otowa forest.
   descriptionKey: desc_blue_feather

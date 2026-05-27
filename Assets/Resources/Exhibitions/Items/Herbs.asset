@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Herbs
   nameKey: item_herbs
-  icon: {fileID: -3948470577174462018, guid: c22f29a34be3d1345b06284b18066403, type: 3}
+  icon: {fileID: -2087527056206974065, guid: 82f9ae07c0d214c46b4d0f987bfc5255, type: 3}
+  iconScale: 1
   sortOrder: 8
   description: Fragrant herbs that shape Otowa's signature flavor.
   descriptionKey: desc_herbs

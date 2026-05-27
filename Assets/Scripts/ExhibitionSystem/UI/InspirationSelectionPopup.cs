@@ -33,6 +33,7 @@ namespace ExhibitionSystem.UI
         private readonly HashSet<int> _invalidSelectionIds = new();
         private bool _animateInvalidFeedback;
         private bool _isVisible;
+        private bool _hasInitialized;
 
         private void OnEnable()
         {
@@ -54,7 +55,11 @@ namespace ExhibitionSystem.UI
             if (_closeButton != null)
                 _closeButton.onClick.AddListener(Hide);
 
-            HideImmediate();
+            // Only hide if not already being shown (avoids race condition on first Show() call)
+            if (!_isVisible)
+                HideImmediate();
+
+            _hasInitialized = true;
         }
 
         public void Show()
@@ -84,7 +89,7 @@ namespace ExhibitionSystem.UI
                 _themeText.text = $"Theme: {manager.CurrentTheme.title}";
 
             if (_hintText != null)
-                _hintText.text = "Pick the ideas that fit this exhibition.";
+                _hintText.text = "Hmm... which ones should I choose?";
 
             PopulateList();
             PopulateSelectedList();

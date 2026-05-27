@@ -30,7 +30,7 @@ public static class ExhibitionPrefabBuilder
 
     private static void CreateShelfSlotPrefab()
     {
-        var root = CreateUIObject("ShelfSlot", new Vector2(80, 80));
+        var root = CreateUIObject("ShelfSlot", new Vector2(160, 160));
         var bg = root.AddComponent<Image>();
         bg.color = new Color(0.22f, 0.16f, 0.10f, 0.95f);
         root.AddComponent<CanvasGroup>();
@@ -38,7 +38,7 @@ public static class ExhibitionPrefabBuilder
         var iconObj = CreateChild(root.transform, "Icon");
         var icon = iconObj.AddComponent<Image>();
         icon.raycastTarget = false;
-        Stretch(iconObj.GetComponent<RectTransform>(), 5);
+        Stretch(iconObj.GetComponent<RectTransform>(), 10);
 
         var slotUI = root.AddComponent<ShelfSlotUI>();
         SetPrivateField(slotUI, "_icon", icon);
@@ -48,14 +48,14 @@ public static class ExhibitionPrefabBuilder
 
     private static void CreateDisplaySlotPrefab()
     {
-        var root = CreateUIObject("DisplaySlot", new Vector2(96, 96));
+        var root = CreateUIObject("DisplaySlot", new Vector2(172, 152));
         var bg = root.AddComponent<Image>();
-        bg.color = new Color(0.4f, 0.35f, 0.3f, 0.85f);
+        bg.color = new Color(0.46f, 0.28f, 0.12f, 0.98f);
         root.AddComponent<CanvasGroup>();
 
         var highlightObj = CreateChild(root.transform, "Highlight");
         var highlight = highlightObj.AddComponent<Image>();
-        highlight.color = new Color(1, 1, 1, 0.1f);
+        highlight.color = new Color(1f, 0.78f, 0.28f, 0.08f);
         highlight.raycastTarget = false;
         Stretch(highlightObj.GetComponent<RectTransform>(), 0);
 
@@ -63,7 +63,8 @@ public static class ExhibitionPrefabBuilder
         var icon = iconObj.AddComponent<Image>();
         icon.raycastTarget = false;
         icon.enabled = false;
-        Stretch(iconObj.GetComponent<RectTransform>(), 10);
+        icon.preserveAspect = true;
+        Stretch(iconObj.GetComponent<RectTransform>(), 18);
 
         var badgeObj = CreateChild(root.transform, "StatusBadge");
         var badge = badgeObj.AddComponent<Image>();
@@ -87,7 +88,11 @@ public static class ExhibitionPrefabBuilder
 
     private static void CreateThemeListItemPrefab()
     {
-        var root = CreateUIObject("ThemeListItem", new Vector2(760, 108));
+        var root = CreateUIObject("ThemeListItem", new Vector2(760, 82));
+        var itemLayout = root.AddComponent<LayoutElement>();
+        itemLayout.minHeight = 82;
+        itemLayout.preferredHeight = 82;
+
         var bg = root.AddComponent<Image>();
         bg.color = new Color(0.78f, 0.66f, 0.46f, 0.98f);
         var button = root.AddComponent<Button>();
@@ -102,35 +107,37 @@ public static class ExhibitionPrefabBuilder
         Stretch(frameObj.GetComponent<RectTransform>(), 0);
 
         var layout = root.AddComponent<HorizontalLayoutGroup>();
-        layout.padding = new RectOffset(22, 22, 12, 12);
-        layout.spacing = 16;
+        layout.padding = new RectOffset(28, 28, 8, 8);
+        layout.spacing = 24;
         layout.childControlHeight = true;
         layout.childControlWidth = true;
         layout.childForceExpandWidth = false;
         layout.childAlignment = TextAnchor.MiddleLeft;
 
-        var flowerObj = CreateChild(root.transform, "StatusFlower");
-        var flower = flowerObj.AddComponent<Image>();
-        flower.color = new Color(0.72f, 0.24f, 0.18f, 1f);
-        var flowerLayout = flowerObj.AddComponent<LayoutElement>();
-        flowerLayout.preferredWidth = 34;
-        flowerLayout.preferredHeight = 34;
+        var iconObj = CreateChild(root.transform, "Icon");
+        var icon = iconObj.AddComponent<Image>();
+        icon.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/Exhibitions/Icons/sakura.png");
+        icon.preserveAspect = true;
+        icon.raycastTarget = false;
+        var iconLayout = iconObj.AddComponent<LayoutElement>();
+        iconLayout.preferredWidth = 60;
+        iconLayout.preferredHeight = 60;
 
         var content = CreateChild(root.transform, "Content");
         var contentLayout = content.AddComponent<VerticalLayoutGroup>();
-        contentLayout.spacing = 4;
+        contentLayout.spacing = 0;
+        contentLayout.childAlignment = TextAnchor.MiddleLeft;
         contentLayout.childControlWidth = true;
         contentLayout.childControlHeight = false;
         contentLayout.childForceExpandWidth = true;
+        contentLayout.childForceExpandHeight = false;
         content.AddComponent<LayoutElement>().flexibleWidth = 1;
 
-        var titleText = CreateText(content.transform, "Title", "Theme", 26, FontStyles.Bold, TextAlignmentOptions.Left);
+        var titleText = CreateText(content.transform, "Title", "Theme", 34, FontStyles.Bold, TextAlignmentOptions.MidlineLeft);
         titleText.color = new Color(0.22f, 0.12f, 0.06f, 1f);
-        var descText = CreateText(content.transform, "Description", "Description", 16, FontStyles.Normal, TextAlignmentOptions.Left);
-        descText.color = new Color(0.30f, 0.20f, 0.12f, 1f);
-        descText.textWrappingMode = TextWrappingModes.Normal;
-        var slotsText = CreateText(content.transform, "Slots", "Day 2 • 3 ideas", 15, FontStyles.Italic, TextAlignmentOptions.Left);
-        slotsText.color = new Color(0.42f, 0.28f, 0.16f, 1f);
+        titleText.textWrappingMode = TextWrappingModes.NoWrap;
+        titleText.overflowMode = TextOverflowModes.Ellipsis;
+        titleText.gameObject.AddComponent<LayoutElement>().preferredHeight = 56;
 
         var completedObj = CreateChild(root.transform, "CompletedIcon");
         var completedIcon = completedObj.AddComponent<Image>();
@@ -146,8 +153,6 @@ public static class ExhibitionPrefabBuilder
 
         var listItem = root.AddComponent<ThemeListItem>();
         SetPrivateField(listItem, "_titleText", titleText);
-        SetPrivateField(listItem, "_descriptionText", descText);
-        SetPrivateField(listItem, "_slotsText", slotsText);
         SetPrivateField(listItem, "_completedIcon", completedIcon);
         SetPrivateField(listItem, "_selectionFrame", frame);
         SetPrivateField(listItem, "_background", bg);
@@ -158,7 +163,7 @@ public static class ExhibitionPrefabBuilder
 
     private static void CreateInspirationListItemPrefab()
     {
-        var root = CreateUIObject("InspirationListItem", new Vector2(620, 82));
+        var root = CreateUIObject("InspirationListItem", new Vector2(360, 96));
         var bg = root.AddComponent<Image>();
         bg.color = new Color(0.74f, 0.63f, 0.48f, 0.98f);
         var button = root.AddComponent<Button>();
@@ -173,30 +178,21 @@ public static class ExhibitionPrefabBuilder
         Stretch(frameObj.GetComponent<RectTransform>(), 0);
 
         var layout = root.AddComponent<HorizontalLayoutGroup>();
-        layout.padding = new RectOffset(16, 16, 10, 10);
-        layout.spacing = 14;
+        layout.padding = new RectOffset(18, 18, 10, 10);
+        layout.spacing = 0;
         layout.childControlHeight = true;
-        layout.childControlWidth = false;
+        layout.childControlWidth = true;
         layout.childAlignment = TextAnchor.MiddleLeft;
 
-        var idText = CreateText(root.transform, "Id", "#1", 20, FontStyles.Bold, TextAlignmentOptions.Center);
-        idText.color = new Color(0.22f, 0.12f, 0.06f, 1f);
-        idText.gameObject.AddComponent<LayoutElement>().preferredWidth = 54;
-
-        var bodyText = CreateText(root.transform, "Body", "Idea text", 17, FontStyles.Bold, TextAlignmentOptions.Left);
+        var bodyText = CreateText(root.transform, "Body", "Idea text", 22, FontStyles.Bold, TextAlignmentOptions.MidlineLeft);
         bodyText.color = new Color(0.23f, 0.14f, 0.08f, 1f);
-        bodyText.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
         bodyText.textWrappingMode = TextWrappingModes.Normal;
-
-        var matchText = CreateText(root.transform, "KnownMatch", "Known Match", 14, FontStyles.Bold, TextAlignmentOptions.Center);
-        matchText.color = new Color(0.72f, 0.95f, 0.68f, 1f);
-        matchText.enabled = false;
-        matchText.gameObject.AddComponent<LayoutElement>().preferredWidth = 96;
+        bodyText.overflowMode = TextOverflowModes.Ellipsis;
+        bodyText.maxVisibleLines = 2;
+        bodyText.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
 
         var item = root.AddComponent<InspirationListItem>();
-        SetPrivateField(item, "_idText", idText);
         SetPrivateField(item, "_bodyText", bodyText);
-        SetPrivateField(item, "_matchText", matchText);
         SetPrivateField(item, "_selectionImage", bg);
         SetPrivateField(item, "_selectionFrame", frame);
         SetPrivateField(item, "_button", button);
@@ -206,53 +202,40 @@ public static class ExhibitionPrefabBuilder
 
     private static void CreateInspirationDisplaySlotPrefab()
     {
-        var root = CreateUIObject("InspirationDisplaySlot", new Vector2(300, 154));
-        var bg = root.AddComponent<Image>();
-        bg.color = new Color(0.24f, 0.18f, 0.12f, 0.62f);
-
-        var layout = root.AddComponent<VerticalLayoutGroup>();
-        layout.padding = new RectOffset(12, 12, 4, 4);
-        layout.spacing = 4;
-        layout.childControlHeight = false;
-        layout.childControlWidth = true;
-        layout.childForceExpandHeight = false;
-        layout.childForceExpandWidth = true;
-        layout.childAlignment = TextAnchor.UpperCenter;
+        var root = CreateUIObject("InspirationDisplaySlot", new Vector2(230, 224));
 
         var labelObj = CreateChild(root.transform, "LabelStrip");
         var labelBg = labelObj.AddComponent<Image>();
-        labelBg.color = new Color(0.75f, 0.62f, 0.42f, 0.95f);
-        labelObj.AddComponent<LayoutElement>().preferredHeight = 28;
+        labelBg.color = new Color(0.75f, 0.62f, 0.42f, 0.98f);
+        var labelRt = labelObj.GetComponent<RectTransform>();
+        labelRt.anchorMin = new Vector2(0.5f, 1f);
+        labelRt.anchorMax = new Vector2(0.5f, 1f);
+        labelRt.pivot = new Vector2(0.5f, 1f);
+        labelRt.anchoredPosition = Vector2.zero;
+        labelRt.sizeDelta = new Vector2(190f, 44f);
 
-        var ideaText = CreateText(labelObj.transform, "InspirationText", "Jiro recreated...", 15, FontStyles.Bold, TextAlignmentOptions.Center);
+        var ideaText = CreateText(labelObj.transform, "InspirationText", "Jiro recreated...", 20, FontStyles.Bold, TextAlignmentOptions.Center);
         ideaText.color = new Color(0.25f, 0.14f, 0.08f, 1f);
+        ideaText.textWrappingMode = TextWrappingModes.NoWrap;
+        ideaText.overflowMode = TextOverflowModes.Ellipsis;
         Stretch(ideaText.GetComponent<RectTransform>(), 6);
-
-        var slotFrameObj = CreateChild(root.transform, "SlotFrame");
-        var slotFrame = slotFrameObj.AddComponent<Image>();
-        slotFrame.color = new Color(0.54f, 0.37f, 0.18f, 0.78f);
-        slotFrameObj.AddComponent<LayoutElement>().preferredHeight = 88;
 
         var displaySlotPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PREFAB_PATH}/DisplaySlot.prefab");
         GameObject displaySlotObj;
         if (displaySlotPrefab != null)
-            displaySlotObj = (GameObject)PrefabUtility.InstantiatePrefab(displaySlotPrefab, slotFrameObj.transform);
+            displaySlotObj = (GameObject)PrefabUtility.InstantiatePrefab(displaySlotPrefab, root.transform);
         else
-            displaySlotObj = CreateUIObject("DisplaySlot", new Vector2(96, 96));
+            displaySlotObj = CreateUIObject("DisplaySlot", new Vector2(172, 152));
 
         displaySlotObj.name = "DisplaySlot";
-        displaySlotObj.transform.SetParent(slotFrameObj.transform, false);
+        displaySlotObj.transform.SetParent(root.transform, false);
         var displayRt = displaySlotObj.GetComponent<RectTransform>();
         displayRt.anchorMin = new Vector2(0.5f, 0.5f);
         displayRt.anchorMax = new Vector2(0.5f, 0.5f);
         displayRt.pivot = new Vector2(0.5f, 0.5f);
-        displayRt.sizeDelta = new Vector2(82, 82);
-        displayRt.anchoredPosition = Vector2.zero;
+        displayRt.sizeDelta = new Vector2(172, 152);
+        displayRt.anchoredPosition = new Vector2(0, -26);
         var displaySlot = displaySlotObj.GetComponent<DisplaySlotUI>();
-
-        var statusText = CreateText(root.transform, "StatusText", "Find the item", 13, FontStyles.Italic, TextAlignmentOptions.Center);
-        statusText.color = new Color(0.8f, 0.75f, 0.65f, 1f);
-        statusText.gameObject.AddComponent<LayoutElement>().preferredHeight = 14;
 
         var tooltipObj = CreateChild(root.transform, "InspirationTooltip");
         var tooltipBg = tooltipObj.AddComponent<Image>();
@@ -264,10 +247,10 @@ public static class ExhibitionPrefabBuilder
         tooltipRt.anchorMin = new Vector2(0.5f, 1);
         tooltipRt.anchorMax = new Vector2(0.5f, 1);
         tooltipRt.pivot = new Vector2(0.5f, 0);
-        tooltipRt.anchoredPosition = new Vector2(0, 6);
-        tooltipRt.sizeDelta = new Vector2(320, 92);
+        tooltipRt.anchoredPosition = new Vector2(0, 8);
+        tooltipRt.sizeDelta = new Vector2(360, 118);
 
-        var tooltipText = CreateText(tooltipObj.transform, "Text", "Full inspiration text.", 16, FontStyles.Normal, TextAlignmentOptions.Center);
+        var tooltipText = CreateText(tooltipObj.transform, "Text", "Full inspiration text.", 22, FontStyles.Normal, TextAlignmentOptions.Center);
         tooltipText.color = new Color(0.22f, 0.13f, 0.07f, 1f);
         tooltipText.textWrappingMode = TextWrappingModes.Normal;
         tooltipText.raycastTarget = false;
@@ -275,7 +258,6 @@ public static class ExhibitionPrefabBuilder
 
         var slot = root.AddComponent<InspirationDisplaySlot>();
         SetPrivateField(slot, "_inspirationText", ideaText);
-        SetPrivateField(slot, "_statusText", statusText);
         SetPrivateField(slot, "_displaySlot", displaySlot);
         SetPrivateField(slot, "_tooltipPanel", tooltipObj);
         SetPrivateField(slot, "_tooltipText", tooltipText);
@@ -356,12 +338,17 @@ public static class ExhibitionPrefabBuilder
         layout.childControlWidth = true;
         layout.childControlHeight = false;
 
+        CreateVisitorBackground(root.transform);
+
         var charContainer = CreateChild(root.transform, "CharacterContainer");
         var charCg = charContainer.AddComponent<CanvasGroup>();
         charCg.alpha = 0f;
         var rawImage = charContainer.AddComponent<RawImage>();
         rawImage.raycastTarget = false;
         rawImage.texture = AssetDatabase.LoadAssetAtPath<RenderTexture>("Assets/Resources/Exhibitions/VisitorRT.asset");
+        var fitter = charContainer.AddComponent<AspectRatioFitter>();
+        fitter.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+        fitter.aspectRatio = 1f;
         charContainer.AddComponent<LayoutElement>().preferredHeight = 120;
 
         var dialogue = CreateChild(root.transform, "DialoguePanel");
@@ -389,6 +376,35 @@ public static class ExhibitionPrefabBuilder
         SetPrivateField(panel, "_characterGenerator", generator);
 
         SaveAndDestroy(root, "VisitorPanel");
+    }
+
+    private static void CreateVisitorBackground(Transform parent)
+    {
+        var backgroundObj = CreateChild(parent, "PassengerBackground");
+        backgroundObj.transform.SetAsFirstSibling();
+        var background = backgroundObj.AddComponent<Image>();
+        background.sprite = LoadSprite("Assets/Resources/Exhibitions/Icons/passenger-background.png");
+        background.color = Color.white;
+        background.raycastTarget = false;
+
+        var layout = backgroundObj.AddComponent<LayoutElement>();
+        layout.ignoreLayout = true;
+        Stretch(backgroundObj.GetComponent<RectTransform>(), 0);
+    }
+
+    private static Sprite LoadSprite(string path)
+    {
+        var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+        if (sprite != null)
+            return sprite;
+
+        foreach (var asset in AssetDatabase.LoadAllAssetRepresentationsAtPath(path))
+        {
+            if (asset is Sprite subSprite)
+                return subSprite;
+        }
+
+        return null;
     }
 
     private static GameObject CreateUIObject(string name, Vector2 size)

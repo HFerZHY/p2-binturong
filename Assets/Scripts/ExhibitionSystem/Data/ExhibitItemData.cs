@@ -21,6 +21,10 @@ namespace ExhibitionSystem.Data
         [Tooltip("Icon sprite shown in the shelf and display slots")]
         public Sprite icon;
 
+        [Range(0.5f, 1.5f)]
+        [Tooltip("Visual scale for this item's icon in exhibition UI")]
+        public float iconScale = 1f;
+
         [Tooltip("Stable display order in the exhibition shelf")]
         public int sortOrder;
 

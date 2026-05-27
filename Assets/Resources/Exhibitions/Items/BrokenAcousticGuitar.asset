@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Broken Acoustic Guitar
   nameKey: item_broken_acoustic_guitar
-  icon: {fileID: -4932037285597610171, guid: c904d6efd664edc45a386dc1629a893b, type: 3}
+  icon: {fileID: 6941976908050532982, guid: e36db9fee1e27794ba5fe5bf9ccb2083, type: 3}
+  iconScale: 1
   sortOrder: 14
   description: A broken guitar left behind after a family fight.
   descriptionKey: desc_broken_acoustic_guitar

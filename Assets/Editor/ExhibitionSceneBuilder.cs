@@ -19,8 +19,12 @@ public static class ExhibitionSceneBuilder
     private const string INSPIRATIONS_PATH = "Assets/Resources/Exhibitions/Inspirations";
     private const string PREFABS_PATH = "Assets/Resources/Exhibitions/Prefabs";
 
-    private const float SHELF_WIDTH = 430f;
+    private const float SHELF_ANCHOR_MAX = 0.405f;
+    private const float RIGHT_PANEL_ANCHOR_MIN = 0.415f;
     private const float CONTROL_HEIGHT = 86f;
+    private const float ITEM_CELL_SIZE = 150f;
+    private const float ITEM_SPACING = 14f;
+    private const int ITEMS_PER_ROW = 4;
 
     [MenuItem("Tools/Museum/Build Exhibition Scene")]
     public static void BuildScene()
@@ -116,35 +120,35 @@ public static class ExhibitionSceneBuilder
         bg.color = new Color(0.23f, 0.19f, 0.13f, 0.96f);
 
         var rt = panelObj.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0, 0.09f);
-        rt.anchorMax = new Vector2(0, 1);
-        rt.pivot = new Vector2(0, 0.5f);
-        rt.anchoredPosition = new Vector2(24, 0);
-        rt.sizeDelta = new Vector2(SHELF_WIDTH, 0);
+        rt.anchorMin = new Vector2(0.005f, 0.09f);
+        rt.anchorMax = new Vector2(SHELF_ANCHOR_MAX, 0.985f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
 
-        var title = CreateText(panelObj.transform, "Title", "Items", 30, FontStyles.Bold, TextAlignmentOptions.Center);
+        var title = CreateText(panelObj.transform, "Title", "Items", 32, FontStyles.Bold, TextAlignmentOptions.Center);
         title.color = new Color(0.98f, 0.9f, 0.72f, 1f);
         var titleRt = title.GetComponent<RectTransform>();
         titleRt.anchorMin = new Vector2(0, 1);
         titleRt.anchorMax = new Vector2(1, 1);
         titleRt.pivot = new Vector2(0.5f, 1);
-        titleRt.anchoredPosition = new Vector2(0, -14);
-        titleRt.sizeDelta = new Vector2(-24, 40);
+        titleRt.anchoredPosition = new Vector2(0, -16);
+        titleRt.sizeDelta = new Vector2(-32, 48);
 
         var gridObj = CreateChild(panelObj.transform, "Grid");
         var gridRt = gridObj.GetComponent<RectTransform>();
         gridRt.anchorMin = Vector2.zero;
         gridRt.anchorMax = Vector2.one;
-        gridRt.offsetMin = new Vector2(22, 24);
-        gridRt.offsetMax = new Vector2(-22, -72);
+        gridRt.offsetMin = new Vector2(24, 32);
+        gridRt.offsetMax = new Vector2(-24, -80);
 
         var grid = gridObj.AddComponent<GridLayoutGroup>();
-        grid.cellSize = new Vector2(82, 82);
-        grid.spacing = new Vector2(12, 12);
+        grid.cellSize = new Vector2(ITEM_CELL_SIZE, ITEM_CELL_SIZE);
+        grid.spacing = new Vector2(ITEM_SPACING, ITEM_SPACING);
         grid.startCorner = GridLayoutGroup.Corner.UpperLeft;
-        grid.childAlignment = TextAnchor.UpperLeft;
+        grid.childAlignment = TextAnchor.UpperCenter;
         grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        grid.constraintCount = 4;
+        grid.constraintCount = ITEMS_PER_ROW;
 
         var panel = panelObj.AddComponent<ShelfPanel>();
         SetPrivateField(panel, "_gridContainer", gridObj.transform);
@@ -162,11 +166,13 @@ public static class ExhibitionSceneBuilder
         bg.color = new Color(0.27f, 0.23f, 0.17f, 0.94f);
 
         var rt = panelObj.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.31f, 0.58f);
+        rt.anchorMin = new Vector2(RIGHT_PANEL_ANCHOR_MIN, 0.58f);
         rt.anchorMax = new Vector2(0.985f, 0.985f);
         rt.pivot = new Vector2(0.5f, 0.5f);
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
+
+        CreateVisitorBackground(panelObj.transform);
 
         var charContainer = CreateChild(panelObj.transform, "CharacterContainer");
         var charCg = charContainer.AddComponent<CanvasGroup>();
@@ -175,6 +181,9 @@ public static class ExhibitionSceneBuilder
         rawImage.color = Color.white;
         rawImage.raycastTarget = false;
         rawImage.texture = AssetDatabase.LoadAssetAtPath<RenderTexture>("Assets/Resources/Exhibitions/VisitorRT.asset");
+        var fitter = charContainer.AddComponent<AspectRatioFitter>();
+        fitter.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+        fitter.aspectRatio = 1f;
         var charRt = charContainer.GetComponent<RectTransform>();
         charRt.anchorMin = new Vector2(0, 0.2f);
         charRt.anchorMax = new Vector2(1, 1);
@@ -214,6 +223,17 @@ public static class ExhibitionSceneBuilder
         return panel;
     }
 
+    private static void CreateVisitorBackground(Transform parent)
+    {
+        var backgroundObj = CreateChild(parent, "PassengerBackground");
+        backgroundObj.transform.SetAsFirstSibling();
+        var background = backgroundObj.AddComponent<Image>();
+        background.sprite = LoadSprite("Assets/Resources/Exhibitions/Icons/passenger-background.png");
+        background.color = Color.white;
+        background.raycastTarget = false;
+        Stretch(backgroundObj.GetComponent<RectTransform>(), 0);
+    }
+
     private static SatisfactionBar CreateSatisfactionBar(Canvas canvas)
     {
         var barObj = CreateChild(canvas.transform, "SatisfactionBar");
@@ -221,7 +241,7 @@ public static class ExhibitionSceneBuilder
         bg.color = new Color(0.14f, 0.10f, 0.07f, 0.95f);
 
         var rt = barObj.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.31f, 0.485f);
+        rt.anchorMin = new Vector2(RIGHT_PANEL_ANCHOR_MIN, 0.485f);
         rt.anchorMax = new Vector2(0.985f, 0.565f);
         rt.pivot = new Vector2(0.5f, 0.5f);
         rt.offsetMin = Vector2.zero;
@@ -262,8 +282,8 @@ public static class ExhibitionSceneBuilder
         bg.color = new Color(0.28f, 0.23f, 0.16f, 0.94f);
 
         var rt = panelObj.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.31f, 0.09f);
-        rt.anchorMax = new Vector2(0.985f, 0.475f);
+        rt.anchorMin = new Vector2(RIGHT_PANEL_ANCHOR_MIN, 0.145f);
+        rt.anchorMax = new Vector2(0.985f, 0.465f);
         rt.pivot = new Vector2(0.5f, 0.5f);
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
@@ -281,17 +301,17 @@ public static class ExhibitionSceneBuilder
         var containerRt = containerObj.GetComponent<RectTransform>();
         containerRt.anchorMin = Vector2.zero;
         containerRt.anchorMax = Vector2.one;
-        containerRt.offsetMin = new Vector2(28, 24);
+        containerRt.offsetMin = new Vector2(24, 18);
         containerRt.offsetMax = new Vector2(-28, -58);
 
         var grid = containerObj.AddComponent<GridLayoutGroup>();
-        grid.spacing = new Vector2(14, 12);
+        grid.spacing = new Vector2(18, 12);
         grid.startCorner = GridLayoutGroup.Corner.UpperLeft;
         grid.startAxis = GridLayoutGroup.Axis.Horizontal;
-        grid.childAlignment = TextAnchor.UpperCenter;
+        grid.childAlignment = TextAnchor.MiddleCenter;
         grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        grid.constraintCount = 2;
-        grid.cellSize = new Vector2(312, 154);
+        grid.constraintCount = 4;
+        grid.cellSize = new Vector2(240, 230);
 
         var panel = panelObj.AddComponent<DisplayPanel>();
         SetPrivateField(panel, "_slotContainer", containerObj.transform);
@@ -324,16 +344,10 @@ public static class ExhibitionSceneBuilder
         layout.childForceExpandWidth = false;
         layout.childForceExpandHeight = true;
 
-        var selectBtnObj = CreateButton(panelObj.transform, "SelectButton", "Select Theme", 260);
-        var titleText = CreateText(panelObj.transform, "TitleText", "Select a Theme", 34, FontStyles.Bold, TextAlignmentOptions.Center);
-        titleText.color = new Color(0.98f, 0.86f, 0.56f, 1f);
-        var titleLayout = titleText.gameObject.AddComponent<LayoutElement>();
-        titleLayout.preferredWidth = 520;
-        titleLayout.flexibleWidth = 1;
-        var startBtnObj = CreateButton(panelObj.transform, "StartButton", "Choose Ideas", 320);
+        var selectBtnObj = CreateButton(panelObj.transform, "SelectButton", "Select Theme", 300, true);
+        var startBtnObj = CreateButton(panelObj.transform, "StartButton", "Start Exhibition", 340, true);
 
         var selector = panelObj.AddComponent<ThemeSelector>();
-        SetPrivateField(selector, "_titleText", titleText);
         SetPrivateField(selector, "_selectButton", selectBtnObj.GetComponent<Button>());
         SetPrivateField(selector, "_startButton", startBtnObj.GetComponent<Button>());
         SetPrivateField(selector, "_startButtonText", startBtnObj.GetComponentInChildren<TextMeshProUGUI>());
@@ -344,6 +358,7 @@ public static class ExhibitionSceneBuilder
     {
         var panelObj = CreateOverlay(canvas.transform, "ThemeSelectionPopup");
         var windowObj = CreateWindow(panelObj.transform, "Window", new Vector2(860, 680));
+        ConfigureLargePopupWindow(windowObj);
         CreatePopupTitle(windowObj.transform, "Theme Selection");
 
         var hint = CreateText(windowObj.transform, "HintText", "Choose an exhibition theme.", 22, FontStyles.Normal, TextAlignmentOptions.Center);
@@ -355,7 +370,7 @@ public static class ExhibitionSceneBuilder
         hintRt.sizeDelta = new Vector2(-96, 48);
         hint.color = new Color(0.96f, 0.86f, 0.66f, 1f);
 
-        var listObj = CreateListContainer(windowObj.transform, new Vector2(34, 104), new Vector2(-34, -96));
+        var listObj = CreateListContainer(windowObj.transform, new Vector2(34, 132), new Vector2(-34, -128));
         var closeBtn = CreateAnchoredButton(windowObj.transform, "CloseButton", "Back", 220, new Vector2(-150, 20));
         var enterBtn = CreateAnchoredButton(windowObj.transform, "EnterButton", "Enter Theme", 260, new Vector2(160, 20));
         var cg = panelObj.AddComponent<CanvasGroup>();
@@ -378,7 +393,8 @@ public static class ExhibitionSceneBuilder
     private static InspirationSelectionPopup CreateInspirationPopup(Canvas canvas)
     {
         var panelObj = CreateOverlay(canvas.transform, "InspirationSelectionPopup");
-        var windowObj = CreateWindow(panelObj.transform, "Window", new Vector2(1120, 810));
+        var windowObj = CreateWindow(panelObj.transform, "Window", new Vector2(860, 680));
+        ConfigureLargePopupWindow(windowObj);
         var title = CreatePopupTitle(windowObj.transform, "Inspiration Selection");
 
         var themeLabel = CreateText(windowObj.transform, "ThemeText", "Theme: Exhibition", 22, FontStyles.Bold, TextAlignmentOptions.Center);
@@ -395,33 +411,56 @@ public static class ExhibitionSceneBuilder
             "SelectedColumn",
             "Selected Inspirations",
             new Vector2(0, 0),
-            new Vector2(0.47f, 1),
-            new Vector2(40, 104),
-            new Vector2(-18, -150));
+            new Vector2(0.49f, 1),
+            new Vector2(40, 176),
+            new Vector2(-14, -118));
         var selectedList = CreateListContainer(selectedPanel.transform, Vector2.zero, new Vector2(0, -48));
 
         var libraryPanel = CreateColumnPanel(
             windowObj.transform,
             "LibraryColumn",
             "Inspiration Library",
-            new Vector2(0.49f, 0),
+            new Vector2(0.51f, 0),
             new Vector2(1, 1),
-            new Vector2(18, 104),
-            new Vector2(-40, -150));
+            new Vector2(14, 176),
+            new Vector2(-40, -118));
         var listObj = CreateListContainer(libraryPanel.transform, Vector2.zero, new Vector2(0, -48));
 
-        var hint = CreateText(windowObj.transform, "HintText", "Pick the ideas that fit this exhibition.", 20, FontStyles.Italic, TextAlignmentOptions.Center);
-        var hintRt = hint.GetComponent<RectTransform>();
+        var hintPanel = CreateChild(windowObj.transform, "HintPanel");
+        var hintBg = hintPanel.AddComponent<Image>();
+        hintBg.color = new Color(0.12f, 0.08f, 0.05f, 0.92f);
+        var hintRt = hintPanel.GetComponent<RectTransform>();
         hintRt.anchorMin = new Vector2(0, 0);
         hintRt.anchorMax = new Vector2(1, 0);
         hintRt.pivot = new Vector2(0.5f, 0);
-        hintRt.anchoredPosition = new Vector2(0, 82);
-        hintRt.sizeDelta = new Vector2(-160, 56);
+        hintRt.anchoredPosition = new Vector2(0, 88);
+        hintRt.sizeDelta = new Vector2(-80, 74);
+
+        var avatarObj = CreateChild(hintPanel.transform, "AvatarPlaceholder");
+        var avatar = avatarObj.AddComponent<Image>();
+        avatar.color = new Color(0.72f, 0.58f, 0.42f, 1f);
+        var avatarRt = avatarObj.GetComponent<RectTransform>();
+        avatarRt.anchorMin = new Vector2(0, 0.5f);
+        avatarRt.anchorMax = new Vector2(0, 0.5f);
+        avatarRt.pivot = new Vector2(0, 0.5f);
+        avatarRt.anchoredPosition = new Vector2(14, 0);
+        avatarRt.sizeDelta = new Vector2(54, 54);
+
+        var avatarLabel = CreateText(avatarObj.transform, "Label", "Rin", 18, FontStyles.Bold, TextAlignmentOptions.Center);
+        avatarLabel.color = new Color(0.22f, 0.12f, 0.06f, 1f);
+        Stretch(avatarLabel.GetComponent<RectTransform>(), 0);
+
+        var hint = CreateText(hintPanel.transform, "HintText", "Hmm... which ones should I choose?", 22, FontStyles.Italic, TextAlignmentOptions.MidlineLeft);
+        var hintTextRt = hint.GetComponent<RectTransform>();
+        hintTextRt.anchorMin = new Vector2(0, 0);
+        hintTextRt.anchorMax = new Vector2(1, 1);
+        hintTextRt.offsetMin = new Vector2(84, 10);
+        hintTextRt.offsetMax = new Vector2(-18, -10);
         hint.textWrappingMode = TextWrappingModes.Normal;
         hint.color = new Color(0.98f, 0.88f, 0.66f, 1f);
 
-        var confirmBtn = CreateAnchoredButton(windowObj.transform, "ConfirmButton", "Confirm Inspirations", 310, new Vector2(175, 20));
-        var closeBtn = CreateAnchoredButton(windowObj.transform, "CloseButton", "Back", 220, new Vector2(-185, 20));
+        var confirmBtn = CreateAnchoredButton(windowObj.transform, "ConfirmButton", "Confirm Inspirations", 310, new Vector2(155, 20));
+        var closeBtn = CreateAnchoredButton(windowObj.transform, "CloseButton", "Back", 220, new Vector2(-180, 20));
         var cg = panelObj.AddComponent<CanvasGroup>();
 
         var popup = panelObj.AddComponent<InspirationSelectionPopup>();
@@ -552,6 +591,17 @@ public static class ExhibitionSceneBuilder
         return obj;
     }
 
+    private static void ConfigureLargePopupWindow(GameObject windowObj)
+    {
+        var rt = windowObj.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.1f, 0.1f);
+        rt.anchorMax = new Vector2(0.9f, 0.9f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = Vector2.zero;
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+    }
+
     private static GameObject CreateColumnPanel(
         Transform parent,
         string name,
@@ -634,6 +684,8 @@ public static class ExhibitionSceneBuilder
         scroll.content = objRt;
         scroll.horizontal = false;
         scroll.vertical = true;
+        scroll.movementType = ScrollRect.MovementType.Clamped;
+        scroll.scrollSensitivity = 22.5f;
         return obj;
     }
 
@@ -652,20 +704,40 @@ public static class ExhibitionSceneBuilder
         return btn;
     }
 
-    private static GameObject CreateButton(Transform parent, string name, string text, float width)
+    private static GameObject CreateButton(Transform parent, string name, string text, float width, bool useImageButton = false)
     {
         var btnObj = CreateChild(parent, name);
         btnObj.GetComponent<RectTransform>().sizeDelta = new Vector2(width, 56);
         var img = btnObj.AddComponent<Image>();
-        img.color = new Color(0.17f, 0.28f, 0.14f, 1f);
+        if (useImageButton)
+        {
+            img.sprite = LoadSprite("Assets/Resources/Exhibitions/Icons/button-1.png");
+            img.type = Image.Type.Simple;
+            img.preserveAspect = false;
+            img.color = Color.white;
+        }
+        else
+        {
+            img.color = new Color(0.17f, 0.28f, 0.14f, 1f);
+        }
         var btn = btnObj.AddComponent<Button>();
         btn.targetGraphic = img;
 
         var colors = btn.colors;
-        colors.normalColor = new Color(0.17f, 0.28f, 0.14f, 1f);
-        colors.highlightedColor = new Color(0.23f, 0.38f, 0.18f, 1f);
-        colors.pressedColor = new Color(0.12f, 0.20f, 0.10f, 1f);
-        colors.disabledColor = new Color(0.16f, 0.15f, 0.12f, 0.72f);
+        if (useImageButton)
+        {
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1f, 0.96f, 0.88f, 1f);
+            colors.pressedColor = new Color(0.88f, 0.78f, 0.64f, 1f);
+            colors.disabledColor = new Color(1f, 1f, 1f, 0.52f);
+        }
+        else
+        {
+            colors.normalColor = new Color(0.17f, 0.28f, 0.14f, 1f);
+            colors.highlightedColor = new Color(0.23f, 0.38f, 0.18f, 1f);
+            colors.pressedColor = new Color(0.12f, 0.20f, 0.10f, 1f);
+            colors.disabledColor = new Color(0.16f, 0.15f, 0.12f, 0.72f);
+        }
         btn.colors = colors;
 
         var le = btnObj.AddComponent<LayoutElement>();
@@ -674,7 +746,7 @@ public static class ExhibitionSceneBuilder
         le.preferredHeight = 56;
 
         var label = CreateText(btnObj.transform, "Text", text, 24, FontStyles.Bold, TextAlignmentOptions.Center);
-        label.color = new Color(0.98f, 0.86f, 0.58f, 1f);
+        label.color = useImageButton ? new Color(0.22f, 0.12f, 0.06f, 1f) : new Color(0.98f, 0.86f, 0.58f, 1f);
         label.textWrappingMode = TextWrappingModes.NoWrap;
         label.overflowMode = TextOverflowModes.Ellipsis;
         Stretch(label.GetComponent<RectTransform>(), 8);
@@ -713,6 +785,15 @@ public static class ExhibitionSceneBuilder
     {
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PREFABS_PATH}/{prefabName}.prefab");
         return prefab != null ? prefab.GetComponent<T>() : null;
+    }
+
+    private static Sprite LoadSprite(string path)
+    {
+        var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+        if (sprite != null)
+            return sprite;
+
+        return AssetDatabase.LoadAllAssetRepresentationsAtPath(path).OfType<Sprite>().FirstOrDefault();
     }
 
     private static List<T> LoadAssets<T>(string path) where T : Object

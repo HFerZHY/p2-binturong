@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Seven-flavor Chili
   nameKey: item_shichimi
-  icon: {fileID: -5233972180137678507, guid: 65a6b0a2612c2da4c997838004f43dfc, type: 3}
+  icon: {fileID: 1437279031372453770, guid: 075fea012ca0b9b49bd8db04287b01b7, type: 3}
+  iconScale: 0.85
   sortOrder: 6
   description: A spice blend that gives old recipes their signature bite.
   descriptionKey: desc_shichimi

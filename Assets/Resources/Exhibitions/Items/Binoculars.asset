@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Binoculars
   nameKey: item_binoculars
-  icon: {fileID: 5700811930569161303, guid: b575c05864e07694faf91ccd1bf9a2b7, type: 3}
+  icon: {fileID: -4972458134454809669, guid: 805816f8b6afe8e4b8e6855774a70eca, type: 3}
+  iconScale: 1
   sortOrder: 2
   description: A trusty pair of binoculars often seen with Rintaro.
   descriptionKey: desc_binoculars

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Bird Mask
   nameKey: item_bird_mask
-  icon: {fileID: -1545379965880211911, guid: c50eac0448d8ccc45babc05e29b563ea, type: 3}
+  icon: {fileID: -1322142420298116048, guid: e2a8a12a5293a8d43926c6d382a00525, type: 3}
+  iconScale: 1
   sortOrder: 9
   description: A bird-shaped festival mask tied to old beliefs.
   descriptionKey: desc_bird_mask

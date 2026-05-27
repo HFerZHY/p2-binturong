@@ -2,6 +2,7 @@ using ExhibitionSystem.Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using TMPro;
 
 namespace ExhibitionSystem.UI
 {
@@ -29,12 +30,17 @@ namespace ExhibitionSystem.UI
         [SerializeField] protected Image _icon;
         [SerializeField] private Vector2 _ghostSize = new(80, 80);
 
+        [Header("Drag Highlight")]
+        [SerializeField] private Color _highlightColor = new(1f, 0.9f, 0.5f, 1f);
+        [SerializeField] private float _highlightWidth = 4f;
+
         // ── Runtime State ───────────────────────────────────────────────────────
 
         protected ExhibitItemData _itemData;
         protected CanvasGroup _canvasGroup;
         protected Canvas _rootCanvas;
         private bool _isDragging;
+        private Outline _highlightOutline;
 
         // ── Public Properties ───────────────────────────────────────────────────
 
@@ -68,6 +74,8 @@ namespace ExhibitionSystem.UI
             {
                 _icon.sprite = item?.icon;
                 _icon.enabled = item != null && item.icon != null;
+                _icon.preserveAspect = true;
+                _icon.rectTransform.localScale = Vector3.one * GetIconScale(item);
             }
         }
 
@@ -96,9 +104,14 @@ namespace ExhibitionSystem.UI
             CurrentlyDragging = _itemData;
             CurrentDragSource = this;
 
-            // Fade source and disable raycasts
-            _canvasGroup.alpha = 0.4f;
+            // Hide icon at source, keep slot visible for highlight
+            if (_icon != null)
+                _icon.enabled = false;
+
             _canvasGroup.blocksRaycasts = false;
+
+            // Add highlight outline to source
+            ShowHighlight();
 
             // Create ghost
             CreateDragGhost(eventData);
@@ -121,9 +134,14 @@ namespace ExhibitionSystem.UI
             CurrentlyDragging = null;
             CurrentDragSource = null;
 
-            // Restore source
-            _canvasGroup.alpha = 1f;
+            // Restore source icon
+            if (_icon != null && _itemData != null && _itemData.icon != null)
+                _icon.enabled = true;
+
             _canvasGroup.blocksRaycasts = true;
+
+            // Remove highlight
+            HideHighlight();
 
             // Destroy ghost
             DestroyDragGhost();
@@ -155,11 +173,12 @@ namespace ExhibitionSystem.UI
 
             // Configure RectTransform
             var rt = _dragGhost.AddComponent<RectTransform>();
-            rt.sizeDelta = _ghostSize;
+            rt.sizeDelta = _ghostSize * GetIconScale(_itemData);
 
             // Configure Image
             var img = _dragGhost.AddComponent<Image>();
             img.sprite = _itemData.icon;
+            img.preserveAspect = true;
             img.raycastTarget = false; // Important: don't block raycasts
 
             // Configure CanvasGroup for transparency
@@ -169,6 +188,11 @@ namespace ExhibitionSystem.UI
             cg.interactable = false;
 
             MoveGhostToPointer(eventData);
+        }
+
+        public static float GetIconScale(ExhibitItemData item)
+        {
+            return item != null ? Mathf.Clamp(item.iconScale, 0.5f, 1.5f) : 1f;
         }
 
         private void MoveGhostToPointer(PointerEventData eventData)
@@ -190,6 +214,28 @@ namespace ExhibitionSystem.UI
             {
                 Destroy(_dragGhost);
                 _dragGhost = null;
+            }
+        }
+
+        // ── Highlight Management ───────────────────────────────────────────────
+
+        private void ShowHighlight()
+        {
+            if (_highlightOutline == null)
+            {
+                _highlightOutline = gameObject.AddComponent<Outline>();
+            }
+
+            _highlightOutline.effectColor = _highlightColor;
+            _highlightOutline.effectDistance = new Vector2(_highlightWidth, _highlightWidth);
+            _highlightOutline.enabled = true;
+        }
+
+        private void HideHighlight()
+        {
+            if (_highlightOutline != null)
+            {
+                _highlightOutline.enabled = false;
             }
         }
     }

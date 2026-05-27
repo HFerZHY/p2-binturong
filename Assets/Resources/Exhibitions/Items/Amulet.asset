@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
   itemName: Amulet
   nameKey: item_amulet
-  icon: {fileID: 2690274267995810836, guid: e31e3a3e212f40743ab9019ef4b3ced9, type: 3}
+  icon: {fileID: -883998473478317070, guid: 8bd6a29301d0ca64986eec502f837552, type: 3}
+  iconScale: 1
   sortOrder: 4
   description: A small blessing charm for health and peace.
   descriptionKey: desc_amulet
