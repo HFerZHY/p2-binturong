@@ -1,25 +1,25 @@
 fileFormatVersion: 2
-guid: 514b66ee0f2a9f049bc3721769a5a0ea
+guid: 42f8125c5c9780042a5d51c662d9e3a6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6956280784674315437
-    second: Yuji_0
+      213: -5687156741917260038
+    second: Jiro_0
   - first:
-      213: -7001637729929885521
-    second: Yuji_1
+      213: -422664162047562075
+    second: Jiro_1
   - first:
-      213: 4402510891770343551
-    second: Yuji_2
+      213: -2522945209436755427
+    second: Jiro_2
   - first:
-      213: 7368443170021296974
-    second: Yuji_3
+      213: -7006053766613323647
+    second: Jiro_3
   - first:
-      213: -6040088066524479916
-    second: Yuji_4
+      213: -3801085719356142588
+    second: Jiro_4
   - first:
-      213: -3634903966066378093
-    second: Yuji_5
+      213: 3623286765445012874
+    second: Jiro_5
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -128,133 +128,133 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Yuji_0
+      name: spritesheet_template_0
       rect:
         serializedVersion: 2
-        x: 454
-        y: 781
-        width: 373
-        height: 336
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 453
+        y: 779
+        width: 405
+        height: 397
+      alignment: 9
+      pivot: {x: 0.5969665, y: 0.053359333}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: dac5368848ca98060800000000000000
-      internalID: 6956280784674315437
+      spriteID: b104eda58847cdbe0800000000000000
+      internalID: -1451156850931253221
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Yuji_1
+      name: spritesheet_template_1
       rect:
         serializedVersion: 2
-        x: 102
-        y: 375
-        width: 193
-        height: 299
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 86
+        y: 358
+        width: 222
+        height: 328
+      alignment: 9
+      pivot: {x: 0.77338785, y: 0.87007403}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: fa88e85b49f25de90800000000000000
-      internalID: -7001637729929885521
+      spriteID: c78be976152ae6f50800000000000000
+      internalID: 6876612151555831932
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Yuji_2
+      name: spritesheet_template_2
       rect:
         serializedVersion: 2
-        x: 449
-        y: 393
-        width: 346
-        height: 340
+        x: 448
+        y: 392
+        width: 347
+        height: 343
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f7072cf945cd81d30800000000000000
-      internalID: 4402510891770343551
+      spriteID: 6b76ef0aa74d8fe80800000000000000
+      internalID: -8144526302947416138
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Yuji_3
+      name: spritesheet_template_3
       rect:
         serializedVersion: 2
-        x: 982
-        y: 375
-        width: 193
-        height: 299
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 965
+        y: 358
+        width: 222
+        height: 328
+      alignment: 9
+      pivot: {x: 0.25877476, y: 0.88095856}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e4bc5c00608f14660800000000000000
-      internalID: 7368443170021296974
+      spriteID: fe4699e087c5cc9e0800000000000000
+      internalID: -1599802096912603921
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Yuji_4
+      name: spritesheet_template_4
       rect:
         serializedVersion: 2
-        x: 107
-        y: 12
-        width: 242
-        height: 295
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 82
+        y: 4
+        width: 302
+        height: 314
+      alignment: 9
+      pivot: {x: 0.46059453, y: 0.8714146}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 45e7bbeb7eb4d2ca0800000000000000
-      internalID: -6040088066524479916
+      spriteID: f43f04ac0821b0370800000000000000
+      internalID: 8289739883463897935
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Yuji_5
+      name: spritesheet_template_5
       rect:
         serializedVersion: 2
-        x: 998
-        y: 12
-        width: 241
-        height: 296
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 957
+        y: 3
+        width: 302
+        height: 314
+      alignment: 9
+      pivot: {x: 0.38966462, y: 0.9244739}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 39a74f5f91a3e8dc0800000000000000
-      internalID: -3634903966066378093
+      spriteID: 0445e7f6c5bfd8590800000000000000
+      internalID: -7670198215915973568
       vertices: []
       indices: 
       edges: []
@@ -263,7 +263,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 44159877ee85fd948bc91bc16bbaff7d
     internalID: 0
     vertices: []
     indices: 
@@ -273,12 +273,12 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Yuji_0: 6956280784674315437
-      Yuji_1: -7001637729929885521
-      Yuji_2: 4402510891770343551
-      Yuji_3: 7368443170021296974
-      Yuji_4: -6040088066524479916
-      Yuji_5: -3634903966066378093
+      spritesheet_template_0: -1451156850931253221
+      spritesheet_template_1: 6876612151555831932
+      spritesheet_template_2: -8144526302947416138
+      spritesheet_template_3: -1599802096912603921
+      spritesheet_template_4: 8289739883463897935
+      spritesheet_template_5: -7670198215915973568
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
