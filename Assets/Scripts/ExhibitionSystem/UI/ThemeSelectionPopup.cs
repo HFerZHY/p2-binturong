@@ -37,6 +37,7 @@ namespace ExhibitionSystem.UI
         private float _targetAlpha;
         private float _currentAlpha;
         private bool _isAnimating;
+        private bool _isVisible;
 
         // ── Unity Lifecycle ─────────────────────────────────────────────────────
 
@@ -59,16 +60,9 @@ namespace ExhibitionSystem.UI
                     Debug.LogError("[ThemeSelectionPopup] Failed to load ThemeListItem prefab from Resources.");
             }
 
-            // Initialize in hidden state without animation
-            if (_panel != null)
-                _panel.SetActive(false);
-
-            if (_canvasGroup != null)
-                _canvasGroup.alpha = 0f;
-
-            _currentAlpha = 0f;
-            _targetAlpha = 0f;
-            _isAnimating = false;
+            // Only hide if not already being shown (avoids race condition on first Show() call).
+            if (!_isVisible)
+                HideImmediate();
         }
 
         private void Update()
@@ -103,6 +97,8 @@ namespace ExhibitionSystem.UI
         /// </summary>
         public void Show()
         {
+            _isVisible = true;
+
             if (_panel != null)
                 _panel.SetActive(true);
 
@@ -127,10 +123,26 @@ namespace ExhibitionSystem.UI
         /// </summary>
         public void Hide()
         {
+            _isVisible = false;
+
             // Start fade out animation
             _targetAlpha = 0f;
             _isAnimating = true;
             // Panel will be deactivated in Update when fade completes
+        }
+
+        private void HideImmediate()
+        {
+            _isVisible = false;
+            _currentAlpha = 0f;
+            _targetAlpha = 0f;
+            _isAnimating = false;
+
+            if (_canvasGroup != null)
+                _canvasGroup.alpha = 0f;
+
+            if (_panel != null)
+                _panel.SetActive(false);
         }
 
         // ── Private Methods ─────────────────────────────────────────────────────

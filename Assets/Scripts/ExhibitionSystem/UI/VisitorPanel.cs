@@ -52,7 +52,7 @@ namespace ExhibitionSystem.UI
         [Header("Result Messages")]
         [SerializeField] private string _successMessage = "The exhibition was a great success!";
         [SerializeField] private string _failureMessage = "The exhibition didn't quite meet expectations...";
-        [SerializeField] private string _waitingMessage = "Place items in the display slots to begin.";
+        [SerializeField] private string _waitingMessage = "";
 
         [Header("Animation")]
         [SerializeField] private float _dialogueFadeDuration = 0.3f;
@@ -100,7 +100,8 @@ namespace ExhibitionSystem.UI
             if (_characterCanvasGroup != null)
                 _characterCanvasGroup.alpha = 0f;
 
-            ShowDialogue(_waitingMessage);
+            if (_dialogueText != null)
+                _dialogueText.text = string.Empty;
         }
 
         private void Update()
@@ -176,7 +177,7 @@ namespace ExhibitionSystem.UI
             if (theme != null)
                 ShowDialogue($"Prepare the {theme.title}!");
             else
-                ShowDialogue(_waitingMessage);
+                HideDialogue();
         }
 
         private void HandleExhibitionStarted()

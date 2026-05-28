@@ -78,6 +78,9 @@ public static class ExhibitionSceneBuilder
         var themePopup = CreateThemePopup(layoutRoot);
         var inspirationPopup = CreateInspirationPopup(layoutRoot);
         var tooltip = CreateTooltip(layoutRoot);
+        CreateTutorialPopup(layoutRoot);
+        CreateInspirationSuccessPopup(layoutRoot);
+        CreateRewardPopup(layoutRoot);
 
         var managers = CreateManagers(
             canvas,
@@ -99,6 +102,69 @@ public static class ExhibitionSceneBuilder
         EditorSceneManager.SaveScene(scene, SCENE_PATH);
         AssetDatabase.Refresh();
         Debug.Log($"[SceneBuilder] Exhibition scene saved to {SCENE_PATH}");
+    }
+
+    [MenuItem("Tools/Museum/Add Tutorial Popup To Current Scene")]
+    public static void AddTutorialPopupToCurrentScene()
+    {
+        var layoutRoot = GameObject.Find("LayoutRoot");
+        if (layoutRoot == null)
+        {
+            Debug.LogError("[SceneBuilder] LayoutRoot not found. Open ExhibitionScene or rebuild it first.");
+            return;
+        }
+
+        var existing = layoutRoot.transform.Find("TutorialPopup");
+        if (existing != null)
+            Object.DestroyImmediate(existing.gameObject);
+
+        CreateTutorialPopup(layoutRoot.transform);
+        EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
+        EditorSceneManager.SaveScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
+        AssetDatabase.SaveAssets();
+        Debug.Log("[SceneBuilder] Tutorial popup added to current scene.");
+    }
+
+    [MenuItem("Tools/Museum/Add Reward Popup To Current Scene")]
+    public static void AddRewardPopupToCurrentScene()
+    {
+        var layoutRoot = GameObject.Find("LayoutRoot");
+        if (layoutRoot == null)
+        {
+            Debug.LogError("[SceneBuilder] LayoutRoot not found. Open ExhibitionScene or rebuild it first.");
+            return;
+        }
+
+        var existing = layoutRoot.transform.Find("RewardPopup");
+        if (existing != null)
+            Object.DestroyImmediate(existing.gameObject);
+
+        CreateRewardPopup(layoutRoot.transform);
+        EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
+        EditorSceneManager.SaveScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
+        AssetDatabase.SaveAssets();
+        Debug.Log("[SceneBuilder] Reward popup added to current scene.");
+    }
+
+    [MenuItem("Tools/Museum/Add Inspiration Success Popup To Current Scene")]
+    public static void AddInspirationSuccessPopupToCurrentScene()
+    {
+        var layoutRoot = GameObject.Find("LayoutRoot");
+        if (layoutRoot == null)
+        {
+            Debug.LogError("[SceneBuilder] LayoutRoot not found. Open ExhibitionScene or rebuild it first.");
+            return;
+        }
+
+        var existing = layoutRoot.transform.Find("InspirationSuccessPopup");
+        if (existing != null)
+            Object.DestroyImmediate(existing.gameObject);
+
+        CreateInspirationSuccessPopup(layoutRoot.transform);
+        EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
+        EditorSceneManager.SaveScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
+        AssetDatabase.SaveAssets();
+        Debug.Log("[SceneBuilder] Inspiration success popup added to current scene.");
     }
 
     private static void CreateEventSystem()
@@ -301,7 +367,7 @@ public static class ExhibitionSceneBuilder
         dialogueRt.anchoredPosition = new Vector2(-5.867f, 7.523f);
         dialogueRt.sizeDelta = new Vector2(-3.593f, 98.477f);
 
-        var dialogueText = CreateText(dialogue.transform, "DialogueText", "Choose a theme to begin.", 25, FontStyles.Bold, TextAlignmentOptions.Center);
+        var dialogueText = CreateText(dialogue.transform, "DialogueText", "", 25, FontStyles.Bold, TextAlignmentOptions.Center);
         dialogueText.textWrappingMode = TextWrappingModes.Normal;
         dialogueText.color = new Color(0.96f, 0.89f, 0.76f, 1f);
         Stretch(dialogueText.GetComponent<RectTransform>(), 10);
@@ -490,13 +556,16 @@ public static class ExhibitionSceneBuilder
         ConfigureLargePopupWindow(windowObj);
         var title = CreatePopupTitle(windowObj.transform, "Inspiration Selection");
 
-        var themeLabel = CreateText(windowObj.transform, "ThemeText", "Theme: Exhibition", 22, FontStyles.Bold, TextAlignmentOptions.Center);
+        var themeLabel = CreateText(windowObj.transform, "ThemeText", "Theme: <b><color=#FFD96A>Exhibition</color></b>", 24, FontStyles.Bold, TextAlignmentOptions.Center);
         var themeRt = themeLabel.GetComponent<RectTransform>();
         themeRt.anchorMin = new Vector2(0, 1);
         themeRt.anchorMax = new Vector2(1, 1);
         themeRt.pivot = new Vector2(0.5f, 1);
-        themeRt.anchoredPosition = new Vector2(0, -70);
-        themeRt.sizeDelta = new Vector2(-80, 38);
+        themeRt.anchoredPosition = new Vector2(0, -68);
+        themeRt.sizeDelta = new Vector2(-80, 42);
+        themeLabel.richText = true;
+        themeLabel.textWrappingMode = TextWrappingModes.NoWrap;
+        themeLabel.overflowMode = TextOverflowModes.Ellipsis;
         themeLabel.color = new Color(0.95f, 0.86f, 0.66f, 1f);
 
         var selectedPanel = CreateColumnPanel(
@@ -532,16 +601,17 @@ public static class ExhibitionSceneBuilder
         var avatarObj = CreateChild(hintPanel.transform, "AvatarPlaceholder");
         var avatar = avatarObj.AddComponent<Image>();
         avatar.color = new Color(0.72f, 0.58f, 0.42f, 1f);
+        avatar.sprite = AssetDatabase.LoadAllAssetRepresentationsAtPath("Assets/Resources/Characters/WorldSprite/rin.png")
+            .OfType<Sprite>()
+            .FirstOrDefault(sprite => sprite.name == "spritesheet_template_0") ?? LoadSprite("Assets/Resources/Characters/WorldSprite/rin.png");
+        avatar.preserveAspect = true;
+        avatar.raycastTarget = false;
         var avatarRt = avatarObj.GetComponent<RectTransform>();
         avatarRt.anchorMin = new Vector2(0, 0.5f);
         avatarRt.anchorMax = new Vector2(0, 0.5f);
         avatarRt.pivot = new Vector2(0, 0.5f);
         avatarRt.anchoredPosition = new Vector2(14, 0);
         avatarRt.sizeDelta = new Vector2(54, 54);
-
-        var avatarLabel = CreateText(avatarObj.transform, "Label", "Rin", 18, FontStyles.Bold, TextAlignmentOptions.Center);
-        avatarLabel.color = new Color(0.22f, 0.12f, 0.06f, 1f);
-        Stretch(avatarLabel.GetComponent<RectTransform>(), 0);
 
         var hint = CreateText(hintPanel.transform, "HintText", "Hmm... which ones should I choose?", 22, FontStyles.Italic, TextAlignmentOptions.MidlineLeft);
         var hintTextRt = hint.GetComponent<RectTransform>();
@@ -561,6 +631,7 @@ public static class ExhibitionSceneBuilder
         SetPrivateField(popup, "_titleText", title);
         SetPrivateField(popup, "_themeText", themeLabel);
         SetPrivateField(popup, "_hintText", hint);
+        SetPrivateField(popup, "_hintBackground", hintBg);
         SetPrivateField(popup, "_selectedContainer", selectedList.transform);
         SetPrivateField(popup, "_libraryContainer", listObj.transform);
         SetPrivateField(popup, "_listContainer", listObj.transform);
@@ -584,6 +655,232 @@ public static class ExhibitionSceneBuilder
         tooltipObj.name = "ItemTooltip";
         tooltipObj.SetActive(false);
         return tooltipObj.GetComponent<ItemTooltip>();
+    }
+
+    private static TutorialPopup CreateTutorialPopup(Transform parent)
+    {
+        var panelObj = CreateChild(parent, "TutorialPopup");
+        var panelRt = panelObj.GetComponent<RectTransform>();
+        panelRt.anchorMin = new Vector2(0.5f, 0);
+        panelRt.anchorMax = new Vector2(0.5f, 0);
+        panelRt.pivot = new Vector2(0.5f, 0);
+        panelRt.anchoredPosition = new Vector2(0, CONTROL_HEIGHT + 18);
+        panelRt.sizeDelta = new Vector2(660, 126);
+
+        var bg = panelObj.AddComponent<Image>();
+        bg.color = new Color(0.91f, 0.80f, 0.58f, 0.97f);
+        bg.raycastTarget = false;
+
+        var cg = panelObj.AddComponent<CanvasGroup>();
+        cg.blocksRaycasts = false;
+        cg.interactable = false;
+
+        var portraitFrame = CreateChild(panelObj.transform, "PortraitFrame");
+        var portraitFrameBg = portraitFrame.AddComponent<Image>();
+        portraitFrameBg.color = new Color(0.64f, 0.45f, 0.28f, 0.95f);
+        portraitFrameBg.raycastTarget = false;
+        var portraitFrameRt = portraitFrame.GetComponent<RectTransform>();
+        portraitFrameRt.anchorMin = new Vector2(0, 0.5f);
+        portraitFrameRt.anchorMax = new Vector2(0, 0.5f);
+        portraitFrameRt.pivot = new Vector2(0, 0.5f);
+        portraitFrameRt.anchoredPosition = new Vector2(18, 0);
+        portraitFrameRt.sizeDelta = new Vector2(86, 86);
+
+        var portraitObj = CreateChild(portraitFrame.transform, "RinPortrait");
+        var portrait = portraitObj.AddComponent<Image>();
+        var rinHeadSprite = AssetDatabase.LoadAllAssetRepresentationsAtPath("Assets/Resources/Characters/WorldSprite/rin.png")
+            .OfType<Sprite>()
+            .FirstOrDefault(sprite => sprite.name == "spritesheet_template_0") ?? LoadSprite("Assets/Resources/Characters/WorldSprite/rin.png");
+        portrait.sprite = rinHeadSprite;
+        portrait.color = Color.white;
+        portrait.preserveAspect = true;
+        portrait.raycastTarget = false;
+        Stretch(portraitObj.GetComponent<RectTransform>(), 5);
+
+        var speakerText = CreateText(panelObj.transform, "SpeakerText", "Rin", 22, FontStyles.Bold, TextAlignmentOptions.Left);
+        speakerText.color = new Color(0.24f, 0.13f, 0.06f, 1f);
+        var speakerRt = speakerText.GetComponent<RectTransform>();
+        speakerRt.anchorMin = new Vector2(0, 1);
+        speakerRt.anchorMax = new Vector2(1, 1);
+        speakerRt.pivot = new Vector2(0, 1);
+        speakerRt.offsetMin = new Vector2(122, -42);
+        speakerRt.offsetMax = new Vector2(-24, -14);
+
+        var bodyText = CreateText(
+            panelObj.transform,
+            "BodyText",
+            "I came up with a few exhibition themes yesterday. For now, I should choose one first.",
+            24,
+            FontStyles.Bold,
+            TextAlignmentOptions.Left);
+        bodyText.color = new Color(0.24f, 0.13f, 0.06f, 1f);
+        bodyText.textWrappingMode = TextWrappingModes.Normal;
+        var bodyRt = bodyText.GetComponent<RectTransform>();
+        bodyRt.anchorMin = new Vector2(0, 0);
+        bodyRt.anchorMax = new Vector2(1, 1);
+        bodyRt.offsetMin = new Vector2(122, 18);
+        bodyRt.offsetMax = new Vector2(-24, -44);
+
+        var popup = panelObj.AddComponent<TutorialPopup>();
+        SetPrivateField(popup, "_panel", panelObj);
+        SetPrivateField(popup, "_portraitImage", portrait);
+        SetPrivateField(popup, "_speakerText", speakerText);
+        SetPrivateField(popup, "_bodyText", bodyText);
+        SetPrivateField(popup, "_canvasGroup", cg);
+        SetPrivateField(popup, "_rinHeadSprite", rinHeadSprite);
+
+        return popup;
+    }
+
+    private static InspirationSuccessPopup CreateInspirationSuccessPopup(Transform parent)
+    {
+        var panelObj = CreateChild(parent, "InspirationSuccessPopup");
+        Stretch(panelObj.GetComponent<RectTransform>(), 0);
+
+        var overlay = panelObj.AddComponent<Image>();
+        overlay.color = new Color(0f, 0f, 0f, 0.58f);
+        overlay.raycastTarget = true;
+
+        var cg = panelObj.AddComponent<CanvasGroup>();
+        cg.alpha = 0f;
+        cg.blocksRaycasts = false;
+        cg.interactable = false;
+
+        var windowObj = CreateChild(panelObj.transform, "Window");
+        var windowBg = windowObj.AddComponent<Image>();
+        windowBg.color = new Color(0.91f, 0.80f, 0.58f, 0.98f);
+        windowBg.raycastTarget = true;
+        var windowRt = windowObj.GetComponent<RectTransform>();
+        windowRt.anchorMin = new Vector2(0.5f, 0.5f);
+        windowRt.anchorMax = new Vector2(0.5f, 0.5f);
+        windowRt.pivot = new Vector2(0.5f, 0.5f);
+        windowRt.sizeDelta = new Vector2(680, 360);
+        windowRt.anchoredPosition = Vector2.zero;
+
+        var headline = CreateText(windowObj.transform, "Headline", "Success!", 40, FontStyles.Bold, TextAlignmentOptions.Center);
+        headline.color = new Color(0.25f, 0.13f, 0.06f, 1f);
+        var headlineRt = headline.GetComponent<RectTransform>();
+        headlineRt.anchorMin = new Vector2(0, 1);
+        headlineRt.anchorMax = new Vector2(1, 1);
+        headlineRt.pivot = new Vector2(0.5f, 1);
+        headlineRt.anchoredPosition = new Vector2(0, -42);
+        headlineRt.sizeDelta = new Vector2(-80, 56);
+
+        var body = CreateText(windowObj.transform, "Body", "These inspirations all fit the exhibition theme.", 26, FontStyles.Bold, TextAlignmentOptions.Center);
+        body.color = new Color(0.31f, 0.16f, 0.06f, 1f);
+        body.textWrappingMode = TextWrappingModes.Normal;
+        var bodyRt = body.GetComponent<RectTransform>();
+        bodyRt.anchorMin = new Vector2(0, 1);
+        bodyRt.anchorMax = new Vector2(1, 1);
+        bodyRt.pivot = new Vector2(0.5f, 1);
+        bodyRt.anchoredPosition = new Vector2(0, -118);
+        bodyRt.sizeDelta = new Vector2(-92, 82);
+
+        var next = CreateText(windowObj.transform, "Next", "Next, choose the exhibits that match each inspiration.", 24, FontStyles.Normal, TextAlignmentOptions.Center);
+        next.color = new Color(0.24f, 0.13f, 0.06f, 1f);
+        next.textWrappingMode = TextWrappingModes.Normal;
+        var nextRt = next.GetComponent<RectTransform>();
+        nextRt.anchorMin = new Vector2(0, 1);
+        nextRt.anchorMax = new Vector2(1, 1);
+        nextRt.pivot = new Vector2(0.5f, 1);
+        nextRt.anchoredPosition = new Vector2(0, -204);
+        nextRt.sizeDelta = new Vector2(-92, 66);
+
+        var confirmObj = CreateButton(windowObj.transform, "ConfirmButton", "OK", 180);
+        var confirmRt = confirmObj.GetComponent<RectTransform>();
+        confirmRt.anchorMin = new Vector2(0.5f, 0);
+        confirmRt.anchorMax = new Vector2(0.5f, 0);
+        confirmRt.pivot = new Vector2(0.5f, 0);
+        confirmRt.anchoredPosition = new Vector2(0, 34);
+        confirmRt.sizeDelta = new Vector2(180, 56);
+        var confirmLayout = confirmObj.GetComponent<LayoutElement>();
+        if (confirmLayout != null)
+            Object.DestroyImmediate(confirmLayout);
+
+        var popup = panelObj.AddComponent<InspirationSuccessPopup>();
+        SetPrivateField(popup, "_panel", panelObj);
+        SetPrivateField(popup, "_headlineText", headline);
+        SetPrivateField(popup, "_bodyText", body);
+        SetPrivateField(popup, "_nextText", next);
+        SetPrivateField(popup, "_confirmButton", confirmObj.GetComponent<Button>());
+        SetPrivateField(popup, "_canvasGroup", cg);
+
+        return popup;
+    }
+
+    private static RewardPopup CreateRewardPopup(Transform parent)
+    {
+        var panelObj = CreateChild(parent, "RewardPopup");
+        Stretch(panelObj.GetComponent<RectTransform>(), 0);
+
+        var overlay = panelObj.AddComponent<Image>();
+        overlay.color = new Color(0f, 0f, 0f, 0.62f);
+        overlay.raycastTarget = true;
+
+        var cg = panelObj.AddComponent<CanvasGroup>();
+        cg.alpha = 0f;
+        cg.blocksRaycasts = false;
+        cg.interactable = false;
+
+        var windowObj = CreateChild(panelObj.transform, "Window");
+        var windowBg = windowObj.AddComponent<Image>();
+        windowBg.color = new Color(0.91f, 0.80f, 0.58f, 0.98f);
+        windowBg.raycastTarget = true;
+        var windowRt = windowObj.GetComponent<RectTransform>();
+        windowRt.anchorMin = new Vector2(0.5f, 0.5f);
+        windowRt.anchorMax = new Vector2(0.5f, 0.5f);
+        windowRt.pivot = new Vector2(0.5f, 0.5f);
+        windowRt.sizeDelta = new Vector2(760f, 500f);
+        windowRt.anchoredPosition = Vector2.zero;
+
+        var headline = CreateText(windowObj.transform, "Headline", "Exhibition Success", 38, FontStyles.Bold, TextAlignmentOptions.Center);
+        headline.color = new Color(0.25f, 0.13f, 0.06f, 1f);
+        var headlineRt = headline.GetComponent<RectTransform>();
+        headlineRt.anchorMin = new Vector2(0, 1);
+        headlineRt.anchorMax = new Vector2(1, 1);
+        headlineRt.pivot = new Vector2(0.5f, 1);
+        headlineRt.anchoredPosition = new Vector2(0, -34);
+        headlineRt.sizeDelta = new Vector2(-80, 52);
+
+        var themeTitle = CreateText(windowObj.transform, "ThemeTitle", "Theme Title", 26, FontStyles.Bold, TextAlignmentOptions.Center);
+        themeTitle.color = new Color(0.48f, 0.23f, 0.08f, 1f);
+        themeTitle.textWrappingMode = TextWrappingModes.Normal;
+        var themeRt = themeTitle.GetComponent<RectTransform>();
+        themeRt.anchorMin = new Vector2(0, 1);
+        themeRt.anchorMax = new Vector2(1, 1);
+        themeRt.pivot = new Vector2(0.5f, 1);
+        themeRt.anchoredPosition = new Vector2(0, -92);
+        themeRt.sizeDelta = new Vector2(-96, 68);
+
+        var body = CreateText(windowObj.transform, "Body", "", 24, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        body.color = new Color(0.24f, 0.13f, 0.06f, 1f);
+        body.textWrappingMode = TextWrappingModes.Normal;
+        var bodyRt = body.GetComponent<RectTransform>();
+        bodyRt.anchorMin = Vector2.zero;
+        bodyRt.anchorMax = Vector2.one;
+        bodyRt.offsetMin = new Vector2(62, 116);
+        bodyRt.offsetMax = new Vector2(-62, -178);
+
+        var confirmObj = CreateButton(windowObj.transform, "ConfirmButton", "Yayyyy!", 230);
+        var confirmRt = confirmObj.GetComponent<RectTransform>();
+        var confirmLayout = confirmObj.GetComponent<LayoutElement>();
+        if (confirmLayout != null)
+            Object.DestroyImmediate(confirmLayout);
+        confirmRt.anchorMin = new Vector2(0.5f, 0);
+        confirmRt.anchorMax = new Vector2(0.5f, 0);
+        confirmRt.pivot = new Vector2(0.5f, 0);
+        confirmRt.anchoredPosition = new Vector2(0, 34);
+        confirmRt.sizeDelta = new Vector2(230, 58);
+
+        var popup = panelObj.AddComponent<RewardPopup>();
+        SetPrivateField(popup, "_panel", panelObj);
+        SetPrivateField(popup, "_headlineText", headline);
+        SetPrivateField(popup, "_themeTitleText", themeTitle);
+        SetPrivateField(popup, "_bodyText", body);
+        SetPrivateField(popup, "_confirmButton", confirmObj.GetComponent<Button>());
+        SetPrivateField(popup, "_canvasGroup", cg);
+
+        return popup;
     }
 
     private static (ExhibitionManager, ExhibitionUIManager) CreateManagers(

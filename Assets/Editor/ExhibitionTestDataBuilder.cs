@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using ExhibitionSystem.Core;
 using ExhibitionSystem.Data;
 using UnityEditor;
 using UnityEngine;
@@ -12,22 +12,47 @@ public static class ExhibitionTestDataBuilder
     private const string THEMES_PATH = ROOT_PATH + "/Themes";
     private const string INSPIRATIONS_PATH = ROOT_PATH + "/Inspirations";
     private const string ICONS_PATH = ROOT_PATH + "/Icons";
-    private const int ICON_SIZE = 128;
 
     [MenuItem("Tools/Museum/Generate Test Data")]
     public static void GenerateTestData()
     {
-        ResetGeneratedDataFolders();
         EnsureDirectoriesExist();
 
         var items = GenerateItems();
         var inspirations = GenerateInspirations(items);
         var themes = GenerateThemes();
 
+        RebindLoadedManagers(items, inspirations, themes);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"[Museum Test Data] Generated {items.Count} items, {inspirations.Count} inspirations, {themes.Count} themes.");
+        Debug.Log($"[Museum Test Data] Updated {items.Count} items, {inspirations.Count} inspirations, {themes.Count} themes.");
+    }
+
+    [MenuItem("Tools/Museum/Reset Exhibition Progress")]
+    public static void ResetExhibitionProgress()
+    {
+        EnsureDirectoriesExist();
+
+        int resetCount = 0;
+        foreach (var theme in Resources.LoadAll<ExhibitionTheme>("Exhibitions/Themes"))
+        {
+            if (theme == null)
+                continue;
+
+            theme.ResetCompletion();
+            EditorUtility.SetDirty(theme);
+            resetCount++;
+        }
+
+        ExhibitionManager.ResetKnownInspirationMatches();
+        RebindLoadedManagers(
+            Resources.LoadAll<ExhibitItemData>("Exhibitions/Items").OrderBy(item => item.sortOrder).ToList(),
+            Resources.LoadAll<InspirationData>("Exhibitions/Inspirations").OrderBy(inspiration => inspiration.id).ToList(),
+            Resources.LoadAll<ExhibitionTheme>("Exhibitions/Themes").OrderBy(theme => theme.day).ThenBy(theme => theme.title).ToList());
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log($"[Museum Test Data] Reset exhibition progress for {resetCount} themes.");
     }
 
     [MenuItem("Tools/Museum/Clear Generated Assets")]
@@ -36,52 +61,37 @@ public static class ExhibitionTestDataBuilder
         DeleteFolderIfExists(ITEMS_PATH);
         DeleteFolderIfExists(THEMES_PATH);
         DeleteFolderIfExists(INSPIRATIONS_PATH);
-        DeleteFolderIfExists(ICONS_PATH);
         AssetDatabase.Refresh();
-        Debug.Log("[Museum Test Data] Generated exhibition assets cleared.");
+        Debug.Log("[Museum Test Data] Generated exhibition data cleared. Icon artwork was preserved.");
     }
 
     private static List<ExhibitItemData> GenerateItems()
     {
-        var itemDefs = new (string fileName, string itemName, string nameKey, string description, string[] tags)[]
+        var itemDefs = new (string fileName, string itemName, string nameKey, string description, string[] tags, string iconFile, float iconScale)[]
         {
-            ("BlueFeather", "Blue Feather", "item_blue_feather", "A soft blue feather from a rare bird in the Otowa forest.", new[] {"Birdwatching"}),
-            ("Binoculars", "Binoculars", "item_binoculars", "A trusty pair of binoculars often seen with Rintaro.", new[] {"Birdwatching"}),
-            ("MineralOre", "Mineral Ore", "item_mineral_ore", "A mineral ore shaped by Otowa's unusual hot spring geology.", new[] {"Hot Springs", "Yuji"}),
-            ("Amulet", "Amulet", "item_amulet", "A small blessing charm for health and peace.", new[] {"Hot Springs"}),
-            ("ThreeColorDango", "Three-color Dango", "item_three_color_dango", "A colorful snack often served near the springs.", new[] {"Hot Springs", "Jiro"}),
-            ("Shichimi", "Seven-flavor Chili", "item_shichimi", "A spice blend that gives old recipes their signature bite.", new[] {"Jiro"}),
-            ("Sake", "Sake", "item_sake", "Otowa sake, once awarded in a local specialty competition.", new[] {"Yuji"}),
-            ("Herbs", "Herbs", "item_herbs", "Fragrant herbs that shape Otowa's signature flavor.", new[] {"Yuji", "Jiro"}),
-            ("BirdMask", "Bird Mask", "item_bird_mask", "A bird-shaped festival mask tied to old beliefs.", new[] {"Summer Festival"}),
-            ("Fireworks", "Fireworks", "item_fireworks", "Yuji's crowd-pleasing summer specialty.", new[] {"Summer Festival", "Yuji"}),
-            ("TrainTicket", "Train Ticket", "item_train_ticket", "A ticket home to Otowa for wandering youths.", new[] {"Summer Festival"}),
-            ("GeologyTextbook", "Geology Textbook", "item_geology_textbook", "A professor's old geology textbook filled with marginal notes.", new[] {"Rintaro", "Birdwatching", "Yuji"}),
-            ("OctopusPot", "Octopus Pot", "item_octopus_pot", "A takotsubo octopus trap carrying a memory of summer dreams.", new[] {"Hot Springs"}),
-            ("BrokenAcousticGuitar", "Broken Acoustic Guitar", "item_broken_acoustic_guitar", "A broken guitar left behind after a family fight.", new[] {"Jiro"}),
-            ("Painting", "Painting", "item_painting", "A painting that gathers the colors of Otowa.", new string[] {}),
-            ("OtowaBluesVinylRecord", "Otowa Blues Vinyl Record", "item_otowa_blues_record", "A vinyl record carrying a goodbye to Otowa town.", new string[] {})
+            ("BlueFeather", "Blue Feather", "item_blue_feather", "A soft blue feather from a rare bird in the Otowa forest.", new[] {"Birdwatching"}, "bluefeather-1.png", 1f),
+            ("Binoculars", "Binoculars", "item_binoculars", "A trusty pair of binoculars often seen with Rintaro.", new[] {"Birdwatching"}, "binoculars-2.png", 1f),
+            ("MineralOre", "Mineral Ore", "item_mineral_ore", "A mineral ore shaped by Otowa's unusual hot spring geology.", new[] {"Hot Springs", "Yuji"}, "Mineral-3.png", 1f),
+            ("Amulet", "Amulet", "item_amulet", "A small blessing charm for health and peace.", new[] {"Hot Springs"}, "amulet-4.png", 1f),
+            ("ThreeColorDango", "Three-color Dango", "item_three_color_dango", "A colorful snack often served near the springs.", new[] {"Hot Springs", "Jiro"}, "dango-5.png", 1f),
+            ("Shichimi", "Seven-flavor Chili", "item_shichimi", "A spice blend that gives old recipes their signature bite.", new[] {"Jiro"}, "shichimi-6.png", 0.85f),
+            ("Sake", "Sake", "item_sake", "Otowa sake, once awarded in a local specialty competition.", new[] {"Yuji"}, "sake-7.png", 1.15f),
+            ("Herbs", "Herbs", "item_herbs", "Fragrant herbs that shape Otowa's signature flavor.", new[] {"Yuji", "Jiro"}, "herb-8.png", 1f),
+            ("BirdMask", "Bird Mask", "item_bird_mask", "A bird-shaped festival mask tied to old beliefs.", new[] {"Summer Festival"}, "fan-9.png", 1f),
+            ("Fireworks", "Fireworks", "item_fireworks", "Yuji's crowd-pleasing summer specialty.", new[] {"Summer Festival", "Yuji"}, "firework-10.png", 0.65f),
+            ("TrainTicket", "Train Ticket", "item_train_ticket", "A ticket home to Otowa for wandering youths.", new[] {"Summer Festival"}, "ticket-11.png", 1f),
+            ("GeologyTextbook", "Geology Textbook", "item_geology_textbook", "A professor's old geology textbook filled with marginal notes.", new[] {"Rintaro", "Birdwatching", "Yuji"}, "book-12.png", 1f),
+            ("OctopusPot", "Octopus Pot", "item_octopus_pot", "A takotsubo octopus trap carrying a memory of summer dreams.", new[] {"Hot Springs"}, "pot-13.png", 0.85f),
+            ("BrokenAcousticGuitar", "Broken Acoustic Guitar", "item_broken_acoustic_guitar", "A broken guitar left behind after a family fight.", new[] {"Jiro"}, "guitar-14.png", 1f),
+            ("Painting", "Painting", "item_painting", "A painting that gathers the colors of Otowa.", new string[] {}, "painting-15.png", 1f),
+            ("OtowaBluesVinylRecord", "Otowa Blues Vinyl Record", "item_otowa_blues_record", "A vinyl record carrying a goodbye to Otowa town.", new string[] {}, "blues-16.png", 1f)
         };
 
         var items = new List<ExhibitItemData>();
         for (int i = 0; i < itemDefs.Length; i++)
         {
             var def = itemDefs[i];
-            var icon = GenerateNumberedIcon(i + 1);
-            string iconPath = $"{ICONS_PATH}/Icon_{i + 1:D2}.png";
-            SaveTextureAsPNG(icon, iconPath);
-            AssetDatabase.ImportAsset(iconPath);
-
-            var importer = AssetImporter.GetAtPath(iconPath) as TextureImporter;
-            if (importer != null)
-            {
-                importer.textureType = TextureImporterType.Sprite;
-                importer.spritePixelsPerUnit = 100;
-                importer.filterMode = FilterMode.Point;
-                importer.SaveAndReimport();
-            }
-
-            var item = ScriptableObject.CreateInstance<ExhibitItemData>();
+            var item = GetOrCreateAsset<ExhibitItemData>($"{ITEMS_PATH}/{def.fileName}.asset");
             item.itemName = def.itemName;
             item.nameKey = def.nameKey;
             item.sortOrder = i + 1;
@@ -89,10 +99,10 @@ public static class ExhibitionTestDataBuilder
             item.descriptionKey = $"desc_{def.nameKey.Replace("item_", string.Empty)}";
             item.isUnlocked = true;
             item.tags = def.tags.ToList();
-            item.icon = AssetDatabase.LoadAssetAtPath<Sprite>(iconPath);
+            item.icon = LoadConfiguredSprite($"{ICONS_PATH}/{def.iconFile}");
+            item.iconScale = def.iconScale;
 
-            string path = $"{ITEMS_PATH}/{def.fileName}.asset";
-            AssetDatabase.CreateAsset(item, path);
+            EditorUtility.SetDirty(item);
             items.Add(item);
         }
 
@@ -126,14 +136,14 @@ public static class ExhibitionTestDataBuilder
         var inspirations = new List<InspirationData>();
         foreach (var def in defs)
         {
-            var inspiration = ScriptableObject.CreateInstance<InspirationData>();
+            var inspiration = GetOrCreateAsset<InspirationData>($"{INSPIRATIONS_PATH}/Idea_{def.id:D2}.asset");
             inspiration.id = def.id;
             inspiration.text = def.text;
             inspiration.mappedItem = def.item;
             inspiration.isUnlocked = true;
             inspiration.fallbackHint = "Rin: (This idea feels connected, but I need to place it in the right context.)";
 
-            AssetDatabase.CreateAsset(inspiration, $"{INSPIRATIONS_PATH}/Idea_{def.id:D2}.asset");
+            EditorUtility.SetDirty(inspiration);
             inspirations.Add(inspiration);
         }
 
@@ -154,7 +164,7 @@ public static class ExhibitionTestDataBuilder
                 "A festival exhibition about belief, fireworks, and homecoming.",
                 new (int, string)[]
                 {
-                    (7, "Rin: (Junko seemed to mention that the origin of the Summer Festival has something to do with birds.)"),
+                    (7, "Rin: (Junko seemed to mention that the origin of the Summer Festival is related to birds.)"),
                     (8, "Rin: (Summer's most beautiful night seems to bloom above the town.)"),
                     (16, "Rin: (The Summer Festival isn't just a ceremony, it is also tied to family bonds.)")
                 }),
@@ -215,7 +225,7 @@ public static class ExhibitionTestDataBuilder
         string description,
         (int id, string hint)[] hints)
     {
-        var theme = ScriptableObject.CreateInstance<ExhibitionTheme>();
+        var theme = GetOrCreateAsset<ExhibitionTheme>($"{THEMES_PATH}/{fileName}.asset");
         theme.title = title;
         theme.titleKey = $"theme_{fileName.ToLowerInvariant()}";
         theme.description = description;
@@ -229,18 +239,10 @@ public static class ExhibitionTestDataBuilder
         theme.missingIdeaHints = hints == null
             ? new List<InspirationHint>()
             : hints.Select(hint => new InspirationHint { inspirationId = hint.id, hintText = hint.hint }).ToList();
+        theme.ResetCompletion();
 
-        AssetDatabase.CreateAsset(theme, $"{THEMES_PATH}/{fileName}.asset");
+        EditorUtility.SetDirty(theme);
         return theme;
-    }
-
-    private static void ResetGeneratedDataFolders()
-    {
-        DeleteFolderIfExists(ITEMS_PATH);
-        DeleteFolderIfExists(THEMES_PATH);
-        DeleteFolderIfExists(INSPIRATIONS_PATH);
-        DeleteFolderIfExists(ICONS_PATH);
-        AssetDatabase.Refresh();
     }
 
     private static void DeleteFolderIfExists(string path)
@@ -270,87 +272,67 @@ public static class ExhibitionTestDataBuilder
             AssetDatabase.CreateFolder(ROOT_PATH, "Icons");
     }
 
-    private static Texture2D GenerateNumberedIcon(int number)
+    private static T GetOrCreateAsset<T>(string path) where T : ScriptableObject
     {
-        var texture = new Texture2D(ICON_SIZE, ICON_SIZE, TextureFormat.RGBA32, false);
-        Color bgColor = Color.HSVToRGB((number - 1) / 16f, 0.55f, 0.75f);
-        Color borderColor = bgColor * 0.55f;
-        borderColor.a = 1f;
+        var asset = AssetDatabase.LoadAssetAtPath<T>(path);
+        if (asset != null)
+            return asset;
 
-        for (int y = 0; y < ICON_SIZE; y++)
+        asset = ScriptableObject.CreateInstance<T>();
+        AssetDatabase.CreateAsset(asset, path);
+        return asset;
+    }
+
+    private static Sprite LoadConfiguredSprite(string path)
+    {
+        var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
         {
-            for (int x = 0; x < ICON_SIZE; x++)
+            bool needsImport = importer.textureType != TextureImporterType.Sprite ||
+                importer.spritePixelsPerUnit != 100 ||
+                importer.filterMode != FilterMode.Bilinear ||
+                importer.mipmapEnabled;
+
+            if (needsImport)
             {
-                bool border = x < 5 || y < 5 || x >= ICON_SIZE - 5 || y >= ICON_SIZE - 5;
-                texture.SetPixel(x, y, border ? borderColor : bgColor);
+                importer.textureType = TextureImporterType.Sprite;
+                importer.spritePixelsPerUnit = 100;
+                importer.filterMode = FilterMode.Bilinear;
+                importer.mipmapEnabled = false;
+                importer.SaveAndReimport();
             }
         }
 
-        DrawNumber(texture, number, Color.white);
-        texture.Apply();
-        return texture;
+        var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+        if (sprite == null)
+            Debug.LogWarning($"[Museum Test Data] Missing item icon: {path}");
+
+        return sprite;
     }
 
-    private static void DrawNumber(Texture2D texture, int number, Color color)
+    private static void RebindLoadedManagers(
+        IReadOnlyList<ExhibitItemData> items,
+        IReadOnlyList<InspirationData> inspirations,
+        IReadOnlyList<ExhibitionTheme> themes)
     {
-        var digits = new Dictionary<char, string[]>
+        foreach (var manager in Object.FindObjectsByType<ExhibitionManager>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
-            {'0', new[] {" ### ", "#   #", "#   #", "#   #", "#   #", "#   #", " ### "}},
-            {'1', new[] {"  #  ", " ##  ", "  #  ", "  #  ", "  #  ", "  #  ", " ### "}},
-            {'2', new[] {" ### ", "#   #", "    #", "  ## ", " #   ", "#    ", "#####"}},
-            {'3', new[] {" ### ", "#   #", "    #", "  ## ", "    #", "#   #", " ### "}},
-            {'4', new[] {"#   #", "#   #", "#   #", "#####", "    #", "    #", "    #"}},
-            {'5', new[] {"#####", "#    ", "#### ", "    #", "    #", "#   #", " ### "}},
-            {'6', new[] {" ### ", "#    ", "#### ", "#   #", "#   #", "#   #", " ### "}},
-            {'7', new[] {"#####", "    #", "   # ", "  #  ", "  #  ", "  #  ", "  #  "}},
-            {'8', new[] {" ### ", "#   #", "#   #", " ### ", "#   #", "#   #", " ### "}},
-            {'9', new[] {" ### ", "#   #", "#   #", " ####", "    #", "    #", " ### "}},
-        };
-
-        string numStr = number.ToString();
-        const int digitWidth = 5;
-        const int digitHeight = 7;
-        const int spacing = 2;
-        const int scale = 6;
-
-        int totalWidth = numStr.Length * (digitWidth * scale) + (numStr.Length - 1) * spacing * scale;
-        int startX = (ICON_SIZE - totalWidth) / 2;
-        int startY = (ICON_SIZE - digitHeight * scale) / 2;
-
-        for (int d = 0; d < numStr.Length; d++)
-        {
-            char digit = numStr[d];
-            if (!digits.ContainsKey(digit)) continue;
-
-            var pattern = digits[digit];
-            int offsetX = startX + d * (digitWidth + spacing) * scale;
-
-            for (int py = 0; py < digitHeight; py++)
-            {
-                for (int px = 0; px < digitWidth; px++)
-                {
-                    if (pattern[py][px] != '#') continue;
-
-                    for (int sy = 0; sy < scale; sy++)
-                    {
-                        for (int sx = 0; sx < scale; sx++)
-                        {
-                            int x = offsetX + px * scale + sx;
-                            int y = startY + (digitHeight - 1 - py) * scale + sy;
-                            if (x >= 0 && x < ICON_SIZE && y >= 0 && y < ICON_SIZE)
-                                texture.SetPixel(x, y, color);
-                        }
-                    }
-                }
-            }
+            var serializedObject = new SerializedObject(manager);
+            AssignObjectArray(serializedObject.FindProperty("_allItems"), items);
+            AssignObjectArray(serializedObject.FindProperty("_allInspirations"), inspirations);
+            AssignObjectArray(serializedObject.FindProperty("_allThemes"), themes);
+            serializedObject.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(manager);
         }
     }
 
-    private static void SaveTextureAsPNG(Texture2D texture, string path)
+    private static void AssignObjectArray<T>(SerializedProperty property, IReadOnlyList<T> values) where T : Object
     {
-        byte[] pngData = texture.EncodeToPNG();
-        string fullPath = Path.Combine(Application.dataPath, "..", path);
-        File.WriteAllBytes(fullPath, pngData);
-        Object.DestroyImmediate(texture);
+        if (property == null || !property.isArray)
+            return;
+
+        property.arraySize = values != null ? values.Count : 0;
+        for (int i = 0; i < property.arraySize; i++)
+            property.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
     }
 }

@@ -8,6 +8,8 @@ namespace ExhibitionSystem.UI
 {
     public class ThemeSelector : MonoBehaviour
     {
+        public static event System.Action OnSelectThemeClicked;
+
         [Header("UI References")]
         [SerializeField] private TMP_Text _titleText;
         [SerializeField] private Button _selectButton;
@@ -67,6 +69,8 @@ namespace ExhibitionSystem.UI
         {
             if (IsThemeLocked())
                 return;
+
+            OnSelectThemeClicked?.Invoke();
 
             var manager = ExhibitionManager.Instance;
             manager?.ClearCompletedCurationForThemeSelection();

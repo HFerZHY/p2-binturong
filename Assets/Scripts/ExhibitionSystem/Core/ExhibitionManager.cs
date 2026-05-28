@@ -63,6 +63,7 @@ namespace ExhibitionSystem.Core
         public static event Action<int, InspirationData, ExhibitItemData, bool, int> OnVisitorReacted;
         public static event Action<bool, int, int> OnExhibitionEnded;
         public static event Action OnCurationCleared;
+        public static event Action OnInspirationValidationAttempted;
         public static event Action<string> OnPlayerHint;
 
         protected override void Awake()
@@ -74,21 +75,26 @@ namespace ExhibitionSystem.Core
 
         private void LoadResourcesIfEmpty()
         {
-            if (_allThemes == null || _allThemes.Count == 0)
+            if (HasMissingEntries(_allThemes))
                 _allThemes = Resources.LoadAll<ExhibitionTheme>("Exhibitions/Themes")
                     .OrderBy(theme => theme.day)
                     .ThenBy(theme => theme.title)
                     .ToList();
 
-            if (_allInspirations == null || _allInspirations.Count == 0)
+            if (HasMissingEntries(_allInspirations))
                 _allInspirations = Resources.LoadAll<InspirationData>("Exhibitions/Inspirations")
                     .OrderBy(inspiration => inspiration.id)
                     .ToList();
 
-            if (_allItems == null || _allItems.Count == 0)
+            if (HasMissingEntries(_allItems))
                 _allItems = Resources.LoadAll<ExhibitItemData>("Exhibitions/Items")
                     .OrderBy(item => item.sortOrder)
                     .ToList();
+        }
+
+        private static bool HasMissingEntries<T>(IReadOnlyCollection<T> entries) where T : UnityEngine.Object
+        {
+            return entries == null || entries.Count == 0 || entries.Any(entry => entry == null);
         }
 
         public void SelectTheme(ExhibitionTheme theme)
@@ -119,6 +125,7 @@ namespace ExhibitionSystem.Core
         public bool TryConfirmInspirations(IReadOnlyList<InspirationData> selectedInspirations, out string hint)
         {
             hint = string.Empty;
+            OnInspirationValidationAttempted?.Invoke();
 
             if (_currentTheme == null)
             {
@@ -265,6 +272,11 @@ namespace ExhibitionSystem.Core
         public bool IsInspirationMatchKnown(InspirationData inspiration)
         {
             return inspiration != null && KnownInspirationMatchIds.Contains(inspiration.id);
+        }
+
+        public static void ResetKnownInspirationMatches()
+        {
+            KnownInspirationMatchIds.Clear();
         }
 
         public IEnumerable<InspirationData> GetKnownInspirationsForItem(ExhibitItemData item)

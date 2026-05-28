@@ -10,12 +10,15 @@ namespace ExhibitionSystem.UI
 {
     public class InspirationSelectionPopup : MonoBehaviour
     {
+        public static event System.Action OnInspirationClicked;
+
         [Header("UI References")]
         [SerializeField] private GameObject _panel;
         [SerializeField] private TMP_Text _titleText;
         [SerializeField] private TMP_Text _themeText;
         [SerializeField] private TMP_Text _progressText;
         [SerializeField] private TMP_Text _hintText;
+        [SerializeField] private Image _hintBackground;
         [SerializeField] private Transform _selectedContainer;
         [SerializeField] private Transform _libraryContainer;
         [SerializeField] private Transform _progressContainer;
@@ -25,15 +28,22 @@ namespace ExhibitionSystem.UI
         [SerializeField] private Button _closeButton;
         [SerializeField] private CanvasGroup _canvasGroup;
 
+        [Header("Hint Feedback")]
+        [SerializeField] private Color _hintNormalColor = new(0.12f, 0.08f, 0.05f, 0.92f);
+        [SerializeField] private Color _hintInvalidColor = new(0.83f, 0.44f, 0.16f, 1f);
+
         private readonly List<InspirationListItem> _libraryItems = new();
         private readonly List<InspirationListItem> _selectedItems = new();
         private readonly List<GameObject> _progressDots = new();
         private readonly List<GameObject> _emptyPlaceholders = new();
         private readonly List<InspirationData> _selectedInspirations = new();
         private readonly HashSet<int> _invalidSelectionIds = new();
+        private readonly HashSet<int> _lockedValidSelectionIds = new();
         private bool _animateInvalidFeedback;
+        private bool _clearInvalidSelectionsOnNextClick;
         private bool _isVisible;
         private bool _hasInitialized;
+        private bool _hintInvalid;
 
         private void OnEnable()
         {
@@ -49,6 +59,8 @@ namespace ExhibitionSystem.UI
 
         private void Start()
         {
+            EnsureHintBackgroundReference();
+
             if (_confirmButton != null)
                 _confirmButton.onClick.AddListener(ConfirmSelection);
 
@@ -70,7 +82,10 @@ namespace ExhibitionSystem.UI
             _isVisible = true;
             _selectedInspirations.Clear();
             _invalidSelectionIds.Clear();
+            _lockedValidSelectionIds.Clear();
+            _clearInvalidSelectionsOnNextClick = false;
             _animateInvalidFeedback = false;
+            SetHintInvalid(false);
 
             if (_panel != null)
                 _panel.SetActive(true);
@@ -86,7 +101,13 @@ namespace ExhibitionSystem.UI
                 _titleText.text = "Inspiration Selection";
 
             if (_themeText != null)
-                _themeText.text = $"Theme: {manager.CurrentTheme.title}";
+            {
+                _themeText.richText = true;
+                _themeText.fontStyle = FontStyles.Bold;
+                _themeText.textWrappingMode = TextWrappingModes.NoWrap;
+                _themeText.overflowMode = TextOverflowModes.Ellipsis;
+                _themeText.text = $"Theme: <b><color=#FFD96A>{manager.CurrentTheme.title}</color></b>";
+            }
 
             if (_hintText != null)
                 _hintText.text = "Hmm... which ones should I choose?";
@@ -187,19 +208,48 @@ namespace ExhibitionSystem.UI
             var manager = ExhibitionManager.Instance;
             if (manager == null || manager.CurrentTheme == null || inspiration == null) return;
 
+            OnInspirationClicked?.Invoke();
+            SetHintInvalid(false);
+
+            if (_clearInvalidSelectionsOnNextClick && _invalidSelectionIds.Count > 0)
+            {
+                _selectedInspirations.RemoveAll(selected =>
+                    selected == null || _invalidSelectionIds.Contains(selected.id));
+                _invalidSelectionIds.Clear();
+                _clearInvalidSelectionsOnNextClick = false;
+                _animateInvalidFeedback = false;
+                RefreshSelectionVisuals();
+                PopulateSelectedList();
+                UpdateProgress();
+                UpdateConfirmState();
+                return;
+            }
+
             if (_selectedInspirations.Contains(inspiration))
             {
+                if (_lockedValidSelectionIds.Contains(inspiration.id))
+                    return;
+
                 _selectedInspirations.Remove(inspiration);
             }
             else
             {
                 if (_selectedInspirations.Count >= manager.CurrentTheme.requiredInspirations)
-                    _selectedInspirations.RemoveAt(0);
+                {
+                    int removableIndex = _selectedInspirations.FindIndex(selected =>
+                        selected == null || !_lockedValidSelectionIds.Contains(selected.id));
+
+                    if (removableIndex < 0)
+                        return;
+
+                    _selectedInspirations.RemoveAt(removableIndex);
+                }
 
                 _selectedInspirations.Add(inspiration);
             }
 
             _invalidSelectionIds.Clear();
+            _clearInvalidSelectionsOnNextClick = false;
             _animateInvalidFeedback = false;
             RefreshSelectionVisuals();
             PopulateSelectedList();
@@ -221,6 +271,7 @@ namespace ExhibitionSystem.UI
             if (_hintText != null)
                 _hintText.text = hint;
 
+            SetHintInvalid(true);
             MarkInvalidSelections(manager.CurrentTheme);
         }
 
@@ -241,9 +292,29 @@ namespace ExhibitionSystem.UI
             PopulateList();
         }
 
+        private void EnsureHintBackgroundReference()
+        {
+            if (_hintBackground != null)
+                return;
+
+            if (_hintText != null && _hintText.transform.parent != null)
+                _hintBackground = _hintText.transform.parent.GetComponent<Image>();
+        }
+
+        private void SetHintInvalid(bool invalid)
+        {
+            _hintInvalid = invalid;
+            EnsureHintBackgroundReference();
+
+            if (_hintBackground != null)
+                _hintBackground.color = _hintInvalid ? _hintInvalidColor : _hintNormalColor;
+        }
+
         private void MarkInvalidSelections(ExhibitionTheme theme)
         {
             _invalidSelectionIds.Clear();
+            _lockedValidSelectionIds.Clear();
+            _clearInvalidSelectionsOnNextClick = false;
 
             if (theme == null) return;
 
@@ -251,10 +322,13 @@ namespace ExhibitionSystem.UI
             {
                 if (inspiration == null || !theme.IsInspirationValid(inspiration.id))
                     _invalidSelectionIds.Add(inspiration != null ? inspiration.id : -1);
+                else
+                    _lockedValidSelectionIds.Add(inspiration.id);
             }
 
             if (_invalidSelectionIds.Count == 0) return;
 
+            _clearInvalidSelectionsOnNextClick = true;
             _animateInvalidFeedback = true;
             PopulateList();
             _animateInvalidFeedback = true;

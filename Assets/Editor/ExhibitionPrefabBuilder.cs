@@ -420,7 +420,7 @@ public static class ExhibitionPrefabBuilder
         var dialogueBg = dialogue.AddComponent<Image>();
         dialogueBg.color = new Color(0.15f, 0.12f, 0.1f, 0.9f);
         var dialogueCg = dialogue.AddComponent<CanvasGroup>();
-        var dialogueText = CreateText(dialogue.transform, "DialogueText", "Place items in the display slots to begin.", 18, FontStyles.Normal, TextAlignmentOptions.Center);
+        var dialogueText = CreateText(dialogue.transform, "DialogueText", "", 18, FontStyles.Normal, TextAlignmentOptions.Center);
         Stretch(dialogueText.GetComponent<RectTransform>(), 8);
         dialogue.AddComponent<LayoutElement>().preferredHeight = 70;
 
