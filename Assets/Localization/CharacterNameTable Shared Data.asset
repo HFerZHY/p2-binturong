@@ -15,8 +15,28 @@ MonoBehaviour:
   m_TableCollectionName: CharacterNameTable
   m_TableCollectionNameGuidString: 2553f081432045a46a75b6d70dede119
   m_Entries:
-  - m_Id: 247648020123648
-    m_Key: TestCharacter1
+  - m_Id: 9520355449233408
+    m_Key: Inspector
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9520839203479552
+    m_Key: Jiro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9520911542640640
+    m_Key: Junko
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9520947605266432
+    m_Key: Mizuki
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9520988759777280
+    m_Key: Rin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9521032124686336
+    m_Key: Yuji
     m_Metadata:
       m_Items: []
   m_Metadata:

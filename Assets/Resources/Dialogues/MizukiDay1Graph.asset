@@ -1,0 +1,724 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6770324fb0354064596679047a234bee, type: 3}
+  m_Name: MizukiDay1Graph
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueSystem.Data.DialogueGraph
+  entryNodeId: node_0001
+  nodes:
+  - id: node_0001
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: Mizuki_day1_001
+    nextNodeId: node_0002
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0002
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: Mizuki_day1_002
+    nextNodeId: node_0003
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0003
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: Mizuki_day1_003
+    nextNodeId: node_0004
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0004
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: Mizuki_day1_004
+    nextNodeId: node_0005
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0005
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: Mizuki_day1_005
+    nextNodeId: node_0006
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0006
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: Mizuki_day1_006
+    nextNodeId: node_0007
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0007
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: Mizuki_day1_007
+    nextNodeId: node_0008
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 0d000000
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0008
+    nodeType: 1
+    speaker: {fileID: 0}
+    speakerPortraitKey: 
+    textKey: 
+    nextNodeId: 
+    choices:
+    - labelKey: node_0008_choice_01
+      targetNodeId: node_0021
+      conditions: []
+      showIfFailed: 0
+      itemCosts: []
+    - labelKey: node_0008_choice_02
+      targetNodeId: node_0033
+      conditions: []
+      showIfFailed: 0
+      itemCosts: []
+    - labelKey: node_0008_choice_03
+      targetNodeId: node_0009
+      conditions: []
+      showIfFailed: 0
+      itemCosts: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0009
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_hot_spring_001
+    nextNodeId: node_0010
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0010
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_hot_spring_002
+    nextNodeId: node_0011
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0011
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_hot_spring_003
+    nextNodeId: node_0012
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0012
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_hot_spring_004
+    nextNodeId: node_0013
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0013
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_hot_spring_005
+    nextNodeId: node_0014
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0014
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_hot_spring_006
+    nextNodeId: node_0015
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0015
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_hot_spring_007
+    nextNodeId: node_0016
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 030000000e000000
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0016
+    nodeType: 2
+    speaker: {fileID: 0}
+    speakerPortraitKey: 
+    textKey: 
+    nextNodeId: 
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0021
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_city_001
+    nextNodeId: node_0022
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0022
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_city_002
+    nextNodeId: node_0023
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0023
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_city_003
+    nextNodeId: node_0024
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0024
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_city_004
+    nextNodeId: node_0025
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0025
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_city_005
+    nextNodeId: node_0026
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0026
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_city_006
+    nextNodeId: node_0027
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0027
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_city_007
+    nextNodeId: node_0028
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0028
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_city_008
+    nextNodeId: node_0029
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0029
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_city_009
+    nextNodeId: node_0030
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0030
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_city_010
+    nextNodeId: node_0008
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0031
+    nodeType: 2
+    speaker: {fileID: 0}
+    speakerPortraitKey: 
+    textKey: 
+    nextNodeId: 
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0033
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_festival_002
+    nextNodeId: node_0034
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0034
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_festival_003
+    nextNodeId: node_0035
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0035
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_festival_004
+    nextNodeId: node_0036
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0036
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_festival_005
+    nextNodeId: node_0037
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0037
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_festival_006
+    nextNodeId: node_0038
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0038
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
+    speakerPortraitKey: 
+    textKey: mizuki_day1_festival_007
+    nextNodeId: node_0008
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 

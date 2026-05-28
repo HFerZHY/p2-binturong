@@ -18,8 +18,28 @@ MonoBehaviour:
   m_Metadata:
     m_Items: []
   m_TableData:
-  - m_Id: 247648020123648
-    m_Localized: CharTest1-EN
+  - m_Id: 9520355449233408
+    m_Localized: Inspector
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9520839203479552
+    m_Localized: Jiro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9520911542640640
+    m_Localized: Junko
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9520947605266432
+    m_Localized: Mizuki
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9520988759777280
+    m_Localized: Rin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9521032124686336
+    m_Localized: Yuji
     m_Metadata:
       m_Items: []
   references:

@@ -47,6 +47,302 @@ MonoBehaviour:
     m_Key: test_choice_1_2
     m_Metadata:
       m_Items: []
+  - m_Id: 9521917391265792
+    m_Key: Mizuki_day1_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522156906995712
+    m_Key: Mizuki_day1_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522290298445824
+    m_Key: Mizuki_day1_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522441150783488
+    m_Key: Mizuki_day1_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522598508486656
+    m_Key: Mizuki_day1_005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522729693732864
+    m_Key: Mizuki_day1_006
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522886397124608
+    m_Key: Mizuki_day1_007
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9529945964404736
+    m_Key: mizuki_day1_hot_spring_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530089157943296
+    m_Key: mizuki_day1_hot_spring_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530215247110144
+    m_Key: mizuki_day1_hot_spring_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530302887092224
+    m_Key: mizuki_day1_hot_spring_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530399100231680
+    m_Key: mizuki_day1_hot_spring_005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530517127946240
+    m_Key: mizuki_day1_hot_spring_006
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530660849967104
+    m_Key: mizuki_day1_hot_spring_007
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9532675969769472
+    m_Key: yuji_day1_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9532801098440704
+    m_Key: yuji_day1_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9532888545484800
+    m_Key: yuji_day1_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9532997828075520
+    m_Key: yuji_day1_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9533107609788416
+    m_Key: yuji_day1_005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9533239197687808
+    m_Key: yuji_day1_006
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9533352347426816
+    m_Key: yuji_day1_007
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534153153306624
+    m_Key: yuji_day1_fireworks_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534269448773632
+    m_Key: yuji_day1_fireworks_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534351812321280
+    m_Key: yuji_day1_fireworks_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534444032483328
+    m_Key: yuji_day1_fireworks_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534526022737920
+    m_Key: yuji_day1_fireworks_005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9536294689431552
+    m_Key: junko_day1_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9536468337811456
+    m_Key: junko_day1_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9536551305338880
+    m_Key: junko_day1_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9536631269744640
+    m_Key: junko_day1_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537084330074112
+    m_Key: junko_day1_festival_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537183990931456
+    m_Key: junko_day1_festival_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537323619311616
+    m_Key: junko_day1_festival_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537397472616448
+    m_Key: junko_day1_festival_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537489260765184
+    m_Key: junko_day1_festival_005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537615870025728
+    m_Key: junko_day1_festival_006
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538066417967104
+    m_Key: junko_day1_birds_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538153403637760
+    m_Key: junko_day1_birds_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538249314787328
+    m_Key: junko_day1_birds_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538333821624320
+    m_Key: junko_day1_birds_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538424926101504
+    m_Key: junko_day1_birds_005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538510573789184
+    m_Key: junko_day1_birds_006
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538679478411264
+    m_Key: junko_day1_birds_007
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538757442134016
+    m_Key: junko_day1_birds_008
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9543881849823232
+    m_Key: mizuki_day1_city_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9543948308570112
+    m_Key: mizuki_day1_city_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544034912559104
+    m_Key: mizuki_day1_city_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544116105895936
+    m_Key: mizuki_day1_city_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544216941158400
+    m_Key: mizuki_day1_city_005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544301645127680
+    m_Key: mizuki_day1_city_006
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544392695078912
+    m_Key: mizuki_day1_city_007
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544478699282432
+    m_Key: mizuki_day1_city_008
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544560865697792
+    m_Key: mizuki_day1_city_009
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544722925215744
+    m_Key: mizuki_day1_city_010
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546440308154368
+    m_Key: mizuki_day1_festival_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546577126350848
+    m_Key: mizuki_day1_festival_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546660299399168
+    m_Key: mizuki_day1_festival_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546745577988096
+    m_Key: mizuki_day1_festival_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546836309172224
+    m_Key: mizuki_day1_festival_005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546916768505856
+    m_Key: mizuki_day1_festival_006
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546996103766016
+    m_Key: mizuki_day1_festival_007
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9551927175012352
+    m_Key: yuji_day1_colors_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9552020343087104
+    m_Key: yuji_day1_colors_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9552124806422528
+    m_Key: yuji_day1_colors_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9552197963472896
+    m_Key: yuji_day1_colors_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9552281115549696
+    m_Key: yuji_day1_colors_005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554178228609024
+    m_Key: junko_day1_festival_option_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554694652289024
+    m_Key: junko_day1_festival_option_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554779117182976
+    m_Key: junko_day1_festival_option_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554881110073344
+    m_Key: junko_day1_festival_option_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554944083353600
+    m_Key: junko_day1_festival_option_005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9555007249571840
+    m_Key: junko_day1_festival_option_006
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9555080318541824
+    m_Key: junko_day1_festival_option_007
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9555177286656000
+    m_Key: junko_day1_festival_option_008
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

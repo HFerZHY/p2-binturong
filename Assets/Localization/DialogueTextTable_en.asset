@@ -50,6 +50,354 @@ MonoBehaviour:
     m_Localized: hello en
     m_Metadata:
       m_Items: []
+  - m_Id: 9521917391265792
+    m_Localized: ...Good evening.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522156906995712
+    m_Localized: Ah, good evening. I'm Rin, the acting stationmaster who just arrived
+      today.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522290298445824
+    m_Localized: Mm, Chief Junko told me. I am Mizuki.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522441150783488
+    m_Localized: The evening mountain wind is a bit chilly. Here, this is for you.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522598508486656
+    m_Localized: Is this... a charm?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522729693732864
+    m_Localized: It is a blessing from Otowa. May the flowing water wash away your
+      fatigue, and keep you safe and in good health.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522886397124608
+    m_Localized: Thank you, Mizuki.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9529945964404736
+    m_Localized: I really like the hot spring. Just standing next to it makes me
+      feel my nerves relaxing.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530089157943296
+    m_Localized: 'Mm... some say that Otowa''s hot spring can wash away bad things,
+      and allow people to live a little longer.
+
+      Next Node ID: node_0011'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530215247110144
+    m_Localized: Rintaro says it has to do with the mineral deposits beneath the
+      water.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530302887092224
+    m_Localized: Grandpa Rintaro? Is he someone from the village?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530399100231680
+    m_Localized: Yes, he is a very learned person... a professor who studies stones.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530517127946240
+    m_Localized: Grandpa Rintaro says that those ores buried beneath the water can
+      nourish the body. And if you grind them up, they can even be made into a beautiful
+      blue pigment.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530660849967104
+    m_Localized: It seems there are quite a few treasures hidden beneath Otowa as
+      well.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9532675969769472
+    m_Localized: yuji_day1_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9532801098440704
+    m_Localized: Listening to some music?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9532888545484800
+    m_Localized: Haha, it's called the Blues! It's the most popular thing out there
+      right now. You young folks all love this, right?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9532997828075520
+    m_Localized: The blues... Do you really like this kind of music, Mr. Yuji?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9533107609788416
+    m_Localized: Of course! You know, literally speaking, the "blues" means sorrow.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9533239197687808
+    m_Localized: Whenever I listen to this music, I can feel the blues! The kind
+      of blues that hits right in the soul!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9533352347426816
+    m_Localized: ...Hahaha! Sorry, sorry, I had a couple of extra drinks today and
+      said some weird things. Don't mind me!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534153153306624
+    m_Localized: I really need to prepare well these next couple of days. At the
+      Summer Festival, if any young people come back, my stuff will absolutely be
+      the most popular!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534269448773632
+    m_Localized: The most popular stuff... Are you talking about your sake?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534351812321280
+    m_Localized: Haha, actually, it's not the booze. It's the fireworks!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534444032483328
+    m_Localized: Fireworks?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534526022737920
+    m_Localized: That's right. My actual day job is as a fireworks artisan. Running
+      the pub and mixing drinks is purely a personal hobby.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9536294689431552
+    m_Localized: Good evening, Chief. You haven't rested yet?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9536468337811456
+    m_Localized: Ah, it's Rin. Good evening. I was a bit concerned about the preparations
+      for the Summer Festival, so I came out for a walk.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9536551305338880
+    m_Localized: The nights here are very quiet, aren't they? I hope it hasn't made
+      you feel too bored.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9536631269744640
+    m_Localized: Not at all. It's been a very long time since I've been able to take
+      a walk in a place this quiet.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537084330074112
+    m_Localized: Chief, at the welcome banquet just now, everyone was very focused
+      on the Summer Festival. What kind of festival is it exactly?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537183990931456
+    m_Localized: The Summer Festival is the most important festival of the year in
+      Otowa village.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537323619311616
+    m_Localized: According to village tradition, on this day, all the villagers who
+      have gone away to work or study will return to their hometown.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537397472616448
+    m_Localized: For all these years, they have always returned to Otowa along this
+      railway track.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537489260765184
+    m_Localized: You could say the railway track is almost Otowa's only connection
+      to the outside world.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537615870025728
+    m_Localized: I understand. So the festival isn't only a ceremony. It's also the
+      day people come home.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538066417967104
+    m_Localized: Rin, when you arrived in the village today, did you see many birds?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538153403637760
+    m_Localized: It was already getting late when I got off the train, so I don't
+      think I really noticed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538249314787328
+    m_Localized: Tomorrow during the day, please make sure to visit the forest at
+      the edge of the village.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538333821624320
+    m_Localized: Our Otowa village is home to many rare bird species that cannot
+      be seen anywhere else.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538424926101504
+    m_Localized: The deity worshipped by the village for generations also has deep
+      ties to birds.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538510573789184
+    m_Localized: The deity is connected to birds too?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538679478411264
+    m_Localized: Yes. Every summer, many migratory birds travel from afar to return
+      to this forest.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538757442134016
+    m_Localized: Just like those children who leave home, no matter how far they
+      fly, when summer comes, they will always follow the wind back.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9543881849823232
+    m_Localized: You are from the big city, aren't you, Rin. The outside world...
+      What is it like?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9543948308570112
+    m_Localized: The city... the schools... is it bustling and lively every day?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544034912559104
+    m_Localized: It's certainly lively. But after a while, it actually doesn't feel
+      very good.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544116105895936
+    m_Localized: very good?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544216941158400
+    m_Localized: Everyone is always rushing around, only caring about how much money
+      they make each day, but it seems like they never care about the people around
+      them.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544301645127680
+    m_Localized: After staying there for so long, I felt like even breathing had
+      become difficult.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544392695078912
+    m_Localized: Mm... that sounds... gray.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544478699282432
+    m_Localized: Gray?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544560865697792
+    m_Localized: Yes, like an ocean without starlight, or a forest hidden by mist.
+      Dim and gray.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544722925215744
+    m_Localized: I like your metaphor. When I was in the city, it really did feel
+      like everything around me was gray.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546440308154368
+    m_Localized: I just heard everyone saying that the Summer Festival is in two
+      days. Is there anything you're looking forward to, Mizuki?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546577126350848
+    m_Localized: Something I'm looking forward to...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546660299399168
+    m_Localized: I have a very dear friend. She left here a few years ago to study
+      in the big city.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546745577988096
+    m_Localized: During the Summer Festival, they will return to Otowa, like birds
+      on the night of a full moon.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546836309172224
+    m_Localized: I hope this year... I can see her again.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546916768505856
+    m_Localized: Since it's Otowa's most important festival, I'm sure she will come
+      back.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546996103766016
+    m_Localized: Mm...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9551927175012352
+    m_Localized: Making fireworks like you're mixing drinks... That sounds amazing.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9552020343087104
+    m_Localized: "The secret to making fireworks explode into colorful patterns in
+      the night sky is using the powder of various ores. \n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9552124806422528
+    m_Localized: Different stones, once mixed and burned, produce completely different
+      colors.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9552197963472896
+    m_Localized: Speaking of which, I actually learned some of my formulas and knowledge
+      about ores from that old man, Rintaro.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9552281115549696
+    m_Localized: He is an absolute expert on these stones and a regular at my pub.
+      We often drink together and discuss how to make the night sky look even better.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554178228609024
+    m_Localized: Chief, at the welcome banquet just now, everyone was very focused
+      on the Summer Festival. What kind of festival is it exactly?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554694652289024
+    m_Localized: The Summer Festival is the most important festival of the year in
+      Otowa village.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554779117182976
+    m_Localized: According to village tradition, on this day, all the villagers who
+      have gone away to work or study will return to their hometown.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554881110073344
+    m_Localized: Many villagers are also waiting for this day, like Jiro, for example.
+      He hasn't seen his son in a very long time.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554944083353600
+    m_Localized: So Jiro's son has already left Otowa...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9555007249571840
+    m_Localized: For all these years, they have always returned to Otowa along this
+      railway track. You could say the railway track is almost Otowa's only connection
+      to the outside world.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9555080318541824
+    m_Localized: Therefore, the trains absolutely cannot stop running at this time.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9555177286656000
+    m_Localized: I understand. Thank you, Chief.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

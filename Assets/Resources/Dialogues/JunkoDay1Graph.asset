@@ -1,0 +1,614 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6770324fb0354064596679047a234bee, type: 3}
+  m_Name: JunkoDay1Graph
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueSystem.Data.DialogueGraph
+  entryNodeId: node_0001
+  nodes:
+  - id: node_0001
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_001
+    nextNodeId: node_0002
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0002
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 1d9b3ae2f92824c75ab016bbf1b07a2a, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_002
+    nextNodeId: node_0003
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0003
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 1d9b3ae2f92824c75ab016bbf1b07a2a, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_003
+    nextNodeId: node_0004
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0004
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_004
+    nextNodeId: node_0005
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0005
+    nodeType: 1
+    speaker: {fileID: 0}
+    speakerPortraitKey: 
+    textKey: 
+    nextNodeId: 
+    choices:
+    - labelKey: node_0005_choice_01
+      targetNodeId: node_0006
+      conditions: []
+      showIfFailed: 0
+      itemCosts: []
+    - labelKey: node_0005_choice_02
+      targetNodeId: node_0021
+      conditions: []
+      showIfFailed: 0
+      itemCosts: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0006
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_festival_001
+    nextNodeId: node_0007
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0007
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 1d9b3ae2f92824c75ab016bbf1b07a2a, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_festival_002
+    nextNodeId: node_0008
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0008
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 1d9b3ae2f92824c75ab016bbf1b07a2a, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_festival_003
+    nextNodeId: node_0009
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0009
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 1d9b3ae2f92824c75ab016bbf1b07a2a, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_festival_004
+    nextNodeId: node_0010
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0010
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 1d9b3ae2f92824c75ab016bbf1b07a2a, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_festival_005
+    nextNodeId: node_0011
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0011
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_festival_006
+    nextNodeId: node_0012
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0012
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 1d9b3ae2f92824c75ab016bbf1b07a2a, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_birds_001
+    nextNodeId: node_0013
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0013
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_birds_002
+    nextNodeId: node_0014
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0014
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 1d9b3ae2f92824c75ab016bbf1b07a2a, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_birds_003
+    nextNodeId: node_0015
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0015
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 1d9b3ae2f92824c75ab016bbf1b07a2a, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_birds_004
+    nextNodeId: node_0016
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0016
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 1d9b3ae2f92824c75ab016bbf1b07a2a, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_birds_005
+    nextNodeId: node_0017
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0017
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_birds_006
+    nextNodeId: node_0018
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0018
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 1d9b3ae2f92824c75ab016bbf1b07a2a, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_birds_007
+    nextNodeId: node_0019
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0019
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 1d9b3ae2f92824c75ab016bbf1b07a2a, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_birds_008
+    nextNodeId: node_0020
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 0700000010000000
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0020
+    nodeType: 2
+    speaker: {fileID: 0}
+    speakerPortraitKey: 
+    textKey: 
+    nextNodeId: 
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0021
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_festival_option_001
+    nextNodeId: node_0022
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0022
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 1d9b3ae2f92824c75ab016bbf1b07a2a, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_festival_option_002
+    nextNodeId: node_0023
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0023
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 1d9b3ae2f92824c75ab016bbf1b07a2a, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_festival_option_003
+    nextNodeId: node_0024
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0024
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 1d9b3ae2f92824c75ab016bbf1b07a2a, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_festival_option_004
+    nextNodeId: node_0025
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0025
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_festival_option_005
+    nextNodeId: node_0027
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0027
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 1d9b3ae2f92824c75ab016bbf1b07a2a, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_festival_option_006
+    nextNodeId: node_0028
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0028
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 1d9b3ae2f92824c75ab016bbf1b07a2a, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_festival_option_007
+    nextNodeId: node_0029
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0029
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: junko_day1_festival_option_008
+    nextNodeId: node_0005
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 

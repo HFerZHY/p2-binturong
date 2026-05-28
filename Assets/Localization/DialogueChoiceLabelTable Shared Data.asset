@@ -39,6 +39,26 @@ MonoBehaviour:
     m_Key: node_0002_choice_03
     m_Metadata:
       m_Items: []
+  - m_Id: 9359809655595008
+    m_Key: node_0008_choice_01
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9359888948912128
+    m_Key: node_0008_choice_02
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9359954845622272
+    m_Key: node_0008_choice_03
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9368282262921216
+    m_Key: node_0005_choice_01
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9384914657992704
+    m_Key: node_0005_choice_02
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

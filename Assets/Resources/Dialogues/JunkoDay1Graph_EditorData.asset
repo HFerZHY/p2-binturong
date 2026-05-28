@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73668f70dee191941ab303da9fc69a01, type: 3}
+  m_Name: JunkoDay1Graph_EditorData
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::DialogueSystem.Data.DialogueGraphEditorData
+  nodePositions:
+  - nodeId: node_0001
+    position: {x: 559.5, y: 328}
+  - nodeId: node_0002
+    position: {x: 866, y: 328}
+  - nodeId: node_0003
+    position: {x: 1148, y: 330.5}
+  - nodeId: node_0004
+    position: {x: 1465, y: 329}
+  - nodeId: node_0005
+    position: {x: 994.5, y: 601.5}
+  - nodeId: node_0006
+    position: {x: 336.5, y: 726}
+  - nodeId: node_0007
+    position: {x: 603, y: 724.5}
+  - nodeId: node_0008
+    position: {x: 866.5, y: 722}
+  - nodeId: node_0009
+    position: {x: 1182.5, y: 722}
+  - nodeId: node_0010
+    position: {x: 1468, y: 718.5}
+  - nodeId: node_0011
+    position: {x: 1766, y: 715.5}
+  - nodeId: node_0012
+    position: {x: 558, y: 968}
+  - nodeId: node_0013
+    position: {x: 809.5, y: 969.5}
+  - nodeId: node_0014
+    position: {x: 1062, y: 972.5}
+  - nodeId: node_0015
+    position: {x: 1318.5, y: 967}
+  - nodeId: node_0016
+    position: {x: 1568.5, y: 967}
+  - nodeId: node_0017
+    position: {x: 1820.5, y: 968}
+  - nodeId: node_0018
+    position: {x: 2071, y: 967}
+  - nodeId: node_0019
+    position: {x: 2333, y: 968}
+  - nodeId: node_0020
+    position: {x: 2651.5, y: 1038.5}
+  - nodeId: node_0021
+    position: {x: 346.5, y: 1208}
+  - nodeId: node_0022
+    position: {x: 658, y: 1212}
+  - nodeId: node_0023
+    position: {x: 937.5, y: 1212}
+  - nodeId: node_0024
+    position: {x: 1201, y: 1215.5}
+  - nodeId: node_0025
+    position: {x: 1452.5, y: 1215.5}
+  - nodeId: node_0027
+    position: {x: 1712, y: 1215}
+  - nodeId: node_0028
+    position: {x: 1974, y: 1217.5}
+  - nodeId: node_0029
+    position: {x: 2238, y: 1215.5}

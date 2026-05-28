@@ -101,6 +101,23 @@ namespace InventorySystem
         /// <summary>Returns true if at least one unit of <paramref name="item"/> is in the inventory.</summary>
         public bool Has(ItemData item) => GetCount(item) > 0;
 
+        /// <summary>Returns true if at least <paramref name="amount"/> units of <paramref name="item"/> are in the inventory.</summary>
+        public bool Has(ItemData item, int amount)
+            => item != null && amount > 0 && GetCount(item) >= amount;
+
+        /// <summary> Returns true if at least quantity units of the item with the given nameKey are in the inventory.
+        /// Used by dialogue conditions. </summary>
+        public bool HasItem(string itemId, int quantity)
+        {
+            if (string.IsNullOrEmpty(itemId) || quantity <= 0)
+                return false;
+
+            var slot = _slots.FirstOrDefault(s =>
+                s.item != null && s.item.nameKey == itemId);
+
+            return slot != null && slot.quantity >= quantity;
+}
+            
         /// <summary>Empties the entire inventory.</summary>
         public void Clear()
         {
