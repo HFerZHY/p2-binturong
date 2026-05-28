@@ -151,6 +151,78 @@ MonoBehaviour:
     m_Key: yuji_day1_fireworks_005
     m_Metadata:
       m_Items: []
+  - m_Id: 9536294689431552
+    m_Key: junko_day1_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9536468337811456
+    m_Key: junko_day1_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9536551305338880
+    m_Key: junko_day1_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9536631269744640
+    m_Key: junko_day1_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537084330074112
+    m_Key: junko_day1_festival_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537183990931456
+    m_Key: junko_day1_festival_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537323619311616
+    m_Key: junko_day1_festival_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537397472616448
+    m_Key: junko_day1_festival_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537489260765184
+    m_Key: junko_day1_festival_005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537615870025728
+    m_Key: junko_day1_festival_006
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538066417967104
+    m_Key: junko_day1_birds_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538153403637760
+    m_Key: junko_day1_birds_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538249314787328
+    m_Key: junko_day1_birds_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538333821624320
+    m_Key: junko_day1_birds_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538424926101504
+    m_Key: junko_day1_birds_005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538510573789184
+    m_Key: junko_day1_birds_006
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538679478411264
+    m_Key: junko_day1_birds_007
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538757442134016
+    m_Key: junko_day1_birds_008
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

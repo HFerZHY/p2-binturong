@@ -51,6 +51,10 @@ MonoBehaviour:
     m_Key: node_0008_choice_03
     m_Metadata:
       m_Items: []
+  - m_Id: 9368282262921216
+    m_Key: node_0005_choice_01
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

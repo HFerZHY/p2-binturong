@@ -170,6 +170,93 @@ MonoBehaviour:
       the pub and mixing drinks is purely a personal hobby.
     m_Metadata:
       m_Items: []
+  - m_Id: 9536294689431552
+    m_Localized: Good evening, Chief. You haven't rested yet?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9536468337811456
+    m_Localized: Ah, it's Rin. Good evening. I was a bit concerned about the preparations
+      for the Summer Festival, so I came out for a walk.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9536551305338880
+    m_Localized: The nights here are very quiet, aren't they? I hope it hasn't made
+      you feel too bored.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9536631269744640
+    m_Localized: Not at all. It's been a very long time since I've been able to take
+      a walk in a place this quiet.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537084330074112
+    m_Localized: Chief, at the welcome banquet just now, everyone was very focused
+      on the Summer Festival. What kind of festival is it exactly?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537183990931456
+    m_Localized: The Summer Festival is the most important festival of the year in
+      Otowa village.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537323619311616
+    m_Localized: According to village tradition, on this day, all the villagers who
+      have gone away to work or study will return to their hometown.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537397472616448
+    m_Localized: For all these years, they have always returned to Otowa along this
+      railway track.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537489260765184
+    m_Localized: You could say the railway track is almost Otowa's only connection
+      to the outside world.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9537615870025728
+    m_Localized: I understand. So the festival isn't only a ceremony. It's also the
+      day people come home.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538066417967104
+    m_Localized: Rin, when you arrived in the village today, did you see many birds?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538153403637760
+    m_Localized: It was already getting late when I got off the train, so I don't
+      think I really noticed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538249314787328
+    m_Localized: Tomorrow during the day, please make sure to visit the forest at
+      the edge of the village.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538333821624320
+    m_Localized: Our Otowa village is home to many rare bird species that cannot
+      be seen anywhere else.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538424926101504
+    m_Localized: The deity worshipped by the village for generations also has deep
+      ties to birds.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538510573789184
+    m_Localized: The deity is connected to birds too?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538679478411264
+    m_Localized: Yes. Every summer, many migratory birds travel from afar to return
+      to this forest.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9538757442134016
+    m_Localized: Just like those children who leave home, no matter how far they
+      fly, when summer comes, they will always follow the wind back.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
