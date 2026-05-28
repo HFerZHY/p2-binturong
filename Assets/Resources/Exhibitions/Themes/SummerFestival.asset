@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0c05c6b8d6265f4892ffb9d7d579029, type: 3}
+  m_Name: SummerFestival
+  m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitionTheme
+  title: 'Summer Festival: An Introduction to Otowa Folklore'
+  titleKey: theme_summerfestival
+  description: A festival exhibition about belief, fireworks, and homecoming.
+  descriptionKey: desc_summerfestival
+  day: 2
+  requiredInspirations: 3
+  selectionMode: 0
+  validInspirationIds: 070000000800000010000000
+  missingIdeaHints:
+  - inspirationId: 7
+    hintText: 'Rin: (Junko seemed to mention that the origin of the Summer Festival
+      has something to do with birds.)'
+  - inspirationId: 8
+    hintText: 'Rin: (Summer''s most beautiful night seems to bloom above the town.)'
+  - inspirationId: 16
+    hintText: 'Rin: (The Summer Festival isn''t just a ceremony, it is also tied
+      to family bonds.)'
+  fallbackMissingHint: 'Rin: (I am missing one of the ideas that really belongs to
+    this exhibition.)'
+  fallbackInvalidHint: 'Rin: (One of these ideas feels out of place for this exhibition.)'
+  isCompleted: 0

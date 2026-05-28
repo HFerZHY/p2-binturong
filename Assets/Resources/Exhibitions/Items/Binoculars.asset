@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59bba459f8de3b548a786ad00daa5442, type: 3}
+  m_Name: Binoculars
+  m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
+  itemName: Binoculars
+  nameKey: item_binoculars
+  icon: {fileID: -4972458134454809669, guid: 805816f8b6afe8e4b8e6855774a70eca, type: 3}
+  iconScale: 1
+  sortOrder: 2
+  description: A trusty pair of binoculars often seen with Rintaro.
+  descriptionKey: desc_binoculars
+  isUnlocked: 1
+  tags:
+  - Birdwatching
+  usedInExhibitions: []
