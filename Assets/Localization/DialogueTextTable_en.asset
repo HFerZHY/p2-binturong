@@ -80,6 +80,42 @@ MonoBehaviour:
     m_Localized: Thank you, Mizuki.
     m_Metadata:
       m_Items: []
+  - m_Id: 9529945964404736
+    m_Localized: I really like the hot spring. Just standing next to it makes me
+      feel my nerves relaxing.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530089157943296
+    m_Localized: 'Mm... some say that Otowa''s hot spring can wash away bad things,
+      and allow people to live a little longer.
+
+      Next Node ID: node_0011'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530215247110144
+    m_Localized: Rintaro says it has to do with the mineral deposits beneath the
+      water.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530302887092224
+    m_Localized: Grandpa Rintaro? Is he someone from the village?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530399100231680
+    m_Localized: Yes, he is a very learned person... a professor who studies stones.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530517127946240
+    m_Localized: Grandpa Rintaro says that those ores buried beneath the water can
+      nourish the body. And if you grind them up, they can even be made into a beautiful
+      blue pigment.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530660849967104
+    m_Localized: It seems there are quite a few treasures hidden beneath Otowa as
+      well.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

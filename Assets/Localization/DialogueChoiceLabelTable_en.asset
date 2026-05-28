@@ -42,6 +42,18 @@ MonoBehaviour:
     m_Localized: cycle back en
     m_Metadata:
       m_Items: []
+  - m_Id: 9359809655595008
+    m_Localized: Talk about life in the big city
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9359888948912128
+    m_Localized: Ask about the Summer Festival
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9359954845622272
+    m_Localized: Ask about the hot spring
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

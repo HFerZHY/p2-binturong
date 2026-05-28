@@ -75,6 +75,34 @@ MonoBehaviour:
     m_Key: Mizuki_day1_007
     m_Metadata:
       m_Items: []
+  - m_Id: 9529945964404736
+    m_Key: mizuki_day1_hot_spring_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530089157943296
+    m_Key: mizuki_day1_hot_spring_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530215247110144
+    m_Key: mizuki_day1_hot_spring_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530302887092224
+    m_Key: mizuki_day1_hot_spring_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530399100231680
+    m_Key: mizuki_day1_hot_spring_005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530517127946240
+    m_Key: mizuki_day1_hot_spring_006
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9530660849967104
+    m_Key: mizuki_day1_hot_spring_007
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

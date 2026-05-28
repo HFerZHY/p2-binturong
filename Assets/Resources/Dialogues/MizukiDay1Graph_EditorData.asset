@@ -14,18 +14,34 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp-Editor::DialogueSystem.Data.DialogueGraphEditorData
   nodePositions:
   - nodeId: node_0001
-    position: {x: 58, y: -119.5}
+    position: {x: 88.5, y: -370.5}
   - nodeId: node_0002
-    position: {x: 58.5, y: 109.5}
+    position: {x: 368.5, y: -370.5}
   - nodeId: node_0003
-    position: {x: 308.5, y: 112.5}
+    position: {x: 648.5, y: -370.5}
   - nodeId: node_0004
-    position: {x: 554.5, y: 114.5}
+    position: {x: 928.5, y: -370.5}
   - nodeId: node_0005
-    position: {x: 59.5, y: 330.5}
+    position: {x: 1208.5, y: -370.5}
   - nodeId: node_0006
-    position: {x: 307.5, y: 332.5}
+    position: {x: 1488.5, y: -370.5}
   - nodeId: node_0007
-    position: {x: 607, y: 328.5}
+    position: {x: 1835, y: -375.5}
+  - nodeId: node_0008
+    position: {x: 1125.5, y: -36}
   - nodeId: node_0009
-    position: {x: 871.5, y: 330.5}
+    position: {x: 86, y: 233.5}
+  - nodeId: node_0010
+    position: {x: 366, y: 233.5}
+  - nodeId: node_0011
+    position: {x: 646, y: 233.5}
+  - nodeId: node_0012
+    position: {x: 926, y: 233.5}
+  - nodeId: node_0013
+    position: {x: 1206, y: 233.5}
+  - nodeId: node_0014
+    position: {x: 1486, y: 233.5}
+  - nodeId: node_0015
+    position: {x: 1766, y: 233.5}
+  - nodeId: node_0016
+    position: {x: 2046, y: 233.5}
