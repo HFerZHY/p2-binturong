@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13b333ce8e2627148be9e49f4e21c62c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Otowa.Intro.StationController
-  nextSceneName: Intro-4
+  nextSceneName: Intro-5
   typewriterSpeed: 35
   fadeDuration: 0.35
   serifFont: {fileID: 11400000, guid: 54036173aebd7d44fb3a89ffdef22447, type: 2}
