@@ -217,6 +217,26 @@ namespace DialogueSystem.Editor
                 RebuildItemRewardList(_node.itemRewards);
             }
 
+            // ── Inspiration Unlocks ────────────────────────────────────────────
+            if (_node.nodeType == NodeType.Line)
+            {
+                AddSection("Inspiration Unlocks");
+
+                var onceToggle = new Toggle("Unlock inspirations only once")
+                {
+                    value = _node.unlockInspirationsOnlyOnce
+                };
+                onceToggle.AddToClassList("inspector-toggle");
+                onceToggle.RegisterValueChangedCallback(e =>
+                {
+                    _node.unlockInspirationsOnlyOnce = e.newValue;
+                    Dirty();
+                });
+                _content.Add(onceToggle);
+
+                RebuildInspirationUnlockList(_node.inspirationUnlockIds);
+            }
+
             // ── Conditions ────────────────────────────────────────────────────
             AddSection("Node Conditions");
             RebuildConditionList(_node.conditions, "Add Node Condition");
@@ -819,6 +839,60 @@ namespace DialogueSystem.Editor
             { text = "+ Add Item Reward" };
             addBtn.AddToClassList("add-btn-small");
             parent.Add(addBtn);
+        }
+
+        private void RebuildInspirationUnlockList(List<int> unlockIds)
+        {
+            if (unlockIds == null)
+                return;
+
+            for (int i = 0; i < unlockIds.Count; i++)
+            {
+                int index = i;
+
+                var row = new VisualElement();
+                row.AddToClassList("inspector-row");
+
+                var label = new Label($"Inspiration {i + 1}");
+                label.AddToClassList("inspector-field-label");
+                row.Add(label);
+
+                var idField = new IntegerField
+                {
+                    value = unlockIds[index]
+                };
+                idField.AddToClassList("inspector-field");
+                idField.RegisterValueChangedCallback(e =>
+                {
+                    unlockIds[index] = Mathf.Clamp(e.newValue, 1, 16);
+                    Dirty();
+                    Rebuild();
+                });
+                row.Add(idField);
+
+                var removeBtn = new Button(() =>
+                {
+                    unlockIds.RemoveAt(index);
+                    Dirty();
+                    Rebuild();
+                })
+                { text = "Remove" };
+                removeBtn.AddToClassList("small-button");
+                row.Add(removeBtn);
+
+                _content.Add(row);
+            }
+
+            var addBtn = new Button(() =>
+            {
+                unlockIds.Add(1);
+                Dirty();
+                Rebuild();
+            })
+            { text = "+ Add Inspiration Unlock" };
+
+            addBtn.AddToClassList("add-list-item-btn");
+            _content.Add(addBtn);
         }
 
         private void RebuildItemCostList(List<DialogueItemCost> costs,
