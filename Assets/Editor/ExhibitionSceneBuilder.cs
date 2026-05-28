@@ -14,6 +14,7 @@ using UnityEngine.UI;
 public static class ExhibitionSceneBuilder
 {
     private const string SCENE_PATH = "Assets/Scenes/ExhibitionScene.unity";
+    private const string DAY2_SCENE_PATH = "Assets/Scenes/ExhibitionDay2Scene.unity";
     private const string ITEMS_PATH = "Assets/Resources/Exhibitions/Items";
     private const string THEMES_PATH = "Assets/Resources/Exhibitions/Themes";
     private const string INSPIRATIONS_PATH = "Assets/Resources/Exhibitions/Inspirations";
@@ -29,32 +30,155 @@ public static class ExhibitionSceneBuilder
     {
         new(-808.6f, 279.23f), new(-627.9f, 285.37f), new(-457.2f, 289.7f), new(-290.7f, 279.95f),
         new(-802.64f, 121.2f), new(-627.9f, 115.7f), new(-455.43f, 136.1f), new(-286.5f, 121.2f),
-        new(-802.64f, -29.369f), new(-627.9f, -32.5f), new(-459.5f, -55.9f), new(-290.1f, -44f),
+        new(-802.64f, -29.369f), new(-627.9f, -32.5f), new(-461.4f, -46f), new(-290.1f, -44f),
         new(-808.6f, -200.6f), new(-631.7f, -187.7f), new(-454f, -213f), new(-291.9f, -209.9f),
     };
     private static readonly Vector2[] SHELF_SLOT_SIZES =
     {
         new(118.008f, 131.29f), new(114.508f, 119.007f), new(105.01f, 94.012f), new(73.013f, 74.517f),
         new(106.09f, 90.88f), new(70.179f, 69.209f), new(145f, 165f), new(91.922f, 85.179f),
-        new(115.23f, 107.491f), new(81.483f, 95.767f), new(74.359f, 64.042f), new(98.868f, 109.428f),
+        new(115.23f, 107.491f), new(81.483f, 95.767f), new(121.1f, 126.6f), new(98.868f, 109.428f),
         new(98.579f, 98.769f), new(130.472f, 138.79f), new(80.765f, 85.586f), new(91.924f, 97.199f),
     };
     private static readonly float[] SHELF_SLOT_ROTATIONS =
     {
         0f, 0f, 0f, 0f,
         0f, 0f, 0f, 0f,
-        0f, 0f, 356.446f, 17.068f,
+        0f, 0f, 348.6946f, 17.068f,
         0f, 0f, 8.378f, 352.339f,
     };
 
     [MenuItem("Tools/Museum/Build Exhibition Scene")]
     public static void BuildScene()
     {
+        BuildSceneWithContent(
+            SCENE_PATH,
+            null,
+            null,
+            null,
+            false);
+    }
+
+    [MenuItem("Tools/Museum/Build Exhibition Day 2 Scene")]
+    public static void BuildDay2Scene()
+    {
+        var day2ThemeNames = new HashSet<string> { "SummerFestival", "Yuji" };
+        var day2InspirationIds = new HashSet<int> { 3, 5, 7, 8, 10, 11, 12, 13, 14, 16 };
+        var excludedItemNames = new HashSet<string> { "Painting", "OtowaBluesVinylRecord" };
+
+        BuildDay2SceneFromExhibitionScene(
+            item => item != null && !excludedItemNames.Contains(item.name),
+            theme => theme != null && day2ThemeNames.Contains(theme.name),
+            inspiration => inspiration != null && day2InspirationIds.Contains(inspiration.id));
+    }
+
+    private static void BuildDay2SceneFromExhibitionScene(
+        System.Func<ExhibitItemData, bool> itemFilter,
+        System.Func<ExhibitionTheme, bool> themeFilter,
+        System.Func<InspirationData, bool> inspirationFilter)
+    {
+        if (!HasTestData())
+            ExhibitionTestDataBuilder.GenerateTestData();
+
+        if (AssetDatabase.LoadAssetAtPath<SceneAsset>(SCENE_PATH) == null)
+        {
+            Debug.LogError($"[SceneBuilder] Base exhibition scene not found: {SCENE_PATH}");
+            return;
+        }
+
+        if (AssetDatabase.LoadAssetAtPath<SceneAsset>(DAY2_SCENE_PATH) != null)
+            AssetDatabase.DeleteAsset(DAY2_SCENE_PATH);
+
+        if (!AssetDatabase.CopyAsset(SCENE_PATH, DAY2_SCENE_PATH))
+        {
+            Debug.LogError($"[SceneBuilder] Failed to copy scene to {DAY2_SCENE_PATH}");
+            return;
+        }
+
+        var scene = EditorSceneManager.OpenScene(DAY2_SCENE_PATH, OpenSceneMode.Single);
+
+        var allItems = LoadAssets<ExhibitItemData>(ITEMS_PATH)
+            .OrderBy(item => item.sortOrder)
+            .ToList();
+        var items = allItems
+            .Where(item => itemFilter == null || itemFilter(item))
+            .ToList();
+        var shelfSlotItems = allItems
+            .Select(item => itemFilter == null || itemFilter(item) ? item : null)
+            .ToList();
+        var themes = LoadAssets<ExhibitionTheme>(THEMES_PATH)
+            .Where(theme => themeFilter == null || themeFilter(theme))
+            .OrderBy(theme => theme.day)
+            .ThenBy(theme => theme.title)
+            .ToList();
+        var inspirations = LoadAssets<InspirationData>(INSPIRATIONS_PATH)
+            .Where(inspiration => inspirationFilter == null || inspirationFilter(inspiration))
+            .OrderBy(inspiration => inspiration.id)
+            .ToList();
+
+        var manager = Object.FindFirstObjectByType<ExhibitionManager>(FindObjectsInactive.Include);
+        if (manager == null)
+        {
+            Debug.LogError("[SceneBuilder] ExhibitionManager not found in copied Day 2 scene.");
+            return;
+        }
+
+        ConfigureTestData(manager, items, themes, inspirations);
+
+        var shelfPanel = Object.FindFirstObjectByType<ShelfPanel>(FindObjectsInactive.Include);
+        if (shelfPanel != null)
+        {
+            SetPrivateField(shelfPanel, "_slotItems", shelfSlotItems);
+            ApplyShelfSlotDataFromSourceScene(shelfPanel, shelfSlotItems);
+        }
+
+        var layoutRoot = GameObject.Find("LayoutRoot");
+        if (layoutRoot != null)
+        {
+            foreach (var existingPopup in Object.FindObjectsByType<Day2CompletionPopup>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                Object.DestroyImmediate(existingPopup.gameObject);
+
+            CreateDay2CompletionPopup(layoutRoot.transform);
+        }
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene, DAY2_SCENE_PATH);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log($"[SceneBuilder] Day 2 scene copied from {SCENE_PATH} and saved to {DAY2_SCENE_PATH}");
+    }
+
+    private static void BuildSceneWithContent(
+        string scenePath,
+        System.Func<ExhibitItemData, bool> itemFilter,
+        System.Func<ExhibitionTheme, bool> themeFilter,
+        System.Func<InspirationData, bool> inspirationFilter,
+        bool includeDay2CompletionPopup)
+    {
         if (!HasTestData())
             ExhibitionTestDataBuilder.GenerateTestData();
 
         if (!HasPrefabs())
             ExhibitionPrefabBuilder.RebuildPrefabs();
+
+        var allItems = LoadAssets<ExhibitItemData>(ITEMS_PATH)
+            .OrderBy(item => item.sortOrder)
+            .ToList();
+        var items = allItems
+            .Where(item => itemFilter == null || itemFilter(item))
+            .ToList();
+        var shelfSlotItems = allItems
+            .Select(item => itemFilter == null || itemFilter(item) ? item : null)
+            .ToList();
+        var themes = LoadAssets<ExhibitionTheme>(THEMES_PATH)
+            .Where(theme => themeFilter == null || themeFilter(theme))
+            .OrderBy(theme => theme.day)
+            .ThenBy(theme => theme.title)
+            .ToList();
+        var inspirations = LoadAssets<InspirationData>(INSPIRATIONS_PATH)
+            .Where(inspiration => inspirationFilter == null || inspirationFilter(inspiration))
+            .OrderBy(inspiration => inspiration.id)
+            .ToList();
 
         var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
 
@@ -70,7 +194,7 @@ public static class ExhibitionSceneBuilder
         var layoutRoot = CreateLayoutRoot(canvas);
         CreateBackground(layoutRoot);
 
-        var shelfPanel = CreateShelfPanel(layoutRoot);
+        var shelfPanel = CreateShelfPanel(layoutRoot, shelfSlotItems);
         var visitorPanel = CreateVisitorPanel(layoutRoot);
         var satisfactionBar = CreateSatisfactionBar(layoutRoot);
         var displayPanel = CreateDisplayPanel(layoutRoot);
@@ -81,6 +205,8 @@ public static class ExhibitionSceneBuilder
         CreateTutorialPopup(layoutRoot);
         CreateInspirationSuccessPopup(layoutRoot);
         CreateRewardPopup(layoutRoot);
+        if (includeDay2CompletionPopup)
+            CreateDay2CompletionPopup(layoutRoot);
 
         var managers = CreateManagers(
             canvas,
@@ -93,15 +219,15 @@ public static class ExhibitionSceneBuilder
             inspirationPopup,
             tooltip);
 
-        ConfigureTestData(managers.Item1);
+        ConfigureTestData(managers.Item1, items, themes, inspirations);
         WireUpReferences(controlPanel.GetComponent<ThemeSelector>(), themePopup);
 
         if (!AssetDatabase.IsValidFolder("Assets/Scenes"))
             AssetDatabase.CreateFolder("Assets", "Scenes");
 
-        EditorSceneManager.SaveScene(scene, SCENE_PATH);
+        EditorSceneManager.SaveScene(scene, scenePath);
         AssetDatabase.Refresh();
-        Debug.Log($"[SceneBuilder] Exhibition scene saved to {SCENE_PATH}");
+        Debug.Log($"[SceneBuilder] Exhibition scene saved to {scenePath}");
     }
 
     [MenuItem("Tools/Museum/Add Tutorial Popup To Current Scene")]
@@ -219,7 +345,7 @@ public static class ExhibitionSceneBuilder
         Stretch(bgObj.GetComponent<RectTransform>(), 0);
     }
 
-    private static ShelfPanel CreateShelfPanel(Transform parent)
+    private static ShelfPanel CreateShelfPanel(Transform parent, IReadOnlyList<ExhibitItemData> previewItems)
     {
         var panelObj = CreateChild(parent, "ShelfPanel");
 
@@ -246,8 +372,8 @@ public static class ExhibitionSceneBuilder
 
         var panel = panelObj.AddComponent<ShelfPanel>();
         SetPrivateField(panel, "_gridContainer", slotsObj.transform);
+        SetPrivateField(panel, "_slotItems", previewItems != null ? previewItems.ToList() : new List<ExhibitItemData>());
         var slotPrefab = LoadPrefabComponent<ShelfSlotUI>("ShelfSlot");
-        var previewItems = LoadAssets<ExhibitItemData>(ITEMS_PATH).OrderBy(item => item.sortOrder).ToList();
         var manualSlots = slotPrefab != null ? CreateManualShelfSlots(slotsObj.transform, slotPrefab, previewItems) : new List<ShelfSlotUI>();
         if (slotPrefab != null)
             SetPrivateField(panel, "_slotPrefab", slotPrefab);
@@ -272,14 +398,13 @@ public static class ExhibitionSceneBuilder
         for (int i = 0; i < ITEMS_PER_ROW * ITEMS_PER_ROW; i++)
         {
             var slotObject = (GameObject)PrefabUtility.InstantiatePrefab(slotPrefab.gameObject, parent);
+            PrefabUtility.UnpackPrefabInstance(slotObject, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
             var slot = slotObject.GetComponent<ShelfSlotUI>();
             slot.name = $"Slot_{i + 1:00}";
             slot.SetSlotIndex(i);
 
             ApplyManualShelfSlotLayout(slot, i);
             ApplyShelfSlotPreview(slot, i, previewItems);
-            PrefabUtility.RecordPrefabInstancePropertyModifications(slot.GetComponent<RectTransform>());
-            PrefabUtility.RecordPrefabInstancePropertyModifications(slot.GetComponent<Image>());
             slots.Add(slot);
         }
 
@@ -302,19 +427,47 @@ public static class ExhibitionSceneBuilder
 
     private static void ApplyShelfSlotPreview(ShelfSlotUI slot, int index, IReadOnlyList<ExhibitItemData> previewItems)
     {
-        if (slot == null || previewItems == null || index >= previewItems.Count)
+        if (slot == null)
             return;
 
-        var item = previewItems[index];
+        bool hasItemSlot = previewItems != null &&
+            index >= 0 &&
+            index < previewItems.Count &&
+            !System.Object.ReferenceEquals(previewItems[index], null);
+        var item = hasItemSlot ? previewItems[index] : null;
+        slot.gameObject.SetActive(hasItemSlot);
+        slot.SetData(item);
+
         var icon = slot.GetComponent<Image>();
         if (icon == null)
             return;
 
-        icon.sprite = item.icon;
-        icon.enabled = item.icon != null;
+        icon.sprite = item != null ? item.icon : null;
+        icon.enabled = item != null && item.icon != null;
         icon.preserveAspect = true;
-        icon.raycastTarget = true;
+        icon.raycastTarget = item != null;
         icon.rectTransform.localScale = Vector3.one;
+    }
+
+    private static void ApplyShelfSlotDataFromSourceScene(ShelfPanel shelfPanel, IReadOnlyList<ExhibitItemData> slotItems)
+    {
+        var slots = GetPrivateField<List<ShelfSlotUI>>(shelfPanel, "_manualSlots");
+        if (slots == null)
+            return;
+
+        for (int i = 0; i < slots.Count; i++)
+        {
+            var slot = slots[i];
+            if (slot == null)
+                continue;
+
+            var item = slotItems != null && i >= 0 && i < slotItems.Count ? slotItems[i] : null;
+            slot.SetSlotIndex(i);
+            slot.SetData(item);
+            slot.gameObject.SetActive(item != null);
+            EditorUtility.SetDirty(slot.gameObject);
+            EditorUtility.SetDirty(slot);
+        }
     }
 
     private static Vector2 GetArrayValue(Vector2[] values, int index, Vector2 fallback)
@@ -600,7 +753,7 @@ public static class ExhibitionSceneBuilder
 
         var avatarObj = CreateChild(hintPanel.transform, "AvatarPlaceholder");
         var avatar = avatarObj.AddComponent<Image>();
-        avatar.color = new Color(0.72f, 0.58f, 0.42f, 1f);
+        avatar.color = Color.white;
         avatar.sprite = AssetDatabase.LoadAllAssetRepresentationsAtPath("Assets/Resources/Characters/WorldSprite/rin.png")
             .OfType<Sprite>()
             .FirstOrDefault(sprite => sprite.name == "spritesheet_template_0") ?? LoadSprite("Assets/Resources/Characters/WorldSprite/rin.png");
@@ -883,6 +1036,71 @@ public static class ExhibitionSceneBuilder
         return popup;
     }
 
+    private static Day2CompletionPopup CreateDay2CompletionPopup(Transform parent)
+    {
+        var panelObj = CreateChild(parent, "Day2CompletionPopup");
+        Stretch(panelObj.GetComponent<RectTransform>(), 0);
+
+        var overlay = panelObj.AddComponent<Image>();
+        overlay.color = new Color(0f, 0f, 0f, 0.62f);
+        overlay.raycastTarget = true;
+
+        var cg = panelObj.AddComponent<CanvasGroup>();
+        cg.alpha = 0f;
+        cg.blocksRaycasts = false;
+        cg.interactable = false;
+
+        var windowObj = CreateChild(panelObj.transform, "Window");
+        var windowBg = windowObj.AddComponent<Image>();
+        windowBg.color = new Color(0.91f, 0.80f, 0.58f, 0.98f);
+        windowBg.raycastTarget = true;
+        var windowRt = windowObj.GetComponent<RectTransform>();
+        windowRt.anchorMin = new Vector2(0.5f, 0.5f);
+        windowRt.anchorMax = new Vector2(0.5f, 0.5f);
+        windowRt.pivot = new Vector2(0.5f, 0.5f);
+        windowRt.sizeDelta = new Vector2(620f, 330f);
+        windowRt.anchoredPosition = Vector2.zero;
+
+        var headline = CreateText(windowObj.transform, "Headline", "Exhibition Success", 40, FontStyles.Bold, TextAlignmentOptions.Center);
+        headline.color = new Color(0.25f, 0.13f, 0.06f, 1f);
+        var headlineRt = headline.GetComponent<RectTransform>();
+        headlineRt.anchorMin = new Vector2(0, 1);
+        headlineRt.anchorMax = new Vector2(1, 1);
+        headlineRt.pivot = new Vector2(0.5f, 1);
+        headlineRt.anchoredPosition = new Vector2(0, -54);
+        headlineRt.sizeDelta = new Vector2(-80, 58);
+
+        var body = CreateText(windowObj.transform, "Body", "Today's work is done.", 31, FontStyles.Bold, TextAlignmentOptions.Center);
+        body.color = new Color(0.31f, 0.16f, 0.06f, 1f);
+        body.textWrappingMode = TextWrappingModes.Normal;
+        var bodyRt = body.GetComponent<RectTransform>();
+        bodyRt.anchorMin = new Vector2(0, 1);
+        bodyRt.anchorMax = new Vector2(1, 1);
+        bodyRt.pivot = new Vector2(0.5f, 1);
+        bodyRt.anchoredPosition = new Vector2(0, -136);
+        bodyRt.sizeDelta = new Vector2(-92, 78);
+
+        var confirmObj = CreateButton(windowObj.transform, "ConfirmButton", "OK", 180);
+        var confirmRt = confirmObj.GetComponent<RectTransform>();
+        var confirmLayout = confirmObj.GetComponent<LayoutElement>();
+        if (confirmLayout != null)
+            Object.DestroyImmediate(confirmLayout);
+        confirmRt.anchorMin = new Vector2(0.5f, 0);
+        confirmRt.anchorMax = new Vector2(0.5f, 0);
+        confirmRt.pivot = new Vector2(0.5f, 0);
+        confirmRt.anchoredPosition = new Vector2(0, 38);
+        confirmRt.sizeDelta = new Vector2(180, 56);
+
+        var popup = panelObj.AddComponent<Day2CompletionPopup>();
+        SetPrivateField(popup, "_panel", panelObj);
+        SetPrivateField(popup, "_headlineText", headline);
+        SetPrivateField(popup, "_bodyText", body);
+        SetPrivateField(popup, "_confirmButton", confirmObj.GetComponent<Button>());
+        SetPrivateField(popup, "_canvasGroup", cg);
+
+        return popup;
+    }
+
     private static (ExhibitionManager, ExhibitionUIManager) CreateManagers(
         Canvas canvas,
         ShelfPanel shelfPanel,
@@ -911,17 +1129,21 @@ public static class ExhibitionSceneBuilder
         return (manager, uiManager);
     }
 
-    private static void ConfigureTestData(ExhibitionManager manager)
+    private static void ConfigureTestData(
+        ExhibitionManager manager,
+        IReadOnlyList<ExhibitItemData> items,
+        IReadOnlyList<ExhibitionTheme> themes,
+        IReadOnlyList<InspirationData> inspirations)
     {
-        var items = LoadAssets<ExhibitItemData>(ITEMS_PATH).OrderBy(item => item.sortOrder).ToList();
-        var themes = LoadAssets<ExhibitionTheme>(THEMES_PATH).OrderBy(theme => theme.day).ThenBy(theme => theme.title).ToList();
-        var inspirations = LoadAssets<InspirationData>(INSPIRATIONS_PATH).OrderBy(inspiration => inspiration.id).ToList();
+        var configuredItems = items != null ? items.ToList() : new List<ExhibitItemData>();
+        var configuredThemes = themes != null ? themes.ToList() : new List<ExhibitionTheme>();
+        var configuredInspirations = inspirations != null ? inspirations.ToList() : new List<InspirationData>();
 
-        SetPrivateField(manager, "_allItems", items);
-        SetPrivateField(manager, "_allThemes", themes);
-        SetPrivateField(manager, "_allInspirations", inspirations);
+        SetPrivateField(manager, "_allItems", configuredItems);
+        SetPrivateField(manager, "_allThemes", configuredThemes);
+        SetPrivateField(manager, "_allInspirations", configuredInspirations);
 
-        Debug.Log($"[SceneBuilder] Loaded {items.Count} items, {inspirations.Count} inspirations, {themes.Count} themes.");
+        Debug.Log($"[SceneBuilder] Loaded {configuredItems.Count} items, {configuredInspirations.Count} inspirations, {configuredThemes.Count} themes.");
     }
 
     private static void WireUpReferences(ThemeSelector selector, ThemeSelectionPopup popup)
@@ -1228,5 +1450,21 @@ public static class ExhibitionSceneBuilder
         }
 
         Debug.LogWarning($"[SceneBuilder] Field not found: {target.GetType().Name}.{fieldName}");
+    }
+
+    private static T GetPrivateField<T>(object target, string fieldName)
+    {
+        var type = target.GetType();
+        while (type != null)
+        {
+            var field = type.GetField(fieldName, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (field != null)
+                return field.GetValue(target) is T value ? value : default;
+
+            type = type.BaseType;
+        }
+
+        Debug.LogWarning($"[SceneBuilder] Field not found: {target.GetType().Name}.{fieldName}");
+        return default;
     }
 }

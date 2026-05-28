@@ -19,6 +19,7 @@ namespace ExhibitionSystem.UI
         [SerializeField] private ShelfSlotUI _slotPrefab;
         [SerializeField] private Transform _gridContainer;
         [SerializeField] private List<ShelfSlotUI> _manualSlots = new();
+        [SerializeField] private List<ExhibitItemData> _slotItems = new();
 
         [Header("Grid Settings")]
         [SerializeField] private int _columns = 4;
@@ -57,9 +58,14 @@ namespace ExhibitionSystem.UI
             if (Application.isPlaying || _manualSlots == null || _manualSlots.Count == 0)
                 return;
 
-            var previewItems = Resources.LoadAll<ExhibitItemData>("Exhibitions/Items")
-                .OrderBy(item => item.sortOrder)
-                .ToList();
+            var manager = FindFirstObjectByType<ExhibitionManager>(FindObjectsInactive.Include);
+            var previewItems = _slotItems != null && _slotItems.Count > 0
+                ? _slotItems
+                : manager != null && manager.AllItems.Count > 0
+                    ? manager.AllItems.Where(item => item != null).ToList()
+                : Resources.LoadAll<ExhibitItemData>("Exhibitions/Items")
+                    .OrderBy(item => item.sortOrder)
+                    .ToList();
 
             for (int i = 0; i < _manualSlots.Count; i++)
             {
@@ -67,7 +73,8 @@ namespace ExhibitionSystem.UI
                 if (slot == null) continue;
 
                 slot.SetSlotIndex(i);
-                slot.SetData(i < previewItems.Count ? previewItems[i] : null);
+                var item = i < previewItems.Count ? previewItems[i] : null;
+                slot.SetData(item);
             }
         }
 #endif
@@ -83,6 +90,7 @@ namespace ExhibitionSystem.UI
             if (manager == null) return;
 
             var allItems = manager.AllItems;
+            var slotItems = _slotItems != null && _slotItems.Count > 0 ? _slotItems : allItems;
             int totalSlots = _columns * _rows;
 
             if (_manualSlots != null && _manualSlots.Count > 0)
@@ -95,8 +103,8 @@ namespace ExhibitionSystem.UI
                     if (slot == null) continue;
 
                     slot.SetSlotIndex(i);
-                    slot.gameObject.SetActive(i < totalSlots);
-                    SetSlotItem(slot, i, allItems, manager);
+                    slot.gameObject.SetActive(i < totalSlots && i < slotItems.Count && slotItems[i] != null);
+                    SetSlotItem(slot, i, slotItems, manager);
                     _slots.Add(slot);
                 }
 

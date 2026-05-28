@@ -189,11 +189,26 @@ namespace ExhibitionSystem.UI
 
         private void HandleRewardConfirmed()
         {
-            if (_tryAnotherThemeHintDismissed)
+            if (_tryAnotherThemeHintDismissed || AreAllThemesCompleted())
                 return;
 
             _tryAnotherThemeHintShown = true;
             Show(_tryAnotherThemeMessage);
+        }
+
+        private static bool AreAllThemesCompleted()
+        {
+            var manager = ExhibitionManager.Instance;
+            if (manager == null || manager.AllThemes == null || manager.AllThemes.Count == 0)
+                return false;
+
+            foreach (var theme in manager.AllThemes)
+            {
+                if (theme == null || !theme.isCompleted)
+                    return false;
+            }
+
+            return true;
         }
 
         private void TryShowStartHint()
