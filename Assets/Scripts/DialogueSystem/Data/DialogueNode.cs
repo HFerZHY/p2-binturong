@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
+using InventorySystem.Data;
 
 namespace DialogueSystem.Data
 {
@@ -45,6 +46,13 @@ namespace DialogueSystem.Data
         [Tooltip("All conditions must pass for this node to be reached.")]
         public List<DialogueCondition> conditions = new();
 
+        [Header("Item Rewards")]
+        [Tooltip("Items granted to the player when this node is entered.")]
+        public List<DialogueItemReward> itemRewards = new();
+
+        [Tooltip("If true, this node will only grant its item rewards once per dialogue session.")]
+        public bool grantItemRewardsOnlyOnce = true;
+
         [Header("Events")]
         [Tooltip("Fired when this node is entered.")]
         public UnityEvent onEnter;
@@ -80,8 +88,35 @@ namespace DialogueSystem.Data
 
         [Tooltip("If true and conditions fail, the choice is shown greyed out rather than hidden.")]
         public bool showIfFailed = false;
+
+        [Tooltip("Items removed from the player's inventory when this choice is selected.")]
+        public List<DialogueItemCost> itemCosts = new();
     }
 
+    // -------------------------------------------------------------------------
+
+    [Serializable]
+    public class DialogueItemReward
+    {
+        [Tooltip("The item granted when this dialogue node is entered.")]
+        public ItemData item;
+
+        [Tooltip("How many units of the item to grant.")]
+        [Min(1)]
+        public int amount = 1;
+    }
+    // -------------------------------------------------------------------------
+
+    [Serializable]
+    public class DialogueItemCost
+    {
+        [Tooltip("The item removed when this dialogue choice is selected.")]
+        public ItemData item;
+
+        [Tooltip("How many units of the item to remove.")]
+        [Min(1)]
+        public int amount = 1;
+    }
     // -------------------------------------------------------------------------
 
     [Serializable]

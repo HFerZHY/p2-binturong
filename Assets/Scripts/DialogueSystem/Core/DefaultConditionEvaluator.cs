@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using DialogueSystem.Data;
 using DialogueSystem.Interfaces;
+using InventorySystem;
+
 
 namespace DialogueSystem.Core
 {
@@ -62,13 +64,18 @@ namespace DialogueSystem.Core
                     return _questFlags.GetFlag(condition.key) == condition.value;
 
                 case ConditionType.HasItem:
-                    if (_inventory == null)
                     {
-                        Debug.LogWarning("[ConditionEvaluator] No IInventoryProvider registered.");
-                        return true;
+                        int qty = int.TryParse(condition.value, out int q) ? q : 1;
+
+                        if (_inventory != null)
+                            return _inventory.HasItem(condition.key, qty);
+
+                        if (InventoryManager.Instance != null)
+                            return InventoryManager.Instance.HasItem(condition.key, qty);
+
+                        Debug.LogWarning("[ConditionEvaluator] No inventory provider or InventoryManager found.");
+                        return false;
                     }
-                    int qty = int.TryParse(condition.value, out int q) ? q : 1;
-                    return _inventory.HasItem(condition.key, qty);
 
                 case ConditionType.RelationshipMin:
                     if (_relationships == null)

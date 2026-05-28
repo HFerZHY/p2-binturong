@@ -22,6 +22,10 @@ MonoBehaviour:
     nextNodeId: node_0002
     choices: []
     conditions: []
+    itemRewards:
+    - item: {fileID: 11400000, guid: a3d2e50ac5c104538a1fdc861633d35e, type: 2}
+      amount: 1
+    grantItemRewardsOnlyOnce: 1
     onEnter:
       m_PersistentCalls:
         m_Calls: []
@@ -40,17 +44,28 @@ MonoBehaviour:
     choices:
     - labelKey: node_0002_choice_01
       targetNodeId: node_0004
-      conditions: []
+      conditions:
+      - type: 1
+        key: letter
+        value: 1
+        negate: 0
       showIfFailed: 0
+      itemCosts:
+      - item: {fileID: 11400000, guid: a3d2e50ac5c104538a1fdc861633d35e, type: 2}
+        amount: 1
     - labelKey: node_0002_choice_02
       targetNodeId: node_0005
       conditions: []
       showIfFailed: 0
+      itemCosts: []
     - labelKey: node_0002_choice_03
       targetNodeId: node_0003
       conditions: []
       showIfFailed: 0
+      itemCosts: []
     conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
     onEnter:
       m_PersistentCalls:
         m_Calls: []
@@ -68,6 +83,8 @@ MonoBehaviour:
     nextNodeId: node_0006
     choices: []
     conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
     onEnter:
       m_PersistentCalls:
         m_Calls: []
@@ -85,6 +102,8 @@ MonoBehaviour:
     nextNodeId: node_0007
     choices: []
     conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
     onEnter:
       m_PersistentCalls:
         m_Calls: []
@@ -102,6 +121,8 @@ MonoBehaviour:
     nextNodeId: node_0001
     choices: []
     conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
     onEnter:
       m_PersistentCalls:
         m_Calls: []
@@ -119,6 +140,8 @@ MonoBehaviour:
     nextNodeId: node_0008
     choices: []
     conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
     onEnter:
       m_PersistentCalls:
         m_Calls: []
@@ -136,6 +159,8 @@ MonoBehaviour:
     nextNodeId: 
     choices: []
     conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
     onEnter:
       m_PersistentCalls:
         m_Calls: []

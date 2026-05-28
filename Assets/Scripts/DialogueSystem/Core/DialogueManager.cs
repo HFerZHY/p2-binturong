@@ -5,6 +5,7 @@ using UnityEngine;
 using DialogueSystem.Data;
 using DialogueSystem.Interfaces;
 using DialogueSystem.UI;
+using InventorySystem;
 
 namespace DialogueSystem.Core
 {
@@ -53,6 +54,7 @@ namespace DialogueSystem.Core
         private DialogueNode _currentNode;
         private Animator _npcAnimator;
         private ConversationState _state = ConversationState.Idle;
+        private readonly HashSet<string> _rewardedNodeIds = new();
 
         // ── Static events ─────────────────────────────────────────────────────
 
@@ -110,6 +112,7 @@ namespace DialogueSystem.Core
             _activeGraph = graph;
             _activeGraph.BuildLookup();
             _npcAnimator = npcAnimator;
+            _rewardedNodeIds.Clear();
 
             var entry = _activeGraph.GetEntryNode();
             if (entry == null)
@@ -192,6 +195,7 @@ namespace DialogueSystem.Core
             if (_npcAnimator != null && !string.IsNullOrEmpty(node.npcAnimatorTrigger))
                 _npcAnimator.SetTrigger(node.npcAnimatorTrigger);
 
+            GrantItemRewards(node);
             node.onEnter?.Invoke();
             OnNodeEntered?.Invoke(node);
             _currentNode = node;
@@ -241,15 +245,26 @@ namespace DialogueSystem.Core
         {
             if (_state != ConversationState.Branch) return;
 
-            dialogueUIController.HideChoices();
-            _currentNode.onExit?.Invoke();
+            if (choice == null)
+                return;
 
             if (string.IsNullOrEmpty(choice.targetNodeId))
             {
                 Debug.LogWarning($"[DialogueManager] Choice '{choice.labelKey}' has no targetNodeId. Ending conversation.");
+                dialogueUIController.HideChoices();
+                _currentNode.onExit?.Invoke();
                 EndConversation();
                 return;
             }
+
+            if (!TryConsumeChoiceCosts(choice))
+            {
+                Debug.LogWarning($"[DialogueManager] Could not consume item costs for choice '{choice.labelKey}'.");
+                return;
+            }
+
+            dialogueUIController.HideChoices();
+            _currentNode.onExit?.Invoke();
 
             ProcessNode(_activeGraph.GetNode(choice.targetNodeId));
         }
@@ -260,6 +275,68 @@ namespace DialogueSystem.Core
         {
             if (string.IsNullOrEmpty(node.nextNodeId)) return null;
             return _activeGraph.GetNode(node.nextNodeId);
+        }
+
+        private void GrantItemRewards(DialogueNode node)
+        {
+            if (node == null || node.itemRewards == null || node.itemRewards.Count == 0)
+                return;
+
+            if (node.grantItemRewardsOnlyOnce && _rewardedNodeIds.Contains(node.id))
+                return;
+
+            if (InventoryManager.Instance == null)
+            {
+                Debug.LogError("[DialogueManager] No InventoryManager found in scene.");
+                return;
+            }
+
+            foreach (var reward in node.itemRewards)
+            {
+                if (reward == null || reward.item == null || reward.amount <= 0)
+                    continue;
+
+                InventoryManager.Instance.Add(reward.item, reward.amount);
+            }
+
+            if (node.grantItemRewardsOnlyOnce)
+                _rewardedNodeIds.Add(node.id);
+        }
+
+        private bool TryConsumeChoiceCosts(DialogueChoice choice)
+        {
+            if (choice.itemCosts == null || choice.itemCosts.Count == 0)
+                return true;
+
+            if (InventoryManager.Instance == null)
+            {
+                Debug.LogError("[DialogueManager] No InventoryManager found in scene.");
+                return false;
+            }
+
+            foreach (var cost in choice.itemCosts)
+            {
+                if (cost == null || cost.item == null || cost.amount <= 0)
+                    continue;
+
+                if (!InventoryManager.Instance.Has(cost.item, cost.amount))
+                {
+                    Debug.LogWarning(
+                        $"[DialogueManager] Missing item cost: {cost.amount}x {cost.item.nameKey}."
+                    );
+                    return false;
+                }
+            }
+
+            foreach (var cost in choice.itemCosts)
+            {
+                if (cost == null || cost.item == null || cost.amount <= 0)
+                    continue;
+
+                InventoryManager.Instance.Remove(cost.item, cost.amount);
+            }
+
+            return true;
         }
 
         private List<(DialogueChoice choice, bool interactable)> BuildFilteredChoices(
