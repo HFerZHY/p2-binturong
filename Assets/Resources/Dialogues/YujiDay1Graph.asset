@@ -322,7 +322,7 @@ MonoBehaviour:
     nodeType: 0
     speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
     speakerPortraitKey: 
-    textKey: 
+    textKey: yuji_day1_colors_001
     nextNodeId: node_0016
     choices: []
     conditions: []
@@ -343,7 +343,7 @@ MonoBehaviour:
     nodeType: 0
     speaker: {fileID: 11400000, guid: 17a609bdde10c411ca37201bfaf29520, type: 2}
     speakerPortraitKey: 
-    textKey: 
+    textKey: yuji_day1_colors_002
     nextNodeId: node_0017
     choices: []
     conditions: []
