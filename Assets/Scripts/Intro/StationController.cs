@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using TMPro;
+using ExhibitionSystem.Data;
 
 namespace Otowa.Intro
 {
@@ -45,10 +46,11 @@ namespace Otowa.Intro
         private struct Beat
         {
             public BeatKind Kind;
-            public string   Speaker;    // Dialogue only
+            public string   Speaker;        // Dialogue only
             public string   Text;
-            public bool     IsThought;  // italic + dim for inner thoughts
-            public int      LetterPage; // 1–5
+            public bool     IsThought;      // italic + dim for inner thoughts
+            public int      LetterPage;     // 1–5
+            public bool     HidesRightChar; // fade out right character after this beat
         }
 
         private List<Beat> _beats;
@@ -60,6 +62,8 @@ namespace Otowa.Intro
         private bool      _inputLock;
         private Coroutine _twCR;
         private TMP_Text  _activeTmp;
+        private bool      _inspRevealed;
+        private CanvasGroup _inspOverlayCG;
 
         // ── UI refs ───────────────────────────────────────────────────────────
 
@@ -130,6 +134,7 @@ namespace Otowa.Intro
         private void Update()
         {
             if (_inputLock) return;
+            if (InspirationManager.IsJournalOpen) return;
 
             var mouse = Mouse.current;
             var kb    = Keyboard.current;
@@ -148,7 +153,25 @@ namespace Otowa.Intro
         {
             int next = _current + 1;
             if (next >= _beats.Count) { StartCoroutine(FadeAndLoad()); return; }
+
+            if (_current >= 0 && _beats[_current].HidesRightChar)
+                StartCoroutine(FadeOutRightChar());
+
             ShowBeat(next);
+        }
+
+        private IEnumerator FadeOutRightChar()
+        {
+            const float duration = 0.4f;
+            float elapsed = 0f;
+            float startAlpha = _inspImg.color.a;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                SetAlpha(_inspImg, Mathf.Lerp(startAlpha, 0f, Mathf.Clamp01(elapsed / duration)));
+                yield return null;
+            }
+            _inspImg.gameObject.SetActive(false);
         }
 
         private void ShowBeat(int index)
@@ -201,6 +224,7 @@ namespace Otowa.Intro
             _bgImage.color = NarBg;
             _invPanel.SetActive(true);
             SetPrompt(true);
+            InspirationManager.Instance.CollectAllItems();
         }
 
         // ── Dialogue ─────────────────────────────────────────────────────────
@@ -232,6 +256,12 @@ namespace Otowa.Intro
 
             SetAlpha(_rinImg,  isRin  ? ActiveAlpha : InactiveAlpha);
             SetAlpha(_inspImg, isInsp ? ActiveAlpha : InactiveAlpha);
+
+            if (b.Speaker == "Inspector" && !_inspRevealed)
+            {
+                _inspRevealed = true;
+                StartCoroutine(RevealInspector());
+            }
 
             _bodyTmp.color     = b.IsThought ? ThoughtC : BodyC;
             _bodyTmp.fontStyle = b.IsThought ? FontStyles.Italic : FontStyles.Normal;
@@ -429,22 +459,22 @@ namespace Otowa.Intro
             var card = MakeRect(_invPanel.transform, "Card",
                 new Vector2(0.26f, 0.12f), new Vector2(0.74f, 0.88f));
             card.AddComponent<Image>().color = new Color32(0x0a, 0x14, 0x0a, 0xFF);
-
             var ct = card.transform;
 
-            // Title
             var titleTmp = MakeTMP(ct, "InvTitle", "INVENTORY",
                 30f, RinGreen, TextAlignmentOptions.Center,
                 new Vector2(0.04f, 0.89f), new Vector2(0.96f, 0.98f));
             UseFont(titleTmp, serifFont);
 
-            // Subtitle
             var subTmp = MakeTMP(ct, "InvSub", "Items found in the stationmaster's office",
                 18f, BodyC, TextAlignmentOptions.Center,
                 new Vector2(0.04f, 0.82f), new Vector2(0.96f, 0.90f));
             UseFont(subTmp, serifFont);
 
-            // 4 × 4 grid (14 items + 2 locked)
+            // Load all 16 items sorted by sortOrder
+            var rawItems = Resources.LoadAll<ExhibitItemData>("Exhibitions/Items");
+            System.Array.Sort(rawItems, (a, b) => a.sortOrder.CompareTo(b.sortOrder));
+
             var gridGo = MakeRect(ct, "Grid",
                 new Vector2(0.04f, 0.08f), new Vector2(0.96f, 0.80f));
             var grid = gridGo.AddComponent<GridLayoutGroup>();
@@ -457,30 +487,81 @@ namespace Otowa.Intro
 
             for (int i = 0; i < 16; i++)
             {
-                bool hasItem = i < 14;
+                var itemData = (i < rawItems.Length) ? rawItems[i] : null;
+
                 var slot = new GameObject($"Slot{i}", typeof(RectTransform));
                 slot.transform.SetParent(gridGo.transform, false);
                 var rt = (RectTransform)slot.transform;
                 rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
-                rt.pivot = new Vector2(0.5f, 0.5f);
+                rt.pivot     = new Vector2(0.5f, 0.5f);
 
-                var slotImg = slot.AddComponent<Image>();
-                slotImg.color = hasItem
-                    ? new Color32(0x1a, 0x3a, 0x1a, 0xFF)
-                    : new Color32(0x0e, 0x1e, 0x0e, 0xFF);
+                slot.AddComponent<Image>().color = new Color32(0x1a, 0x3a, 0x1a, 0xFF);
 
-                var lbl = MakeTMP(slot.transform, "Lbl",
-                    hasItem ? "?" : "",
-                    hasItem ? 34f : 24f,
-                    hasItem
-                        ? new Color32(0x4a, 0x7a, 0x4a, 0xFF)
-                        : new Color32(0x2a, 0x4a, 0x2a, 0xFF),
-                    TextAlignmentOptions.Center,
-                    Vector2.zero, Vector2.one);
-                UseFont(lbl, serifFont);
+                if (itemData != null && itemData.icon != null)
+                {
+                    var iconGo  = MakeRect(slot.transform, "Icon",
+                        new Vector2(0.1f, 0.25f), new Vector2(0.9f, 0.95f));
+                    var iconImg = iconGo.AddComponent<Image>();
+                    iconImg.sprite         = itemData.icon;
+                    iconImg.preserveAspect = true;
+                    iconImg.raycastTarget  = false;
+
+                    var nameTmp = MakeTMP(slot.transform, "Name", itemData.itemName,
+                        11f, new Color32(0xaa, 0xcc, 0xaa, 0xFF), TextAlignmentOptions.Center,
+                        new Vector2(0.02f, 0.02f), new Vector2(0.98f, 0.24f));
+                    UseFont(nameTmp, serifFont);
+                }
+                else
+                {
+                    var lbl = MakeTMP(slot.transform, "Lbl",
+                        itemData != null ? itemData.itemName : "?",
+                        itemData != null ? 16f : 34f,
+                        new Color32(0x4a, 0x7a, 0x4a, 0xFF),
+                        TextAlignmentOptions.Center,
+                        Vector2.zero, Vector2.one);
+                    UseFont(lbl, serifFont);
+                }
             }
 
             _invPanel.SetActive(false);
+        }
+
+        // ── Inspector unknown overlay ─────────────────────────────────────────
+
+        private void BuildInspectorOverlay(Transform parent)
+        {
+            var go = MakeRect(parent, "InspOverlay", Vector2.zero, Vector2.one);
+            go.transform.localScale = new Vector3(-1f, 1f, 1f); // undo parent's flip so text reads correctly
+            _inspOverlayCG = go.AddComponent<CanvasGroup>();
+
+            // 99% opaque black — inspector completely hidden
+            var bg = go.AddComponent<Image>();
+            bg.color = new Color32(0x00, 0x00, 0x00, 0xFC);
+
+            // Giant white "?"
+            var qmark = MakeTMP(go.transform, "QMark", "?",
+                300f, new Color32(0xFF, 0xFF, 0xFF, 0xFF), TextAlignmentOptions.Center,
+                new Vector2(0.0f, 0.1f), new Vector2(1.0f, 1.0f));
+            UseFont(qmark, serifFont);
+
+            // "???" label at the bottom
+            var lbl = MakeTMP(go.transform, "UnknownLbl", "???",
+                26f, new Color32(0xAA, 0xAA, 0xAA, 0xFF), TextAlignmentOptions.Center,
+                new Vector2(0.05f, 0.02f), new Vector2(0.95f, 0.15f));
+            UseFont(lbl, serifFont);
+        }
+
+        private IEnumerator RevealInspector()
+        {
+            const float duration = 0.6f;
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                _inspOverlayCG.alpha = 1f - Mathf.Clamp01(elapsed / duration);
+                yield return null;
+            }
+            _inspOverlayCG.gameObject.SetActive(false);
         }
 
         // ── Dialogue panel ────────────────────────────────────────────────────
@@ -499,20 +580,18 @@ namespace Otowa.Intro
             _rinImg.color          = new Color(1, 1, 1, InactiveAlpha);
             _rinImg.raycastTarget  = false;
 
-            // Inspector — right (solid-colour placeholder until real sprite assigned)
+            // Inspector — right, flipped to face Rin
             var inspGo = MakeRect(t, "InspSprite",
                 new Vector2(0.62f, 0.28f), new Vector2(0.97f, 0.98f));
+            inspGo.transform.localScale = new Vector3(-1f, 1f, 1f);
             _inspImg = inspGo.AddComponent<Image>();
             _inspImg.sprite         = inspectorSprite;
-            _inspImg.preserveAspect = false;
+            _inspImg.preserveAspect = true;
             _inspImg.color          = new Color(1, 1, 1, InactiveAlpha);
             _inspImg.raycastTarget  = false;
 
-            // Placeholder label on inspector slot
-            var inspLbl = MakeTMP(inspGo.transform, "InspLbl", "[ Inspector ]",
-                22f, new Color32(0x60, 0x68, 0x88, 0xFF), TextAlignmentOptions.Center,
-                new Vector2(0f, 0.45f), new Vector2(1f, 0.55f));
-            UseFont(inspLbl, serifFont);
+            // Unknown overlay — counter-flipped so text reads correctly
+            BuildInspectorOverlay(inspGo.transform);
 
             // Bottom dialogue panel
             var panel = MakeRect(t, "Panel", Vector2.zero, new Vector2(1f, 0.28f));
@@ -687,7 +766,7 @@ namespace Otowa.Intro
                 D("Rin",       false, "You've already reached a conclusion?"),
                 D("Inspector", false, "I will take a walk around the village. Though I don't hold out much hope."),
                 D("Inspector", false, "Let's hope that before I finish writing my report, you can present something a bit more convincing."),
-                D("Inspector", false, "Goodbye."),
+                new Beat { Kind = BeatKind.Dialogue, Speaker = "Inspector", Text = "Goodbye.", HidesRightChar = true },
                 D("Rin",       true,  "(He really just left...)"),
                 D("Rin",       true,  "(Wait, did he say evaluation report just now? What happens if we fail?)"),
                 D("Rin",       true,  "(Hikaru, just how big of a mess have you dumped on me?)"),
