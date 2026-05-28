@@ -51,7 +51,7 @@ public class PlayerMovement : MonoBehaviour
         if (moveInput.x != 0f)
             FacingRight = moveInput.x > 0f;
         animator?.SetBool("isMoving", IsMoving);
-        animator?.SetBool("facingRight", FacingRight);
+        // animator?.SetBool("facingRight", FacingRight);
         Vector3 localScale = transform.localScale;
         localScale.x = FacingRight ? 1f : -1f;
         transform.localScale = localScale;

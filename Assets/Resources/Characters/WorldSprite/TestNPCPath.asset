@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 098be13db02a4384afd3172caeda7847, type: 3}
+  m_Name: TestNPCPath
+  m_EditorClassIdentifier: Assembly-CSharp::NPCPath
+  waypoints:
+  - position: {x: 1.0102707, y: -3.5297384}
+    stopDuration: 2
+  - position: {x: 7.188958, y: -1.8165944}
+    stopDuration: 2
+  - position: {x: 3.360113, y: 1.5785062}
+    stopDuration: 2
+  loop: 1

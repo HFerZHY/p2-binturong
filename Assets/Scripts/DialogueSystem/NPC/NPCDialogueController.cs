@@ -41,6 +41,8 @@ namespace DialogueSystem.NPC
 
         [Tooltip("Trigger name fired when the conversation ends.")]
         [SerializeField] private string talkEndTrigger = "TalkEnd";
+        
+        [SerializeField] private NPCMovement movement;
 
         // ── IInteractable ─────────────────────────────────────────────────────
 
@@ -65,6 +67,9 @@ namespace DialogueSystem.NPC
 
             // Subscribe to end so we can fire TalkEnd animation
             DialogueManager.OnConversationEnded += HandleConversationEnded;
+            
+            movement?.Pause();
+            movement?.TurnToPlayer();
 
             DialogueManager.Instance.StartConversation(this, initiator);
         }
@@ -75,6 +80,8 @@ namespace DialogueSystem.NPC
 
             if (npcAnimator != null && !string.IsNullOrEmpty(talkEndTrigger))
                 npcAnimator.SetTrigger(talkEndTrigger);
+            
+            movement?.Resume();
         }
 
         // ── INPCDialogueProvider ──────────────────────────────────────────────
