@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Omamori
   m_EditorClassIdentifier: Assembly-CSharp::InventorySystem.Data.ItemData
   nameKey: amulet
-  descriptionKey: amulet_desc
+  descriptionKey: 
   icon: {fileID: -5098722796299924958, guid: 07e6e36f1f0e15c4095193ab1b23cf74, type: 3}
   labels:
   - Hot Spring

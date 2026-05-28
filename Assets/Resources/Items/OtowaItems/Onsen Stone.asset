@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 745f95b36910def4d9403433793b7514, type: 3}
   m_Name: Onsen Stone
   m_EditorClassIdentifier: Assembly-CSharp::InventorySystem.Data.ItemData
-  nameKey: Onsen Stone
-  descriptionKey: onsen_stone_desc
-  icon: {fileID: 0}
+  nameKey: onsen
+  descriptionKey: 
+  icon: {fileID: 5725184139431673129, guid: 12b38011ff79e7f43b6fac1c7ddec26f, type: 3}
   labels:
   - Hot Spring
   - Mizuki

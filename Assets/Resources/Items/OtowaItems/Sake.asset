@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sake
   m_EditorClassIdentifier: Assembly-CSharp::InventorySystem.Data.ItemData
   nameKey: sake
-  descriptionKey: sake_disc
+  descriptionKey: 
   icon: {fileID: -95952781807980326, guid: e4effdefc5e666f4cbd185232b7c1748, type: 3}
   labels:
   - Gold Medal

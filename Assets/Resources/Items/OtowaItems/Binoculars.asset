@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Binoculars
   m_EditorClassIdentifier: Assembly-CSharp::InventorySystem.Data.ItemData
   nameKey: binoculars
-  descriptionKey: binoculars_desc
+  descriptionKey: 
   icon: {fileID: -7995801112242826529, guid: 096470c714b11cb4a9e9ced2a12fbe0d, type: 3}
   labels:
   - Bird Watching

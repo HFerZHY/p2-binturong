@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Mushroom
   m_EditorClassIdentifier: Assembly-CSharp::InventorySystem.Data.ItemData
   nameKey: mushroom
-  descriptionKey: mushroom_desc
-  icon: {fileID: 0}
+  descriptionKey: 
+  icon: {fileID: -5107242789598853282, guid: 4858ea5276e6eff4893a708c509391b6, type: 3}
   labels:
   - Jiro
   - Silver Medal
