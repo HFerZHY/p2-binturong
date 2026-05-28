@@ -47,6 +47,34 @@ MonoBehaviour:
     m_Key: test_choice_1_2
     m_Metadata:
       m_Items: []
+  - m_Id: 9521917391265792
+    m_Key: Mizuki_day1_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522156906995712
+    m_Key: Mizuki_day1_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522290298445824
+    m_Key: Mizuki_day1_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522441150783488
+    m_Key: Mizuki_day1_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522598508486656
+    m_Key: Mizuki_day1_005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522729693732864
+    m_Key: Mizuki_day1_006
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522886397124608
+    m_Key: Mizuki_day1_007
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

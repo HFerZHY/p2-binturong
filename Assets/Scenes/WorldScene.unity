@@ -43202,7 +43202,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e48d48e6b305a5449ba02be326e66a65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSystem.NPC.NPCDialogueController
-  dialogueGraph: {fileID: 11400000, guid: a288b1c5f159c2b48a692c8cbc34ad18, type: 2}
+  dialogueGraph: {fileID: 11400000, guid: 5df0dc4169d44465dab51c2940174543, type: 2}
   interactPrompt: '[Space] Talk'
   canInteract: 1
   npcAnimator: {fileID: 0}

@@ -50,6 +50,36 @@ MonoBehaviour:
     m_Localized: hello en
     m_Metadata:
       m_Items: []
+  - m_Id: 9521917391265792
+    m_Localized: ...Good evening.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522156906995712
+    m_Localized: Ah, good evening. I'm Rin, the acting stationmaster who just arrived
+      today.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522290298445824
+    m_Localized: Mm, Chief Junko told me. I am Mizuki.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522441150783488
+    m_Localized: The evening mountain wind is a bit chilly. Here, this is for you.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522598508486656
+    m_Localized: Is this... a charm?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522729693732864
+    m_Localized: It is a blessing from Otowa. May the flowing water wash away your
+      fatigue, and keep you safe and in good health.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9522886397124608
+    m_Localized: Thank you, Mizuki.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
