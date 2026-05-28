@@ -50,6 +50,7 @@ namespace ExhibitionSystem.UI
             ExhibitionManager.OnExhibitionStarted += HandleExhibitionStarted;
             ExhibitionManager.OnVisitorReacted += HandleVisitorReacted;
             ExhibitionManager.OnExhibitionEnded += HandleExhibitionEnded;
+            ExhibitionManager.OnCurationCleared += HandleCurationCleared;
         }
 
         private void OnDisable()
@@ -59,6 +60,7 @@ namespace ExhibitionSystem.UI
             ExhibitionManager.OnExhibitionStarted -= HandleExhibitionStarted;
             ExhibitionManager.OnVisitorReacted -= HandleVisitorReacted;
             ExhibitionManager.OnExhibitionEnded -= HandleExhibitionEnded;
+            ExhibitionManager.OnCurationCleared -= HandleCurationCleared;
         }
 
         private void Update()
@@ -85,7 +87,8 @@ namespace ExhibitionSystem.UI
         /// </summary>
         public void SetValue(int current)
         {
-            _targetValue = current;
+            _targetValue = Mathf.Clamp(current, 0, _maxValue);
+            UpdateValueText(_targetValue);
         }
 
         /// <summary>
@@ -107,6 +110,7 @@ namespace ExhibitionSystem.UI
 
             UpdateThresholdMarker();
             UpdateSlider(0);
+            UpdateValueText(0);
 
             // Initialize color state
             _currentColor = _neutralColor;
@@ -130,6 +134,7 @@ namespace ExhibitionSystem.UI
                 _slider.value = 0;
 
             UpdateSlider(0);
+            UpdateValueText(0);
 
             // Reset color to neutral
             _currentColor = _neutralColor;
@@ -169,7 +174,16 @@ namespace ExhibitionSystem.UI
 
         private void HandleExhibitionEnded(bool success, int satisfaction, int threshold)
         {
-            // Final state is already set
+            if (threshold > 0)
+                _maxValue = threshold;
+
+            SetValueImmediate(satisfaction);
+            UpdateColor();
+        }
+
+        private void HandleCurationCleared()
+        {
+            Initialize(0, 0);
         }
 
         // ── Private Methods ─────────────────────────────────────────────────────
@@ -178,9 +192,21 @@ namespace ExhibitionSystem.UI
         {
             if (_slider != null)
                 _slider.value = value;
+        }
 
+        private void UpdateValueText(int value)
+        {
             if (_valueText != null)
-                _valueText.text = $"{Mathf.FloorToInt(value)} / {_maxValue}";
+                _valueText.text = $"{Mathf.Clamp(value, 0, _maxValue)} / {_maxValue}";
+        }
+
+        private void SetValueImmediate(int current)
+        {
+            int clampedValue = Mathf.Clamp(current, 0, _maxValue);
+            _targetValue = clampedValue;
+            _displayValue = clampedValue;
+            UpdateSlider(_displayValue);
+            UpdateValueText(clampedValue);
         }
 
         private void UpdateColor()

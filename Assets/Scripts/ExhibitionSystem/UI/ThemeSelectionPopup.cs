@@ -115,6 +115,9 @@ namespace ExhibitionSystem.UI
                 _canvasGroup.alpha = 0f;
 
             _selectedTheme = ExhibitionManager.Instance?.CurrentTheme;
+            if (_selectedTheme != null && _selectedTheme.isCompleted)
+                _selectedTheme = null;
+
             PopulateList();
             UpdateSelectionVisuals();
         }
@@ -199,13 +202,16 @@ namespace ExhibitionSystem.UI
 
         private void OnThemeSelected(ExhibitionTheme theme)
         {
+            if (theme == null || theme.isCompleted)
+                return;
+
             _selectedTheme = theme;
             UpdateSelectionVisuals();
         }
 
         private void EnterSelectedTheme()
         {
-            if (_selectedTheme == null) return;
+            if (_selectedTheme == null || _selectedTheme.isCompleted) return;
 
             ExhibitionManager.Instance?.SelectTheme(_selectedTheme);
             Hide();
@@ -222,11 +228,11 @@ namespace ExhibitionSystem.UI
                 var theme = ExhibitionManager.Instance != null && i < ExhibitionManager.Instance.AllThemes.Count
                     ? ExhibitionManager.Instance.AllThemes[i]
                     : null;
-                item.SetSelected(theme != null && theme == _selectedTheme);
+                item.SetSelected(theme != null && !theme.isCompleted && theme == _selectedTheme);
             }
 
             if (_enterButton != null)
-                _enterButton.interactable = _selectedTheme != null;
+                _enterButton.interactable = _selectedTheme != null && !_selectedTheme.isCompleted;
 
             if (_hintText != null)
             {

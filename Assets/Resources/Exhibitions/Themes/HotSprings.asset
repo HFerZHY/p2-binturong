@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0c05c6b8d6265f4892ffb9d7d579029, type: 3}
   m_Name: HotSprings
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitionTheme
-  title: Hot Springs
+  title: 'The Mountain Springs: A Soak Beneath the Milky Way'
   titleKey: theme_hotsprings
   description: An exhibition about Otowa's water, health, and hot spring culture.
   descriptionKey: desc_hotsprings
   day: 3
   requiredInspirations: 4
   selectionMode: 0
-  validInspirationIds: 04000000060000000d0000000e00000010000000
+  validInspirationIds: 04000000060000000d0000000e0000000f000000
   missingIdeaHints: []
   fallbackMissingHint: 'Rin: (I am missing one of the ideas that really belongs to
     this exhibition.)'

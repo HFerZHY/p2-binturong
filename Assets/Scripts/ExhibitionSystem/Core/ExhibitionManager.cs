@@ -62,6 +62,7 @@ namespace ExhibitionSystem.Core
         public static event Action OnExhibitionStarted;
         public static event Action<int, InspirationData, ExhibitItemData, bool, int> OnVisitorReacted;
         public static event Action<bool, int, int> OnExhibitionEnded;
+        public static event Action OnCurationCleared;
         public static event Action<string> OnPlayerHint;
 
         protected override void Awake()
@@ -154,6 +155,10 @@ namespace ExhibitionSystem.Core
             if (!ValidateSlotIndex(slotIndex)) return null;
             if (_isRunning || IsSlotLocked(slotIndex) || item == null) return null;
 
+            var previousItem = _displaySlots[slotIndex];
+            if (previousItem == item)
+                return previousItem;
+
             int existingIndex = _displaySlots.IndexOf(item);
             if (existingIndex >= 0 && existingIndex != slotIndex && !IsSlotLocked(existingIndex))
             {
@@ -161,7 +166,12 @@ namespace ExhibitionSystem.Core
                 OnItemRemoved?.Invoke(existingIndex);
             }
 
-            var previousItem = _displaySlots[slotIndex];
+            if (previousItem != null)
+            {
+                _displaySlots[slotIndex] = null;
+                OnItemRemoved?.Invoke(slotIndex);
+            }
+
             _displaySlots[slotIndex] = item;
             OnItemPlaced?.Invoke(slotIndex, item);
             return previousItem;
@@ -223,6 +233,23 @@ namespace ExhibitionSystem.Core
         {
             if (_currentTheme == null || _selectedInspirations.Count == 0 || _isRunning) return;
             StartExhibition();
+        }
+
+        public void ClearCompletedCurationForThemeSelection()
+        {
+            if (_isRunning || _currentTheme == null || !_currentTheme.isCompleted)
+                return;
+
+            _currentTheme = null;
+            _selectedInspirations.Clear();
+            _displaySlots.Clear();
+            _lockedSlots.Clear();
+            _satisfaction = 0;
+            _visitorIndex = 0;
+
+            SetState(ExhibitionState.ThemeSelection);
+            OnCurationCleared?.Invoke();
+            OnThemeSelected?.Invoke(null);
         }
 
         public bool IsItemPlaced(ExhibitItemData item)

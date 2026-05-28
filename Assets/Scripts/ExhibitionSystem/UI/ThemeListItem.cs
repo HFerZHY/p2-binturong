@@ -26,6 +26,7 @@ namespace ExhibitionSystem.UI
         private ExhibitionTheme _theme;
         private Action<ExhibitionTheme> _onClick;
         private bool _selected;
+        private bool _isCompleted;
 
         // ── Unity Lifecycle ─────────────────────────────────────────────────────
 
@@ -44,12 +45,16 @@ namespace ExhibitionSystem.UI
         {
             _theme = theme;
             _onClick = onClick;
+            _isCompleted = theme != null && theme.isCompleted;
 
             if (_titleText != null)
-                _titleText.text = theme.title;
+                _titleText.text = theme != null ? theme.title : string.Empty;
 
             if (_completedIcon != null)
-                _completedIcon.gameObject.SetActive(theme.isCompleted);
+                _completedIcon.gameObject.SetActive(_isCompleted);
+
+            if (_button != null)
+                _button.interactable = !_isCompleted;
 
             UpdateVisual();
         }
@@ -64,16 +69,19 @@ namespace ExhibitionSystem.UI
 
         private void HandleClick()
         {
+            if (_isCompleted)
+                return;
+
             _onClick?.Invoke(_theme);
         }
 
         private void UpdateVisual()
         {
             if (_background != null)
-                _background.color = _selected ? _selectedColor : _normalColor;
+                _background.color = _selected && !_isCompleted ? _selectedColor : _normalColor;
 
             if (_selectionFrame != null)
-                _selectionFrame.enabled = _selected;
+                _selectionFrame.enabled = _selected && !_isCompleted;
         }
     }
 }

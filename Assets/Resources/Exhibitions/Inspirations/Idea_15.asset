@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Idea_15
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.InspirationData
   id: 15
-  text: The vibrant colors of the fireworks come from this.
-  mappedItem: {fileID: 11400000, guid: a97ef6739c0a58644b90df0568f6c095, type: 2}
+  text: A father's silent love.
+  mappedItem: {fileID: 11400000, guid: 4ad5ca9ec3c0ba549b533a6828e07fa5, type: 2}
   isUnlocked: 1
   fallbackHint: 'Rin: (This idea feels connected, but I need to place it in the right
     context.)'

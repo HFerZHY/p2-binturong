@@ -30,6 +30,7 @@ namespace ExhibitionSystem.UI
             ExhibitionManager.OnExhibitionStarted += HandleExhibitionStarted;
             ExhibitionManager.OnVisitorReacted += HandleVisitorReacted;
             ExhibitionManager.OnExhibitionEnded += HandleExhibitionEnded;
+            ExhibitionManager.OnCurationCleared += HandleCurationCleared;
         }
 
         private void OnDisable()
@@ -41,6 +42,7 @@ namespace ExhibitionSystem.UI
             ExhibitionManager.OnExhibitionStarted -= HandleExhibitionStarted;
             ExhibitionManager.OnVisitorReacted -= HandleVisitorReacted;
             ExhibitionManager.OnExhibitionEnded -= HandleExhibitionEnded;
+            ExhibitionManager.OnCurationCleared -= HandleCurationCleared;
         }
 
         public void RebuildSlots(IReadOnlyList<InspirationData> inspirations)
@@ -112,6 +114,11 @@ namespace ExhibitionSystem.UI
 
         private void HandleExhibitionEnded(bool success, int satisfaction, int threshold)
         {
+        }
+
+        private void HandleCurationCleared()
+        {
+            RebuildSlots(null);
         }
 
         private void ConfigureGrid(int slotCount)

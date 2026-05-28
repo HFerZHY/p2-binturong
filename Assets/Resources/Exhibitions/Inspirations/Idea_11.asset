@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Idea_11
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.InspirationData
   id: 11
-  text: Jiro recreated a mysterious recipe from centuries ago.
+  text: A mysterious recipe dating back centuries.
   mappedItem: {fileID: 11400000, guid: 012b72be6d16678418a2636264ba1b89, type: 2}
   isUnlocked: 1
   fallbackHint: 'Rin: (This idea feels connected, but I need to place it in the right

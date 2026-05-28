@@ -12,27 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0c05c6b8d6265f4892ffb9d7d579029, type: 3}
   m_Name: SummerFestival
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitionTheme
-  title: Summer Festival
+  title: 'Summer Festival: An Introduction to Otowa Folklore'
   titleKey: theme_summerfestival
   description: A festival exhibition about belief, fireworks, and homecoming.
   descriptionKey: desc_summerfestival
   day: 2
   requiredInspirations: 3
   selectionMode: 0
-  validInspirationIds: 0700000008000000120000000f000000
+  validInspirationIds: 070000000800000010000000
   missingIdeaHints:
   - inspirationId: 7
     hintText: 'Rin: (Junko seemed to mention that the Summer Festival originated
       from some kind of belief. Maybe I''ll need a prop related to that belief.)'
   - inspirationId: 8
-    hintText: 'Rin: (Mr. Yuji said that his specialty actually isn''t mixing drinks.
-      What exactly is it that has everyone looking forward to it so much?)'
-  - inspirationId: 18
+    hintText: 'Rin: (Summer''s most beautiful night seems to bloom above the town.)'
+  - inspirationId: 16
     hintText: 'Rin: (The Summer Festival isn''t just a ceremony, it''s also the day
-      people come home...)'
-  - inspirationId: 15
-    hintText: 'Rin: (To make the fireworks look better, Yuji even went to ask Rintaro
-      for advice.)'
+      wandering souls return...)'
   fallbackMissingHint: 'Rin: (I am missing one of the ideas that really belongs to
     this exhibition.)'
   fallbackInvalidHint: 'Rin: (One of these ideas feels out of place for this exhibition.)'

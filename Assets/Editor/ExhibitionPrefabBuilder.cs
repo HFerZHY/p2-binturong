@@ -148,15 +148,14 @@ public static class ExhibitionPrefabBuilder
 
         var completedObj = CreateChild(root.transform, "CompletedIcon");
         var completedIcon = completedObj.AddComponent<Image>();
-        completedIcon.color = new Color(0.55f, 0.17f, 0.12f, 0.9f);
+        completedIcon.sprite = LoadSprite("Assets/Resources/Exhibitions/Icons/completed-label.png");
+        completedIcon.color = Color.white;
+        completedIcon.preserveAspect = true;
+        completedIcon.raycastTarget = false;
         completedObj.SetActive(false);
         var completedLayout = completedObj.AddComponent<LayoutElement>();
-        completedLayout.preferredWidth = 112;
-        completedLayout.preferredHeight = 34;
-
-        var completedText = CreateText(completedObj.transform, "Text", "Completed", 16, FontStyles.Bold, TextAlignmentOptions.Center);
-        completedText.color = new Color(1f, 0.86f, 0.68f, 1f);
-        Stretch(completedText.GetComponent<RectTransform>(), 0);
+        completedLayout.preferredWidth = 150;
+        completedLayout.preferredHeight = 46;
 
         var listItem = root.AddComponent<ThemeListItem>();
         SetPrivateField(listItem, "_titleText", titleText);

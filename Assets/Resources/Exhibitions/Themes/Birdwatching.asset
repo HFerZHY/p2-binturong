@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0c05c6b8d6265f4892ffb9d7d579029, type: 3}
   m_Name: Birdwatching
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitionTheme
-  title: Birdwatching
+  title: 'Wings Over Otowa: A Birdwatcher''s Paradise'
   titleKey: theme_birdwatching
   description: An exhibition about birds, watchers, and local belief.
   descriptionKey: desc_birdwatching

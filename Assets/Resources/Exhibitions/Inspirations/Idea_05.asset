@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Idea_05
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.InspirationData
   id: 5
-  text: A boy who loved music had a massive fight with his father and left Otowa.
+  text: A music boy left Otowa after a bitter quarrel with his father.
   mappedItem: {fileID: 11400000, guid: fa873d5af938222448820dc2218e8732, type: 2}
   isUnlocked: 1
   fallbackHint: 'Rin: (This idea feels connected, but I need to place it in the right

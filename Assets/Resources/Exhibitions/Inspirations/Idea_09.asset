@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Idea_09
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.InspirationData
   id: 9
-  text: '"Bye Bye, my Otowa town..."'
+  text: Bye Bye, my Otowa town.
   mappedItem: {fileID: 11400000, guid: 41a57eb3be776bd4c928e3f57f2f974f, type: 2}
   isUnlocked: 1
   fallbackHint: 'Rin: (This idea feels connected, but I need to place it in the right

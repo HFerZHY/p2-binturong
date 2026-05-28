@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Idea_07
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.InspirationData
   id: 7
-  text: Legend has it that Otowa's Summer Festival originated from worshipping a
-    bird-shaped deity.
+  text: Legend speaks of an indigenous Otowa belief in an avian deity.
   mappedItem: {fileID: 11400000, guid: 99f3df952a629a14d95a625de49bf2a9, type: 2}
   isUnlocked: 1
   fallbackHint: 'Rin: (This idea feels connected, but I need to place it in the right

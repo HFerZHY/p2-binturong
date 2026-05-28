@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Idea_03
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.InspirationData
   id: 3
-  text: A professor moved to Otowa to enjoy life after retirement.
+  text: A professor retired to Otowa to savor the quiet life.
   mappedItem: {fileID: 11400000, guid: 52c2525063157dc469762708ff5813bf, type: 2}
   isUnlocked: 1
   fallbackHint: 'Rin: (This idea feels connected, but I need to place it in the right

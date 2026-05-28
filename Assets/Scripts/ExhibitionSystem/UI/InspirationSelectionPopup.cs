@@ -53,7 +53,7 @@ namespace ExhibitionSystem.UI
                 _confirmButton.onClick.AddListener(ConfirmSelection);
 
             if (_closeButton != null)
-                _closeButton.onClick.AddListener(Hide);
+                _closeButton.onClick.AddListener(ReturnToThemeSelection);
 
             // Only hide if not already being shown (avoids race condition on first Show() call)
             if (!_isVisible)
@@ -100,6 +100,12 @@ namespace ExhibitionSystem.UI
         public void Hide()
         {
             HideImmediate();
+        }
+
+        public void ReturnToThemeSelection()
+        {
+            HideImmediate();
+            ExhibitionUIManager.Instance?.ShowThemePopup();
         }
 
         private void HideImmediate()

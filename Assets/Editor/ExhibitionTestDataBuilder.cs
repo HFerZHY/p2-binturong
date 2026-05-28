@@ -105,24 +105,22 @@ public static class ExhibitionTestDataBuilder
 
         var defs = new (int id, string text, ExhibitItemData item)[]
         {
-            (1, "There are some rare bird species in the Otowa forest.", Item(1)),
-            (2, "Whenever you see Rintaro, you are guaranteed to see this.", Item(2)),
-            (3, "A professor moved to Otowa to enjoy life after retirement.", Item(12)),
-            (4, "Color of water, color of birds, color of Otowa.", Item(15)),
-            (5, "A boy who loved music had a massive fight with his father and left Otowa.", Item(14)),
-            (6, "\"Octopus traps, fleeting dreams under the summer moon.\"", Item(13)),
-            (7, "Legend has it that Otowa's Summer Festival originated from worshipping a bird-shaped deity.", Item(9)),
-            (8, "The multitalented Yuji's business isn't limited to the pub.", Item(10)),
-            (9, "\"Bye Bye, my Otowa town...\"", Item(16)),
-            (10, "The source of Otowa's signature flavor.", Item(8)),
-            (11, "Jiro recreated a mysterious recipe from centuries ago.", Item(6)),
-            (12, "Otowa won a gold medal in a local specialty competition over a decade ago.", Item(7)),
+            (1, "Rare creatures dwell within the forests of Otowa.", Item(1)),
+            (2, "Wherever Rintaro goes, this is never far behind.", Item(2)),
+            (3, "A professor retired to Otowa to savor the quiet life.", Item(12)),
+            (4, "The color of the water, the color of the birds, the color of Otowa.", Item(15)),
+            (5, "A music boy left Otowa after a bitter quarrel with his father.", Item(14)),
+            (6, "Octopus traps, fleeting dreams under the summer moon.", Item(13)),
+            (7, "Legend speaks of an indigenous Otowa belief in an avian deity.", Item(9)),
+            (8, "When it blossoms in the sky, it marks the most beautiful night of summer.", Item(10)),
+            (9, "Bye Bye, my Otowa town.", Item(16)),
+            (10, "The source of Otowa's signature flavor, found in sake and local cuisine.", Item(8)),
+            (11, "A mysterious recipe dating back centuries.", Item(6)),
+            (12, "It won Otowa a gold medal at the regional specialty competition over a decade ago.", Item(7)),
             (13, "A blessing from Otowa: health and peace.", Item(4)),
-            (14, "Otowa's hot springs are quite magical and can improve your health.", Item(3)),
-            (15, "The vibrant colors of the fireworks come from this.", Item(3)),
-            (16, "A type of snack often placed on floating trays in the water.", Item(5)),
-            (17, "A father's silent love.", Item(5)),
-            (18, "On that day, all wandering youths will return to Otowa.", Item(11))
+            (14, "The healing properties of Otowa's hot springs.", Item(3)),
+            (15, "A father's silent love.", Item(5)),
+            (16, "On that day, all wandering souls journey back to Otowa.", Item(11))
         };
 
         var inspirations = new List<InspirationData>();
@@ -148,38 +146,36 @@ public static class ExhibitionTestDataBuilder
         {
             CreateTheme(
                 "SummerFestival",
-                "Summer Festival",
+                "Summer Festival: An Introduction to Otowa Folklore",
                 2,
                 3,
                 InspirationSelectionMode.AnyFromPool,
-                new[] {7, 8, 18, 15},
+                new[] {7, 8, 16},
                 "A festival exhibition about belief, fireworks, and homecoming.",
                 new (int, string)[]
                 {
                     (7, "Rin: (Junko seemed to mention that the Summer Festival originated from some kind of belief. Maybe I'll need a prop related to that belief.)"),
-                    (8, "Rin: (Mr. Yuji said that his specialty actually isn't mixing drinks. What exactly is it that has everyone looking forward to it so much?)"),
-                    (18, "Rin: (The Summer Festival isn't just a ceremony, it's also the day people come home...)"),
-                    (15, "Rin: (To make the fireworks look better, Yuji even went to ask Rintaro for advice.)")
+                    (8, "Rin: (Summer's most beautiful night seems to bloom above the town.)"),
+                    (16, "Rin: (The Summer Festival isn't just a ceremony, it's also the day wandering souls return...)")
                 }),
             CreateTheme(
                 "Yuji",
-                "Yuji",
+                "Sake & Sparks: Yuji, Artisan of Two Worlds",
                 2,
-                4,
+                3,
                 InspirationSelectionMode.AnyFromPool,
-                new[] {3, 8, 10, 12, 15},
+                new[] {3, 8, 10, 12},
                 "A profile of Yuji's pub, inventions, and local specialty work.",
                 new (int, string)[]
                 {
                     (3, "Rin: (Who was the regular at Mr. Yuji's pub again? I think it was a highly knowledgeable old man.)"),
                     (8, "Rin: (Mr. Yuji said that his specialty actually isn't mixing drinks. What exactly is it that has everyone looking forward to it so much?)"),
                     (10, "Rin: (Where exactly does the unique flavor in Yuji's sake come from?)"),
-                    (12, "Rin: (In that local specialty competition, the one who won the gold medal seemed to represent the side of innovation...)"),
-                    (15, "Rin: (To make the fireworks look better, Yuji even went to ask Rintaro for advice.)")
+                    (12, "Rin: (In that local specialty competition, the one who won the gold medal seemed to represent the side of innovation...)")
                 }),
             CreateTheme(
                 "Birdwatching",
-                "Birdwatching",
+                "Wings Over Otowa: A Birdwatcher's Paradise",
                 3,
                 3,
                 InspirationSelectionMode.AnyFromPool,
@@ -188,20 +184,20 @@ public static class ExhibitionTestDataBuilder
                 null),
             CreateTheme(
                 "ChefJiro",
-                "Chef Jiro",
+                "Master Jiro: Culinary Devotion and Hidden Sorrows",
                 3,
                 4,
                 InspirationSelectionMode.ExactSet,
-                new[] {5, 10, 11, 17},
+                new[] {5, 10, 11, 15},
                 "A focused exhibition about Jiro's cooking and family history.",
                 null),
             CreateTheme(
                 "HotSprings",
-                "Hot Springs",
+                "The Mountain Springs: A Soak Beneath the Milky Way",
                 3,
                 4,
                 InspirationSelectionMode.AnyFromPool,
-                new[] {4, 6, 13, 14, 16},
+                new[] {4, 6, 13, 14, 15},
                 "An exhibition about Otowa's water, health, and hot spring culture.",
                 null)
         };

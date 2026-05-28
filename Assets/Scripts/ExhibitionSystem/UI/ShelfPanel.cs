@@ -35,6 +35,7 @@ namespace ExhibitionSystem.UI
             ExhibitionManager.OnInspirationsConfirmed += HandleInspirationsConfirmed;
             ExhibitionManager.OnItemPlaced += HandleItemPlaced;
             ExhibitionManager.OnItemRemoved += HandleItemRemoved;
+            ExhibitionManager.OnCurationCleared += HandleCurationCleared;
         }
 
         private void OnDisable()
@@ -42,6 +43,7 @@ namespace ExhibitionSystem.UI
             ExhibitionManager.OnInspirationsConfirmed -= HandleInspirationsConfirmed;
             ExhibitionManager.OnItemPlaced -= HandleItemPlaced;
             ExhibitionManager.OnItemRemoved -= HandleItemRemoved;
+            ExhibitionManager.OnCurationCleared -= HandleCurationCleared;
         }
 
         private void Start()
@@ -143,20 +145,17 @@ namespace ExhibitionSystem.UI
 
         private void HandleItemPlaced(int slotIndex, ExhibitItemData item)
         {
-            // Find the shelf slot with this item and mark as placed
-            foreach (var slot in _slots)
-            {
-                if (slot != null && slot.ItemData == item)
-                {
-                    slot.SetPlacedState(true);
-                    break;
-                }
-            }
+            RefreshSlotStates();
         }
 
         private void HandleItemRemoved(int slotIndex)
         {
             // Refresh all states when item is removed
+            RefreshSlotStates();
+        }
+
+        private void HandleCurationCleared()
+        {
             RefreshSlotStates();
         }
 

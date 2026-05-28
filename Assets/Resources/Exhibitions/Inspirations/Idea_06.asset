@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Idea_06
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.InspirationData
   id: 6
-  text: '"Octopus traps, fleeting dreams under the summer moon."'
+  text: Octopus traps, fleeting dreams under the summer moon.
   mappedItem: {fileID: 11400000, guid: 4239de37392943d4391365450265abe7, type: 2}
   isUnlocked: 1
   fallbackHint: 'Rin: (This idea feels connected, but I need to place it in the right

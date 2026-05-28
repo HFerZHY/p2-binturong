@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Idea_04
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.InspirationData
   id: 4
-  text: Color of water, color of birds, color of Otowa.
+  text: The color of the water, the color of the birds, the color of Otowa.
   mappedItem: {fileID: 11400000, guid: e42e0282ad8b44e4c822e165ee18eddc, type: 2}
   isUnlocked: 1
   fallbackHint: 'Rin: (This idea feels connected, but I need to place it in the right

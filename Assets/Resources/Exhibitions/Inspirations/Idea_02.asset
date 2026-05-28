@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Idea_02
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.InspirationData
   id: 2
-  text: Whenever you see Rintaro, you are guaranteed to see this.
+  text: Wherever Rintaro goes, this is never far behind.
   mappedItem: {fileID: 11400000, guid: 51173d33fc3a83243bd644ba3b9a18fa, type: 2}
   isUnlocked: 1
   fallbackHint: 'Rin: (This idea feels connected, but I need to place it in the right

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Idea_01
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.InspirationData
   id: 1
-  text: There are some rare bird species in the Otowa forest.
+  text: Rare creatures dwell within the forests of Otowa.
   mappedItem: {fileID: 11400000, guid: fd29b1439d149264ba196ce47be566a0, type: 2}
   isUnlocked: 1
   fallbackHint: 'Rin: (This idea feels connected, but I need to place it in the right

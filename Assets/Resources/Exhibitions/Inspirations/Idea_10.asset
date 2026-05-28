@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Idea_10
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.InspirationData
   id: 10
-  text: The source of Otowa's signature flavor.
+  text: The source of Otowa's signature flavor, found in sake and local cuisine.
   mappedItem: {fileID: 11400000, guid: d615fd245c25c8b4ab0519dd8327e278, type: 2}
   isUnlocked: 1
   fallbackHint: 'Rin: (This idea feels connected, but I need to place it in the right
