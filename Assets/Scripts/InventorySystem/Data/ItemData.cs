@@ -28,5 +28,8 @@ namespace InventorySystem.Data
 
         [Tooltip("Icon sprite shown in the inventory UI.")]
         public Sprite icon;
+
+        [Tooltip("The three hidden labels for this item. Revealed through exploration and passenger interactions.")]
+        public string[] labels = new string[3];
     }
 }
