@@ -28,7 +28,7 @@ MonoBehaviour:
   - nodeId: node_0007
     position: {x: 1835, y: -375.5}
   - nodeId: node_0008
-    position: {x: 1125.5, y: -36}
+    position: {x: 1019, y: -45}
   - nodeId: node_0009
     position: {x: 86, y: 233.5}
   - nodeId: node_0010
@@ -45,3 +45,39 @@ MonoBehaviour:
     position: {x: 1766, y: 233.5}
   - nodeId: node_0016
     position: {x: 2046, y: 233.5}
+  - nodeId: node_0021
+    position: {x: -410, y: 615.5}
+  - nodeId: node_0022
+    position: {x: -134.5, y: 611}
+  - nodeId: node_0023
+    position: {x: 121, y: 615.5}
+  - nodeId: node_0024
+    position: {x: 377, y: 620}
+  - nodeId: node_0025
+    position: {x: 640.5, y: 622.5}
+  - nodeId: node_0026
+    position: {x: 911, y: 622.5}
+  - nodeId: node_0027
+    position: {x: 1193, y: 622}
+  - nodeId: node_0028
+    position: {x: 1459, y: 620}
+  - nodeId: node_0029
+    position: {x: 1722.5, y: 610.5}
+  - nodeId: node_0030
+    position: {x: 1995.5, y: 615}
+  - nodeId: node_0032
+    position: {x: -222, y: 1047.5}
+  - nodeId: node_0033
+    position: {x: -39, y: 1049.5}
+  - nodeId: node_0034
+    position: {x: 272.5, y: 1059.5}
+  - nodeId: node_0035
+    position: {x: 550, y: 1064}
+  - nodeId: node_0036
+    position: {x: 816.5, y: 1059.5}
+  - nodeId: node_0037
+    position: {x: 1084.5, y: 1059.5}
+  - nodeId: node_0038
+    position: {x: 1339, y: 1052.5}
+  - nodeId: node_0031
+    position: {x: 0, y: 0}

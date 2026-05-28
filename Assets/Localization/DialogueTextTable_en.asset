@@ -257,6 +257,85 @@ MonoBehaviour:
       fly, when summer comes, they will always follow the wind back.
     m_Metadata:
       m_Items: []
+  - m_Id: 9543881849823232
+    m_Localized: You are from the big city, aren't you, Rin. The outside world...
+      What is it like?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9543948308570112
+    m_Localized: The city... the schools... is it bustling and lively every day?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544034912559104
+    m_Localized: It's certainly lively. But after a while, it actually doesn't feel
+      very good.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544116105895936
+    m_Localized: very good?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544216941158400
+    m_Localized: Everyone is always rushing around, only caring about how much money
+      they make each day, but it seems like they never care about the people around
+      them.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544301645127680
+    m_Localized: After staying there for so long, I felt like even breathing had
+      become difficult.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544392695078912
+    m_Localized: Mm... that sounds... gray.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544478699282432
+    m_Localized: Gray?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544560865697792
+    m_Localized: Yes, like an ocean without starlight, or a forest hidden by mist.
+      Dim and gray.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9544722925215744
+    m_Localized: I like your metaphor. When I was in the city, it really did feel
+      like everything around me was gray.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546440308154368
+    m_Localized: I just heard everyone saying that the Summer Festival is in two
+      days. Is there anything you're looking forward to, Mizuki?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546577126350848
+    m_Localized: Something I'm looking forward to...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546660299399168
+    m_Localized: I have a very dear friend. She left here a few years ago to study
+      in the big city.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546745577988096
+    m_Localized: During the Summer Festival, they will return to Otowa, like birds
+      on the night of a full moon.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546836309172224
+    m_Localized: I hope this year... I can see her again.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546916768505856
+    m_Localized: Since it's Otowa's most important festival, I'm sure she will come
+      back.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9546996103766016
+    m_Localized: Mm...
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
