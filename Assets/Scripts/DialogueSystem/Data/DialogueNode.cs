@@ -53,6 +53,13 @@ namespace DialogueSystem.Data
         [Tooltip("If true, this node will only grant its item rewards once per dialogue session.")]
         public bool grantItemRewardsOnlyOnce = true;
 
+        [Header("Inspiration Unlocks")]
+        [Tooltip("Inspiration IDs unlocked when this node is entered. IDs are 1-based and should be between 1 and 16.")]
+        public List<int> inspirationUnlockIds = new();
+
+        [Tooltip("If true, this node will only unlock its inspirations once per dialogue session.")]
+        public bool unlockInspirationsOnlyOnce = true;
+
         [Header("Events")]
         [Tooltip("Fired when this node is entered.")]
         public UnityEvent onEnter;
