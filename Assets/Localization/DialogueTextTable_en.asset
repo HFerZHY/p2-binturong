@@ -116,6 +116,60 @@ MonoBehaviour:
       well.
     m_Metadata:
       m_Items: []
+  - m_Id: 9532675969769472
+    m_Localized: yuji_day1_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9532801098440704
+    m_Localized: Listening to some music?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9532888545484800
+    m_Localized: Haha, it's called the Blues! It's the most popular thing out there
+      right now. You young folks all love this, right?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9532997828075520
+    m_Localized: The blues... Do you really like this kind of music, Mr. Yuji?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9533107609788416
+    m_Localized: Of course! You know, literally speaking, the "blues" means sorrow.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9533239197687808
+    m_Localized: Whenever I listen to this music, I can feel the blues! The kind
+      of blues that hits right in the soul!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9533352347426816
+    m_Localized: ...Hahaha! Sorry, sorry, I had a couple of extra drinks today and
+      said some weird things. Don't mind me!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534153153306624
+    m_Localized: I really need to prepare well these next couple of days. At the
+      Summer Festival, if any young people come back, my stuff will absolutely be
+      the most popular!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534269448773632
+    m_Localized: The most popular stuff... Are you talking about your sake?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534351812321280
+    m_Localized: Haha, actually, it's not the booze. It's the fireworks!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534444032483328
+    m_Localized: Fireworks?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534526022737920
+    m_Localized: That's right. My actual day job is as a fireworks artisan. Running
+      the pub and mixing drinks is purely a personal hobby.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

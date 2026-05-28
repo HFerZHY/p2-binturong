@@ -103,6 +103,54 @@ MonoBehaviour:
     m_Key: mizuki_day1_hot_spring_007
     m_Metadata:
       m_Items: []
+  - m_Id: 9532675969769472
+    m_Key: yuji_day1_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9532801098440704
+    m_Key: yuji_day1_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9532888545484800
+    m_Key: yuji_day1_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9532997828075520
+    m_Key: yuji_day1_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9533107609788416
+    m_Key: yuji_day1_005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9533239197687808
+    m_Key: yuji_day1_006
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9533352347426816
+    m_Key: yuji_day1_007
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534153153306624
+    m_Key: yuji_day1_fireworks_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534269448773632
+    m_Key: yuji_day1_fireworks_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534351812321280
+    m_Key: yuji_day1_fireworks_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534444032483328
+    m_Key: yuji_day1_fireworks_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9534526022737920
+    m_Key: yuji_day1_fireworks_005
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
