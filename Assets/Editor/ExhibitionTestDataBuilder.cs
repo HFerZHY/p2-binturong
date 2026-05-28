@@ -154,9 +154,9 @@ public static class ExhibitionTestDataBuilder
                 "A festival exhibition about belief, fireworks, and homecoming.",
                 new (int, string)[]
                 {
-                    (7, "Rin: (Junko seemed to mention that the Summer Festival originated from some kind of belief. Maybe I'll need a prop related to that belief.)"),
+                    (7, "Rin: (Junko seemed to mention that the origin of the Summer Festival has something to do with birds.)"),
                     (8, "Rin: (Summer's most beautiful night seems to bloom above the town.)"),
-                    (16, "Rin: (The Summer Festival isn't just a ceremony, it's also the day wandering souls return...)")
+                    (16, "Rin: (The Summer Festival isn't just a ceremony, it is also tied to family bonds.)")
                 }),
             CreateTheme(
                 "Yuji",
@@ -168,10 +168,10 @@ public static class ExhibitionTestDataBuilder
                 "A profile of Yuji's pub, inventions, and local specialty work.",
                 new (int, string)[]
                 {
-                    (3, "Rin: (Who was the regular at Mr. Yuji's pub again? I think it was a highly knowledgeable old man.)"),
-                    (8, "Rin: (Mr. Yuji said that his specialty actually isn't mixing drinks. What exactly is it that has everyone looking forward to it so much?)"),
+                    (3, "Rin: (Who was the regular at Mr. Yuji's pub again? I think he was an expert in geology.)"),
+                    (8, "Rin: (Yuji said running the pub was just a hobby. What was his main profession again?)"),
                     (10, "Rin: (Where exactly does the unique flavor in Yuji's sake come from?)"),
-                    (12, "Rin: (In that local specialty competition, the one who won the gold medal seemed to represent the side of innovation...)")
+                    (12, "Rin: (I remember Yuji once brought honor to Otowa in a competition.)")
                 }),
             CreateTheme(
                 "Birdwatching",

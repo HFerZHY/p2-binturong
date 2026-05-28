@@ -22,13 +22,13 @@ MonoBehaviour:
   validInspirationIds: 070000000800000010000000
   missingIdeaHints:
   - inspirationId: 7
-    hintText: 'Rin: (Junko seemed to mention that the Summer Festival originated
-      from some kind of belief. Maybe I''ll need a prop related to that belief.)'
+    hintText: 'Rin: (Junko seemed to mention that the origin of the Summer Festival
+      has something to do with birds.)'
   - inspirationId: 8
     hintText: 'Rin: (Summer''s most beautiful night seems to bloom above the town.)'
   - inspirationId: 16
-    hintText: 'Rin: (The Summer Festival isn''t just a ceremony, it''s also the day
-      wandering souls return...)'
+    hintText: 'Rin: (The Summer Festival isn''t just a ceremony, it is also tied
+      to family bonds.)'
   fallbackMissingHint: 'Rin: (I am missing one of the ideas that really belongs to
     this exhibition.)'
   fallbackInvalidHint: 'Rin: (One of these ideas feels out of place for this exhibition.)'

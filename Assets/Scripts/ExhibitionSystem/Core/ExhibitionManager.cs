@@ -304,12 +304,6 @@ namespace ExhibitionSystem.Core
                 .Select(inspiration => inspiration.id)
                 .ToHashSet();
 
-            var invalid = selectedInspirations.FirstOrDefault(inspiration =>
-                inspiration == null || !_currentTheme.IsInspirationValid(inspiration.id));
-
-            if (invalid != null && UnityEngine.Random.value < 0.5f)
-                return _currentTheme.GetInvalidHint();
-
             var missingIds = _currentTheme.validInspirationIds
                 .Where(id => !selectedIds.Contains(id))
                 .ToList();

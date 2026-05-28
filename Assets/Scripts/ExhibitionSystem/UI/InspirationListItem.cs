@@ -1,4 +1,5 @@
 using System;
+using ExhibitionSystem.Core;
 using ExhibitionSystem.Data;
 using TMPro;
 using UnityEngine;
@@ -13,6 +14,7 @@ namespace ExhibitionSystem.UI
         [SerializeField] private TMP_Text _matchText;
         [SerializeField] private Image _selectionImage;
         [SerializeField] private Image _selectionFrame;
+        [SerializeField] private InspirationMatchBadge _matchBadge;
         [SerializeField] private Button _button;
         [SerializeField] private Color _normalColor = new(0.74f, 0.63f, 0.48f, 0.98f);
         [SerializeField] private Color _selectedColor = new(0.92f, 0.76f, 0.42f, 1f);
@@ -53,6 +55,7 @@ namespace ExhibitionSystem.UI
             if (_matchText != null)
                 _matchText.gameObject.SetActive(false);
 
+            UpdateMatchBadge(inspiration);
             UpdateVisual();
         }
 
@@ -83,5 +86,14 @@ namespace ExhibitionSystem.UI
                 _selectionFrame.enabled = _selected || _invalid;
         }
 
+        private void UpdateMatchBadge(InspirationData inspiration)
+        {
+            if (_matchBadge == null)
+                return;
+
+            var manager = ExhibitionManager.Instance;
+            bool isMatched = manager != null && manager.IsInspirationMatchKnown(inspiration);
+            _matchBadge.SetData(isMatched && inspiration != null ? inspiration.mappedItem : null);
+        }
     }
 }

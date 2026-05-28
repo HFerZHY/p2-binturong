@@ -22,16 +22,15 @@ MonoBehaviour:
   validInspirationIds: 03000000080000000a0000000c000000
   missingIdeaHints:
   - inspirationId: 3
-    hintText: 'Rin: (Who was the regular at Mr. Yuji''s pub again? I think it was
-      a highly knowledgeable old man.)'
+    hintText: 'Rin: (Who was the regular at Mr. Yuji''s pub again? I think he was
+      an expert in geology.)'
   - inspirationId: 8
-    hintText: 'Rin: (Mr. Yuji said that his specialty actually isn''t mixing drinks.
-      What exactly is it that has everyone looking forward to it so much?)'
+    hintText: 'Rin: (Yuji said running the pub was just a hobby. What was his main
+      profession again?)'
   - inspirationId: 10
     hintText: 'Rin: (Where exactly does the unique flavor in Yuji''s sake come from?)'
   - inspirationId: 12
-    hintText: 'Rin: (In that local specialty competition, the one who won the gold
-      medal seemed to represent the side of innovation...)'
+    hintText: 'Rin: (I remember Yuji once brought honor to Otowa in a competition.)'
   fallbackMissingHint: 'Rin: (I am missing one of the ideas that really belongs to
     this exhibition.)'
   fallbackInvalidHint: 'Rin: (One of these ideas feels out of place for this exhibition.)'
