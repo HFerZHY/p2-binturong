@@ -359,6 +359,44 @@ MonoBehaviour:
       We often drink together and discuss how to make the night sky look even better.
     m_Metadata:
       m_Items: []
+  - m_Id: 9554178228609024
+    m_Localized: Chief, at the welcome banquet just now, everyone was very focused
+      on the Summer Festival. What kind of festival is it exactly?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554694652289024
+    m_Localized: The Summer Festival is the most important festival of the year in
+      Otowa village.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554779117182976
+    m_Localized: According to village tradition, on this day, all the villagers who
+      have gone away to work or study will return to their hometown.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554881110073344
+    m_Localized: Many villagers are also waiting for this day, like Jiro, for example.
+      He hasn't seen his son in a very long time.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554944083353600
+    m_Localized: So Jiro's son has already left Otowa...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9555007249571840
+    m_Localized: For all these years, they have always returned to Otowa along this
+      railway track. You could say the railway track is almost Otowa's only connection
+      to the outside world.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9555080318541824
+    m_Localized: Therefore, the trains absolutely cannot stop running at this time.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9555177286656000
+    m_Localized: I understand. Thank you, Chief.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -55,6 +55,10 @@ MonoBehaviour:
     m_Key: node_0005_choice_01
     m_Metadata:
       m_Items: []
+  - m_Id: 9384914657992704
+    m_Key: node_0005_choice_02
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -53,3 +53,19 @@ MonoBehaviour:
     position: {x: 2333, y: 968}
   - nodeId: node_0020
     position: {x: 2651.5, y: 1038.5}
+  - nodeId: node_0021
+    position: {x: 346.5, y: 1208}
+  - nodeId: node_0022
+    position: {x: 658, y: 1212}
+  - nodeId: node_0023
+    position: {x: 937.5, y: 1212}
+  - nodeId: node_0024
+    position: {x: 1201, y: 1215.5}
+  - nodeId: node_0025
+    position: {x: 1452.5, y: 1215.5}
+  - nodeId: node_0027
+    position: {x: 1712, y: 1215}
+  - nodeId: node_0028
+    position: {x: 1974, y: 1217.5}
+  - nodeId: node_0029
+    position: {x: 2238, y: 1215.5}

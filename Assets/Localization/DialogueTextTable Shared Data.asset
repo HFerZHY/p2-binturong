@@ -311,6 +311,38 @@ MonoBehaviour:
     m_Key: yuji_day1_colors_005
     m_Metadata:
       m_Items: []
+  - m_Id: 9554178228609024
+    m_Key: junko_day1_festival_option_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554694652289024
+    m_Key: junko_day1_festival_option_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554779117182976
+    m_Key: junko_day1_festival_option_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554881110073344
+    m_Key: junko_day1_festival_option_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9554944083353600
+    m_Key: junko_day1_festival_option_005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9555007249571840
+    m_Key: junko_day1_festival_option_006
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9555080318541824
+    m_Key: junko_day1_festival_option_007
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9555177286656000
+    m_Key: junko_day1_festival_option_008
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
