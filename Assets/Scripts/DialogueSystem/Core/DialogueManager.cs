@@ -55,6 +55,7 @@ namespace DialogueSystem.Core
         private Animator _npcAnimator;
         private ConversationState _state = ConversationState.Idle;
         private readonly HashSet<string> _rewardedNodeIds = new();
+        private readonly HashSet<string> _inspirationUnlockedNodeIds = new();
 
         // ── Static events ─────────────────────────────────────────────────────
 
@@ -113,6 +114,7 @@ namespace DialogueSystem.Core
             _activeGraph.BuildLookup();
             _npcAnimator = npcAnimator;
             _rewardedNodeIds.Clear();
+            _inspirationUnlockedNodeIds.Clear();
 
             var entry = _activeGraph.GetEntryNode();
             if (entry == null)
@@ -196,6 +198,7 @@ namespace DialogueSystem.Core
                 _npcAnimator.SetTrigger(node.npcAnimatorTrigger);
 
             GrantItemRewards(node);
+            UnlockInspirations(node);
             node.onEnter?.Invoke();
             OnNodeEntered?.Invoke(node);
             _currentNode = node;
@@ -301,6 +304,29 @@ namespace DialogueSystem.Core
 
             if (node.grantItemRewardsOnlyOnce)
                 _rewardedNodeIds.Add(node.id);
+        }
+
+        private void UnlockInspirations(DialogueNode node)
+        {
+            if (node == null || node.inspirationUnlockIds == null || node.inspirationUnlockIds.Count == 0)
+                return;
+
+            if (node.unlockInspirationsOnlyOnce && _inspirationUnlockedNodeIds.Contains(node.id))
+                return;
+
+            foreach (int id in node.inspirationUnlockIds)
+            {
+                if (id < 1 || id > 16)
+                {
+                    Debug.LogWarning($"[DialogueManager] Inspiration ID {id} on node '{node.id}' is out of range. Expected 1–16.");
+                    continue;
+                }
+
+                InspirationManager.Instance.Unlock(id);
+            }
+
+            if (node.unlockInspirationsOnlyOnce)
+                _inspirationUnlockedNodeIds.Add(node.id);
         }
 
         private bool TryConsumeChoiceCosts(DialogueChoice choice)
