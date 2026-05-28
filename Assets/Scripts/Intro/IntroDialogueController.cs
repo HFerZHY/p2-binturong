@@ -38,6 +38,9 @@ namespace Otowa.Intro
         [SerializeField] private AudioClip ambientClip;
         [SerializeField] [Range(0f, 1f)] private float musicVolume = 0.35f;
 
+        [Header("Behaviour")]
+        [SerializeField] private bool showMovementTutorial = false;
+
         [Header("Colors")]
         [SerializeField] private Color bgColor        = new Color32(0x0e, 0x18, 0x0e, 0xFF);
         [SerializeField] private Color panelColor     = new Color32(0x06, 0x0e, 0x06, 0xEE);
@@ -63,7 +66,7 @@ namespace Otowa.Intro
 
         private bool     _isTyping;
         private bool     _inputLock;
-        private bool     _tutorialActive = true;
+        private bool     _tutorialActive;
         private Coroutine _twCR;
 
         // ── UI refs ───────────────────────────────────────────────────────────
@@ -86,6 +89,7 @@ namespace Otowa.Intro
         private void Awake()
         {
             Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
+            _tutorialActive = showMovementTutorial;
             BuildLines();
             LoadCharacterSprites();
             BuildUI();
@@ -270,7 +274,7 @@ namespace Otowa.Intro
             MakeImage(canvasGo.transform, "BG", bgColor, Vector2.zero, Vector2.one);
 
             BuildCharacterLayer(canvasGo.transform);
-            BuildTutorialPanel(canvasGo.transform);
+            if (showMovementTutorial) BuildTutorialPanel(canvasGo.transform);
             BuildDialoguePanel(canvasGo.transform);
 
             // Continue prompt — bottom-right, always above panels
@@ -294,9 +298,10 @@ namespace Otowa.Intro
             _rinImg.color          = new Color(1, 1, 1, InactiveAlpha);
             _rinImg.raycastTarget  = false;
 
-            // Junko — right quadrant
+            // Junko — right quadrant, flipped to face Rin
             var junkoGo = MakeRect(canvas, "JunkoSprite",
                 new Vector2(0.62f, 0.28f), new Vector2(0.97f, 0.98f));
+            junkoGo.transform.localScale = new Vector3(-1f, 1f, 1f);
             _junkoImg = junkoGo.AddComponent<Image>();
             _junkoImg.sprite        = junkoSprite;
             _junkoImg.preserveAspect = true;
