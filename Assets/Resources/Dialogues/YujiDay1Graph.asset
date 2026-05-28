@@ -173,6 +173,11 @@ MonoBehaviour:
       conditions: []
       showIfFailed: 0
       itemCosts: []
+    - labelKey: node_0008_choice_02
+      targetNodeId: node_0014
+      conditions: []
+      showIfFailed: 0
+      itemCosts: []
     conditions: []
     itemRewards: []
     grantItemRewardsOnlyOnce: 1
@@ -298,6 +303,111 @@ MonoBehaviour:
     speakerPortraitKey: 
     textKey: 
     nextNodeId: 
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0014
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
+    speakerPortraitKey: 
+    textKey: 
+    nextNodeId: node_0016
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0016
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 17a609bdde10c411ca37201bfaf29520, type: 2}
+    speakerPortraitKey: 
+    textKey: 
+    nextNodeId: node_0017
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0017
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 17a609bdde10c411ca37201bfaf29520, type: 2}
+    speakerPortraitKey: 
+    textKey: yuji_day1_colors_003
+    nextNodeId: node_0018
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0018
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 17a609bdde10c411ca37201bfaf29520, type: 2}
+    speakerPortraitKey: 
+    textKey: yuji_day1_colors_004
+    nextNodeId: node_0019
+    choices: []
+    conditions: []
+    itemRewards: []
+    grantItemRewardsOnlyOnce: 1
+    inspirationUnlockIds: 
+    unlockInspirationsOnlyOnce: 1
+    onEnter:
+      m_PersistentCalls:
+        m_Calls: []
+    onExit:
+      m_PersistentCalls:
+        m_Calls: []
+    typewriterSpeed: 0.03
+    voiceClip: {fileID: 0}
+    npcAnimatorTrigger: 
+  - id: node_0019
+    nodeType: 0
+    speaker: {fileID: 11400000, guid: 17a609bdde10c411ca37201bfaf29520, type: 2}
+    speakerPortraitKey: 
+    textKey: yuji_day1_colors_005
+    nextNodeId: node_0008
     choices: []
     conditions: []
     itemRewards: []

@@ -336,6 +336,29 @@ MonoBehaviour:
     m_Localized: Mm...
     m_Metadata:
       m_Items: []
+  - m_Id: 9551927175012352
+    m_Localized: Making fireworks like you're mixing drinks... That sounds amazing.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9552020343087104
+    m_Localized: yuji_day1_colors_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9552124806422528
+    m_Localized: Different stones, once mixed and burned, produce completely different
+      colors.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9552197963472896
+    m_Localized: Speaking of which, I actually learned some of my formulas and knowledge
+      about ores from that old man, Rintaro.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9552281115549696
+    m_Localized: He is an absolute expert on these stones and a regular at my pub.
+      We often drink together and discuss how to make the night sky look even better.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

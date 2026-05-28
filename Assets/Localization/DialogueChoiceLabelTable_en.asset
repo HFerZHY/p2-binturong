@@ -43,11 +43,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 9359809655595008
-    m_Localized: Talk about life in the big city
+    m_Localized: About Summer Festival Preparations
     m_Metadata:
       m_Items: []
   - m_Id: 9359888948912128
-    m_Localized: Ask about the Summer Festival
+    m_Localized: 'About the colors of the fireworks '
     m_Metadata:
       m_Items: []
   - m_Id: 9359954845622272

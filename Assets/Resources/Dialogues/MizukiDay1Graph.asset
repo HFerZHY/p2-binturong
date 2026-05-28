@@ -559,7 +559,7 @@ MonoBehaviour:
     speaker: {fileID: 11400000, guid: 575f15daddbf44dda8d0b756ef9f4be8, type: 2}
     speakerPortraitKey: 
     textKey: mizuki_day1_city_010
-    nextNodeId: node_0016
+    nextNodeId: node_0008
     choices: []
     conditions: []
     itemRewards: []
@@ -706,7 +706,7 @@ MonoBehaviour:
     speaker: {fileID: 11400000, guid: fc32e2f716a644765a2e28dcbf66588f, type: 2}
     speakerPortraitKey: 
     textKey: mizuki_day1_festival_007
-    nextNodeId: node_0016
+    nextNodeId: node_0008
     choices: []
     conditions: []
     itemRewards: []

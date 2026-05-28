@@ -291,6 +291,26 @@ MonoBehaviour:
     m_Key: mizuki_day1_festival_007
     m_Metadata:
       m_Items: []
+  - m_Id: 9551927175012352
+    m_Key: yuji_day1_colors_001
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9552020343087104
+    m_Key: yuji_day1_colors_002
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9552124806422528
+    m_Key: yuji_day1_colors_003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9552197963472896
+    m_Key: yuji_day1_colors_004
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9552281115549696
+    m_Key: yuji_day1_colors_005
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
