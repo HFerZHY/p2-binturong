@@ -16,7 +16,7 @@ namespace ExhibitionSystem.UI
 
         [Header("Drop Slot Visual")]
         [SerializeField] protected Image _highlight;
-        [SerializeField] protected Color _normalColor = new(1, 1, 1, 0.1f);
+        [SerializeField] protected Color _normalColor = new(1, 1, 1, 0f);
         [SerializeField] protected Color _hoverColor = new(1, 1, 0.5f, 0.4f);
         [SerializeField] protected Color _invalidColor = new(1, 0.3f, 0.3f, 0.4f);
 
@@ -81,10 +81,11 @@ namespace ExhibitionSystem.UI
             Invalid
         }
 
-        protected void SetHighlight(HighlightState state)
+        protected virtual void SetHighlight(HighlightState state)
         {
             if (_highlight == null) return;
 
+            _highlight.enabled = state != HighlightState.Normal;
             _highlight.color = state switch
             {
                 HighlightState.Valid => _hoverColor,

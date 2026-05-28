@@ -19,12 +19,33 @@ public static class ExhibitionSceneBuilder
     private const string INSPIRATIONS_PATH = "Assets/Resources/Exhibitions/Inspirations";
     private const string PREFABS_PATH = "Assets/Resources/Exhibitions/Prefabs";
 
-    private const float SHELF_ANCHOR_MAX = 0.405f;
-    private const float RIGHT_PANEL_ANCHOR_MIN = 0.415f;
-    private const float CONTROL_HEIGHT = 86f;
-    private const float ITEM_CELL_SIZE = 150f;
-    private const float ITEM_SPACING = 14f;
+    private const float SHELF_ANCHOR_MAX = 0.408f;
+    private const float RIGHT_PANEL_ANCHOR_MIN = 0.422f;
+    private const float CONTROL_HEIGHT = 112f;
+    private const float ITEM_CELL_SIZE = 140f;
     private const int ITEMS_PER_ROW = 4;
+    private static readonly Vector2 BACKGROUND_REFERENCE_SIZE = new(1672f, 941f);
+    private static readonly Vector2[] SHELF_SLOT_POSITIONS =
+    {
+        new(-808.6f, 279.23f), new(-627.9f, 285.37f), new(-457.2f, 289.7f), new(-290.7f, 279.95f),
+        new(-802.64f, 121.2f), new(-627.9f, 115.7f), new(-455.43f, 136.1f), new(-286.5f, 121.2f),
+        new(-802.64f, -29.369f), new(-627.9f, -32.5f), new(-459.5f, -55.9f), new(-290.1f, -44f),
+        new(-808.6f, -200.6f), new(-631.7f, -187.7f), new(-454f, -213f), new(-291.9f, -209.9f),
+    };
+    private static readonly Vector2[] SHELF_SLOT_SIZES =
+    {
+        new(118.008f, 131.29f), new(114.508f, 119.007f), new(105.01f, 94.012f), new(73.013f, 74.517f),
+        new(106.09f, 90.88f), new(70.179f, 69.209f), new(145f, 165f), new(91.922f, 85.179f),
+        new(115.23f, 107.491f), new(81.483f, 95.767f), new(74.359f, 64.042f), new(98.868f, 109.428f),
+        new(98.579f, 98.769f), new(130.472f, 138.79f), new(80.765f, 85.586f), new(91.924f, 97.199f),
+    };
+    private static readonly float[] SHELF_SLOT_ROTATIONS =
+    {
+        0f, 0f, 0f, 0f,
+        0f, 0f, 0f, 0f,
+        0f, 0f, 356.446f, 17.068f,
+        0f, 0f, 8.378f, 352.339f,
+    };
 
     [MenuItem("Tools/Museum/Build Exhibition Scene")]
     public static void BuildScene()
@@ -46,16 +67,17 @@ public static class ExhibitionSceneBuilder
 
         CreateEventSystem();
         var canvas = CreateCanvas();
-        CreateBackground(canvas);
+        var layoutRoot = CreateLayoutRoot(canvas);
+        CreateBackground(layoutRoot);
 
-        var shelfPanel = CreateShelfPanel(canvas);
-        var visitorPanel = CreateVisitorPanel(canvas);
-        var satisfactionBar = CreateSatisfactionBar(canvas);
-        var displayPanel = CreateDisplayPanel(canvas);
-        var controlPanel = CreateControlPanel(canvas);
-        var themePopup = CreateThemePopup(canvas);
-        var inspirationPopup = CreateInspirationPopup(canvas);
-        var tooltip = CreateTooltip(canvas);
+        var shelfPanel = CreateShelfPanel(layoutRoot);
+        var visitorPanel = CreateVisitorPanel(layoutRoot);
+        var satisfactionBar = CreateSatisfactionBar(layoutRoot);
+        var displayPanel = CreateDisplayPanel(layoutRoot);
+        var controlPanel = CreateControlPanel(layoutRoot);
+        var themePopup = CreateThemePopup(layoutRoot);
+        var inspirationPopup = CreateInspirationPopup(layoutRoot);
+        var tooltip = CreateTooltip(layoutRoot);
 
         var managers = CreateManagers(
             canvas,
@@ -104,23 +126,39 @@ public static class ExhibitionSceneBuilder
         return canvas;
     }
 
-    private static void CreateBackground(Canvas canvas)
+    private static RectTransform CreateLayoutRoot(Canvas canvas)
     {
-        var bgObj = CreateChild(canvas.transform, "Background");
+        var rootObj = CreateChild(canvas.transform, "LayoutRoot");
+        var rt = rootObj.GetComponent<RectTransform>();
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+
+        var fitter = rootObj.AddComponent<AspectRatioFitter>();
+        fitter.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+        fitter.aspectRatio = 1672f / 941f;
+        return rt;
+    }
+
+    private static void CreateBackground(Transform parent)
+    {
+        var bgObj = CreateChild(parent, "Background");
         var img = bgObj.AddComponent<Image>();
-        img.color = new Color(0.16f, 0.13f, 0.09f, 1f);
+        img.sprite = LoadSprite("Assets/Resources/Exhibitions/Icons/back-pic.png");
+        img.color = Color.white;
+        img.preserveAspect = false;
         img.raycastTarget = false;
         Stretch(bgObj.GetComponent<RectTransform>(), 0);
     }
 
-    private static ShelfPanel CreateShelfPanel(Canvas canvas)
+    private static ShelfPanel CreateShelfPanel(Transform parent)
     {
-        var panelObj = CreateChild(canvas.transform, "ShelfPanel");
-        var bg = panelObj.AddComponent<Image>();
-        bg.color = new Color(0.23f, 0.19f, 0.13f, 0.96f);
+        var panelObj = CreateChild(parent, "ShelfPanel");
 
         var rt = panelObj.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.005f, 0.09f);
+        rt.anchorMin = new Vector2(0.013f, 0.105f);
         rt.anchorMax = new Vector2(SHELF_ANCHOR_MAX, 0.985f);
         rt.pivot = new Vector2(0.5f, 0.5f);
         rt.offsetMin = Vector2.zero;
@@ -132,41 +170,103 @@ public static class ExhibitionSceneBuilder
         titleRt.anchorMin = new Vector2(0, 1);
         titleRt.anchorMax = new Vector2(1, 1);
         titleRt.pivot = new Vector2(0.5f, 1);
-        titleRt.anchoredPosition = new Vector2(0, -16);
+        titleRt.anchoredPosition = new Vector2(0, -28);
         titleRt.sizeDelta = new Vector2(-32, 48);
 
-        var gridObj = CreateChild(panelObj.transform, "Grid");
-        var gridRt = gridObj.GetComponent<RectTransform>();
-        gridRt.anchorMin = Vector2.zero;
-        gridRt.anchorMax = Vector2.one;
-        gridRt.offsetMin = new Vector2(24, 32);
-        gridRt.offsetMax = new Vector2(-24, -80);
-
-        var grid = gridObj.AddComponent<GridLayoutGroup>();
-        grid.cellSize = new Vector2(ITEM_CELL_SIZE, ITEM_CELL_SIZE);
-        grid.spacing = new Vector2(ITEM_SPACING, ITEM_SPACING);
-        grid.startCorner = GridLayoutGroup.Corner.UpperLeft;
-        grid.childAlignment = TextAnchor.UpperCenter;
-        grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        grid.constraintCount = ITEMS_PER_ROW;
+        var slotsObj = CreateChild(parent, "ShelfItemOverlay");
+        ConfigureShelfSlotsContainer(slotsObj.GetComponent<RectTransform>());
+        var referenceScaler = slotsObj.AddComponent<ReferenceRectScaler>();
+        referenceScaler.SetReferenceSize(BACKGROUND_REFERENCE_SIZE);
 
         var panel = panelObj.AddComponent<ShelfPanel>();
-        SetPrivateField(panel, "_gridContainer", gridObj.transform);
+        SetPrivateField(panel, "_gridContainer", slotsObj.transform);
         var slotPrefab = LoadPrefabComponent<ShelfSlotUI>("ShelfSlot");
+        var previewItems = LoadAssets<ExhibitItemData>(ITEMS_PATH).OrderBy(item => item.sortOrder).ToList();
+        var manualSlots = slotPrefab != null ? CreateManualShelfSlots(slotsObj.transform, slotPrefab, previewItems) : new List<ShelfSlotUI>();
         if (slotPrefab != null)
             SetPrivateField(panel, "_slotPrefab", slotPrefab);
+        SetPrivateField(panel, "_manualSlots", manualSlots);
 
         return panel;
     }
 
-    private static VisitorPanel CreateVisitorPanel(Canvas canvas)
+    private static void ConfigureShelfSlotsContainer(RectTransform rt)
     {
-        var panelObj = CreateChild(canvas.transform, "VisitorPanel");
-        var bg = panelObj.AddComponent<Image>();
-        bg.color = new Color(0.27f, 0.23f, 0.17f, 0.94f);
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = Vector2.zero;
+        rt.sizeDelta = Vector2.zero;
+    }
+
+    private static List<ShelfSlotUI> CreateManualShelfSlots(Transform parent, ShelfSlotUI slotPrefab, IReadOnlyList<ExhibitItemData> previewItems)
+    {
+        var slots = new List<ShelfSlotUI>();
+
+        for (int i = 0; i < ITEMS_PER_ROW * ITEMS_PER_ROW; i++)
+        {
+            var slotObject = (GameObject)PrefabUtility.InstantiatePrefab(slotPrefab.gameObject, parent);
+            var slot = slotObject.GetComponent<ShelfSlotUI>();
+            slot.name = $"Slot_{i + 1:00}";
+            slot.SetSlotIndex(i);
+
+            ApplyManualShelfSlotLayout(slot, i);
+            ApplyShelfSlotPreview(slot, i, previewItems);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(slot.GetComponent<RectTransform>());
+            PrefabUtility.RecordPrefabInstancePropertyModifications(slot.GetComponent<Image>());
+            slots.Add(slot);
+        }
+
+        return slots;
+    }
+
+    private static void ApplyManualShelfSlotLayout(ShelfSlotUI slot, int index)
+    {
+        if (slot == null) return;
+
+        var rt = slot.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = GetArrayValue(SHELF_SLOT_POSITIONS, index, Vector2.zero);
+        rt.sizeDelta = GetArrayValue(SHELF_SLOT_SIZES, index, new Vector2(ITEM_CELL_SIZE, ITEM_CELL_SIZE));
+        rt.localScale = Vector3.one;
+        rt.localEulerAngles = new Vector3(0f, 0f, GetArrayValue(SHELF_SLOT_ROTATIONS, index, 0f));
+    }
+
+    private static void ApplyShelfSlotPreview(ShelfSlotUI slot, int index, IReadOnlyList<ExhibitItemData> previewItems)
+    {
+        if (slot == null || previewItems == null || index >= previewItems.Count)
+            return;
+
+        var item = previewItems[index];
+        var icon = slot.GetComponent<Image>();
+        if (icon == null)
+            return;
+
+        icon.sprite = item.icon;
+        icon.enabled = item.icon != null;
+        icon.preserveAspect = true;
+        icon.raycastTarget = true;
+        icon.rectTransform.localScale = Vector3.one;
+    }
+
+    private static Vector2 GetArrayValue(Vector2[] values, int index, Vector2 fallback)
+    {
+        return values != null && index >= 0 && index < values.Length ? values[index] : fallback;
+    }
+
+    private static float GetArrayValue(float[] values, int index, float fallback)
+    {
+        return values != null && index >= 0 && index < values.Length ? values[index] : fallback;
+    }
+
+    private static VisitorPanel CreateVisitorPanel(Transform parent)
+    {
+        var panelObj = CreateChild(parent, "VisitorPanel");
 
         var rt = panelObj.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(RIGHT_PANEL_ANCHOR_MIN, 0.58f);
+        rt.anchorMin = new Vector2(RIGHT_PANEL_ANCHOR_MIN, 0.525f);
         rt.anchorMax = new Vector2(0.985f, 0.985f);
         rt.pivot = new Vector2(0.5f, 0.5f);
         rt.offsetMin = Vector2.zero;
@@ -185,10 +285,10 @@ public static class ExhibitionSceneBuilder
         fitter.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
         fitter.aspectRatio = 1f;
         var charRt = charContainer.GetComponent<RectTransform>();
-        charRt.anchorMin = new Vector2(0, 0.2f);
+        charRt.anchorMin = new Vector2(0, 0.18f);
         charRt.anchorMax = new Vector2(1, 1);
-        charRt.offsetMin = new Vector2(22, 6);
-        charRt.offsetMax = new Vector2(-22, -18);
+        charRt.offsetMin = new Vector2(26, 8);
+        charRt.offsetMax = new Vector2(-26, -16);
 
         var dialogue = CreateChild(panelObj.transform, "DialoguePanel");
         var dialogueBg = dialogue.AddComponent<Image>();
@@ -198,8 +298,8 @@ public static class ExhibitionSceneBuilder
         dialogueRt.anchorMin = new Vector2(0, 0);
         dialogueRt.anchorMax = new Vector2(1, 0);
         dialogueRt.pivot = new Vector2(0.5f, 0);
-        dialogueRt.anchoredPosition = new Vector2(0, 14);
-        dialogueRt.sizeDelta = new Vector2(-56, 92);
+        dialogueRt.anchoredPosition = new Vector2(-5.867f, 7.523f);
+        dialogueRt.sizeDelta = new Vector2(-3.593f, 98.477f);
 
         var dialogueText = CreateText(dialogue.transform, "DialogueText", "Choose a theme to begin.", 25, FontStyles.Bold, TextAlignmentOptions.Center);
         dialogueText.textWrappingMode = TextWrappingModes.Normal;
@@ -231,18 +331,24 @@ public static class ExhibitionSceneBuilder
         background.sprite = LoadSprite("Assets/Resources/Exhibitions/Icons/passenger-background.png");
         background.color = Color.white;
         background.raycastTarget = false;
-        Stretch(backgroundObj.GetComponent<RectTransform>(), 0);
+        background.preserveAspect = false;
+        background.type = Image.Type.Simple;
+
+        var rt = backgroundObj.GetComponent<RectTransform>();
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = new Vector2(-6.093689f, -4.980011f);
+        rt.sizeDelta = new Vector2(-12.188f, -45.96f);
     }
 
-    private static SatisfactionBar CreateSatisfactionBar(Canvas canvas)
+    private static SatisfactionBar CreateSatisfactionBar(Transform parent)
     {
-        var barObj = CreateChild(canvas.transform, "SatisfactionBar");
-        var bg = barObj.AddComponent<Image>();
-        bg.color = new Color(0.14f, 0.10f, 0.07f, 0.95f);
+        var barObj = CreateChild(parent, "SatisfactionBar");
 
         var rt = barObj.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(RIGHT_PANEL_ANCHOR_MIN, 0.485f);
-        rt.anchorMax = new Vector2(0.985f, 0.565f);
+        rt.anchorMin = new Vector2(RIGHT_PANEL_ANCHOR_MIN, 0.428f);
+        rt.anchorMax = new Vector2(0.985f, 0.515f);
         rt.pivot = new Vector2(0.5f, 0.5f);
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
@@ -275,34 +381,23 @@ public static class ExhibitionSceneBuilder
         return bar;
     }
 
-    private static DisplayPanel CreateDisplayPanel(Canvas canvas)
+    private static DisplayPanel CreateDisplayPanel(Transform parent)
     {
-        var panelObj = CreateChild(canvas.transform, "DisplayPanel");
-        var bg = panelObj.AddComponent<Image>();
-        bg.color = new Color(0.28f, 0.23f, 0.16f, 0.94f);
+        var panelObj = CreateChild(parent, "DisplayPanel");
 
         var rt = panelObj.GetComponent<RectTransform>();
         rt.anchorMin = new Vector2(RIGHT_PANEL_ANCHOR_MIN, 0.145f);
-        rt.anchorMax = new Vector2(0.985f, 0.465f);
+        rt.anchorMax = new Vector2(0.985f, 0.405f);
         rt.pivot = new Vector2(0.5f, 0.5f);
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
-
-        var title = CreateText(panelObj.transform, "Title", "Inspiration Exhibition", 25, FontStyles.Bold, TextAlignmentOptions.Center);
-        title.color = new Color(0.98f, 0.9f, 0.72f, 1f);
-        var titleRt = title.GetComponent<RectTransform>();
-        titleRt.anchorMin = new Vector2(0, 1);
-        titleRt.anchorMax = new Vector2(1, 1);
-        titleRt.pivot = new Vector2(0.5f, 1);
-        titleRt.anchoredPosition = new Vector2(0, -12);
-        titleRt.sizeDelta = new Vector2(-24, 34);
 
         var containerObj = CreateChild(panelObj.transform, "SlotContainer");
         var containerRt = containerObj.GetComponent<RectTransform>();
         containerRt.anchorMin = Vector2.zero;
         containerRt.anchorMax = Vector2.one;
-        containerRt.offsetMin = new Vector2(24, 18);
-        containerRt.offsetMax = new Vector2(-28, -58);
+        containerRt.offsetMin = new Vector2(24, 34);
+        containerRt.offsetMax = new Vector2(-28, -6);
 
         var grid = containerObj.AddComponent<GridLayoutGroup>();
         grid.spacing = new Vector2(18, 12);
@@ -322,11 +417,9 @@ public static class ExhibitionSceneBuilder
         return panel;
     }
 
-    private static GameObject CreateControlPanel(Canvas canvas)
+    private static GameObject CreateControlPanel(Transform parent)
     {
-        var panelObj = CreateChild(canvas.transform, "ControlPanel");
-        var bg = panelObj.AddComponent<Image>();
-        bg.color = new Color(0.12f, 0.09f, 0.06f, 0.98f);
+        var panelObj = CreateChild(parent, "ControlPanel");
 
         var rt = panelObj.GetComponent<RectTransform>();
         rt.anchorMin = new Vector2(0, 0);
@@ -354,9 +447,9 @@ public static class ExhibitionSceneBuilder
         return panelObj;
     }
 
-    private static ThemeSelectionPopup CreateThemePopup(Canvas canvas)
+    private static ThemeSelectionPopup CreateThemePopup(Transform parent)
     {
-        var panelObj = CreateOverlay(canvas.transform, "ThemeSelectionPopup");
+        var panelObj = CreateOverlay(parent, "ThemeSelectionPopup");
         var windowObj = CreateWindow(panelObj.transform, "Window", new Vector2(860, 680));
         ConfigureLargePopupWindow(windowObj);
         CreatePopupTitle(windowObj.transform, "Theme Selection");
@@ -390,9 +483,9 @@ public static class ExhibitionSceneBuilder
         return popup;
     }
 
-    private static InspirationSelectionPopup CreateInspirationPopup(Canvas canvas)
+    private static InspirationSelectionPopup CreateInspirationPopup(Transform parent)
     {
-        var panelObj = CreateOverlay(canvas.transform, "InspirationSelectionPopup");
+        var panelObj = CreateOverlay(parent, "InspirationSelectionPopup");
         var windowObj = CreateWindow(panelObj.transform, "Window", new Vector2(860, 680));
         ConfigureLargePopupWindow(windowObj);
         var title = CreatePopupTitle(windowObj.transform, "Inspiration Selection");
@@ -482,12 +575,12 @@ public static class ExhibitionSceneBuilder
         return popup;
     }
 
-    private static ItemTooltip CreateTooltip(Canvas canvas)
+    private static ItemTooltip CreateTooltip(Transform parent)
     {
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PREFABS_PATH}/ItemTooltip.prefab");
         if (prefab == null) return null;
 
-        var tooltipObj = (GameObject)PrefabUtility.InstantiatePrefab(prefab, canvas.transform);
+        var tooltipObj = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
         tooltipObj.name = "ItemTooltip";
         tooltipObj.SetActive(false);
         return tooltipObj.GetComponent<ItemTooltip>();

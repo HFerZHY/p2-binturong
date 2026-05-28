@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using ExhibitionSystem.Core;
 using ExhibitionSystem.Data;
 using UnityEngine;
@@ -17,6 +18,7 @@ namespace ExhibitionSystem.UI
         [Header("References")]
         [SerializeField] private ShelfSlotUI _slotPrefab;
         [SerializeField] private Transform _gridContainer;
+        [SerializeField] private List<ShelfSlotUI> _manualSlots = new();
 
         [Header("Grid Settings")]
         [SerializeField] private int _columns = 4;
@@ -47,6 +49,27 @@ namespace ExhibitionSystem.UI
             RebuildSlots();
         }
 
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (Application.isPlaying || _manualSlots == null || _manualSlots.Count == 0)
+                return;
+
+            var previewItems = Resources.LoadAll<ExhibitItemData>("Exhibitions/Items")
+                .OrderBy(item => item.sortOrder)
+                .ToList();
+
+            for (int i = 0; i < _manualSlots.Count; i++)
+            {
+                var slot = _manualSlots[i];
+                if (slot == null) continue;
+
+                slot.SetSlotIndex(i);
+                slot.SetData(i < previewItems.Count ? previewItems[i] : null);
+            }
+        }
+#endif
+
         // ── Public Methods ──────────────────────────────────────────────────────
 
         /// <summary>
@@ -54,7 +77,30 @@ namespace ExhibitionSystem.UI
         /// </summary>
         public void RebuildSlots()
         {
-            // Clear existing slots
+            var manager = ExhibitionManager.Instance;
+            if (manager == null) return;
+
+            var allItems = manager.AllItems;
+            int totalSlots = _columns * _rows;
+
+            if (_manualSlots != null && _manualSlots.Count > 0)
+            {
+                _slots.Clear();
+
+                for (int i = 0; i < _manualSlots.Count; i++)
+                {
+                    var slot = _manualSlots[i];
+                    if (slot == null) continue;
+
+                    slot.SetSlotIndex(i);
+                    slot.gameObject.SetActive(i < totalSlots);
+                    SetSlotItem(slot, i, allItems, manager);
+                    _slots.Add(slot);
+                }
+
+                return;
+            }
+
             foreach (var slot in _slots)
             {
                 if (slot != null)
@@ -64,30 +110,11 @@ namespace ExhibitionSystem.UI
 
             if (_slotPrefab == null || _gridContainer == null) return;
 
-            // Get items from manager
-            var manager = ExhibitionManager.Instance;
-            if (manager == null) return;
-
-            var allItems = manager.AllItems;
-
-            // Create slots
-            int totalSlots = _columns * _rows;
             for (int i = 0; i < totalSlots; i++)
             {
                 var slot = Instantiate(_slotPrefab, _gridContainer);
                 slot.SetSlotIndex(i);
-
-                // Assign item if available
-                if (i < allItems.Count)
-                {
-                    slot.SetData(allItems[i]);
-                    slot.SetPlacedState(manager.IsItemPlaced(allItems[i]));
-                }
-                else
-                {
-                    slot.SetData(null);
-                }
-
+                SetSlotItem(slot, i, allItems, manager);
                 _slots.Add(slot);
             }
         }
@@ -131,6 +158,22 @@ namespace ExhibitionSystem.UI
         {
             // Refresh all states when item is removed
             RefreshSlotStates();
+        }
+
+        private static void SetSlotItem(ShelfSlotUI slot, int index, IReadOnlyList<ExhibitItemData> allItems, ExhibitionManager manager)
+        {
+            if (slot == null) return;
+
+            if (index < allItems.Count)
+            {
+                var item = allItems[index];
+                slot.SetData(item);
+                slot.SetPlacedState(manager.IsItemPlaced(item));
+            }
+            else
+            {
+                slot.SetData(null);
+            }
         }
     }
 }

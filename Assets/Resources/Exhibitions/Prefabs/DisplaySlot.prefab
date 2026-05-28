@@ -52,13 +52,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2300491390338998741}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.78, b: 0.28, a: 0.08}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -138,14 +138,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.46, g: 0.28, b: 0.12, a: 0.98}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -1129491077750964762, guid: f1485f64be00a9743b49bb2564f36b56, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -180,12 +180,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.UI.DisplaySlotUI
   _highlight: {fileID: 1590676579482508747}
-  _normalColor: {r: 1, g: 1, b: 1, a: 0.1}
+  _normalColor: {r: 1, g: 1, b: 1, a: 0}
   _hoverColor: {r: 1, g: 1, b: 0.5, a: 0.4}
   _invalidColor: {r: 1, g: 0.3, b: 0.3, a: 0.4}
+  _frameImage: {fileID: 5912678678231285166}
   _itemIcon: {fileID: 8257994370284007470}
   _statusBadge: {fileID: 3190798631603026439}
-  _emptySlotSprite: {fileID: 0}
+  _defaultFrameSprite: {fileID: -1129491077750964762, guid: f1485f64be00a9743b49bb2564f36b56, type: 3}
+  _hoverFrameSprite: {fileID: 2145302903370456075, guid: 6c43007b8983a53438aeea8ad00c8848, type: 3}
   _badgeDefaultColor: {r: 1, g: 1, b: 1, a: 1}
   _badgeCorrectColor: {r: 0.3, g: 0.9, b: 0.3, a: 1}
   _badgeIncorrectColor: {r: 0.9, g: 0.3, b: 0.3, a: 1}

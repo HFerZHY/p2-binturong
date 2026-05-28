@@ -30,15 +30,12 @@ public static class ExhibitionPrefabBuilder
 
     private static void CreateShelfSlotPrefab()
     {
-        var root = CreateUIObject("ShelfSlot", new Vector2(160, 160));
-        var bg = root.AddComponent<Image>();
-        bg.color = new Color(0.22f, 0.16f, 0.10f, 0.95f);
+        var root = CreateUIObject("ShelfSlot", new Vector2(150, 150));
+        var icon = root.AddComponent<Image>();
+        icon.color = Color.white;
+        icon.preserveAspect = true;
+        icon.raycastTarget = true;
         root.AddComponent<CanvasGroup>();
-
-        var iconObj = CreateChild(root.transform, "Icon");
-        var icon = iconObj.AddComponent<Image>();
-        icon.raycastTarget = false;
-        Stretch(iconObj.GetComponent<RectTransform>(), 10);
 
         var slotUI = root.AddComponent<ShelfSlotUI>();
         SetPrivateField(slotUI, "_icon", icon);
@@ -50,13 +47,19 @@ public static class ExhibitionPrefabBuilder
     {
         var root = CreateUIObject("DisplaySlot", new Vector2(172, 152));
         var bg = root.AddComponent<Image>();
-        bg.color = new Color(0.46f, 0.28f, 0.12f, 0.98f);
+        var defaultFrame = LoadSprite("Assets/Resources/Exhibitions/Icons/frame-no-item.png");
+        var hoverFrame = LoadSprite("Assets/Resources/Exhibitions/Icons/frame-item-hover.png");
+        bg.sprite = defaultFrame;
+        bg.color = Color.white;
+        bg.type = Image.Type.Simple;
+        bg.preserveAspect = false;
         root.AddComponent<CanvasGroup>();
 
         var highlightObj = CreateChild(root.transform, "Highlight");
         var highlight = highlightObj.AddComponent<Image>();
         highlight.color = new Color(1f, 0.78f, 0.28f, 0.08f);
         highlight.raycastTarget = false;
+        highlight.enabled = false;
         Stretch(highlightObj.GetComponent<RectTransform>(), 0);
 
         var iconObj = CreateChild(root.transform, "ItemIcon");
@@ -80,6 +83,10 @@ public static class ExhibitionPrefabBuilder
 
         var slotUI = root.AddComponent<DisplaySlotUI>();
         SetPrivateField(slotUI, "_highlight", highlight);
+        SetPrivateField(slotUI, "_frameImage", bg);
+        SetPrivateField(slotUI, "_defaultFrameSprite", defaultFrame);
+        SetPrivateField(slotUI, "_hoverFrameSprite", hoverFrame);
+        SetPrivateField(slotUI, "_normalColor", new Color(1f, 1f, 1f, 0f));
         SetPrivateField(slotUI, "_itemIcon", icon);
         SetPrivateField(slotUI, "_statusBadge", badge);
 
@@ -206,13 +213,16 @@ public static class ExhibitionPrefabBuilder
 
         var labelObj = CreateChild(root.transform, "LabelStrip");
         var labelBg = labelObj.AddComponent<Image>();
-        labelBg.color = new Color(0.75f, 0.62f, 0.42f, 0.98f);
+        labelBg.sprite = LoadSprite("Assets/Resources/Exhibitions/Icons/label.png");
+        labelBg.color = Color.white;
+        labelBg.type = Image.Type.Simple;
+        labelBg.preserveAspect = false;
         var labelRt = labelObj.GetComponent<RectTransform>();
         labelRt.anchorMin = new Vector2(0.5f, 1f);
         labelRt.anchorMax = new Vector2(0.5f, 1f);
         labelRt.pivot = new Vector2(0.5f, 1f);
-        labelRt.anchoredPosition = Vector2.zero;
-        labelRt.sizeDelta = new Vector2(190f, 44f);
+        labelRt.anchoredPosition = new Vector2(0f, -20f);
+        labelRt.sizeDelta = new Vector2(172f, 42f);
 
         var ideaText = CreateText(labelObj.transform, "InspirationText", "Jiro recreated...", 20, FontStyles.Bold, TextAlignmentOptions.Center);
         ideaText.color = new Color(0.25f, 0.14f, 0.08f, 1f);

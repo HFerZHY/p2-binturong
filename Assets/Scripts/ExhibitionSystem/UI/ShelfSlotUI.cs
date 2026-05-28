@@ -1,5 +1,7 @@
+using ExhibitionSystem.Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace ExhibitionSystem.UI
 {
@@ -12,7 +14,6 @@ namespace ExhibitionSystem.UI
         // ── Serialized Fields ───────────────────────────────────────────────────
 
         [Header("Shelf Slot")]
-        [SerializeField] private float _placedAlpha = 0.3f;
         [SerializeField] private float _lockedAlpha = 0.5f;
 
         // ── Runtime State ───────────────────────────────────────────────────────
@@ -25,7 +26,40 @@ namespace ExhibitionSystem.UI
         public int SlotIndex => _slotIndex;
         public bool IsPlacedInDisplay => _isPlacedInDisplay;
 
+        protected override void Awake()
+        {
+            base.Awake();
+            EnsureIconReference();
+            ConfigureRootImage();
+        }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            EnsureIconReference();
+            ConfigureRootImage();
+
+            if (_icon != null)
+                _icon.enabled = _icon.sprite != null;
+        }
+#endif
+
         // ── Public Methods ──────────────────────────────────────────────────────
+
+        public override void SetData(ExhibitItemData item)
+        {
+            _itemData = item;
+            EnsureIconReference();
+            ConfigureRootImage();
+
+            if (_icon != null)
+            {
+                _icon.sprite = item?.icon;
+                _icon.enabled = item != null && item.icon != null;
+                _icon.preserveAspect = true;
+                _icon.raycastTarget = true;
+            }
+        }
 
         /// <summary>
         /// Sets the slot index.
@@ -89,14 +123,34 @@ namespace ExhibitionSystem.UI
             {
                 _canvasGroup.alpha = _lockedAlpha;
             }
-            else if (_isPlacedInDisplay)
-            {
-                _canvasGroup.alpha = _placedAlpha;
-            }
             else
             {
                 _canvasGroup.alpha = 1f;
             }
+
+            if (_icon != null)
+                _icon.enabled = _itemData != null && _itemData.icon != null && !_isPlacedInDisplay;
+        }
+
+        private void ConfigureRootImage()
+        {
+            if (_icon == null) return;
+
+            _icon.color = Color.white;
+            _icon.preserveAspect = true;
+            _icon.raycastTarget = true;
+        }
+
+        private void EnsureIconReference()
+        {
+            if (_icon != null) return;
+
+            _icon = GetComponent<Image>();
+            if (_icon != null) return;
+
+            var iconTransform = transform.Find("Icon");
+            if (iconTransform != null)
+                _icon = iconTransform.GetComponent<Image>();
         }
     }
 }

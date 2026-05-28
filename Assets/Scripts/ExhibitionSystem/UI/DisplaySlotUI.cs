@@ -17,9 +17,11 @@ namespace ExhibitionSystem.UI
         // ── Serialized Fields ───────────────────────────────────────────────────
 
         [Header("Display Slot")]
+        [SerializeField] private Image _frameImage;
         [SerializeField] private Image _itemIcon;
         [SerializeField] private Image _statusBadge;
-        [SerializeField] private Sprite _emptySlotSprite;
+        [SerializeField] private Sprite _defaultFrameSprite;
+        [SerializeField] private Sprite _hoverFrameSprite;
 
         [Header("Status Badge Colors")]
         [SerializeField] private Color _badgeDefaultColor = Color.white;
@@ -49,6 +51,9 @@ namespace ExhibitionSystem.UI
         protected override void Awake()
         {
             base.Awake();
+
+            if (_frameImage == null)
+                _frameImage = GetComponent<Image>();
 
             _canvasGroup = GetComponent<CanvasGroup>();
             if (_canvasGroup == null)
@@ -84,11 +89,13 @@ namespace ExhibitionSystem.UI
                 }
                 else
                 {
-                    _itemIcon.sprite = _emptySlotSprite;
-                    _itemIcon.enabled = _emptySlotSprite != null;
+                    _itemIcon.sprite = null;
+                    _itemIcon.enabled = false;
                     _itemIcon.rectTransform.localScale = Vector3.one;
                 }
             }
+
+            SetFrameSprite(_defaultFrameSprite);
 
             // Hide status badge when setting item (only show during validation)
             if (_statusBadge != null)
@@ -115,10 +122,12 @@ namespace ExhibitionSystem.UI
 
             if (_itemIcon != null)
             {
-                _itemIcon.sprite = _emptySlotSprite;
-                _itemIcon.enabled = _emptySlotSprite != null;
+                _itemIcon.sprite = null;
+                _itemIcon.enabled = false;
                 _itemIcon.rectTransform.localScale = Vector3.one;
             }
+
+            SetFrameSprite(_defaultFrameSprite);
 
             // Hide status badge
             if (_statusBadge != null)
@@ -178,6 +187,17 @@ namespace ExhibitionSystem.UI
             if (manager.IsRunning) return false;
 
             return true;
+        }
+
+        protected override void SetHighlight(HighlightState state)
+        {
+            if (_highlight != null)
+            {
+                _highlight.enabled = false;
+                _highlight.color = _normalColor;
+            }
+
+            SetFrameSprite(state == HighlightState.Valid ? _hoverFrameSprite : _defaultFrameSprite);
         }
 
         // ── Drag Handlers (to remove item) ──────────────────────────────────────
@@ -254,6 +274,8 @@ namespace ExhibitionSystem.UI
 
             // Destroy ghost
             DestroyDragGhost();
+
+            SetFrameSprite(_defaultFrameSprite);
         }
 
         // ── Pointer Handlers ────────────────────────────────────────────────────
@@ -318,6 +340,15 @@ namespace ExhibitionSystem.UI
                 Destroy(_dragGhost);
                 _dragGhost = null;
             }
+        }
+
+        private void SetFrameSprite(Sprite sprite)
+        {
+            if (_frameImage == null || sprite == null) return;
+
+            _frameImage.sprite = sprite;
+            _frameImage.color = Color.white;
+            _frameImage.preserveAspect = false;
         }
     }
 }
