@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using TMPro;
 using ExhibitionSystem.Data;
 
@@ -30,6 +31,12 @@ public class InspirationManager : MonoBehaviour
     // ── Singleton ─────────────────────────────────────────────────────────────
 
     private static InspirationManager _instance;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void EnsureInitialized()
+    {
+        _ = Instance;
+    }
 
     public static InspirationManager Instance
     {
@@ -97,6 +104,7 @@ public class InspirationManager : MonoBehaviour
     private CanvasGroup _hintCG;
 
     private GameObject _journalGo;
+    private GameObject _journalEntryGo;
 
     private readonly Queue<int> _toastQueue = new();
     private bool _toastActive;
@@ -118,6 +126,7 @@ public class InspirationManager : MonoBehaviour
     private readonly Image[]    _itemSlotImages = new Image[17];    // 1-based
     private readonly Image[]    _itemSlotBgs    = new Image[17];    // 1-based
     private readonly TMP_Text[] _itemSlotNames  = new TMP_Text[17]; // 1-based
+    private readonly Image[]    _entryBgs       = new Image[17];    // inspiration rows, 1-based
 
     private TMP_Text[] _themeEntryTitles;
     private TMP_Text[] _themeEntryStatuses;
@@ -125,26 +134,31 @@ public class InspirationManager : MonoBehaviour
 
     // ── Colours ───────────────────────────────────────────────────────────────
 
-    private static readonly Color PopupBg      = new Color32(0x05, 0x10, 0x05, 0xF2);
-    private static readonly Color PopupLine    = new Color32(0x60, 0xa8, 0x60, 0xFF);
-    private static readonly Color PopupHdr     = new Color32(0x88, 0xd8, 0x88, 0xFF);
-    private static readonly Color PopupBody    = new Color32(0xcc, 0xdc, 0xcc, 0xFF);
-    private static readonly Color HintBg       = new Color32(0x06, 0x14, 0x06, 0xE8);
-    private static readonly Color HintFg       = new Color32(0x88, 0xcc, 0x88, 0xFF);
-    private static readonly Color JournalBg    = new Color32(0x03, 0x09, 0x03, 0xF4);
-    private static readonly Color CardBg       = new Color32(0x08, 0x14, 0x08, 0xFF);
-    private static readonly Color JournalHdr   = new Color32(0x88, 0xd8, 0x88, 0xFF);
-    private static readonly Color SepLine      = new Color32(0x40, 0x80, 0x40, 0xFF);
-    private static readonly Color CloseFg      = new Color32(0x50, 0x80, 0x50, 0xFF);
-    private static readonly Color UnlockedFg   = new Color32(0xcc, 0xdc, 0xcc, 0xFF);
-    private static readonly Color LockedFg     = new Color32(0x38, 0x50, 0x38, 0xFF);
-    private static readonly Color TabActiveBg  = new Color32(0x10, 0x28, 0x10, 0xFF);
-    private static readonly Color TabInactiveBg = new Color32(0x05, 0x0d, 0x05, 0xFF);
-    private static readonly Color ItemHaveBg   = new Color32(0x09, 0x1e, 0x09, 0xFF);
-    private static readonly Color ItemLackBg   = new Color32(0x04, 0x0c, 0x04, 0xFF);
-    private static readonly Color ThemeHaveBg  = new Color32(0x08, 0x1e, 0x08, 0xFF);
-    private static readonly Color ThemeLackBg  = new Color32(0x05, 0x10, 0x05, 0xFF);
-    private static readonly Color CompletedFg  = new Color32(0x66, 0xcc, 0x66, 0xFF);
+    private static readonly Color PopupBg       = new Color32(0x4b, 0x2f, 0x20, 0xF2);
+    private static readonly Color PopupLine     = new Color32(0xc9, 0x9b, 0x65, 0xFF);
+    private static readonly Color PopupHdr      = new Color32(0xf0, 0xd7, 0xa5, 0xFF);
+    private static readonly Color PopupBody     = new Color32(0xf7, 0xea, 0xc9, 0xFF);
+    private static readonly Color HintBg        = new Color32(0x55, 0x36, 0x24, 0xEE);
+    private static readonly Color HintFg        = new Color32(0xf0, 0xd7, 0xa5, 0xFF);
+    private static readonly Color JournalBg     = new Color32(0x24, 0x16, 0x10, 0xF2);
+    private static readonly Color BookCover     = new Color32(0x68, 0x42, 0x2b, 0xFF);
+    private static readonly Color PageEdge      = new Color32(0xbf, 0x98, 0x64, 0xFF);
+    private static readonly Color PageLeft      = new Color32(0xf3, 0xe3, 0xbd, 0xFF);
+    private static readonly Color PageRight     = new Color32(0xee, 0xdc, 0xb4, 0xFF);
+    private static readonly Color Spine         = new Color32(0x8f, 0x68, 0x43, 0xFF);
+    private static readonly Color JournalHdr    = new Color32(0x6d, 0x43, 0x2d, 0xFF);
+    private static readonly Color SepLine       = new Color32(0xb7, 0x86, 0x58, 0xFF);
+    private static readonly Color CloseFg       = new Color32(0x7b, 0x5b, 0x42, 0xFF);
+    private static readonly Color UnlockedFg    = new Color32(0x54, 0x3b, 0x2a, 0xFF);
+    private static readonly Color LockedFg      = new Color32(0x9b, 0x84, 0x68, 0xFF);
+    private static readonly Color TabActiveBg   = new Color32(0xe9, 0xce, 0x9c, 0xFF);
+    private static readonly Color TabInactiveBg = new Color32(0xb7, 0xa0, 0x6c, 0xFF);
+    private static readonly Color ItemHaveBg    = new Color32(0xe3, 0xc9, 0x97, 0xFF);
+    private static readonly Color ItemLackBg    = new Color32(0xc5, 0xad, 0x86, 0xFF);
+    private static readonly Color ThemeHaveBg   = new Color32(0xe6, 0xd0, 0xa5, 0xFF);
+    private static readonly Color ThemeLackBg   = new Color32(0xcf, 0xba, 0x95, 0xFF);
+    private static readonly Color CompletedFg   = new Color32(0xa1, 0x5e, 0x3c, 0xFF);
+    private static readonly Color EntryBg       = new Color32(0x78, 0x50, 0x34, 0xE8);
 
     // ── Unity lifecycle ───────────────────────────────────────────────────────
 
@@ -157,10 +171,20 @@ public class InspirationManager : MonoBehaviour
         BuildUI();
     }
 
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+    }
+
     private void Update()
     {
         var kb = Keyboard.current;
-        if (kb != null && kb.eKey.wasPressedThisFrame && _introduced)
+        if (kb != null && kb.eKey.wasPressedThisFrame)
             ToggleJournal();
 
         if (_journalOpen)
@@ -282,8 +306,28 @@ public class InspirationManager : MonoBehaviour
 
     private void ToggleJournal()
     {
-        _journalOpen = !_journalOpen;
+        SetJournalOpen(!_journalOpen);
+    }
+
+    private void SetJournalOpen(bool open)
+    {
+        _journalOpen = open;
         _journalGo.SetActive(_journalOpen);
+        RefreshJournalEntryVisibility(SceneManager.GetActiveScene().name);
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (_journalOpen)
+            SetJournalOpen(false);
+        RefreshJournalEntryVisibility(scene.name);
+    }
+
+    private void RefreshJournalEntryVisibility(string sceneName)
+    {
+        if (_journalEntryGo == null) return;
+        bool isWorldMap = sceneName == "WorldScene" || sceneName == "Day1World";
+        _journalEntryGo.SetActive(isWorldMap && !_journalOpen);
     }
 
     // ── Tab switching ─────────────────────────────────────────────────────────
@@ -358,6 +402,7 @@ public class InspirationManager : MonoBehaviour
         e.text      = $"<b>{id:D2}.</b>  {Texts[id]}";
         e.color     = UnlockedFg;
         e.fontStyle = FontStyles.Normal;
+        if (_entryBgs[id] != null) _entryBgs[id].color = ThemeHaveBg;
     }
 
     private void RefreshItemSlot(int sortOrder)
@@ -406,7 +451,9 @@ public class InspirationManager : MonoBehaviour
 
         BuildToastPopup(cvGo.transform);
         BuildHintBanner(cvGo.transform);
+        BuildJournalEntryButton(cvGo.transform);
         BuildJournal(cvGo.transform);
+        RefreshJournalEntryVisibility(SceneManager.GetActiveScene().name);
     }
 
     // ── Toast popup ───────────────────────────────────────────────────────────
@@ -454,6 +501,47 @@ public class InspirationManager : MonoBehaviour
         _hintGo.SetActive(false);
     }
 
+    // ── World-map entry button ────────────────────────────────────────────────
+
+    private void BuildJournalEntryButton(Transform cv)
+    {
+        _journalEntryGo = Rect(cv, "JournalEntry",
+            new Vector2(0.90f, 0.82f), new Vector2(0.985f, 0.975f));
+
+        var background = _journalEntryGo.AddComponent<Image>();
+        background.color = EntryBg;
+
+        var button = _journalEntryGo.AddComponent<Button>();
+        button.targetGraphic = background;
+        button.onClick.AddListener(() =>
+        {
+            _introduced = true;
+            SetJournalOpen(true);
+        });
+
+        var iconGo = Rect(_journalEntryGo.transform, "Icon",
+            new Vector2(0.08f, 0.20f), new Vector2(0.92f, 0.95f));
+        var icon = iconGo.AddComponent<Image>();
+        icon.sprite = LoadJournalIcon();
+        icon.preserveAspect = true;
+        icon.raycastTarget = false;
+
+        Tmp(_journalEntryGo.transform, "Label", "Journal",
+            15f, PopupBody, TextAlignmentOptions.Center,
+            new Vector2(0.04f, 0.02f), new Vector2(0.96f, 0.24f));
+    }
+
+    private static Sprite LoadJournalIcon()
+    {
+        var sprites = Resources.LoadAll<Sprite>("Map/journal");
+        if (sprites.Length > 0) return sprites[0];
+
+        var texture = Resources.Load<Texture2D>("Map/journal");
+        return texture != null
+            ? Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), new Vector2(0.5f, 0.5f))
+            : null;
+    }
+
     // ── Journal overlay ───────────────────────────────────────────────────────
 
     private void BuildJournal(Transform cv)
@@ -461,30 +549,49 @@ public class InspirationManager : MonoBehaviour
         _journalGo = Rect(cv, "Journal", Vector2.zero, Vector2.one);
         _journalGo.AddComponent<Image>().color = JournalBg;
 
-        var card = Rect(_journalGo.transform, "Card",
-            new Vector2(0.07f, 0.04f), new Vector2(0.93f, 0.96f));
-        card.AddComponent<Image>().color = CardBg;
-        var ct = card.transform;
+        var book = Rect(_journalGo.transform, "BookCover",
+            new Vector2(0.035f, 0.035f), new Vector2(0.965f, 0.965f));
+        book.AddComponent<Image>().color = BookCover;
+
+        var spread = Rect(book.transform, "PageSpread",
+            new Vector2(0.025f, 0.045f), new Vector2(0.975f, 0.90f));
+        spread.AddComponent<Image>().color = PageEdge;
+        var ct = spread.transform;
+
+        Rect(ct, "LeftPage", new Vector2(0.008f, 0.012f), new Vector2(0.495f, 0.988f))
+            .AddComponent<Image>().color = PageLeft;
+        Rect(ct, "RightPage", new Vector2(0.505f, 0.012f), new Vector2(0.992f, 0.988f))
+            .AddComponent<Image>().color = PageRight;
+        Rect(ct, "Spine", new Vector2(0.493f, 0.012f), new Vector2(0.507f, 0.988f))
+            .AddComponent<Image>().color = Spine;
 
         Tmp(ct, "Title", "Rin's Journal",
             28f, JournalHdr, TextAlignmentOptions.Center,
-            new Vector2(0.02f, 0.93f), new Vector2(0.78f, 0.99f));
+            new Vector2(0.05f, 0.90f), new Vector2(0.47f, 0.975f));
 
         Tmp(ct, "CloseHint", "[ E ]  close",
             16f, CloseFg, TextAlignmentOptions.Right,
-            new Vector2(0.74f, 0.93f), new Vector2(0.98f, 0.99f));
+            new Vector2(0.80f, 0.91f), new Vector2(0.93f, 0.975f));
 
-        Rect(ct, "Sep", new Vector2(0.02f, 0.912f), new Vector2(0.98f, 0.922f))
+        var closeGo = Rect(ct, "CloseButton",
+            new Vector2(0.94f, 0.91f), new Vector2(0.975f, 0.975f));
+        var closeBg = closeGo.AddComponent<Image>();
+        closeBg.color = TabActiveBg;
+        var closeButton = closeGo.AddComponent<Button>();
+        closeButton.targetGraphic = closeBg;
+        closeButton.onClick.AddListener(() => SetJournalOpen(false));
+        Tmp(closeGo.transform, "X", "X",
+            20f, JournalHdr, TextAlignmentOptions.Center,
+            new Vector2(0f, 0f), new Vector2(1f, 1f));
+
+        Rect(ct, "Sep", new Vector2(0.04f, 0.885f), new Vector2(0.96f, 0.893f))
             .AddComponent<Image>().color = SepLine;
 
-        BuildTabBar(ct);
+        BuildTabBar(book.transform);
 
-        Rect(ct, "TabSep", new Vector2(0.02f, 0.855f), new Vector2(0.98f, 0.863f))
-            .AddComponent<Image>().color = SepLine;
-
-        _itemsPanel  = Rect(ct, "ItemsPanel",  new Vector2(0.01f, 0.02f), new Vector2(0.99f, 0.852f));
-        _inspPanel   = Rect(ct, "InspPanel",   new Vector2(0.01f, 0.02f), new Vector2(0.99f, 0.852f));
-        _themesPanel = Rect(ct, "ThemesPanel", new Vector2(0.01f, 0.02f), new Vector2(0.99f, 0.852f));
+        _itemsPanel  = Rect(ct, "ItemsPanel",  new Vector2(0.025f, 0.035f), new Vector2(0.975f, 0.86f));
+        _inspPanel   = Rect(ct, "InspPanel",   new Vector2(0.025f, 0.035f), new Vector2(0.975f, 0.86f));
+        _themesPanel = Rect(ct, "ThemesPanel", new Vector2(0.025f, 0.035f), new Vector2(0.975f, 0.86f));
 
         BuildItemsContent(_itemsPanel.transform);
         BuildInspirationsContent(_inspPanel.transform);
@@ -498,7 +605,7 @@ public class InspirationManager : MonoBehaviour
 
     private void BuildTabBar(Transform ct)
     {
-        var tabBar = Rect(ct, "TabBar", new Vector2(0.02f, 0.863f), new Vector2(0.98f, 0.910f));
+        var tabBar = Rect(ct, "TabBar", new Vector2(0.045f, 0.895f), new Vector2(0.61f, 0.99f));
         string[] tabNames = { "Items", "Inspirations", "Themes" };
 
         for (int i = 0; i < 3; i++)
@@ -522,7 +629,6 @@ public class InspirationManager : MonoBehaviour
     {
         const int cols = 4;
         const int rows = 4;
-        const float colW = 1f / cols;
         const float rowH = 1f / rows;
         const float gapX = 0.004f;
         const float gapY = 0.006f;
@@ -534,8 +640,13 @@ public class InspirationManager : MonoBehaviour
                 int sortOrder = row * cols + col + 1; // 1-based
                 if (sortOrder > 16) break;
 
-                float xMin = col * colW + gapX;
-                float xMax = (col + 1) * colW - gapX;
+                int page = col / 2;
+                int pageCol = col % 2;
+                float pageMin = page == 0 ? 0f : 0.515f;
+                float pageMax = page == 0 ? 0.485f : 1f;
+                float pageWidth = pageMax - pageMin;
+                float xMin = pageMin + pageCol * pageWidth / 2f + gapX;
+                float xMax = pageMin + (pageCol + 1) * pageWidth / 2f - gapX;
                 float yMax = 1f - row * rowH;
                 float yMin = 1f - (row + 1) * rowH + gapY;
 
@@ -590,12 +701,18 @@ public class InspirationManager : MonoBehaviour
             float yMin  = yMax - step;
             bool  known = _unlocked[id];
 
-            var e = Tmp(col.transform, $"E{id}",
+            var row = Rect(col.transform, $"Row{id}",
+                new Vector2(0.01f, yMin + 0.015f), new Vector2(0.99f, yMax - 0.015f));
+            var rowBg = row.AddComponent<Image>();
+            rowBg.color = known ? ThemeHaveBg : ThemeLackBg;
+            _entryBgs[id] = rowBg;
+
+            var e = Tmp(row.transform, $"E{id}",
                 known ? $"<b>{id:D2}.</b>  {Texts[id]}" : $"<b>{id:D2}.</b>  ???",
-                18f,
+                17f,
                 known ? UnlockedFg : LockedFg,
-                TextAlignmentOptions.TopLeft,
-                new Vector2(0f, yMin), new Vector2(1f, yMax));
+                TextAlignmentOptions.Left,
+                new Vector2(0.04f, 0.05f), new Vector2(0.96f, 0.95f));
 
             e.fontStyle = known ? FontStyles.Normal : FontStyles.Italic;
             _entries[id] = e;
@@ -619,16 +736,21 @@ public class InspirationManager : MonoBehaviour
         _themeEntryStatuses = new TMP_Text[count];
         _themeEntryBgs      = new Image[count];
 
-        float step = 1f / count;
+        int perPage = Mathf.CeilToInt(count / 2f);
+        float step = 1f / perPage;
 
         for (int i = 0; i < count; i++)
         {
             var  theme = _themeData[i];
             bool done  = _themesCompleted[i];
-            float yMax = 1f - i * step;
+            int page = i / perPage;
+            int row = i % perPage;
+            float xMin = page == 0 ? 0.01f : 0.525f;
+            float xMax = page == 0 ? 0.475f : 0.99f;
+            float yMax = 1f - row * step;
             float yMin = yMax - step + 0.008f;
 
-            var themeGo = Rect(parent, $"Theme{i}", new Vector2(0.01f, yMin), new Vector2(0.99f, yMax));
+            var themeGo = Rect(parent, $"Theme{i}", new Vector2(xMin, yMin), new Vector2(xMax, yMax));
             var themeBg = themeGo.AddComponent<Image>();
             themeBg.color     = done ? ThemeHaveBg : ThemeLackBg;
             _themeEntryBgs[i] = themeBg;

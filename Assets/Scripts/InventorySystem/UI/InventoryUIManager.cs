@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using InventorySystem.Data;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace InventorySystem.UI
@@ -11,8 +10,8 @@ namespace InventorySystem.UI
     /// Manages the inventory panel UI.
     ///
     /// ARCHITECTURE
-    ///   • Opens/closes the panel via an InputAction looked up by name from
-    ///     InputSystem.actions (the project-wide InputActionAsset).
+    ///   • The legacy panel is kept hidden while the Journal replaces its
+    ///     player-facing entry point.
     ///   • Calls TabGroup.RebuildTabs once on enable to populate the tab bar.
     ///   • Spawns InventorySlotUI cells (which derive from TabItem) into a slot
     ///     grid TabGroup. Hover/focus on a cell populates the detail panel via
@@ -33,7 +32,6 @@ namespace InventorySystem.UI
     ///                            on _slotTabGroup if not already set).
     ///   _tabDefinitions        — ordered list of category tab descriptors.
     ///   _detailIcon/Name/Desc  — children of the detail panel.
-    ///   _toggleInventoryAction — InputAction name string (e.g. "ToggleInventory").
     /// </summary>
     public class InventoryUIManager : MonoBehaviour
     {
@@ -58,13 +56,8 @@ namespace InventorySystem.UI
         [SerializeField] private TextMeshProUGUI _detailName;
         [SerializeField] private TextMeshProUGUI _detailDescription;
 
-        [Header("Input")]
-        [Tooltip("Name of the InputAction in the project InputActionAsset that toggles the inventory.")]
-        [SerializeField] private string _toggleInventoryAction = "ToggleInventory";
-
         // ── Private state ─────────────────────────────────────────────────────
 
-        private InputAction           _toggleAction;
         private bool                  _isOpen;
         private string                _activeCategory;
 
@@ -73,20 +66,8 @@ namespace InventorySystem.UI
 
         // ── Unity lifecycle ───────────────────────────────────────────────────
 
-        private void Awake()
-        {
-            _toggleAction = InputSystem.actions?.FindAction(_toggleInventoryAction);
-            if (_toggleAction == null)
-                Debug.LogWarning(
-                    $"[InventoryUIManager] InputAction '{_toggleInventoryAction}' not found. " +
-                    "Verify the action name matches your InputActionAsset.");
-        }
-
         private void OnEnable()
         {
-            if (_toggleAction != null)
-                _toggleAction.performed += OnTogglePerformed;
-
             if (_inventoryManager != null)
                 _inventoryManager.InventoryChanged += OnInventoryChanged;
 
@@ -96,9 +77,6 @@ namespace InventorySystem.UI
 
         private void OnDisable()
         {
-            if (_toggleAction != null)
-                _toggleAction.performed -= OnTogglePerformed;
-
             if (_inventoryManager != null)
                 _inventoryManager.InventoryChanged -= OnInventoryChanged;
         }
@@ -123,10 +101,6 @@ namespace InventorySystem.UI
             _activeCategory = match?.categoryFilter;
             RedrawSlots();
         }
-
-        // ── Input ─────────────────────────────────────────────────────────────
-
-        private void OnTogglePerformed(InputAction.CallbackContext ctx) => Toggle();
 
         public void Toggle()
         {
