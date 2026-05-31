@@ -8,13 +8,18 @@ namespace Otowa.Inquiry
     /// <summary>Queues Day 1 map thoughts until the map dialogue view is available.</summary>
     public class Day1MapFlowController : MonoBehaviour
     {
-        private const string ObjectivePrompt =
-            "(I remember Hikaru collected a bunch of stuff, but I still don't know the stories behind these items, let alone how to curate them. Maybe I should ask the villagers for advice.)";
+        private static readonly string[] ObjectivePrompt =
+        {
+            "(I remember Hikaru collected a bunch of stuff, but I still don't know the stories behind these items, let alone how to curate them.)",
+            "(Maybe I should ask the villagers for advice.)",
+        };
 
-        private const string AllInquiryThought =
-            "(I think there's nothing left to ask. Let me head back to the station and rest. There's quite a challenge waiting tomorrow.)";
+        private static readonly string[] AllInquiryThought =
+        {
+            "(I think there's nothing left to ask. Let me head back to the station and rest. There's quite a challenge waiting tomorrow.)",
+        };
 
-        private readonly Queue<(string graphName, string text, Action onComplete)> _pendingThoughts = new();
+        private readonly Queue<(string graphName, IReadOnlyList<string> lines, Action onComplete)> _pendingThoughts = new();
         private bool _waitingForThoughtEnd;
         private Action _activeThoughtCompletion;
 
@@ -55,7 +60,7 @@ namespace Otowa.Inquiry
             DialogueManager.OnConversationEnded += HandleThoughtEnded;
             _waitingForThoughtEnd = true;
             dialogueManager.TriggerDialogue(
-                Day1MapDialogueFactory.CreateRinThought(thought.graphName, thought.text));
+                Day1MapDialogueFactory.CreateRinThought(thought.graphName, thought.lines));
         }
 
         private void HandleThoughtEnded()

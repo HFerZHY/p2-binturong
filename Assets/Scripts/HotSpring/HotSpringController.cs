@@ -296,7 +296,7 @@ namespace Otowa.HotSpring
                 Mizuki("The city... the schools... is it bustling and lively every day?"),
                 Rin("It's lively, sure. But after a while, it actually doesn't feel very good."),
                 Mizuki("Not very good?"),
-                Rin("Everyone's always rushing around, caring only about how much money they made that day, but never seeming to care about the people around them."),
+                Rin("Everyone's always in a rush, only caring about how much money they make, never about the people around them."),
                 Rin("After staying there long enough, I felt like even breathing had become difficult."),
                 Mizuki("Mm... that sounds... gray."),
                 Rin("Gray?"),

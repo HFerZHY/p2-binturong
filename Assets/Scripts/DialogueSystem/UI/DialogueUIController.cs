@@ -68,9 +68,11 @@ namespace DialogueSystem.UI
         private readonly List<string> _pages = new();
         private int _pageIndex;
         private float _secondsPerChar;
+        private float _paginationWidth = -1f;
         private readonly List<Button> _choiceButtons = new();
 
         private const int MAX_LINES_PER_PAGE = 3;
+        private const float PAGINATION_WIDTH_EPSILON = 0.5f;
 
         private static readonly Color PanelBg    = new Color32(0x06, 0x0e, 0x06, 0xE8);
         private static readonly Color ChoiceBg   = new Color32(0x06, 0x0e, 0x06, 0xD8);
@@ -93,6 +95,8 @@ namespace DialogueSystem.UI
 
         private void Update()
         {
+            RefreshPaginationIfLayoutChanged();
+
             var mouse = Mouse.current;
             if (mouse == null || !mouse.leftButton.wasPressedThisFrame) return;
             if (dialoguePanel == null || !dialoguePanel.activeInHierarchy) return;
@@ -109,7 +113,9 @@ namespace DialogueSystem.UI
             // Speaker
             if (speakerNameText != null && node.speaker != null)
             {
-                speakerNameText.text = LocalizationManager.Instance.GetCharacterName(node.speaker.characterName);
+                speakerNameText.text = node.speaker.characterName == "???"
+                    ? "???"
+                    : LocalizationManager.Instance.GetCharacterName(node.speaker.characterName);
                 speakerNameText.color = GetSpeakerColor(node.speaker.characterName);
             }
             else if (speakerNameText != null)
@@ -228,6 +234,9 @@ namespace DialogueSystem.UI
                 return;
             }
 
+            Canvas.ForceUpdateCanvases();
+            _paginationWidth = dialogueBodyText.rectTransform.rect.width;
+
             var previousOverflowMode = dialogueBodyText.overflowMode;
             int previousMaxVisibleLines = dialogueBodyText.maxVisibleLines;
             dialogueBodyText.overflowMode = TextOverflowModes.Overflow;
@@ -271,6 +280,33 @@ namespace DialogueSystem.UI
             dialogueBodyText.overflowMode = previousOverflowMode;
             dialogueBodyText.maxVisibleLines = previousMaxVisibleLines;
             dialogueBodyText.text = string.Empty;
+        }
+
+        private void RefreshPaginationIfLayoutChanged()
+        {
+            if (dialoguePanel == null
+                || !dialoguePanel.activeInHierarchy
+                || dialogueBodyText == null
+                || string.IsNullOrEmpty(_fullText)
+                || _pages.Count == 0)
+            {
+                return;
+            }
+
+            Canvas.ForceUpdateCanvases();
+            float currentWidth = dialogueBodyText.rectTransform.rect.width;
+            if (Mathf.Abs(currentWidth - _paginationWidth) <= PAGINATION_WIDTH_EPSILON)
+                return;
+
+            if (_typewriterCoroutine != null)
+            {
+                StopCoroutine(_typewriterCoroutine);
+                _typewriterCoroutine = null;
+            }
+
+            BuildPages(_fullText);
+            _pageIndex = 0;
+            StartCurrentPage();
         }
 
         private void StartCurrentPage()

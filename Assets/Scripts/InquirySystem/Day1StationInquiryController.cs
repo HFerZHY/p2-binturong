@@ -1,6 +1,7 @@
 using DialogueSystem.Core;
 using DialogueSystem.Interfaces;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Otowa.Inquiry
 {
@@ -10,9 +11,8 @@ namespace Otowa.Inquiry
         private const string PendingThought =
             "(It looks like there are still a few items in the journal I can look into. Let me chat with the villagers a bit more.)";
 
-        private const string SleepTestLine = "TEST - SLEEP ZZZZ";
-
         [SerializeField] private string interactPrompt = "[Space] Return to station";
+        [SerializeField] private string day1EndSceneName = "day1end";
 
         public bool CanInteract => !InspirationManager.IsJournalOpen
                                    && DialogueManager.Instance != null
@@ -24,11 +24,14 @@ namespace Otowa.Inquiry
         {
             if (!CanInteract) return;
 
-            bool complete = Day1InquiryProgress.Instance.AreAllInquiryItemsAsked;
+            if (Day1InquiryProgress.Instance.AreAllInquiryItemsAsked)
+            {
+                SceneManager.LoadScene(day1EndSceneName);
+                return;
+            }
+
             DialogueManager.Instance.TriggerDialogue(
-                Day1MapDialogueFactory.CreateRinThought(
-                    complete ? "Day1StationSleepTest" : "Day1StationPending",
-                    complete ? SleepTestLine : PendingThought));
+                Day1MapDialogueFactory.CreateRinThought("Day1StationPending", PendingThought));
         }
     }
 }

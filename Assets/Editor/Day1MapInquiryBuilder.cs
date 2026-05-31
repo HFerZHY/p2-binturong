@@ -14,6 +14,18 @@ public static class Day1MapInquiryBuilder
         var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
         ConfigureNpc(scene, "Yuji", Day1InquiryNpc.Yuji);
         ConfigureNpc(scene, "Junko", Day1InquiryNpc.Junko);
+        ConfigureAmbientNpc(
+            scene,
+            "Jiro",
+            "Characters/Jiro",
+            "Jiro",
+            "What could I even do for him...?");
+        ConfigureAmbientNpc(
+            scene,
+            "Rintaro",
+            null,
+            "???",
+            "Can I see birds once it's dark...?");
         HideMapCharacter(scene, "Mizuki");
         HideMapCharacter(scene, "Inspector");
         ConfigureMapFlow(scene);
@@ -21,6 +33,31 @@ public static class Day1MapInquiryBuilder
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
         Debug.Log("[Day1MapInquiryBuilder] Configured Day1World inquiry NPCs and hidden map-only extras.");
+    }
+
+    private static void ConfigureAmbientNpc(UnityEngine.SceneManagement.Scene scene,
+                                            string gameObjectName,
+                                            string speakerResourcePath,
+                                            string speakerDisplayName,
+                                            string dialogueLine)
+    {
+        var gameObject = FindInScene(scene, gameObjectName);
+        if (gameObject == null)
+        {
+            Debug.LogError($"[Day1MapInquiryBuilder] Could not find '{gameObjectName}' in Day1World.");
+            return;
+        }
+
+        var oldController = gameObject.GetComponent<NPCDialogueController>();
+        if (oldController != null)
+            Object.DestroyImmediate(oldController);
+
+        var ambientController = gameObject.GetComponent<Day1MapAmbientDialogueController>();
+        if (ambientController == null)
+            ambientController = gameObject.AddComponent<Day1MapAmbientDialogueController>();
+
+        ambientController.Configure(speakerResourcePath, speakerDisplayName, dialogueLine);
+        EditorUtility.SetDirty(ambientController);
     }
 
     private static void ConfigureNpc(UnityEngine.SceneManagement.Scene scene,

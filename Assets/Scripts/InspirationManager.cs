@@ -91,6 +91,7 @@ public class InspirationManager : MonoBehaviour
 
     private bool _journalOpen;
     private bool _introduced;
+    private bool _openInspirationsOnNextJournalOpen;
 
     // ── UI refs ───────────────────────────────────────────────────────────────
 
@@ -98,6 +99,7 @@ public class InspirationManager : MonoBehaviour
 
     private GameObject  _popupGo;
     private CanvasGroup _popupCG;
+    private Image       _popupBg;
     private TMP_Text    _popupTitle;
     private TMP_Text    _popupBody;
 
@@ -142,12 +144,14 @@ public class InspirationManager : MonoBehaviour
     private System.Action _onInquiryCancelled;
 
     private TMP_Text[] _themeEntryTitles;
-    private TMP_Text[] _themeEntryStatuses;
+    private TMP_Text[] _themeEntryDescriptions;
     private Image[]    _themeEntryBgs;
 
     // ── Colours ───────────────────────────────────────────────────────────────
 
     private static readonly Color PopupBg       = new Color32(0x4b, 0x2f, 0x20, 0xF2);
+    private static readonly Color InspirationToastBg = new Color32(0x6b, 0x43, 0x29, 0xFA);
+    private static readonly Color InspirationToastPulseBg = new Color32(0x86, 0x59, 0x35, 0xFF);
     private static readonly Color PopupLine     = new Color32(0xc9, 0x9b, 0x65, 0xFF);
     private static readonly Color PopupHdr      = new Color32(0xf0, 0xd7, 0xa5, 0xFF);
     private static readonly Color PopupBody     = new Color32(0xf7, 0xea, 0xc9, 0xFF);
@@ -170,7 +174,6 @@ public class InspirationManager : MonoBehaviour
     private static readonly Color ItemLackBg    = new Color32(0xc5, 0xad, 0x86, 0xFF);
     private static readonly Color ThemeHaveBg   = new Color32(0xe6, 0xd0, 0xa5, 0xFF);
     private static readonly Color ThemeLackBg   = new Color32(0xcf, 0xba, 0x95, 0xFF);
-    private static readonly Color CompletedFg   = new Color32(0xa1, 0x5e, 0x3c, 0xFF);
 
     // ── Unity lifecycle ───────────────────────────────────────────────────────
 
@@ -255,6 +258,7 @@ public class InspirationManager : MonoBehaviour
         if (id < 1 || id > 16 || _unlocked[id]) return;
         _unlocked[id] = true;
         RefreshEntry(id);
+        _openInspirationsOnNextJournalOpen = true;
 
         bool firstEver = !_introduced;
         _introduced = true;
@@ -335,6 +339,7 @@ public class InspirationManager : MonoBehaviour
             return;
 
         _journalGuidePending = true;
+        StartCoroutine(RunToast(_hintGo, _hintCG, 0.25f, 3.00f, 0.40f));
         if (_journalOpen)
         {
             ShowJournalGuideIfPending();
@@ -364,13 +369,14 @@ public class InspirationManager : MonoBehaviour
         _activeInquiryNpc = npc;
         _onInquiryItemSelected = onSelected;
         _onInquiryCancelled = onCancelled;
-        SetJournalOpen(true);
-        SwitchTab(0);
+        SetJournalOpen(true, requestedTab: 0, consumePendingInspirationTab: false);
         RefreshAllItemSlots();
         return true;
     }
 
-    private void SetJournalOpen(bool open)
+    private void SetJournalOpen(bool open,
+                                int? requestedTab = null,
+                                bool consumePendingInspirationTab = true)
     {
         if (!open)
             ClearInquiryMode(invokeCancelled: true);
@@ -379,7 +385,10 @@ public class InspirationManager : MonoBehaviour
         _journalGo.SetActive(_journalOpen);
         if (open)
         {
-            SwitchTab(0);
+            int tab = requestedTab ?? (_openInspirationsOnNextJournalOpen ? 1 : 0);
+            SwitchTab(tab);
+            if (consumePendingInspirationTab && tab == 1)
+                _openInspirationsOnNextJournalOpen = false;
             ShowJournalGuideIfPending();
         }
         else if (_journalGuideGo != null)
@@ -495,9 +504,9 @@ public class InspirationManager : MonoBehaviour
         while (_toastQueue.Count > 0)
         {
             int id = _toastQueue.Dequeue();
-            _popupTitle.text = "✦  Inspiration Unlocked  ✦";
+            _popupTitle.text = "INSPIRATION UNLOCKED";
             _popupBody.text  = $"<b>{id:D2}.</b>  {Texts[id]}";
-            yield return StartCoroutine(RunToast(_popupGo, _popupCG, 0.30f, 2.50f, 0.50f));
+            yield return StartCoroutine(RunInspirationToast());
 
             if (hintPending)
             {
@@ -517,6 +526,37 @@ public class InspirationManager : MonoBehaviour
         yield return new WaitForSeconds(hold);
         yield return Fade(cg, 1f, 0f, fadeOut);
         go.SetActive(false);
+    }
+
+    private IEnumerator RunInspirationToast()
+    {
+        const float fadeIn = 0.35f;
+        const float hold = 4.75f;
+        const float fadeOut = 0.65f;
+
+        _popupGo.SetActive(true);
+        _popupGo.transform.localScale = Vector3.one;
+        if (_popupBg != null)
+            _popupBg.color = InspirationToastBg;
+
+        yield return Fade(_popupCG, 0f, 1f, fadeIn);
+
+        float elapsed = 0f;
+        while (elapsed < hold)
+        {
+            float wave = (Mathf.Sin(elapsed * 3.2f) + 1f) * 0.5f;
+            _popupGo.transform.localScale = Vector3.one * (1f + 0.025f * wave);
+            if (_popupBg != null)
+                _popupBg.color = Color.Lerp(InspirationToastBg, InspirationToastPulseBg, wave);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        _popupGo.transform.localScale = Vector3.one;
+        if (_popupBg != null)
+            _popupBg.color = InspirationToastBg;
+        yield return Fade(_popupCG, 1f, 0f, fadeOut);
+        _popupGo.SetActive(false);
     }
 
     private IEnumerator Fade(CanvasGroup cg, float from, float to, float duration)
@@ -608,14 +648,22 @@ public class InspirationManager : MonoBehaviour
 
         if (_themeEntryTitles != null && index < _themeEntryTitles.Length && _themeEntryTitles[index] != null)
         {
+            var theme = _themeData[index];
+            _themeEntryTitles[index].text      = theme != null ? theme.title : $"Theme {index + 1}";
+            _themeEntryTitles[index].fontSize  = 28f;
             _themeEntryTitles[index].color     = UnlockedFg;
             _themeEntryTitles[index].fontStyle = FontStyles.Normal;
         }
 
-        if (_themeEntryStatuses != null && index < _themeEntryStatuses.Length && _themeEntryStatuses[index] != null)
+        if (_themeEntryDescriptions != null
+            && index < _themeEntryDescriptions.Length
+            && _themeEntryDescriptions[index] != null)
         {
-            _themeEntryStatuses[index].text  = "✓ Complete";
-            _themeEntryStatuses[index].color = CompletedFg;
+            var theme = _themeData[index];
+            _themeEntryDescriptions[index].text = theme != null ? theme.description : string.Empty;
+            _themeEntryDescriptions[index].color = UnlockedFg;
+            _themeEntryDescriptions[index].fontStyle = FontStyles.Normal;
+            _themeEntryDescriptions[index].gameObject.SetActive(true);
         }
     }
 
@@ -649,8 +697,9 @@ public class InspirationManager : MonoBehaviour
     private void BuildToastPopup(Transform cv)
     {
         _popupGo = Rect(cv, "Toast",
-            new Vector2(0.28f, 0.84f), new Vector2(0.72f, 0.97f));
-        _popupGo.AddComponent<Image>().color = PopupBg;
+            new Vector2(0.23f, 0.81f), new Vector2(0.77f, 0.98f));
+        _popupBg = _popupGo.AddComponent<Image>();
+        _popupBg.color = InspirationToastBg;
 
         Rect(_popupGo.transform, "Line",
             new Vector2(0.02f, 0.90f), new Vector2(0.98f, 0.912f))
@@ -660,12 +709,12 @@ public class InspirationManager : MonoBehaviour
         _popupCG.blocksRaycasts = false;
 
         _popupTitle = Tmp(_popupGo.transform, "Title", "",
-            17f, PopupHdr, TextAlignmentOptions.Center,
-            new Vector2(0.03f, 0.70f), new Vector2(0.97f, 0.93f));
+            26f, PopupHdr, TextAlignmentOptions.Center,
+            new Vector2(0.03f, 0.65f), new Vector2(0.97f, 0.93f));
 
         _popupBody = Tmp(_popupGo.transform, "Body", "",
-            21f, PopupBody, TextAlignmentOptions.Center,
-            new Vector2(0.03f, 0.05f), new Vector2(0.97f, 0.68f));
+            25f, PopupBody, TextAlignmentOptions.Center,
+            new Vector2(0.03f, 0.05f), new Vector2(0.97f, 0.63f));
         _popupBody.lineSpacing = 4f;
 
         _popupGo.SetActive(false);
@@ -676,14 +725,14 @@ public class InspirationManager : MonoBehaviour
     private void BuildHintBanner(Transform cv)
     {
         _hintGo = Rect(cv, "Hint",
-            new Vector2(0.32f, 0.78f), new Vector2(0.68f, 0.85f));
+            new Vector2(0.22f, 0.77f), new Vector2(0.78f, 0.86f));
         _hintGo.AddComponent<Image>().color = HintBg;
 
         _hintCG = _hintGo.AddComponent<CanvasGroup>();
         _hintCG.blocksRaycasts = false;
 
-        Tmp(_hintGo.transform, "HintText", "Press  [ E ]  to open your Journal",
-            19f, HintFg, TextAlignmentOptions.Center,
+        Tmp(_hintGo.transform, "HintText", "Click the icon in the top right or press  [ E ]  to open your Journal",
+            24f, HintFg, TextAlignmentOptions.Center,
             new Vector2(0.03f, 0.10f), new Vector2(0.97f, 0.90f));
 
         _hintGo.SetActive(false);
@@ -755,8 +804,8 @@ public class InspirationManager : MonoBehaviour
             new Vector2(0.05f, 0.90f), new Vector2(0.47f, 0.975f));
 
         Tmp(ct, "CloseHint", "[ E ]  close",
-            16f, CloseFg, TextAlignmentOptions.Right,
-            new Vector2(0.80f, 0.91f), new Vector2(0.93f, 0.975f));
+            24f, CloseFg, TextAlignmentOptions.Right,
+            new Vector2(0.76f, 0.91f), new Vector2(0.93f, 0.975f));
 
         var closeGo = Rect(ct, "CloseButton",
             new Vector2(0.94f, 0.91f), new Vector2(0.975f, 0.975f));
@@ -840,7 +889,7 @@ public class InspirationManager : MonoBehaviour
             _tabRects[i]   = (RectTransform)tabGo.transform;
 
             _tabTexts[i] = Tmp(tabGo.transform, $"TabText{i}", tabNames[i],
-                18f, CloseFg, TextAlignmentOptions.Center,
+                28f, CloseFg, TextAlignmentOptions.Center,
                 new Vector2(0.05f, 0.1f), new Vector2(0.95f, 0.9f));
         }
     }
@@ -976,7 +1025,7 @@ public class InspirationManager : MonoBehaviour
 
             var e = Tmp(row.transform, $"E{id}",
                 known ? $"<b>{id:D2}.</b>  {Texts[id]}" : $"<b>{id:D2}.</b>  ???",
-                17f,
+                21f,
                 known ? UnlockedFg : LockedFg,
                 TextAlignmentOptions.Left,
                 new Vector2(0.04f, 0.05f), new Vector2(0.96f, 0.95f));
@@ -1000,7 +1049,7 @@ public class InspirationManager : MonoBehaviour
 
         int count = _themeData.Length;
         _themeEntryTitles   = new TMP_Text[count];
-        _themeEntryStatuses = new TMP_Text[count];
+        _themeEntryDescriptions = new TMP_Text[count];
         _themeEntryBgs      = new Image[count];
 
         int perPage = Mathf.CeilToInt(count / 2f);
@@ -1023,28 +1072,25 @@ public class InspirationManager : MonoBehaviour
             _themeEntryBgs[i] = themeBg;
 
             bool hasDesc = theme != null && !string.IsNullOrEmpty(theme.description);
-            float titleYMin = hasDesc ? 0.50f : 0.15f;
+            float titleYMin = done && hasDesc ? 0.55f : 0.15f;
 
             _themeEntryTitles[i] = Tmp(themeGo.transform, "Title",
-                theme != null ? theme.title : $"Theme {i + 1}",
-                22f, done ? UnlockedFg : LockedFg, TextAlignmentOptions.Left,
-                new Vector2(0.02f, titleYMin), new Vector2(0.80f, 0.95f));
+                done && theme != null ? theme.title : "???",
+                done ? 28f : 32f, done ? UnlockedFg : LockedFg, TextAlignmentOptions.Left,
+                new Vector2(0.04f, titleYMin), new Vector2(0.96f, 0.95f));
             _themeEntryTitles[i].fontStyle = done ? FontStyles.Normal : FontStyles.Italic;
 
             if (hasDesc)
             {
-                Tmp(themeGo.transform, "Desc",
+                _themeEntryDescriptions[i] = Tmp(themeGo.transform, "Desc",
                     done ? theme.description : "???",
-                    15f,
+                    22f,
                     done ? UnlockedFg : LockedFg,
                     TextAlignmentOptions.Left,
-                    new Vector2(0.02f, 0.05f), new Vector2(0.80f, 0.48f));
+                    new Vector2(0.04f, 0.08f), new Vector2(0.96f, 0.51f));
+                _themeEntryDescriptions[i].fontStyle = done ? FontStyles.Normal : FontStyles.Italic;
+                _themeEntryDescriptions[i].gameObject.SetActive(done);
             }
-
-            _themeEntryStatuses[i] = Tmp(themeGo.transform, "Status",
-                done ? "✓ Complete" : "???",
-                17f, done ? CompletedFg : LockedFg, TextAlignmentOptions.Right,
-                new Vector2(0.70f, 0.30f), new Vector2(0.98f, 0.95f));
         }
     }
 

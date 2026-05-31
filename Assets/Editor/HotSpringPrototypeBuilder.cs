@@ -27,6 +27,7 @@ public static class HotSpringPrototypeBuilder
     private static void BuildHotSpringScene()
     {
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+        CreateMainCamera();
         var controllerObject = new GameObject("HotSpringController");
         var controller = controllerObject.AddComponent<HotSpringController>();
 
@@ -36,6 +37,19 @@ public static class HotSpringPrototypeBuilder
         serializedController.ApplyModifiedPropertiesWithoutUndo();
 
         EditorSceneManager.SaveScene(scene, HOT_SPRING_SCENE_PATH);
+    }
+
+    private static void CreateMainCamera()
+    {
+        var cameraObject = new GameObject("Main Camera", typeof(Camera), typeof(AudioListener));
+        cameraObject.tag = "MainCamera";
+        cameraObject.transform.position = new Vector3(0f, 0f, -10f);
+
+        var camera = cameraObject.GetComponent<Camera>();
+        camera.clearFlags = CameraClearFlags.SolidColor;
+        camera.backgroundColor = Color.black;
+        camera.orthographic = true;
+        camera.orthographicSize = 5f;
     }
 
     private static void AddEntranceToDay1Map()
