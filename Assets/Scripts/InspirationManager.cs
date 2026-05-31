@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using TMPro;
 using ExhibitionSystem.Data;
+using Otowa.Inquiry;
 
 /// <summary>
 /// Persistent singleton — survives scene loads via DontDestroyOnLoad.
@@ -105,6 +106,12 @@ public class InspirationManager : MonoBehaviour
 
     private GameObject _journalGo;
     private GameObject _journalEntryGo;
+    private Image _journalEntryIcon;
+    private Outline _journalEntryOutline;
+    private Coroutine _journalEntryPulse;
+    private GameObject _journalGuideGo;
+    private bool _journalGuidePending;
+    private bool _journalGuideShown;
 
     private readonly Queue<int> _toastQueue = new();
     private bool _toastActive;
@@ -125,8 +132,14 @@ public class InspirationManager : MonoBehaviour
     // Per-slot refs for dynamic refresh
     private readonly Image[]    _itemSlotImages = new Image[17];    // 1-based
     private readonly Image[]    _itemSlotBgs    = new Image[17];    // 1-based
-    private readonly TMP_Text[] _itemSlotNames  = new TMP_Text[17]; // 1-based
+    private readonly Image[]    _itemInquiryPortraits = new Image[17];
+    private readonly Button[]   _itemSlotButtons = new Button[17];
+    private readonly Outline[]  _itemSlotOutlines = new Outline[17];
     private readonly Image[]    _entryBgs       = new Image[17];    // inspiration rows, 1-based
+
+    private Day1InquiryNpc _activeInquiryNpc;
+    private System.Action<int> _onInquiryItemSelected;
+    private System.Action _onInquiryCancelled;
 
     private TMP_Text[] _themeEntryTitles;
     private TMP_Text[] _themeEntryStatuses;
@@ -158,7 +171,6 @@ public class InspirationManager : MonoBehaviour
     private static readonly Color ThemeHaveBg   = new Color32(0xe6, 0xd0, 0xa5, 0xFF);
     private static readonly Color ThemeLackBg   = new Color32(0xcf, 0xba, 0x95, 0xFF);
     private static readonly Color CompletedFg   = new Color32(0xa1, 0x5e, 0x3c, 0xFF);
-    private static readonly Color EntryBg       = new Color32(0x78, 0x50, 0x34, 0xE8);
 
     // ── Unity lifecycle ───────────────────────────────────────────────────────
 
@@ -174,20 +186,27 @@ public class InspirationManager : MonoBehaviour
     private void OnEnable()
     {
         SceneManager.sceneLoaded += HandleSceneLoaded;
+        Day1InquiryProgress.OnProgressChanged += RefreshAllItemSlots;
     }
 
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= HandleSceneLoaded;
+        Day1InquiryProgress.OnProgressChanged -= RefreshAllItemSlots;
     }
 
     private void Update()
     {
         var kb = Keyboard.current;
         if (kb != null && kb.eKey.wasPressedThisFrame)
-            ToggleJournal();
+        {
+            if (IsJournalGuideVisible)
+                DismissJournalGuide();
+            else
+                ToggleJournal();
+        }
 
-        if (_journalOpen)
+        if (_journalOpen && !IsJournalGuideVisible)
         {
             var mouse = Mouse.current;
             if (mouse != null && mouse.leftButton.wasPressedThisFrame)
@@ -304,15 +323,69 @@ public class InspirationManager : MonoBehaviour
 
     // ── Journal toggle ────────────────────────────────────────────────────────
 
+    private bool IsJournalGuideVisible => _journalGuideGo != null && _journalGuideGo.activeSelf;
+
+    /// <summary>
+    /// Highlight the Journal entry after the Day 1 exploration objective.
+    /// Opening the Journal once replaces the highlight with a short guide.
+    /// </summary>
+    public void BeginDay1JournalGuide()
+    {
+        if (_journalGuideShown || _journalGuidePending)
+            return;
+
+        _journalGuidePending = true;
+        if (_journalOpen)
+        {
+            ShowJournalGuideIfPending();
+            return;
+        }
+
+        _journalEntryPulse = StartCoroutine(PulseJournalEntry());
+    }
+
     private void ToggleJournal()
     {
         SetJournalOpen(!_journalOpen);
     }
 
+    /// <summary>
+    /// Open the Items tab in inquiry mode. Only pending items assigned to the
+    /// selected villager can be clicked.
+    /// </summary>
+    public bool OpenItemInquiry(
+        Day1InquiryNpc npc,
+        System.Action<int> onSelected,
+        System.Action onCancelled = null)
+    {
+        if (!Day1InquiryProgress.Instance.HasPendingInquiry(npc))
+            return false;
+
+        _activeInquiryNpc = npc;
+        _onInquiryItemSelected = onSelected;
+        _onInquiryCancelled = onCancelled;
+        SetJournalOpen(true);
+        SwitchTab(0);
+        RefreshAllItemSlots();
+        return true;
+    }
+
     private void SetJournalOpen(bool open)
     {
+        if (!open)
+            ClearInquiryMode(invokeCancelled: true);
+
         _journalOpen = open;
         _journalGo.SetActive(_journalOpen);
+        if (open)
+        {
+            SwitchTab(0);
+            ShowJournalGuideIfPending();
+        }
+        else if (_journalGuideGo != null)
+            _journalGuideGo.SetActive(false);
+
+        RefreshAllItemSlots();
         RefreshJournalEntryVisibility(SceneManager.GetActiveScene().name);
     }
 
@@ -320,14 +393,79 @@ public class InspirationManager : MonoBehaviour
     {
         if (_journalOpen)
             SetJournalOpen(false);
+        RefreshAllItemSlots();
         RefreshJournalEntryVisibility(scene.name);
     }
 
     private void RefreshJournalEntryVisibility(string sceneName)
     {
         if (_journalEntryGo == null) return;
-        bool isWorldMap = sceneName == "WorldScene" || sceneName == "Day1World";
-        _journalEntryGo.SetActive(isWorldMap && !_journalOpen);
+        bool showsJournalEntry = sceneName == "WorldScene"
+                                 || sceneName == "Day1World"
+                                 || sceneName == "HotSpring";
+        _journalEntryGo.SetActive(showsJournalEntry && !_journalOpen);
+    }
+
+    private IEnumerator PulseJournalEntry()
+    {
+        if (_journalEntryIcon == null || _journalEntryGo == null)
+            yield break;
+
+        if (_journalEntryOutline != null)
+            _journalEntryOutline.enabled = true;
+
+        while (_journalGuidePending)
+        {
+            float wave = (Mathf.Sin(Time.unscaledTime * 4f) + 1f) * 0.5f;
+            _journalEntryIcon.color = Color.Lerp(
+                Color.white,
+                new Color(1f, 0.78f, 0.25f, 1f),
+                wave);
+            _journalEntryGo.transform.localScale = Vector3.one * (1f + 0.10f * wave);
+            yield return null;
+        }
+
+        ResetJournalEntryHighlight();
+        _journalEntryPulse = null;
+    }
+
+    private void StopJournalEntryPulse()
+    {
+        _journalGuidePending = false;
+        if (_journalEntryPulse != null)
+        {
+            StopCoroutine(_journalEntryPulse);
+            _journalEntryPulse = null;
+        }
+
+        ResetJournalEntryHighlight();
+    }
+
+    private void ResetJournalEntryHighlight()
+    {
+        if (_journalEntryIcon != null)
+            _journalEntryIcon.color = Color.white;
+        if (_journalEntryOutline != null)
+            _journalEntryOutline.enabled = false;
+        if (_journalEntryGo != null)
+            _journalEntryGo.transform.localScale = Vector3.one;
+    }
+
+    private void ShowJournalGuideIfPending()
+    {
+        if (!_journalGuidePending || _journalGuideShown)
+            return;
+
+        StopJournalEntryPulse();
+        _journalGuideShown = true;
+        if (_journalGuideGo != null)
+            _journalGuideGo.SetActive(true);
+    }
+
+    private void DismissJournalGuide()
+    {
+        if (_journalGuideGo != null)
+            _journalGuideGo.SetActive(false);
     }
 
     // ── Tab switching ─────────────────────────────────────────────────────────
@@ -408,9 +546,59 @@ public class InspirationManager : MonoBehaviour
     private void RefreshItemSlot(int sortOrder)
     {
         if (sortOrder < 1 || sortOrder > 16) return;
-        if (_itemSlotBgs[sortOrder]    != null) _itemSlotBgs[sortOrder].color    = ItemHaveBg;
-        if (_itemSlotImages[sortOrder] != null) _itemSlotImages[sortOrder].color = Color.white;
-        if (_itemSlotNames[sortOrder]  != null) _itemSlotNames[sortOrder].color  = UnlockedFg;
+        var progress = Day1InquiryProgress.Instance;
+        bool revealed = _itemsCollected[sortOrder] || progress.IsItemRevealed(sortOrder);
+        bool canSelect = progress.CanAsk(_activeInquiryNpc, sortOrder);
+        bool showPortrait = progress.IsInquiryPending(sortOrder);
+
+        if (_itemSlotBgs[sortOrder] != null)
+            _itemSlotBgs[sortOrder].color = revealed ? ItemHaveBg : ItemLackBg;
+
+        if (_itemSlotImages[sortOrder] != null)
+        {
+            _itemSlotImages[sortOrder].enabled = revealed || sortOrder < 15;
+            _itemSlotImages[sortOrder].color = revealed
+                ? Color.white
+                : new Color(0.3f, 0.3f, 0.3f, 0.5f);
+        }
+
+        if (_itemInquiryPortraits[sortOrder] != null)
+            _itemInquiryPortraits[sortOrder].gameObject.SetActive(showPortrait);
+
+        if (_itemSlotButtons[sortOrder] != null)
+            _itemSlotButtons[sortOrder].interactable = canSelect;
+
+        if (_itemSlotOutlines[sortOrder] != null)
+            _itemSlotOutlines[sortOrder].enabled = canSelect;
+    }
+
+    private void RefreshAllItemSlots()
+    {
+        for (int sortOrder = 1; sortOrder <= 16; sortOrder++)
+            RefreshItemSlot(sortOrder);
+    }
+
+    private void HandleItemSlotClicked(int sortOrder)
+    {
+        var progress = Day1InquiryProgress.Instance;
+        if (!progress.TryMarkAsked(_activeInquiryNpc, sortOrder))
+            return;
+
+        var callback = _onInquiryItemSelected;
+        ClearInquiryMode(invokeCancelled: false);
+        SetJournalOpen(false);
+        callback?.Invoke(sortOrder);
+    }
+
+    private void ClearInquiryMode(bool invokeCancelled)
+    {
+        var cancelled = _onInquiryCancelled;
+        _activeInquiryNpc = Day1InquiryNpc.None;
+        _onInquiryItemSelected = null;
+        _onInquiryCancelled = null;
+
+        if (invokeCancelled)
+            cancelled?.Invoke();
     }
 
     private void RefreshThemeEntry(int index)
@@ -508,11 +696,7 @@ public class InspirationManager : MonoBehaviour
         _journalEntryGo = Rect(cv, "JournalEntry",
             new Vector2(0.90f, 0.82f), new Vector2(0.985f, 0.975f));
 
-        var background = _journalEntryGo.AddComponent<Image>();
-        background.color = EntryBg;
-
         var button = _journalEntryGo.AddComponent<Button>();
-        button.targetGraphic = background;
         button.onClick.AddListener(() =>
         {
             _introduced = true;
@@ -520,15 +704,16 @@ public class InspirationManager : MonoBehaviour
         });
 
         var iconGo = Rect(_journalEntryGo.transform, "Icon",
-            new Vector2(0.08f, 0.20f), new Vector2(0.92f, 0.95f));
+            Vector2.zero, Vector2.one);
         var icon = iconGo.AddComponent<Image>();
         icon.sprite = LoadJournalIcon();
         icon.preserveAspect = true;
-        icon.raycastTarget = false;
-
-        Tmp(_journalEntryGo.transform, "Label", "Journal",
-            15f, PopupBody, TextAlignmentOptions.Center,
-            new Vector2(0.04f, 0.02f), new Vector2(0.96f, 0.24f));
+        _journalEntryIcon = icon;
+        _journalEntryOutline = iconGo.AddComponent<Outline>();
+        _journalEntryOutline.effectColor = new Color32(0xff, 0xcf, 0x55, 0xff);
+        _journalEntryOutline.effectDistance = new Vector2(5f, -5f);
+        _journalEntryOutline.enabled = false;
+        button.targetGraphic = icon;
     }
 
     private static Sprite LoadJournalIcon()
@@ -596,9 +781,46 @@ public class InspirationManager : MonoBehaviour
         BuildItemsContent(_itemsPanel.transform);
         BuildInspirationsContent(_inspPanel.transform);
         BuildThemesContent(_themesPanel.transform);
+        BuildJournalGuide(_journalGo.transform);
 
-        SwitchTab(1); // default to Inspirations
+        SwitchTab(0); // default to Items
         _journalGo.SetActive(false);
+    }
+
+    private void BuildJournalGuide(Transform journal)
+    {
+        _journalGuideGo = Rect(journal, "JournalGuide", Vector2.zero, Vector2.one);
+        _journalGuideGo.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0.48f);
+
+        var panel = Rect(_journalGuideGo.transform, "Panel",
+            new Vector2(0.25f, 0.35f), new Vector2(0.75f, 0.65f));
+        panel.AddComponent<Image>().color = PopupBg;
+
+        Rect(panel.transform, "Line",
+            new Vector2(0.04f, 0.84f), new Vector2(0.96f, 0.865f))
+            .AddComponent<Image>().color = PopupLine;
+
+        Tmp(panel.transform, "Title", "How to inquire",
+            28f, PopupHdr, TextAlignmentOptions.Center,
+            new Vector2(0.06f, 0.68f), new Vector2(0.94f, 0.91f));
+
+        Tmp(panel.transform, "Body",
+            "Find the villagers whose portraits appear on the items, and ask them about the stories behind those items.",
+            23f, PopupBody, TextAlignmentOptions.Center,
+            new Vector2(0.08f, 0.29f), new Vector2(0.92f, 0.67f));
+
+        var okGo = Rect(panel.transform, "OkayButton",
+            new Vector2(0.39f, 0.07f), new Vector2(0.61f, 0.24f));
+        var okBg = okGo.AddComponent<Image>();
+        okBg.color = TabActiveBg;
+        var okButton = okGo.AddComponent<Button>();
+        okButton.targetGraphic = okBg;
+        okButton.onClick.AddListener(DismissJournalGuide);
+        Tmp(okGo.transform, "Text", "Got it",
+            20f, JournalHdr, TextAlignmentOptions.Center,
+            Vector2.zero, Vector2.one);
+
+        _journalGuideGo.SetActive(false);
     }
 
     // ── Tab bar ───────────────────────────────────────────────────────────────
@@ -658,25 +880,70 @@ public class InspirationManager : MonoBehaviour
                 slotBg.color              = collected ? ItemHaveBg : ItemLackBg;
                 _itemSlotBgs[sortOrder]   = slotBg;
 
+                var outline = slotGo.AddComponent<Outline>();
+                outline.effectColor = new Color32(0xff, 0xc7, 0x32, 0xFF);
+                outline.effectDistance = new Vector2(4f, -4f);
+                outline.enabled = false;
+                _itemSlotOutlines[sortOrder] = outline;
+
+                var button = slotGo.AddComponent<Button>();
+                button.targetGraphic = slotBg;
+                button.transition = Selectable.Transition.None;
+                int capturedSortOrder = sortOrder;
+                button.onClick.AddListener(() => HandleItemSlotClicked(capturedSortOrder));
+                _itemSlotButtons[sortOrder] = button;
+
                 if (item != null && item.icon != null)
                 {
                     var iconGo  = Rect(slotGo.transform, "Icon",
-                        new Vector2(0.1f, 0.28f), new Vector2(0.9f, 0.97f));
+                        new Vector2(0.08f, 0.08f), new Vector2(0.92f, 0.92f));
                     var iconImg = iconGo.AddComponent<Image>();
                     iconImg.sprite         = item.icon;
                     iconImg.preserveAspect = true;
                     iconImg.raycastTarget  = false;
                     iconImg.color          = collected ? Color.white : new Color(0.3f, 0.3f, 0.3f, 0.5f);
+                    iconImg.enabled        = collected || sortOrder < 15;
                     _itemSlotImages[sortOrder] = iconImg;
                 }
 
-                var name    = item != null ? item.itemName : $"Item {sortOrder}";
-                var nameTmp = Tmp(slotGo.transform, "Name", name,
-                    12f, collected ? UnlockedFg : LockedFg, TextAlignmentOptions.Center,
-                    new Vector2(0.02f, 0.02f), new Vector2(0.98f, 0.27f));
-                _itemSlotNames[sortOrder] = nameTmp;
+                var portraitGo = Rect(slotGo.transform, "InquiryPortrait",
+                    new Vector2(0.58f, 0.50f), new Vector2(1.06f, 1.03f));
+                var portrait = portraitGo.AddComponent<Image>();
+                portrait.sprite = LoadInquiryPortrait(Day1InquiryProgress.Instance.GetInquiryNpc(sortOrder));
+                portrait.preserveAspect = true;
+                portrait.raycastTarget = false;
+                portraitGo.SetActive(false);
+                _itemInquiryPortraits[sortOrder] = portrait;
             }
         }
+
+        RefreshAllItemSlots();
+    }
+
+    private static Sprite LoadInquiryPortrait(Day1InquiryNpc npc)
+    {
+        string resourcePath = npc switch
+        {
+            Day1InquiryNpc.Mizuki => "Characters/WorldSprite/Mizuki",
+            Day1InquiryNpc.Yuji => "Characters/WorldSprite/Yuji",
+            Day1InquiryNpc.Junko => "Characters/WorldSprite/Junko",
+            _ => null,
+        };
+
+        if (string.IsNullOrEmpty(resourcePath)) return null;
+
+        var sprites = Resources.LoadAll<Sprite>(resourcePath);
+        Sprite fallback = null;
+        foreach (var sprite in sprites)
+        {
+            if (sprite == null) continue;
+            if (sprite.name == "spritesheet_template_0")
+                return sprite;
+
+            fallback ??= sprite;
+        }
+
+        return fallback;
     }
 
     // ── Inspirations tab content ──────────────────────────────────────────────
@@ -760,7 +1027,7 @@ public class InspirationManager : MonoBehaviour
 
             _themeEntryTitles[i] = Tmp(themeGo.transform, "Title",
                 theme != null ? theme.title : $"Theme {i + 1}",
-                17f, done ? UnlockedFg : LockedFg, TextAlignmentOptions.Left,
+                22f, done ? UnlockedFg : LockedFg, TextAlignmentOptions.Left,
                 new Vector2(0.02f, titleYMin), new Vector2(0.80f, 0.95f));
             _themeEntryTitles[i].fontStyle = done ? FontStyles.Normal : FontStyles.Italic;
 
@@ -768,15 +1035,15 @@ public class InspirationManager : MonoBehaviour
             {
                 Tmp(themeGo.transform, "Desc",
                     done ? theme.description : "???",
-                    12f,
-                    done ? new Color32(0x77, 0x99, 0x77, 0xFF) : LockedFg,
+                    15f,
+                    done ? UnlockedFg : LockedFg,
                     TextAlignmentOptions.Left,
                     new Vector2(0.02f, 0.05f), new Vector2(0.80f, 0.48f));
             }
 
             _themeEntryStatuses[i] = Tmp(themeGo.transform, "Status",
                 done ? "✓ Complete" : "???",
-                14f, done ? CompletedFg : LockedFg, TextAlignmentOptions.Right,
+                17f, done ? CompletedFg : LockedFg, TextAlignmentOptions.Right,
                 new Vector2(0.70f, 0.30f), new Vector2(0.98f, 0.95f));
         }
     }

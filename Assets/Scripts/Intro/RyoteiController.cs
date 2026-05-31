@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using TMPro;
+using Otowa.IndoorDialogue;
 
 namespace Otowa.Intro
 {
@@ -12,7 +13,7 @@ namespace Otowa.Intro
     /// Scene 5 (Ryotei): welcome banquet, character introductions, inspector confrontation.
     ///
     /// Setup: empty scene → empty GameObject → attach this script.
-    /// Inspector fields: nextSceneName = "WorldScene", assign serifFont.
+    /// Inspector fields: nextSceneName = "Day1World", assign serifFont.
     /// Background: assign a Sprite; falls back to dark-green solid colour.
     /// Sprites: auto-loaded from Resources/Characters/WorldSprite/*_portrait if not assigned.
     ///
@@ -25,7 +26,7 @@ namespace Otowa.Intro
         // ── Inspector ─────────────────────────────────────────────────────────
 
         [Header("Scene")]
-        [SerializeField] private string nextSceneName   = "WorldScene";
+        [SerializeField] private string nextSceneName   = "Day1World";
         [SerializeField] private float  typewriterSpeed = 35f;
         [SerializeField] private float  fadeDuration    = 0.35f;
 
@@ -63,10 +64,8 @@ namespace Otowa.Intro
 
         // ── State ─────────────────────────────────────────────────────────────
 
-        private bool      _isTyping;
         private bool      _inputLock;
-        private Coroutine _twCR;
-        private TMP_Text  _activeTmp;
+        private IndoorDialogueTextPlayer _textPlayer;
         private bool      _inspectorVisible;
 
         // ── UI refs ───────────────────────────────────────────────────────────
@@ -109,6 +108,8 @@ namespace Otowa.Intro
             BuildBeats();
             LoadSprites();
             BuildUI();
+            _textPlayer = gameObject.AddComponent<IndoorDialogueTextPlayer>();
+            _textPlayer.Initialize(_promptTmp, typewriterSpeed);
             SetupAudio();
             // Share font with the persistent InspirationManager
             InspirationManager.Instance.SetFont(serifFont);
@@ -137,7 +138,7 @@ namespace Otowa.Intro
                         || (kb    != null && kb.spaceKey.wasPressedThisFrame)
                         || (kb    != null && kb.enterKey.wasPressedThisFrame);
             if (!clicked) return;
-            if (_isTyping) { SkipTypewriter(); return; }
+            if (_textPlayer.IsTyping) { _textPlayer.Skip(); return; }
             AdvanceBeat();
         }
 
@@ -207,7 +208,7 @@ namespace Otowa.Intro
             _bodyTmp.color     = b.IsThought ? ThoughtC : BodyC;
             _bodyTmp.fontStyle = b.IsThought ? FontStyles.Italic : FontStyles.Normal;
 
-            BeginTypewriter(_bodyTmp, b.Text);
+            _textPlayer.Play(_bodyTmp, b.Text);
         }
 
         // ── Inspector fade in / out ───────────────────────────────────────────
@@ -240,42 +241,6 @@ namespace Otowa.Intro
             _inspectorVisible = false;
         }
 
-        // ── Typewriter ────────────────────────────────────────────────────────
-
-        private void BeginTypewriter(TMP_Text tmp, string text)
-        {
-            _activeTmp = tmp;
-            tmp.text = text;
-            tmp.ForceMeshUpdate();
-            int total = tmp.textInfo.characterCount;
-            if (total == 0) { SetPrompt(true); return; }
-            tmp.maxVisibleCharacters = 0;
-            _isTyping = true;
-            if (_twCR != null) StopCoroutine(_twCR);
-            _twCR = StartCoroutine(TypewriterCR(tmp, total));
-        }
-
-        private IEnumerator TypewriterCR(TMP_Text tmp, int total)
-        {
-            float delay = 1f / Mathf.Max(1f, typewriterSpeed);
-            for (int i = 1; i <= total; i++)
-            {
-                tmp.maxVisibleCharacters = i;
-                yield return new WaitForSeconds(delay);
-            }
-            _isTyping = false;
-            _twCR = null;
-            SetPrompt(true);
-        }
-
-        private void SkipTypewriter()
-        {
-            if (_twCR != null) { StopCoroutine(_twCR); _twCR = null; }
-            if (_activeTmp != null) _activeTmp.maxVisibleCharacters = int.MaxValue;
-            _isTyping = false;
-            SetPrompt(true);
-        }
-
         // ── Transitions ───────────────────────────────────────────────────────
 
         private IEnumerator FadeAndLoad()
@@ -297,7 +262,7 @@ namespace Otowa.Intro
             _fade.alpha = target;
         }
 
-        private void SetPrompt(bool show) => _promptTmp.gameObject.SetActive(show);
+        private void SetPrompt(bool show) => _textPlayer.SetPromptVisible(show);
 
         private static void SetAlpha(Image img, float a)
         {

@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using TMPro;
+using DialogueSystem.Core;
 using DialogueSystem.Data;
 using DialogueSystem.Interfaces;
 using UnityEngine.Localization.Settings;
@@ -51,6 +53,9 @@ namespace DialogueSystem.UI
         [Tooltip("Characters per second. Overridden per-node by DialogueNode.typewriterSpeed if > 0.")]
         [SerializeField] private float defaultTypewriterSpeed = 0.03f;
 
+        [Header("Map Style")]
+        [SerializeField] private TMP_FontAsset dialogueFont;
+
         // ── IDialogueView: state ──────────────────────────────────────────────
 
         public bool IsTyping => _typewriterCoroutine != null;
@@ -60,15 +65,38 @@ namespace DialogueSystem.UI
         private Coroutine _typewriterCoroutine;
         private Action _onTypingComplete;
         private string _fullText;
+        private readonly List<string> _pages = new();
+        private int _pageIndex;
+        private float _secondsPerChar;
         private readonly List<Button> _choiceButtons = new();
+
+        private const int MAX_LINES_PER_PAGE = 3;
+
+        private static readonly Color PanelBg    = new Color32(0x06, 0x0e, 0x06, 0xE8);
+        private static readonly Color ChoiceBg   = new Color32(0x06, 0x0e, 0x06, 0xD8);
+        private static readonly Color BodyFg     = new Color32(0xc8, 0xd4, 0xc8, 0xFF);
+        private static readonly Color RinFg      = new Color32(0x8f, 0xbc, 0x8f, 0xFF);
+        private static readonly Color JunkoFg    = new Color32(0xd4, 0xa0, 0x60, 0xFF);
+        private static readonly Color YujiFg     = new Color32(0x80, 0xb8, 0xe8, 0xFF);
+        private static readonly Color JiroFg     = new Color32(0x98, 0x98, 0xa8, 0xFF);
+        private static readonly Color InspectorFg = new Color32(0xa0, 0xa8, 0xc0, 0xFF);
 
         // ── Unity lifecycle ───────────────────────────────────────────────────
 
         private void Awake()
         {
+            ApplyMapStyle();
             dialoguePanel.SetActive(false);
             if (continueIndicator) continueIndicator.gameObject.SetActive(false);
             if (interactPromptRoot) interactPromptRoot.SetActive(false);
+        }
+
+        private void Update()
+        {
+            var mouse = Mouse.current;
+            if (mouse == null || !mouse.leftButton.wasPressedThisFrame) return;
+            if (dialoguePanel == null || !dialoguePanel.activeInHierarchy) return;
+            DialogueManager.Instance?.AdvanceDialogue();
         }
 
         // ── IDialogueView implementation ──────────────────────────────────────
@@ -80,24 +108,26 @@ namespace DialogueSystem.UI
 
             // Speaker
             if (speakerNameText != null && node.speaker != null)
-                speakerNameText.text = LocalizationManager.Instance.GetCharacterName(node.speaker.characterName);
-
-            // Portrait
-            if (portraitImage != null && node.speaker != null && node.speaker.portraits != null)
             {
-                Sprite portait = node.speaker.portraits[node.speakerPortraitKey];
-                portraitImage.sprite = portait;
-                portraitImage.gameObject.SetActive(portait != null);
+                speakerNameText.text = LocalizationManager.Instance.GetCharacterName(node.speaker.characterName);
+                speakerNameText.color = GetSpeakerColor(node.speaker.characterName);
+            }
+            else if (speakerNameText != null)
+            {
+                speakerNameText.text = string.Empty;
             }
 
             // Body text (typewriter)
-            _fullText = LocalizationManager.Instance.GetDialogueText(node.textKey);
+            _fullText = !string.IsNullOrEmpty(node.literalText)
+                ? node.literalText
+                : LocalizationManager.Instance.GetDialogueText(node.textKey);
             _onTypingComplete = onTypingComplete;
-
-            float speed = node.typewriterSpeed > 0 ? node.typewriterSpeed : defaultTypewriterSpeed;
+            _secondsPerChar = node.typewriterSpeed > 0 ? node.typewriterSpeed : defaultTypewriterSpeed;
+            BuildPages(_fullText);
+            _pageIndex = 0;
 
             if (_typewriterCoroutine != null) StopCoroutine(_typewriterCoroutine);
-            _typewriterCoroutine = StartCoroutine(TypewriterRoutine(_fullText, speed));
+            StartCurrentPage();
         }
 
         public void SkipTypewriter()
@@ -109,23 +139,44 @@ namespace DialogueSystem.UI
             }
 
             if (dialogueBodyText != null)
-                dialogueBodyText.text = _fullText;
+                dialogueBodyText.maxVisibleCharacters = int.MaxValue;
 
-            FinishTyping();
+            FinishCurrentPage();
+        }
+
+        public bool TryAdvancePage()
+        {
+            if (_typewriterCoroutine != null)
+            {
+                SkipTypewriter();
+                return true;
+            }
+
+            if (_pageIndex + 1 >= _pages.Count)
+                return false;
+
+            _pageIndex++;
+            StartCurrentPage();
+            return true;
         }
 
         public void ShowChoices(IReadOnlyList<(DialogueChoice choice, bool interactable)> choices,
                                 Action<DialogueChoice> onChosen)
         {
             ClearChoiceButtons();
+            if (choicesContainer != null)
+                choicesContainer.gameObject.SetActive(true);
 
             foreach (var (choice, isInteractable) in choices)
             {
                 var btn = Instantiate(choiceButtonPrefab, choicesContainer);
+                ApplyChoiceStyle(btn);
                 var label = btn.GetComponentInChildren<TMP_Text>();
                 if (label != null)
                 {
-                    label.text = LocalizationManager.Instance.GetDialogueChoice(choice.labelKey);
+                    label.text = !string.IsNullOrEmpty(choice.literalLabel)
+                        ? choice.literalLabel
+                        : LocalizationManager.Instance.GetDialogueChoice(choice.labelKey);
                 }
                 btn.interactable = isInteractable;
 
@@ -150,6 +201,8 @@ namespace DialogueSystem.UI
             ClearChoiceButtons();
             dialoguePanel.SetActive(false);
             if (continueIndicator) continueIndicator.gameObject.SetActive(false);
+            _pages.Clear();
+            _pageIndex = 0;
         }
 
         public void ShowInteractPrompt(string prompt)
@@ -165,36 +218,240 @@ namespace DialogueSystem.UI
 
         // ── Typewriter ────────────────────────────────────────────────────────
 
+        private void BuildPages(string text)
+        {
+            _pages.Clear();
+            string remaining = (text ?? string.Empty).Trim();
+            if (dialogueBodyText == null)
+            {
+                _pages.Add(remaining);
+                return;
+            }
+
+            var previousOverflowMode = dialogueBodyText.overflowMode;
+            int previousMaxVisibleLines = dialogueBodyText.maxVisibleLines;
+            dialogueBodyText.overflowMode = TextOverflowModes.Overflow;
+            dialogueBodyText.maxVisibleLines = int.MaxValue;
+
+            while (!string.IsNullOrEmpty(remaining))
+            {
+                dialogueBodyText.text = remaining;
+                dialogueBodyText.maxVisibleCharacters = int.MaxValue;
+                dialogueBodyText.ForceMeshUpdate();
+
+                var textInfo = dialogueBodyText.textInfo;
+                if (textInfo.lineCount <= MAX_LINES_PER_PAGE)
+                {
+                    _pages.Add(remaining);
+                    break;
+                }
+
+                int lineIndex = Mathf.Min(MAX_LINES_PER_PAGE - 1, textInfo.lineInfo.Length - 1);
+                int characterIndex = textInfo.lineInfo[lineIndex].lastCharacterIndex;
+                if (characterIndex < 0 || characterIndex >= textInfo.characterCount)
+                {
+                    _pages.Add(remaining);
+                    break;
+                }
+
+                int splitIndex = textInfo.characterInfo[characterIndex].index + 1;
+                if (splitIndex <= 0 || splitIndex >= remaining.Length)
+                {
+                    _pages.Add(remaining);
+                    break;
+                }
+
+                _pages.Add(remaining.Substring(0, splitIndex).TrimEnd());
+                remaining = remaining.Substring(splitIndex).TrimStart();
+            }
+
+            if (_pages.Count == 0)
+                _pages.Add(string.Empty);
+
+            dialogueBodyText.overflowMode = previousOverflowMode;
+            dialogueBodyText.maxVisibleLines = previousMaxVisibleLines;
+            dialogueBodyText.text = string.Empty;
+        }
+
+        private void StartCurrentPage()
+        {
+            if (dialogueBodyText == null) return;
+            if (continueIndicator) continueIndicator.gameObject.SetActive(false);
+
+            if (_typewriterCoroutine != null)
+                StopCoroutine(_typewriterCoroutine);
+
+            _typewriterCoroutine = StartCoroutine(TypewriterRoutine(_pages[_pageIndex], _secondsPerChar));
+        }
+
         private IEnumerator TypewriterRoutine(string text, float secondsPerChar)
         {
             if (dialogueBodyText == null) yield break;
 
-            dialogueBodyText.text = string.Empty;
+            dialogueBodyText.text = text;
+            dialogueBodyText.ForceMeshUpdate();
+            int characterCount = dialogueBodyText.textInfo.characterCount;
+            dialogueBodyText.maxVisibleCharacters = 0;
 
-            foreach (char c in text)
+            for (int i = 1; i <= characterCount; i++)
             {
-                dialogueBodyText.text += c;
+                dialogueBodyText.maxVisibleCharacters = i;
                 yield return new WaitForSeconds(secondsPerChar);
             }
 
             _typewriterCoroutine = null;
-            FinishTyping();
+            FinishCurrentPage();
         }
 
-        private void FinishTyping()
+        private void FinishCurrentPage()
         {
             if (continueIndicator) continueIndicator.gameObject.SetActive(true);
+            if (_pageIndex + 1 < _pages.Count) return;
+
             _onTypingComplete?.Invoke();
             _onTypingComplete = null;
         }
 
         // ── Choice button helpers ─────────────────────────────────────────────
 
+        private void ApplyMapStyle()
+        {
+            if (dialoguePanel != null)
+            {
+                SetRect(dialoguePanel.transform as RectTransform,
+                    new Vector2(0.25f, 0.035f), new Vector2(0.75f, 0.29f));
+
+                var panelImage = dialoguePanel.GetComponent<Image>();
+                if (panelImage != null)
+                    panelImage.color = PanelBg;
+            }
+
+            if (portraitImage != null)
+            {
+                portraitImage.raycastTarget = false;
+                portraitImage.gameObject.SetActive(false);
+            }
+
+            ConfigureText(speakerNameText, 28f, FontStyles.Bold,
+                TextAlignmentOptions.Left,
+                new Vector2(0.055f, 0.70f), new Vector2(0.945f, 0.93f));
+
+            ConfigureText(dialogueBodyText, 24f, FontStyles.Normal,
+                TextAlignmentOptions.Left,
+                new Vector2(0.055f, 0.12f), new Vector2(0.945f, 0.69f));
+
+            if (dialogueBodyText != null)
+            {
+                dialogueBodyText.color = BodyFg;
+                dialogueBodyText.lineSpacing = 3f;
+                dialogueBodyText.textWrappingMode = TextWrappingModes.Normal;
+                dialogueBodyText.overflowMode = TextOverflowModes.Truncate;
+                dialogueBodyText.maxVisibleLines = MAX_LINES_PER_PAGE;
+            }
+
+            if (choicesContainer == null) return;
+
+            if (dialoguePanel != null && dialoguePanel.transform.parent != null)
+                choicesContainer.SetParent(dialoguePanel.transform.parent, false);
+            SetRect(choicesContainer as RectTransform,
+                new Vector2(0.25f, 0.32f), new Vector2(0.75f, 0.72f));
+
+            var layout = choicesContainer.GetComponent<VerticalLayoutGroup>();
+            if (layout == null)
+                layout = choicesContainer.gameObject.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(0, 0, 0, 0);
+            layout.spacing = 14f;
+            layout.childAlignment = TextAnchor.MiddleCenter;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            choicesContainer.gameObject.SetActive(false);
+        }
+
+        private void ApplyChoiceStyle(Button button)
+        {
+            if (button == null) return;
+
+            var image = button.GetComponent<Image>();
+            if (image != null)
+            {
+                image.color = ChoiceBg;
+                image.type = Image.Type.Simple;
+            }
+
+            var colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color32(0xd9, 0xe2, 0xd9, 0xFF);
+            colors.pressedColor = new Color32(0xb8, 0xc8, 0xb8, 0xFF);
+            colors.selectedColor = colors.highlightedColor;
+            colors.disabledColor = new Color32(0x80, 0x88, 0x80, 0x88);
+            button.colors = colors;
+
+            var layout = button.GetComponent<LayoutElement>();
+            if (layout == null)
+                layout = button.gameObject.AddComponent<LayoutElement>();
+            layout.minHeight = 64f;
+            layout.preferredHeight = 72f;
+            layout.flexibleWidth = 1f;
+
+            var label = button.GetComponentInChildren<TMP_Text>();
+            if (label == null) return;
+            if (dialogueFont != null) label.font = dialogueFont;
+            label.fontSize = 28f;
+            label.fontStyle = FontStyles.Normal;
+            label.color = BodyFg;
+            label.alignment = TextAlignmentOptions.Center;
+            label.margin = new Vector4(24f, 8f, 24f, 8f);
+            label.raycastTarget = false;
+        }
+
+        private void ConfigureText(TMP_Text text, float fontSize, FontStyles style,
+                                   TextAlignmentOptions alignment,
+                                   Vector2 anchorMin, Vector2 anchorMax)
+        {
+            if (text == null) return;
+            if (dialogueFont != null) text.font = dialogueFont;
+            text.fontSize = fontSize;
+            text.fontStyle = style;
+            text.alignment = alignment;
+            text.margin = Vector4.zero;
+            text.raycastTarget = false;
+            SetRect(text.rectTransform, anchorMin, anchorMax);
+        }
+
+        private static void SetRect(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax)
+        {
+            if (rect == null) return;
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = Vector2.zero;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+        }
+
+        private static Color GetSpeakerColor(string characterName)
+        {
+            return characterName?.ToLowerInvariant() switch
+            {
+                "rin"       => RinFg,
+                "junko"     => JunkoFg,
+                "yuji"      => YujiFg,
+                "jiro"      => JiroFg,
+                "inspector" => InspectorFg,
+                _           => BodyFg,
+            };
+        }
+
         private void ClearChoiceButtons()
         {
             foreach (var btn in _choiceButtons)
                 if (btn != null) Destroy(btn.gameObject);
             _choiceButtons.Clear();
+            if (choicesContainer != null)
+                choicesContainer.gameObject.SetActive(false);
         }
     }
 }

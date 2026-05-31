@@ -59789,6 +59789,7 @@ MonoBehaviour:
   interactPromptText: {fileID: 1865454987}
   interactPromptRoot: {fileID: 1865454984}
   defaultTypewriterSpeed: 0.03
+  dialogueFont: {fileID: 11400000, guid: 54036173aebd7d44fb3a89ffdef22447, type: 2}
 --- !u!114 &1345075391
 MonoBehaviour:
   m_ObjectHideFlags: 0

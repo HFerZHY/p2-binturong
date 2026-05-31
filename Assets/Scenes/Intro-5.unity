@@ -285,7 +285,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ef1c515fd1a82b44997445891130fd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Otowa.Intro.RyoteiController
-  nextSceneName: WorldScene
+  nextSceneName: Day1World
   typewriterSpeed: 35
   fadeDuration: 0.35
   serifFont: {fileID: 11400000, guid: 54036173aebd7d44fb3a89ffdef22447, type: 2}

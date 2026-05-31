@@ -35,6 +35,10 @@ namespace DialogueSystem.Data
         [Tooltip("Localization string table key. Points to the dialogue text.")]
         public string textKey;
 
+        [TextArea(3, 6)]
+        [Tooltip("Optional direct text. When set, this takes priority over textKey.")]
+        public string literalText;
+
         [Header("Flow")]
         [Tooltip("ID of the next node to play after this one. Leave empty on choice/terminal nodes.")]
         public string nextNodeId;
@@ -86,6 +90,12 @@ namespace DialogueSystem.Data
         [FormerlySerializedAs("label")]
         [Tooltip("Localization string table key. Points to the text shown on the choice button.")]
         public string labelKey;
+
+        [Tooltip("Optional direct label. When set, this takes priority over labelKey.")]
+        public string literalLabel;
+
+        [Tooltip("Optional external action. When set, selecting this choice ends the current dialogue and emits the action.")]
+        public string actionKey;
 
         [Tooltip("ID of the node to jump to when this choice is selected.")]
         public string targetNodeId;

@@ -109,7 +109,8 @@ namespace DialogueSystem.Player
             if (DialogueManager.Instance != null && DialogueManager.Instance.IsActive)
                 return;
             ContactFilter2D contactFilter = new();
-            contactFilter.layerMask = interactableLayerMask;
+            contactFilter.SetLayerMask(interactableLayerMask);
+            contactFilter.useTriggers = true;
             int count = Physics2D.OverlapCircle(interactOrigin.position, interactRadius, contactFilter, _overlapBuffer);
             
             IInteractable best = null;

@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using TMPro;
+using Otowa.IndoorDialogue;
 
 namespace Otowa.Intro
 {
@@ -84,9 +85,8 @@ namespace Otowa.Intro
 
         private List<IntroScreen> _screens;
         private int      _current   = -1;
-        private bool     _isTyping  = false;
         private bool     _inputLock = false;
-        private Coroutine _twCR;
+        private IndoorDialogueTextPlayer _textPlayer;
         private Coroutine _glowCR;
 
         // Static guard — prevents two instances from both calling LoadScene
@@ -131,6 +131,8 @@ namespace Otowa.Intro
             Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
             BuildScreens();
             BuildUI();
+            _textPlayer = gameObject.AddComponent<IndoorDialogueTextPlayer>();
+            _textPlayer.Initialize(_promptTmp, typewriterSpeed);
             SetupAudio();
         }
 
@@ -161,9 +163,9 @@ namespace Otowa.Intro
 
         private void HandleAdvance()
         {
-            if (_isTyping)
+            if (_textPlayer.IsTyping)
             {
-                SkipTypewriter();
+                _textPlayer.Skip();
             }
             else
             {
@@ -174,23 +176,6 @@ namespace Otowa.Intro
                     StartCoroutine(CrossFade(next));
             }
         }
-
-        private void SkipTypewriter()
-        {
-            if (_twCR != null) { StopCoroutine(_twCR); _twCR = null; }
-            var tmp = ActiveText();
-            if (tmp) tmp.maxVisibleCharacters = int.MaxValue;
-            _isTyping = false;
-            SetPrompt(true);
-
-            if (_current == OtowaScreenIndex && _glowCR == null)
-                _glowCR = StartCoroutine(GlowWordCR(_bodyTmp, "Otowa"));
-        }
-
-        private TMP_Text ActiveText() =>
-            _current >= 0 && _screens[_current].Type == ScreenType.Letter
-                ? _letterTmp
-                : _bodyTmp;
 
         // ─────────────────────────────────────────────────────────────────────
         //  Screen display
@@ -258,7 +243,7 @@ namespace Otowa.Intro
         private void ShowItems(IntroScreen s)
         {
             _itemsTitleTmp.text = s.Body ?? "";
-            _isTyping = false;
+            _textPlayer.Cancel();
             SetPrompt(true);
         }
 
@@ -268,31 +253,12 @@ namespace Otowa.Intro
 
         private void BeginTypewriter(TMP_Text tmp, string text)
         {
-            tmp.text = text;
-            tmp.ForceMeshUpdate();
-            int total = tmp.textInfo.characterCount;
-
-            if (total == 0) { SetPrompt(true); return; }
-
-            tmp.maxVisibleCharacters = 0;
-            _isTyping = true;
-            if (_twCR != null) StopCoroutine(_twCR);
-            _twCR = StartCoroutine(TypewriterCR(tmp, total));
+            _textPlayer.Play(tmp, text, HandleTextCompleted);
         }
 
-        private IEnumerator TypewriterCR(TMP_Text tmp, int total)
+        private void HandleTextCompleted()
         {
-            float delay = 1f / Mathf.Max(1f, typewriterSpeed);
-            for (int i = 1; i <= total; i++)
-            {
-                tmp.maxVisibleCharacters = i;
-                yield return new WaitForSeconds(delay);
-            }
-            _isTyping = false;
-            _twCR = null;
-            SetPrompt(true);
-
-            if (_current == OtowaScreenIndex)
+            if (_current == OtowaScreenIndex && _glowCR == null)
                 _glowCR = StartCoroutine(GlowWordCR(_bodyTmp, "Otowa"));
         }
 
@@ -331,7 +297,7 @@ namespace Otowa.Intro
             _fade.alpha = target;
         }
 
-        private void SetPrompt(bool show) => _promptTmp.gameObject.SetActive(show);
+        private void SetPrompt(bool show) => _textPlayer.SetPromptVisible(show);
 
         // ─────────────────────────────────────────────────────────────────────
         //  UI construction  (all UI created procedurally — no prefabs needed)

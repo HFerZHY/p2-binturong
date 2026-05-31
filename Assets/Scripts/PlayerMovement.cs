@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using DialogueSystem.Core;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMovement : MonoBehaviour
@@ -22,6 +23,7 @@ public class PlayerMovement : MonoBehaviour
     private InputAction _moveAction;
     private Rigidbody2D _rb;
     private Vector2 _currentVelocity;
+    private bool _movementLocked;
 
     private void Awake()
     {
@@ -32,11 +34,29 @@ public class PlayerMovement : MonoBehaviour
             cameraTransform = Camera.main.transform;
     }
 
-    private void OnEnable()  { _moveAction.Enable(); }
-    private void OnDisable() { _moveAction.Disable(); }
+    private void OnEnable()
+    {
+        _moveAction.Enable();
+        DialogueManager.OnConversationStarted += LockMovement;
+        DialogueManager.OnConversationEnded += UnlockMovement;
+    }
+
+    private void OnDisable()
+    {
+        DialogueManager.OnConversationStarted -= LockMovement;
+        DialogueManager.OnConversationEnded -= UnlockMovement;
+        _moveAction.Disable();
+    }
 
     private void FixedUpdate()
     {
+        if (_movementLocked)
+        {
+            _rb.linearVelocity = Vector2.zero;
+            _rb.angularVelocity = 0f;
+            return;
+        }
+
         Vector2 moveInput = _moveAction.ReadValue<Vector2>();
 
         moveInput.Normalize();
@@ -55,6 +75,21 @@ public class PlayerMovement : MonoBehaviour
         Vector3 localScale = transform.localScale;
         localScale.x = FacingRight ? 1f : -1f;
         transform.localScale = localScale;
+    }
+
+    private void LockMovement()
+    {
+        _movementLocked = true;
+        _currentVelocity = Vector2.zero;
+        _rb.linearVelocity = Vector2.zero;
+        _rb.angularVelocity = 0f;
+        IsMoving = false;
+        animator?.SetBool("isMoving", false);
+    }
+
+    private void UnlockMovement()
+    {
+        _movementLocked = false;
     }
 
     private void LateUpdate()

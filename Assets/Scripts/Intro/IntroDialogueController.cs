@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using TMPro;
+using Otowa.IndoorDialogue;
 
 namespace Otowa.Intro
 {
@@ -64,10 +65,9 @@ namespace Otowa.Intro
 
         // ── State ─────────────────────────────────────────────────────────────
 
-        private bool     _isTyping;
         private bool     _inputLock;
         private bool     _tutorialActive;
-        private Coroutine _twCR;
+        private IndoorDialogueTextPlayer _textPlayer;
 
         // ── UI refs ───────────────────────────────────────────────────────────
 
@@ -93,6 +93,8 @@ namespace Otowa.Intro
             BuildLines();
             LoadCharacterSprites();
             BuildUI();
+            _textPlayer = gameObject.AddComponent<IndoorDialogueTextPlayer>();
+            _textPlayer.Initialize(_promptTmp, typewriterSpeed);
             SetupAudio();
         }
 
@@ -115,7 +117,7 @@ namespace Otowa.Intro
             if (!clicked) return;
 
             if (_tutorialActive) { DismissTutorial(); return; }
-            if (_isTyping)       { SkipTypewriter();  return; }
+            if (_textPlayer.IsTyping) { _textPlayer.Skip(); return; }
             AdvanceLine();
         }
 
@@ -155,43 +157,7 @@ namespace Otowa.Intro
             SetAlpha(_rinImg,   isRin ? ActiveAlpha : InactiveAlpha);
             SetAlpha(_junkoImg, isRin ? InactiveAlpha : ActiveAlpha);
 
-            SetPrompt(false);
-            BeginTypewriter(line.Text);
-        }
-
-        // ── Typewriter ────────────────────────────────────────────────────────
-
-        private void BeginTypewriter(string text)
-        {
-            _bodyTmp.text = text;
-            _bodyTmp.ForceMeshUpdate();
-            int total = _bodyTmp.textInfo.characterCount;
-            if (total == 0) { SetPrompt(true); return; }
-            _bodyTmp.maxVisibleCharacters = 0;
-            _isTyping = true;
-            if (_twCR != null) StopCoroutine(_twCR);
-            _twCR = StartCoroutine(TypewriterCR(total));
-        }
-
-        private IEnumerator TypewriterCR(int total)
-        {
-            float delay = 1f / Mathf.Max(1f, typewriterSpeed);
-            for (int i = 1; i <= total; i++)
-            {
-                _bodyTmp.maxVisibleCharacters = i;
-                yield return new WaitForSeconds(delay);
-            }
-            _isTyping = false;
-            _twCR = null;
-            SetPrompt(true);
-        }
-
-        private void SkipTypewriter()
-        {
-            if (_twCR != null) { StopCoroutine(_twCR); _twCR = null; }
-            _bodyTmp.maxVisibleCharacters = int.MaxValue;
-            _isTyping = false;
-            SetPrompt(true);
+            _textPlayer.Play(_bodyTmp, line.Text);
         }
 
         // ── Transitions ───────────────────────────────────────────────────────
@@ -215,7 +181,7 @@ namespace Otowa.Intro
             _fade.alpha = target;
         }
 
-        private void SetPrompt(bool show) => _promptTmp.gameObject.SetActive(show);
+        private void SetPrompt(bool show) => _textPlayer.SetPromptVisible(show);
 
         private static void SetAlpha(Image img, float a)
         {

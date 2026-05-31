@@ -64,9 +64,9 @@ public class NPCMovement : MonoBehaviour
 
     private int   _targetIndex;       // waypoint we are currently heading to
     private float _stopTimer;         // countdown while pausing at a waypoint
-    private float _cacheStopTimer;
     private bool  _facingRight = true;
     private bool  _pausing;           // true while serving a stop-duration
+    private bool  _manuallyPaused;    // true while held in place by dialogue
 
     // ──────────────────────────────────────────────────────────────────────────
     // Unity lifecycle
@@ -87,6 +87,12 @@ public class NPCMovement : MonoBehaviour
     private void FixedUpdate()
     {
         if (path == null || !path.IsValid || PathComplete) return;
+
+        if (_manuallyPaused)
+        {
+            StopImmediately();
+            return;
+        }
 
         if (_pausing)
         {
@@ -146,21 +152,24 @@ public class NPCMovement : MonoBehaviour
     }
 
     /// <summary>Pause the NPC in place (e.g. during dialogue).</summary>
-    public void Pause(){
-        _pausing = true;
-        _cacheStopTimer = _stopTimer;
-        _stopTimer = float.MaxValue;
+    public void Pause()
+    {
+        _manuallyPaused = true;
+        StopImmediately();
     }
 
     /// <summary>Resume walking after a manual <see cref="Pause"/>.</summary>
-    public void Resume(){
-        _pausing = false;
-        _stopTimer = _cacheStopTimer;
+    public void Resume()
+    {
+        _manuallyPaused = false;
     }
 
     public void TurnToPlayer()
     {
-        _facingRight = this.transform.position.x < player.transform.position.x;
+        if (player == null) return;
+
+        _facingRight = transform.position.x < player.transform.position.x;
+        UpdateAnimator();
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -175,6 +184,7 @@ public class NPCMovement : MonoBehaviour
         _currentVelocity = Vector2.zero;
         PathComplete  = false;
         _pausing      = false;
+        _manuallyPaused = false;
         _stopTimer    = 0f;
 
         // Snap to start position so the NPC doesn't sprint from wherever it was.
@@ -242,9 +252,16 @@ public class NPCMovement : MonoBehaviour
     private void EndPath()
     {
         PathComplete     = true;
+        StopImmediately();
+    }
+
+    private void StopImmediately()
+    {
         _currentVelocity = Vector2.zero;
-        IsMoving         = false;
-        IsStopped        = true;
+        _rb.linearVelocity = Vector2.zero;
+        _rb.angularVelocity = 0f;
+        IsMoving = false;
+        IsStopped = true;
         UpdateAnimator();
     }
 

@@ -62,6 +62,7 @@ namespace DialogueSystem.Core
         public static event Action OnConversationStarted;
         public static event Action OnConversationEnded;
         public static event Action<DialogueNode> OnNodeEntered;
+        public static event Action<string> OnActionRequested;
 
         // ── Public API ────────────────────────────────────────────────────────
 
@@ -156,12 +157,12 @@ namespace DialogueSystem.Core
         /// </summary>
         public void AdvanceDialogue()
         {
+            // Let the UI finish or turn the current page before moving to the next node.
+            if (dialogueUIController != null && dialogueUIController.TryAdvancePage())
+                return;
+
             switch (_state)
             {
-                case ConversationState.Displaying when dialogueUIController.IsTyping:
-                    dialogueUIController.SkipTypewriter();
-                    return;
-
                 case ConversationState.WaitingForInput:
                     _currentNode.onExit?.Invoke();
                     ProcessNode(ResolveNextNode(_currentNode));
@@ -250,6 +251,16 @@ namespace DialogueSystem.Core
 
             if (choice == null)
                 return;
+
+            if (!string.IsNullOrEmpty(choice.actionKey))
+            {
+                string actionKey = choice.actionKey;
+                dialogueUIController.HideChoices();
+                _currentNode.onExit?.Invoke();
+                EndConversation();
+                OnActionRequested?.Invoke(actionKey);
+                return;
+            }
 
             if (string.IsNullOrEmpty(choice.targetNodeId))
             {
