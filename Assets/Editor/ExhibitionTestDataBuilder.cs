@@ -174,11 +174,10 @@ public static class ExhibitionTestDataBuilder
                 2,
                 3,
                 InspirationSelectionMode.AnyFromPool,
-                new[] {3, 8, 10, 12},
+                new[] {8, 10, 12},
                 "A profile of Yuji's pub, inventions, and local specialty work.",
                 new (int, string)[]
                 {
-                    (3, "Rin: (Who was the regular at Mr. Yuji's pub again? I think he was an expert in geology.)"),
                     (8, "Rin: (Yuji said running the pub was just a hobby. What was his main profession again?)"),
                     (10, "Rin: (Where exactly does the unique flavor in Yuji's sake come from?)"),
                     (12, "Rin: (I remember Yuji once brought honor to Otowa in a competition.)")
@@ -207,7 +206,7 @@ public static class ExhibitionTestDataBuilder
                 3,
                 4,
                 InspirationSelectionMode.AnyFromPool,
-                new[] {4, 6, 13, 14, 15},
+                new[] {4, 6, 13, 14},
                 "An exhibition about Otowa's water, health, and hot spring culture.",
                 null)
         };

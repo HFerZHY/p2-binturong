@@ -19,11 +19,8 @@ MonoBehaviour:
   day: 2
   requiredInspirations: 3
   selectionMode: 0
-  validInspirationIds: 03000000080000000a0000000c000000
+  validInspirationIds: 080000000a0000000c000000
   missingIdeaHints:
-  - inspirationId: 3
-    hintText: 'Rin: (Who was the regular at Mr. Yuji''s pub again? I think he was
-      an expert in geology.)'
   - inspirationId: 8
     hintText: 'Rin: (Yuji said running the pub was just a hobby. What was his main
       profession again?)'

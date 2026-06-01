@@ -23,6 +23,18 @@ namespace ExhibitionSystem.UI
             "He is the trendy boss of the pub, and the magician under the night sky. Whether it's the gentle buzz on the tip of the tongue or the passionate bloom in the night sky, both are the most romantic blues Yuji has dedicated to this village.";
         private const string SummerFestivalRewardText =
             "The Otowa Summer Festival is not only a reverence for the ancient bird deity, but also a ceremony of \"homecoming.\" When the fireworks light up all of Otowa, even the migratory birds that flew the furthest will follow the railway tracks back to their original nest on this day.";
+        private const string ChefJiroRewardText =
+            "He is an artisan devoted to tradition, who revived the century-old recipe for shichimi pepper and breathed soul back into his dishes. He is also a clumsy father, who could only watch his son's retreating figure carried away by the current of time. Mr. Jiro, surely you know it too: the only thing that endures across the years, ever renewed, is that quiet, unspoken love.";
+        private const string HotSpringsRewardText =
+            "Hot spring in the mountains:\n" +
+            "high above the naked bathers\n" +
+            "the River of Heaven.\n\n" +
+            "Octopus traps,\n" +
+            "fleeting dreams\n" +
+            "under the summer moon.";
+        private const string BirdwatchingRewardText =
+            "\"This place is a birdwatcher's paradise, plain and simple! These forests teem with rare birds, and if luck's on your side, you might even catch sight of that deep-blue migrant. So if birds hold even the slightest interest for you, don't just sit there, grab your binoculars and buy yourself a train ticket to Otowa!\"\n\n" +
+            "-- A retired professor who'd rather not give his name";
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         internal static void EnsureRewardPopupExists()
@@ -82,7 +94,12 @@ namespace ExhibitionSystem.UI
                 _themeTitleText.text = theme != null ? theme.title : string.Empty;
 
             if (_bodyText != null)
+            {
+                _bodyText.enableAutoSizing = true;
+                _bodyText.fontSizeMin = 18f;
+                _bodyText.fontSizeMax = 24f;
                 _bodyText.text = GetRewardText(theme);
+            }
 
             if (_panel != null)
                 _panel.SetActive(true);
@@ -119,6 +136,12 @@ namespace ExhibitionSystem.UI
                     return YujiRewardText;
                 case "SummerFestival":
                     return SummerFestivalRewardText;
+                case "ChefJiro":
+                    return ChefJiroRewardText;
+                case "HotSprings":
+                    return HotSpringsRewardText;
+                case "Birdwatching":
+                    return BirdwatchingRewardText;
                 default:
                     return string.Empty;
             }
