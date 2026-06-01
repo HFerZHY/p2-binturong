@@ -223,7 +223,9 @@ public class InspirationManager : MonoBehaviour
             return;
 
         var kb = Keyboard.current;
-        if (kb != null && kb.eKey.wasPressedThisFrame)
+        if (IsJournalEnabledInCurrentScene()
+            && kb != null
+            && kb.eKey.wasPressedThisFrame)
         {
             if (IsJournalGuideVisible)
                 DismissJournalGuide();
@@ -525,14 +527,24 @@ public class InspirationManager : MonoBehaviour
     private void RefreshJournalEntryVisibility(string sceneName)
     {
         if (_journalEntryGo == null) return;
-        bool showsJournalEntry = sceneName == "WorldScene"
-                                 || sceneName == "Day1World"
-                                 || sceneName == "HotSpring"
-                                 || sceneName == "Day2World"
-                                 || sceneName == "Day2Ryotei"
-                                 || sceneName == "Day2HotSpring";
+        bool showsJournalEntry = IsJournalEnabledInScene(sceneName);
         _journalEntryGo.SetActive(
             showsJournalEntry && !_journalOpen && !_themeUnlockPopupVisible);
+    }
+
+    private static bool IsJournalEnabledInCurrentScene()
+    {
+        return IsJournalEnabledInScene(SceneManager.GetActiveScene().name);
+    }
+
+    private static bool IsJournalEnabledInScene(string sceneName)
+    {
+        return sceneName == "WorldScene"
+               || sceneName == "Day1World"
+               || sceneName == "HotSpring"
+               || sceneName == "Day2World"
+               || sceneName == "Day2Ryotei"
+               || sceneName == "Day2HotSpring";
     }
 
     private IEnumerator PulseJournalEntry()
@@ -628,7 +640,7 @@ public class InspirationManager : MonoBehaviour
             _popupBody.text  = $"<b>{id:D2}.</b>  {Texts[id]}";
             yield return StartCoroutine(RunInspirationToast());
 
-            if (hintPending)
+            if (hintPending && IsJournalEnabledInCurrentScene())
             {
                 hintPending = false;
                 yield return StartCoroutine(RunToast(_hintGo, _hintCG, 0.25f, 2.00f, 0.40f));
