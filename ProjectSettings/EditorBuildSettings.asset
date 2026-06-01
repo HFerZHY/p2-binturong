@@ -21,7 +21,7 @@ EditorBuildSettings:
     path: Assets/Scenes/WorldScene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
   - enabled: 1
-    path: Assets/Scenes/ExhibitionScene.unity
+    path: Assets/Scenes/ExhibitionDay3Scene.unity
     guid: 363d8f571c3bec64ca14efe6eb64b65e
   - enabled: 1
     path: Assets/Scenes/Day1World.unity
@@ -44,6 +44,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Day2HotSpring.unity
     guid: 953d8b7b44ccfa248813ba6320472834
+  - enabled: 1
+    path: Assets/Scenes/day2end.unity
+    guid: 99766bad8c4c7f54285280ae6d1ef23d
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: f4a05da1226d4a64a838972dcc4ee5fb, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

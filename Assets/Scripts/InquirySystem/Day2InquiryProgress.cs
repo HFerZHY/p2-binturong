@@ -36,6 +36,7 @@ namespace Otowa.Inquiry
         private bool _junkoLastTrainTopicComplete;
         private bool _jiroStationTopicComplete;
         private bool _jiroFestivalTopicComplete;
+        private bool _mizukiFestivalTopicComplete;
         private bool _dangoAskedByJiro;
         private bool _dangoAskedByMizuki;
         private bool _paintingInquiryStarted;
@@ -70,6 +71,7 @@ namespace Otowa.Inquiry
         public bool IsJunkoLastTrainTopicComplete => _junkoLastTrainTopicComplete;
         public bool IsJiroStationTopicComplete => _jiroStationTopicComplete;
         public bool IsJiroFestivalTopicComplete => _jiroFestivalTopicComplete;
+        public bool IsMizukiFestivalTopicComplete => _mizukiFestivalTopicComplete;
         public bool AreJiroTopicsComplete => _jiroStationTopicComplete
                                              && _jiroFestivalTopicComplete;
 
@@ -135,12 +137,12 @@ namespace Otowa.Inquiry
                 1 when !_askedItemIds.Contains(1) => Day2InquiryNpc.Rintaro,
                 2 when !_askedItemIds.Contains(2) => Day2InquiryNpc.Rintaro,
                 4 when !_askedItemIds.Contains(4) => Day2InquiryNpc.Junko,
-                5 when !_dangoAskedByJiro => Day2InquiryNpc.Jiro,
                 5 when !_dangoAskedByMizuki => Day2InquiryNpc.Mizuki,
+                5 when !_dangoAskedByJiro => Day2InquiryNpc.Jiro,
                 12 when !_askedItemIds.Contains(12) => Day2InquiryNpc.Rintaro,
                 13 when !_askedItemIds.Contains(13) => Day2InquiryNpc.Mizuki,
                 14 when !_askedItemIds.Contains(14) => Day2InquiryNpc.Yuji,
-                15 when !_paintingReceived => Day2InquiryNpc.Mizuki,
+                15 when _askedItemIds.Contains(4) && !_paintingReceived => Day2InquiryNpc.Mizuki,
                 _ => Day2InquiryNpc.None,
             };
         }
@@ -261,6 +263,14 @@ namespace Otowa.Inquiry
             OnProgressChanged?.Invoke();
         }
 
+        public void CompleteMizukiFestivalTopic()
+        {
+            if (_mizukiFestivalTopicComplete) return;
+
+            _mizukiFestivalTopicComplete = true;
+            OnProgressChanged?.Invoke();
+        }
+
         public void RequestDay2MapSpawn(string objectName, Vector3 offset)
         {
             _requestedMapSpawnObjectName = objectName;
@@ -273,7 +283,8 @@ namespace Otowa.Inquiry
             && _askedItemIds.Contains(12);
 
         public bool CanReceivePainting =>
-            _dangoAskedByMizuki
+            _mizukiFestivalTopicComplete
+            && _dangoAskedByMizuki
             && _askedItemIds.Contains(4)
             && _askedItemIds.Contains(13);
 
