@@ -25,7 +25,7 @@ namespace ExhibitionSystem.UI
             "The Otowa Summer Festival is not only a reverence for the ancient bird deity, but also a ceremony of \"homecoming.\" When the fireworks light up all of Otowa, even the migratory birds that flew the furthest will follow the railway tracks back to their original nest on this day.";
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void EnsureRewardPopupExists()
+        internal static void EnsureRewardPopupExists()
         {
             if (FindFirstObjectByType<RewardPopup>(FindObjectsInactive.Include) != null)
                 return;

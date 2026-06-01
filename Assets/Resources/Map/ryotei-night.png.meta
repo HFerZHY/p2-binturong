@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c239a11e68e67354a9be366ad5bced41
+guid: 1a44d66fd715a6c49859dffead4e311f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3324280001917686168
-    second: passenger-background_0
+      213: 1351253016937070520
+    second: ryotei-night_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: passenger-background_0
+      name: ryotei-night_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 2097
-        height: 750
+        width: 1672
+        height: 941
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8911d388c07322e20800000000000000
-      internalID: 3324280001917686168
+      spriteID: 8bf753ca57d90c210800000000000000
+      internalID: 1351253016937070520
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      passenger-background_0: 3324280001917686168
+      ryotei-night_0: 1351253016937070520
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

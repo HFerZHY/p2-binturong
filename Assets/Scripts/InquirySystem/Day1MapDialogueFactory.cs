@@ -44,5 +44,46 @@ namespace Otowa.Inquiry
             graph.BuildLookup();
             return graph;
         }
+
+        public static DialogueGraph CreateRinThoughtWithChoices(
+            string graphName,
+            string text,
+            IReadOnlyList<DialogueChoice> choices)
+        {
+            var graph = ScriptableObject.CreateInstance<DialogueGraph>();
+            graph.name = graphName;
+            graph.hideFlags = HideFlags.HideAndDontSave;
+            graph.entryNodeId = "line_01";
+            graph.nodes = new List<DialogueNode>
+            {
+                new()
+                {
+                    id = "line_01",
+                    nodeType = NodeType.Line,
+                    speaker = Resources.Load<Character>("Characters/Rin"),
+                    literalText = text,
+                    nextNodeId = "choices",
+                    onEnter = new UnityEvent(),
+                    onExit = new UnityEvent(),
+                },
+                new()
+                {
+                    id = "choices",
+                    nodeType = NodeType.Branch,
+                    choices = new List<DialogueChoice>(choices),
+                    onEnter = new UnityEvent(),
+                    onExit = new UnityEvent(),
+                },
+                new()
+                {
+                    id = "end",
+                    nodeType = NodeType.Terminal,
+                    onEnter = new UnityEvent(),
+                    onExit = new UnityEvent(),
+                },
+            };
+            graph.BuildLookup();
+            return graph;
+        }
     }
 }

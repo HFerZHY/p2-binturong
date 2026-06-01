@@ -44,7 +44,7 @@ namespace ExhibitionSystem.UI
         private bool _tryAnotherThemeHintDismissed;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void EnsureTutorialPopupExists()
+        internal static void EnsureTutorialPopupExists()
         {
             if (FindFirstObjectByType<TutorialPopup>(FindObjectsInactive.Include) != null)
                 return;

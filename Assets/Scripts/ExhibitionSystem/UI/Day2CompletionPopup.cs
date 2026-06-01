@@ -1,6 +1,7 @@
 using ExhibitionSystem.Core;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace ExhibitionSystem.UI
@@ -12,6 +13,7 @@ namespace ExhibitionSystem.UI
         [SerializeField] private TMP_Text _bodyText;
         [SerializeField] private Button _confirmButton;
         [SerializeField] private CanvasGroup _canvasGroup;
+        [SerializeField] private string _nextSceneName = "Day2World";
 
         private const string HeadlineText = "Exhibition Success";
         private const string BodyText = "Today's work is done.";
@@ -33,7 +35,7 @@ namespace ExhibitionSystem.UI
         private void Start()
         {
             if (_confirmButton != null)
-                _confirmButton.onClick.AddListener(Hide);
+                _confirmButton.onClick.AddListener(HandleConfirmClicked);
 
             Hide();
         }
@@ -72,6 +74,12 @@ namespace ExhibitionSystem.UI
                 _canvasGroup.blocksRaycasts = true;
                 _canvasGroup.interactable = true;
             }
+        }
+
+        private void HandleConfirmClicked()
+        {
+            Hide();
+            SceneManager.LoadScene(_nextSceneName);
         }
 
         private void Hide()

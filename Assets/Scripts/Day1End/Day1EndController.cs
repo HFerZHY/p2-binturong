@@ -22,7 +22,8 @@ namespace Otowa.Day1End
 
         private static readonly Color DreamBg = Color.black;
         private static readonly Color DreamText = new(0.92f, 0.96f, 1f, 1f);
-        private static readonly Color WakeBg = new(0.97f, 0.95f, 0.89f, 1f);
+        private static readonly Color TitleBg = new(0.97f, 0.96f, 0.92f, 1f);
+        private static readonly Color WakeBg = new(0.88f, 0.92f, 0.90f, 1f);
         private static readonly Color WakeText = new(0.20f, 0.18f, 0.15f, 1f);
         private static readonly Color RinText = new(0.30f, 0.43f, 0.48f, 1f);
         private static readonly Color PromptText = new(0.40f, 0.54f, 0.58f, 0.92f);
@@ -96,6 +97,9 @@ namespace Otowa.Day1End
             int next = _beatIndex + 1;
             if (next >= Beats.Length)
                 StartCoroutine(FadeAndLoad());
+            else if (Beats[_beatIndex].Phase == BeatPhase.Wake
+                     && Beats[next].Phase == BeatPhase.Wake)
+                ShowBeat(next);
             else
                 StartCoroutine(CrossFadeTo(next));
         }
@@ -106,7 +110,7 @@ namespace Otowa.Day1End
             var beat = Beats[index];
             bool isDream = beat.Phase == BeatPhase.Dream;
             bool isTitle = beat.Phase == BeatPhase.Title;
-            _background.color = isDream ? DreamBg : WakeBg;
+            _background.color = isDream ? DreamBg : isTitle ? TitleBg : WakeBg;
             _dreamPanel.SetActive(isDream);
             _titlePanel.SetActive(isTitle);
             _wakePanel.SetActive(!isDream && !isTitle);
@@ -281,8 +285,13 @@ namespace Otowa.Day1End
             float y = startY;
             float elapsed = 0f;
 
-            while (y < height + rect.sizeDelta.y)
+            while (true)
             {
+                if (rect == null || image == null)
+                    yield break;
+                if (y >= height + rect.sizeDelta.y)
+                    break;
+
                 elapsed += Time.deltaTime;
                 y += speed * Time.deltaTime;
                 float pulse = 0.55f + 0.45f * Mathf.Sin(elapsed * 2.4f + phase);

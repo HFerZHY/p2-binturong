@@ -76,6 +76,17 @@ public class InspirationManager : MonoBehaviour
         "On that day, all wandering souls journey back to Otowa.",
     };
 
+    private static readonly int[] Day1CompletedInspirationIds =
+    {
+        7, 8, 10, 11, 12, 13, 14, 16,
+    };
+
+    private static readonly string[] Day1CompletedThemeTitles =
+    {
+        "Sake & Sparks: Yuji, Artisan of Two Worlds",
+        "Summer Festival: An Introduction to Otowa Folklore",
+    };
+
     // ── Game data (loaded from Resources) ────────────────────────────────────
 
     private ExhibitItemData[]  _itemDataByOrder = new ExhibitItemData[17]; // 1-based by sortOrder
@@ -140,6 +151,7 @@ public class InspirationManager : MonoBehaviour
     private readonly Image[]    _entryBgs       = new Image[17];    // inspiration rows, 1-based
 
     private Day1InquiryNpc _activeInquiryNpc;
+    private Day2InquiryNpc _activeDay2InquiryNpc;
     private System.Action<int> _onInquiryItemSelected;
     private System.Action _onInquiryCancelled;
 
@@ -190,12 +202,14 @@ public class InspirationManager : MonoBehaviour
     {
         SceneManager.sceneLoaded += HandleSceneLoaded;
         Day1InquiryProgress.OnProgressChanged += RefreshAllItemSlots;
+        Day2InquiryProgress.OnProgressChanged += RefreshAllItemSlots;
     }
 
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= HandleSceneLoaded;
         Day1InquiryProgress.OnProgressChanged -= RefreshAllItemSlots;
+        Day2InquiryProgress.OnProgressChanged -= RefreshAllItemSlots;
     }
 
     private void Update()
@@ -299,6 +313,27 @@ public class InspirationManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Restore the Journal state established by the completed Day 1 route.
+    /// This is intentionally silent: Day 2 should inherit known entries without
+    /// replaying Day 1 unlock toasts when entered directly during development.
+    /// </summary>
+    public void SeedDay2JournalBaseline()
+    {
+        foreach (int id in Day1CompletedInspirationIds)
+        {
+            if (id < 1 || id > 16 || _unlocked[id]) continue;
+
+            _unlocked[id] = true;
+            RefreshEntry(id);
+        }
+
+        foreach (string themeTitle in Day1CompletedThemeTitles)
+            CompleteTheme(themeTitle);
+
+        _introduced = true;
+    }
+
     /// <summary>Returns true if inspiration id has been unlocked.</summary>
     public bool IsUnlocked(int id) => id >= 1 && id <= 16 && _unlocked[id];
 
@@ -335,6 +370,19 @@ public class InspirationManager : MonoBehaviour
     /// </summary>
     public void BeginDay1JournalGuide()
     {
+        BeginJournalGuide();
+    }
+
+    public void BeginJournalGuide(bool restart = false)
+    {
+        if (restart)
+        {
+            StopJournalEntryPulse();
+            _journalGuideShown = false;
+            if (_journalGuideGo != null)
+                _journalGuideGo.SetActive(false);
+        }
+
         if (_journalGuideShown || _journalGuidePending)
             return;
 
@@ -367,6 +415,22 @@ public class InspirationManager : MonoBehaviour
             return false;
 
         _activeInquiryNpc = npc;
+        _onInquiryItemSelected = onSelected;
+        _onInquiryCancelled = onCancelled;
+        SetJournalOpen(true, requestedTab: 0, consumePendingInspirationTab: false);
+        RefreshAllItemSlots();
+        return true;
+    }
+
+    public bool OpenItemInquiry(
+        Day2InquiryNpc npc,
+        System.Action<int> onSelected,
+        System.Action onCancelled = null)
+    {
+        if (!Day2InquiryProgress.Instance.HasPendingInquiry(npc))
+            return false;
+
+        _activeDay2InquiryNpc = npc;
         _onInquiryItemSelected = onSelected;
         _onInquiryCancelled = onCancelled;
         SetJournalOpen(true, requestedTab: 0, consumePendingInspirationTab: false);
@@ -411,7 +475,10 @@ public class InspirationManager : MonoBehaviour
         if (_journalEntryGo == null) return;
         bool showsJournalEntry = sceneName == "WorldScene"
                                  || sceneName == "Day1World"
-                                 || sceneName == "HotSpring";
+                                 || sceneName == "HotSpring"
+                                 || sceneName == "Day2World"
+                                 || sceneName == "Day2Ryotei"
+                                 || sceneName == "Day2HotSpring";
         _journalEntryGo.SetActive(showsJournalEntry && !_journalOpen);
     }
 
@@ -586,24 +653,46 @@ public class InspirationManager : MonoBehaviour
     private void RefreshItemSlot(int sortOrder)
     {
         if (sortOrder < 1 || sortOrder > 16) return;
-        var progress = Day1InquiryProgress.Instance;
-        bool revealed = _itemsCollected[sortOrder] || progress.IsItemRevealed(sortOrder);
-        bool canSelect = progress.CanAsk(_activeInquiryNpc, sortOrder);
-        bool showPortrait = progress.IsInquiryPending(sortOrder);
+        bool usesDay2 = UsesDay2Inquiry();
+        bool revealed;
+        bool canSelect;
+        bool showPortrait;
+        Sprite portraitSprite;
+
+        if (usesDay2)
+        {
+            var progress = Day2InquiryProgress.Instance;
+            revealed = _itemsCollected[sortOrder] || progress.IsItemRevealed(sortOrder);
+            canSelect = progress.CanAsk(_activeDay2InquiryNpc, sortOrder);
+            showPortrait = progress.IsInquiryPending(sortOrder);
+            portraitSprite = LoadInquiryPortrait(progress.GetInquiryNpc(sortOrder));
+        }
+        else
+        {
+            var progress = Day1InquiryProgress.Instance;
+            revealed = _itemsCollected[sortOrder] || progress.IsItemRevealed(sortOrder);
+            canSelect = progress.CanAsk(_activeInquiryNpc, sortOrder);
+            showPortrait = progress.IsInquiryPending(sortOrder);
+            portraitSprite = LoadInquiryPortrait(progress.GetInquiryNpc(sortOrder));
+        }
 
         if (_itemSlotBgs[sortOrder] != null)
             _itemSlotBgs[sortOrder].color = revealed ? ItemHaveBg : ItemLackBg;
 
         if (_itemSlotImages[sortOrder] != null)
         {
-            _itemSlotImages[sortOrder].enabled = revealed || sortOrder < 15;
+            bool showSilhouette = sortOrder < 15 || (usesDay2 && sortOrder == 15);
+            _itemSlotImages[sortOrder].enabled = revealed || showSilhouette;
             _itemSlotImages[sortOrder].color = revealed
                 ? Color.white
                 : new Color(0.3f, 0.3f, 0.3f, 0.5f);
         }
 
         if (_itemInquiryPortraits[sortOrder] != null)
+        {
+            _itemInquiryPortraits[sortOrder].sprite = portraitSprite;
             _itemInquiryPortraits[sortOrder].gameObject.SetActive(showPortrait);
+        }
 
         if (_itemSlotButtons[sortOrder] != null)
             _itemSlotButtons[sortOrder].interactable = canSelect;
@@ -620,9 +709,15 @@ public class InspirationManager : MonoBehaviour
 
     private void HandleItemSlotClicked(int sortOrder)
     {
-        var progress = Day1InquiryProgress.Instance;
-        if (!progress.TryMarkAsked(_activeInquiryNpc, sortOrder))
+        if (UsesDay2Inquiry())
+        {
+            if (!Day2InquiryProgress.Instance.TryMarkAsked(_activeDay2InquiryNpc, sortOrder))
+                return;
+        }
+        else if (!Day1InquiryProgress.Instance.TryMarkAsked(_activeInquiryNpc, sortOrder))
+        {
             return;
+        }
 
         var callback = _onInquiryItemSelected;
         ClearInquiryMode(invokeCancelled: false);
@@ -634,11 +729,19 @@ public class InspirationManager : MonoBehaviour
     {
         var cancelled = _onInquiryCancelled;
         _activeInquiryNpc = Day1InquiryNpc.None;
+        _activeDay2InquiryNpc = Day2InquiryNpc.None;
         _onInquiryItemSelected = null;
         _onInquiryCancelled = null;
 
         if (invokeCancelled)
             cancelled?.Invoke();
+    }
+
+    private bool UsesDay2Inquiry()
+    {
+        return _activeDay2InquiryNpc != Day2InquiryNpc.None
+               || Day2InquiryProgress.IsDay2ExplorationScene(
+                   SceneManager.GetActiveScene().name);
     }
 
     private void RefreshThemeEntry(int index)
@@ -958,7 +1061,6 @@ public class InspirationManager : MonoBehaviour
                 var portraitGo = Rect(slotGo.transform, "InquiryPortrait",
                     new Vector2(0.58f, 0.50f), new Vector2(1.06f, 1.03f));
                 var portrait = portraitGo.AddComponent<Image>();
-                portrait.sprite = LoadInquiryPortrait(Day1InquiryProgress.Instance.GetInquiryNpc(sortOrder));
                 portrait.preserveAspect = true;
                 portrait.raycastTarget = false;
                 portraitGo.SetActive(false);
@@ -976,6 +1078,34 @@ public class InspirationManager : MonoBehaviour
             Day1InquiryNpc.Mizuki => "Characters/WorldSprite/Mizuki",
             Day1InquiryNpc.Yuji => "Characters/WorldSprite/Yuji",
             Day1InquiryNpc.Junko => "Characters/WorldSprite/Junko",
+            _ => null,
+        };
+
+        if (string.IsNullOrEmpty(resourcePath)) return null;
+
+        var sprites = Resources.LoadAll<Sprite>(resourcePath);
+        Sprite fallback = null;
+        foreach (var sprite in sprites)
+        {
+            if (sprite == null) continue;
+            if (sprite.name == "spritesheet_template_0")
+                return sprite;
+
+            fallback ??= sprite;
+        }
+
+        return fallback;
+    }
+
+    private static Sprite LoadInquiryPortrait(Day2InquiryNpc npc)
+    {
+        string resourcePath = npc switch
+        {
+            Day2InquiryNpc.Mizuki => "Characters/WorldSprite/Mizuki",
+            Day2InquiryNpc.Yuji => "Characters/WorldSprite/Yuji",
+            Day2InquiryNpc.Junko => "Characters/WorldSprite/Junko",
+            Day2InquiryNpc.Rintaro => "Characters/WorldSprite/Rintaro",
+            Day2InquiryNpc.Jiro => "Characters/WorldSprite/Jiro",
             _ => null,
         };
 

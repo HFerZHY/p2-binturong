@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using DialogueSystem.Core;
+using DialogueSystem.Data;
 using DialogueSystem.Interfaces;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,6 +12,9 @@ namespace Otowa.Inquiry
     {
         private const string PendingThought =
             "(It looks like there are still a few items in the journal I can look into. Let me chat with the villagers a bit more.)";
+        private const string ReadyToRestThought =
+            "(I'm feeling a little sleepy. I should get ready to rest.)";
+        private const string RestActionKey = "day1-station-rest";
 
         [SerializeField] private string interactPrompt = "[Space] Return to station";
         [SerializeField] private string day1EndSceneName = "day1end";
@@ -20,18 +25,50 @@ namespace Otowa.Inquiry
 
         public string InteractPrompt => interactPrompt;
 
+        private void OnEnable()
+        {
+            DialogueManager.OnActionRequested += HandleActionRequested;
+        }
+
+        private void OnDisable()
+        {
+            DialogueManager.OnActionRequested -= HandleActionRequested;
+        }
+
         public void Interact(GameObject initiator)
         {
             if (!CanInteract) return;
 
             if (Day1InquiryProgress.Instance.AreAllInquiryItemsAsked)
             {
-                SceneManager.LoadScene(day1EndSceneName);
+                DialogueManager.Instance.TriggerDialogue(
+                    Day1MapDialogueFactory.CreateRinThoughtWithChoices(
+                        "Day1StationReadyToRest",
+                        ReadyToRestThought,
+                        new List<DialogueChoice>
+                        {
+                            new()
+                            {
+                                literalLabel = "Rest",
+                                actionKey = RestActionKey,
+                            },
+                            new()
+                            {
+                                literalLabel = "Walk around a little longer",
+                                targetNodeId = "end",
+                            },
+                        }));
                 return;
             }
 
             DialogueManager.Instance.TriggerDialogue(
                 Day1MapDialogueFactory.CreateRinThought("Day1StationPending", PendingThought));
+        }
+
+        private void HandleActionRequested(string actionKey)
+        {
+            if (actionKey == RestActionKey)
+                SceneManager.LoadScene(day1EndSceneName);
         }
     }
 }

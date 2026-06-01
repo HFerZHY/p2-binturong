@@ -24,7 +24,7 @@ namespace ExhibitionSystem.UI
         private const string ConfirmText = "OK";
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void EnsurePopupExists()
+        internal static void EnsurePopupExists()
         {
             if (FindFirstObjectByType<InspirationSuccessPopup>(FindObjectsInactive.Include) != null)
                 return;

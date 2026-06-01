@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 6e7353daeb0c5114ebf5c000d077079c
+guid: 62a376a0afac36049b57fb3de1116283
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2635963673095850428
-    second: back-pic-old_0
+      213: 2633066822558128654
+    second: spring-afternoon_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: back-pic-old_0
+      name: spring-afternoon_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: cb946b7aef2d49420800000000000000
-      internalID: 2635963673095850428
+      spriteID: e0a917413588a8420800000000000000
+      internalID: 2633066822558128654
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      back-pic-old_0: 2635963673095850428
+      spring-afternoon_0: 2633066822558128654
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

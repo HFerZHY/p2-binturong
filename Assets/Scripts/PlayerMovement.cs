@@ -24,6 +24,7 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D _rb;
     private Vector2 _currentVelocity;
     private bool _movementLocked;
+    private bool _externalMovementLocked;
 
     private void Awake()
     {
@@ -50,10 +51,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (_movementLocked)
+        if (_movementLocked || _externalMovementLocked)
         {
-            _rb.linearVelocity = Vector2.zero;
-            _rb.angularVelocity = 0f;
+            StopImmediately();
             return;
         }
 
@@ -80,6 +80,18 @@ public class PlayerMovement : MonoBehaviour
     private void LockMovement()
     {
         _movementLocked = true;
+        StopImmediately();
+    }
+
+    public void SetExternalMovementLocked(bool locked)
+    {
+        _externalMovementLocked = locked;
+        if (locked)
+            StopImmediately();
+    }
+
+    private void StopImmediately()
+    {
         _currentVelocity = Vector2.zero;
         _rb.linearVelocity = Vector2.zero;
         _rb.angularVelocity = 0f;
