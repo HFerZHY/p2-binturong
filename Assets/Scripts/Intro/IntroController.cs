@@ -62,8 +62,8 @@ namespace Otowa.Intro
         [Header("Font Sizes")]
         [SerializeField] private float titleFontSize    = 110f;
         [SerializeField] private float subtitleFontSize = 22f;
-        [SerializeField] private float bodyFontSize     = 30f;
-        [SerializeField] private float letterFontSize   = 28f;
+        [SerializeField] private float bodyFontSize     = 34f;
+        [SerializeField] private float letterFontSize   = 32f;
         [SerializeField] private float itemsTitleSize   = 34f;
         [SerializeField] private float itemLabelSize    = 24f;
         [SerializeField] private float promptFontSize   = 22f;
@@ -541,12 +541,6 @@ namespace Otowa.Intro
 
             while (true)
             {
-                // Slow, gentle sine — one full cycle every ~2.5 s
-                float t = (Mathf.Sin(Time.time * 2.5f) + 1f) * 0.5f;
-                // Keep amplitude subtle: only interpolate 30% of the way to the highlight
-                Color c = Color.Lerp(baseCol, glowCol, t * 0.30f);
-                Color32 c32 = c;
-
                 tmp.ForceMeshUpdate();
                 var meshInfo  = tmp.textInfo.meshInfo;
                 charInfo      = tmp.textInfo.characterInfo;
@@ -554,6 +548,10 @@ namespace Otowa.Intro
                 for (int i = wordStart; i < wordStart + word.Length; i++)
                 {
                     if (!charInfo[i].isVisible) continue;
+                    // Stagger each letter's phase so they shimmer in a wave
+                    float phase = Time.time * 2.5f + (i - wordStart) * 0.7f;
+                    float t = (Mathf.Sin(phase) + 1f) * 0.5f;
+                    Color32 c32 = Color.Lerp(baseCol, glowCol, t * 0.45f);
                     int mat  = charInfo[i].materialReferenceIndex;
                     int vert = charInfo[i].vertexIndex;
                     var cols = meshInfo[mat].colors32;

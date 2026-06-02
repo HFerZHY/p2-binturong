@@ -44,8 +44,13 @@ public class InspirationManager : MonoBehaviour
         get
         {
             if (_instance != null) return _instance;
-            var go = new GameObject("InspirationManager");
-            _instance = go.AddComponent<InspirationManager>();
+            // Load from prefab first — lets Inspector fields (e.g. audio clips) be pre-assigned.
+            // Create the prefab via Tools → Otowa → Audio → Wire InspirationManager Audio.
+            var prefab = Resources.Load<GameObject>("InspirationManager");
+            if (prefab != null)
+                Object.Instantiate(prefab).name = "InspirationManager";
+            else
+                new GameObject("InspirationManager").AddComponent<InspirationManager>();
             return _instance;
         }
     }
@@ -138,6 +143,10 @@ public class InspirationManager : MonoBehaviour
 
     private TMP_FontAsset _font;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip inspirationUnlockedClip;
+    private AudioSource _sfxSource;
+
     // ── Journal tab refs ──────────────────────────────────────────────────────
 
     private int         _activeTab = 1; // 0=Items, 1=Inspirations, 2=Themes
@@ -201,6 +210,8 @@ public class InspirationManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         LoadGameData();
         BuildUI();
+        _sfxSource = gameObject.AddComponent<AudioSource>();
+        _sfxSource.playOnAwake = false;
     }
 
     private void OnEnable()
@@ -223,9 +234,7 @@ public class InspirationManager : MonoBehaviour
             return;
 
         var kb = Keyboard.current;
-        if (IsJournalEnabledInCurrentScene()
-            && kb != null
-            && kb.eKey.wasPressedThisFrame)
+        if (kb != null && kb.eKey.wasPressedThisFrame)
         {
             if (IsJournalGuideVisible)
                 DismissJournalGuide();
@@ -283,6 +292,7 @@ public class InspirationManager : MonoBehaviour
         _unlocked[id] = true;
         RefreshEntry(id);
         _openInspirationsOnNextJournalOpen = true;
+        if (inspirationUnlockedClip != null) _sfxSource?.PlayOneShot(inspirationUnlockedClip);
 
         bool firstEver = !_introduced;
         _introduced = true;
@@ -527,24 +537,15 @@ public class InspirationManager : MonoBehaviour
     private void RefreshJournalEntryVisibility(string sceneName)
     {
         if (_journalEntryGo == null) return;
-        bool showsJournalEntry = IsJournalEnabledInScene(sceneName);
+        bool showsJournalEntry = sceneName == "WorldScene"
+                                 || sceneName == "Day1World"
+                                 || sceneName == "HotSpring"
+                                 || sceneName == "TutorialToRyotei"
+                                 || sceneName == "Day2World"
+                                 || sceneName == "Day2Ryotei"
+                                 || sceneName == "Day2HotSpring";
         _journalEntryGo.SetActive(
             showsJournalEntry && !_journalOpen && !_themeUnlockPopupVisible);
-    }
-
-    private static bool IsJournalEnabledInCurrentScene()
-    {
-        return IsJournalEnabledInScene(SceneManager.GetActiveScene().name);
-    }
-
-    private static bool IsJournalEnabledInScene(string sceneName)
-    {
-        return sceneName == "WorldScene"
-               || sceneName == "Day1World"
-               || sceneName == "HotSpring"
-               || sceneName == "Day2World"
-               || sceneName == "Day2Ryotei"
-               || sceneName == "Day2HotSpring";
     }
 
     private IEnumerator PulseJournalEntry()
@@ -640,7 +641,7 @@ public class InspirationManager : MonoBehaviour
             _popupBody.text  = $"<b>{id:D2}.</b>  {Texts[id]}";
             yield return StartCoroutine(RunInspirationToast());
 
-            if (hintPending && IsJournalEnabledInCurrentScene())
+            if (hintPending)
             {
                 hintPending = false;
                 yield return StartCoroutine(RunToast(_hintGo, _hintCG, 0.25f, 2.00f, 0.40f));

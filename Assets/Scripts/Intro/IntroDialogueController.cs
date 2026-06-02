@@ -41,6 +41,7 @@ namespace Otowa.Intro
 
         [Header("Behaviour")]
         [SerializeField] private bool showMovementTutorial = false;
+        [SerializeField] private bool skipDialogue = false;
 
         [Header("Colors")]
         [SerializeField] private Color bgColor        = new Color32(0x0e, 0x18, 0x0e, 0xFF);
@@ -88,6 +89,7 @@ namespace Otowa.Intro
 
         private void Awake()
         {
+            if (skipDialogue) return;
             Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
             _tutorialActive = showMovementTutorial;
             BuildLines();
@@ -100,6 +102,7 @@ namespace Otowa.Intro
 
         private void Start()
         {
+            if (skipDialogue) { SceneManager.LoadScene(nextSceneName); return; }
             _fade.alpha = 0f;
             StartCoroutine(FadeTo(1f));
         }

@@ -42469,6 +42469,52 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &239853791
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 239853793}
+  - component: {fileID: 239853792}
+  m_Layer: 0
+  m_Name: OtowaIntroTrigger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &239853792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 239853791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd58be19b83545946a00187b1a6fc234, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Intro.OtowaIntroDialogueTrigger
+  autoTriggerOnStart: 1
+  nextSceneName: Intro-3
+--- !u!4 &239853793
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 239853791}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.43, y: 19.58, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &248602767
 GameObject:
   m_ObjectHideFlags: 0
@@ -42925,53 +42971,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1 &347425663
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 347425665}
-  - component: {fileID: 347425664}
-  m_Layer: 0
-  m_Name: Day2 Map Flow
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &347425664
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 347425663}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7614c0af5e5cede4d981381edecd4faf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Inquiry.Day2MapFlowController
-  inspectorWalkSpeed: 2.6
-  entrancePause: 0.45
-  departurePause: 0.55
---- !u!4 &347425665
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 347425663}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &372313855
 GameObject:
   m_ObjectHideFlags: 0
@@ -45751,7 +45750,6 @@ GameObject:
   - component: {fileID: 419220489}
   - component: {fileID: 419220493}
   - component: {fileID: 419220494}
-  - component: {fileID: 419220495}
   m_Layer: 0
   m_Name: TestPlayer
   m_TagString: Player
@@ -45871,7 +45869,7 @@ Transform:
   m_GameObject: {fileID: 419220488}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.0300001, y: 15.58, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -45933,21 +45931,6 @@ MonoBehaviour:
     m_Bits: 4294967295
   interactOrigin: {fileID: 419220492}
   interactActionName: Interact
---- !u!114 &419220495
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 419220488}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 457e5bc6e2c2e7b43a626b20bf52cc3a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Minimap.MinimapIcon
-  portrait: {fileID: -6861016282177217685, guid: a9ebed865be1ceb4db74f4cf28c853fa, type: 3}
-  iconColor: {r: 0.56, g: 0.74, b: 0.56, a: 1}
-  displayName: Rin
 --- !u!1 &434222050
 GameObject:
   m_ObjectHideFlags: 0
@@ -56146,6 +56129,8 @@ GameObject:
   - component: {fileID: 549510958}
   - component: {fileID: 549510962}
   - component: {fileID: 549510961}
+  - component: {fileID: 549510960}
+  - component: {fileID: 549510959}
   m_Layer: 0
   m_Name: Inspector
   m_TagString: Untagged
@@ -56162,13 +56147,51 @@ Transform:
   m_GameObject: {fileID: 549510957}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.83, y: 15.58, z: 0}
+  m_LocalPosition: {x: -2.313, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1323903760}
   m_Father: {fileID: 1225368451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &549510959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549510957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e48d48e6b305a5449ba02be326e66a65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueSystem.NPC.NPCDialogueController
+  dialogueGraph: {fileID: 11400000, guid: a288b1c5f159c2b48a692c8cbc34ad18, type: 2}
+  interactPrompt: '[Space] Talk'
+  canInteract: 1
+  npcAnimator: {fileID: 0}
+  talkStartTrigger: TalkStart
+  talkEndTrigger: TalkEnd
+  movement: {fileID: 549510960}
+--- !u!114 &549510960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549510957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a989b9d41044e7f9f63db74c3b75e7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCMovement
+  path: {fileID: 11400000, guid: 90dfc3b05bf234c4c8797918e54d4b95, type: 2}
+  startWaypointIndex: 0
+  moveSpeed: 1.5
+  inertia: 0.85
+  waypointReachRadius: 0.1
+  animator: {fileID: 1323903761}
+  player: {fileID: 419220488}
 --- !u!70 &549510961
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -56325,13 +56348,14 @@ GameObject:
   - component: {fileID: 583554407}
   - component: {fileID: 583554406}
   - component: {fileID: 583554405}
+  - component: {fileID: 583554408}
   m_Layer: 0
   m_Name: Jiro
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &583554403
 Transform:
   m_ObjectHideFlags: 0
@@ -56431,6 +56455,23 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &583554408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 583554402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b0a238e3c773ea4ebef3c3b78cf39f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Inquiry.Day1MapAmbientDialogueController
+  speakerResourcePath: Characters/Jiro
+  speakerDisplayName: Jiro
+  dialogueLine: What could I even do for him...?
+  movement: {fileID: 583554405}
+  interactPrompt: '[Space] Talk'
 --- !u!1 &613887527
 GameObject:
   m_ObjectHideFlags: 0
@@ -56600,7 +56641,7 @@ Transform:
   m_GameObject: {fileID: 619394800}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -2, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -56952,7 +56993,7 @@ Transform:
   m_GameObject: {fileID: 676029314}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 2.75, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -57335,7 +57376,6 @@ GameObject:
   - component: {fileID: 725900506}
   - component: {fileID: 725900505}
   - component: {fileID: 725900508}
-  - component: {fileID: 725900509}
   m_Layer: 0
   m_Name: Yuji
   m_TagString: Untagged
@@ -57451,27 +57491,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 725900502}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab56329d4fe980c4aa45aad034eeac8b, type: 3}
+  m_Script: {fileID: 11500000, guid: 81610082201727f4ab899861a2922278, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Inquiry.Day2MapNpcInquiryController
+  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Inquiry.Day1MapNpcInquiryController
   npc: 2
   movement: {fileID: 725900505}
   interactPrompt: '[Space] Talk'
---- !u!114 &725900509
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 725900502}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 457e5bc6e2c2e7b43a626b20bf52cc3a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Minimap.MinimapIcon
-  portrait: {fileID: 5456670085736376123, guid: b78574e41f6f41a4282871269eab9bb5, type: 3}
-  iconColor: {r: 0.5, g: 0.72, b: 0.91, a: 1}
-  displayName: Yuji
 --- !u!1 &742978745
 GameObject:
   m_ObjectHideFlags: 0
@@ -58776,159 +58801,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1 &1180030381
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1180030385}
-  - component: {fileID: 1180030384}
-  - component: {fileID: 1180030383}
-  - component: {fileID: 1180030382}
-  m_Layer: 0
-  m_Name: Day2 HotSpring Entrance
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1180030382
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1180030381}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69b04a9e2b8097841ba116df9997fc81, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Inquiry.Day2InteriorEntrance
-  sceneName: Day2HotSpring
-  interactPrompt: Space to react
---- !u!61 &1180030383
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1180030381}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0.049999997, y: 0.049999997, z: 0.049999997, w: 0.049999997}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.16, y: 0.16}
-    newSize: {x: 0.16, y: 0.16}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 0.21333334, y: 0.224}
-  m_EdgeRadius: 0
---- !u!212 &1180030384
-SpriteRenderer:
-  serializedVersion: 2
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1180030381}
-  m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 0
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 0
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 30
-  m_MaskInteraction: 0
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.35, g: 0.72, b: 0.92, a: 0.72}
-  m_FlipX: 0
-  m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 0.16, y: 0.16}
-  m_AdaptiveModeThreshold: 0.5
-  m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
-  m_SpriteSortPoint: 0
---- !u!4 &1180030385
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1180030381}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9, y: -1.19, z: 0}
-  m_LocalScale: {x: 18.75, y: 15.625, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1225368450
 GameObject:
   m_ObjectHideFlags: 0
@@ -59034,9 +58906,6 @@ GameObject:
   - component: {fileID: 1249090599}
   - component: {fileID: 1249090598}
   - component: {fileID: 1249090597}
-  - component: {fileID: 1249090596}
-  - component: {fileID: 1249090600}
-  - component: {fileID: 1249090601}
   m_Layer: 0
   m_Name: Junko
   m_TagString: Untagged
@@ -59044,25 +58913,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1249090596
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249090594}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a989b9d41044e7f9f63db74c3b75e7e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NPCMovement
-  path: {fileID: 11400000, guid: 9b9a900a07f0875429352b9f043d1d35, type: 2}
-  startWaypointIndex: 0
-  moveSpeed: 1.5
-  inertia: 0.85
-  waypointReachRadius: 0.1
-  animator: {fileID: 742978746}
-  player: {fileID: 419220488}
 --- !u!70 &1249090597
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -59136,43 +58986,13 @@ Transform:
   m_GameObject: {fileID: 1249090594}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.136, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 2, y: 0, z: 0}
+  m_LocalScale: {x: -1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 742978747}
   m_Father: {fileID: 1225368451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1249090600
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249090594}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab56329d4fe980c4aa45aad034eeac8b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Inquiry.Day2MapNpcInquiryController
-  npc: 3
-  movement: {fileID: 1249090596}
-  interactPrompt: '[Space] Talk'
---- !u!114 &1249090601
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249090594}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 457e5bc6e2c2e7b43a626b20bf52cc3a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Minimap.MinimapIcon
-  portrait: {fileID: -5979425423447815568, guid: d2cb6335438500142ba87b57557e27b4, type: 3}
-  iconColor: {r: 0.83, g: 0.63, b: 0.38, a: 1}
-  displayName: Junko
 --- !u!1 &1257784143
 GameObject:
   m_ObjectHideFlags: 0
@@ -61394,7 +61214,6 @@ GameObject:
   - component: {fileID: 1400429730}
   - component: {fileID: 1400429729}
   - component: {fileID: 1400429732}
-  - component: {fileID: 1400429733}
   m_Layer: 0
   m_Name: Rintaro
   m_TagString: Untagged
@@ -61510,27 +61329,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1400429726}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab56329d4fe980c4aa45aad034eeac8b, type: 3}
+  m_Script: {fileID: 11500000, guid: 9b0a238e3c773ea4ebef3c3b78cf39f3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Inquiry.Day2MapNpcInquiryController
-  npc: 4
+  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Inquiry.Day1MapAmbientDialogueController
+  speakerResourcePath: 
+  speakerDisplayName: ???
+  dialogueLine: Can I see birds once it's dark...?
   movement: {fileID: 1400429729}
   interactPrompt: '[Space] Talk'
---- !u!114 &1400429733
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1400429726}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 457e5bc6e2c2e7b43a626b20bf52cc3a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Minimap.MinimapIcon
-  portrait: {fileID: 2018020307873150759, guid: f5218d4d475647248a4dce826623486e, type: 3}
-  iconColor: {r: 1, g: 1, b: 1, a: 1}
-  displayName: Rintaro
 --- !u!1 &1411713834
 GameObject:
   m_ObjectHideFlags: 0
@@ -61758,58 +61564,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1 &1421616560
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1421616562}
-  - component: {fileID: 1421616561}
-  m_Layer: 0
-  m_Name: MinimapManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1421616561
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1421616560}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8409b8f6957569144bc698b268d844e8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Minimap.MinimapController
-  worldMin: {x: -22, y: -18}
-  worldMax: {x: 22, y: 14}
-  panelSize: {x: 820, y: 600}
-  iconSize: {x: 100, y: 100}
-  locationSize: {x: 80, y: 80}
-  panelAlpha: 0.75
-  mapBackground: {fileID: 3211415059234917704, guid: 5e100fcc4705fde40ada5946d09fa965, type: 3}
-  mapIconSprite: {fileID: 7906180512882132660, guid: e7d73b00a72250d4c836bed24c496f2a, type: 3}
---- !u!4 &1421616562
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1421616560}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1459514647
 GameObject:
   m_ObjectHideFlags: 0
@@ -98436,7 +98190,7 @@ GameObject:
   - component: {fileID: 1499427908}
   - component: {fileID: 1499427907}
   - component: {fileID: 1499427910}
-  - component: {fileID: 1499427911}
+  - component: {fileID: 1499427909}
   m_Layer: 0
   m_Name: Train Station
   m_TagString: Untagged
@@ -98518,6 +98272,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1499427909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1499427906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4d355b3e197b3e489ade03b6af9ecd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Inquiry.Day1StationInquiryController
+  interactPrompt: '[Space] Return to station'
+  day1EndSceneName: day1end
 --- !u!61 &1499427910
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -98564,20 +98332,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 10, y: 8}
   m_EdgeRadius: 0
---- !u!114 &1499427911
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1499427906}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ccb56e5ae5630b94db6966b9ceed736c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Inquiry.Day2StationInquiryController
-  interactPrompt: '[Space] Return to station'
-  day2EndSceneName: day2end
 --- !u!1 &1545868952
 GameObject:
   m_ObjectHideFlags: 0
@@ -103584,99 +103338,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1801788320}
   m_CullTransparentMesh: 1
---- !u!1 &1845752783
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1845752786}
-  - component: {fileID: 1845752785}
-  - component: {fileID: 1845752784}
-  m_Layer: 0
-  m_Name: Day2 Ryotei Entrance
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1845752784
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1845752783}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69b04a9e2b8097841ba116df9997fc81, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Inquiry.Day2InteriorEntrance
-  sceneName: Day2Ryotei
-  interactPrompt: Space to react
---- !u!61 &1845752785
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1845752783}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 4, y: 3}
-  m_EdgeRadius: 0
---- !u!4 &1845752786
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1845752783}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 14.2, y: -1.9900001, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1860301904
 GameObject:
   m_ObjectHideFlags: 0
@@ -106258,6 +105919,159 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2071394135}
   m_CullTransparentMesh: 1
+--- !u!1 &2077355651
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2077355655}
+  - component: {fileID: 2077355654}
+  - component: {fileID: 2077355653}
+  - component: {fileID: 2077355652}
+  m_Layer: 0
+  m_Name: HotSpring Entrance
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2077355652
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2077355651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ebed5c58cb72fa4abc14882bf3e9581, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Otowa.HotSpring.HotSpringEntrance
+  sceneName: HotSpring
+  interactPrompt: Space to react
+--- !u!61 &2077355653
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2077355651}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0.049999997, y: 0.049999997, z: 0.049999997, w: 0.049999997}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.16, y: 0.16}
+    newSize: {x: 0.16, y: 0.16}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.21333334, y: 0.224}
+  m_EdgeRadius: 0
+--- !u!212 &2077355654
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2077355651}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 30
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Color: {r: 0.35, g: 0.72, b: 0.92, a: 0.72}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 0.16, y: 0.16}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
+--- !u!4 &2077355655
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2077355651}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 9, y: -1.19, z: 0}
+  m_LocalScale: {x: 18.75, y: 15.625, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2081675410
 GameObject:
   m_ObjectHideFlags: 0
@@ -106518,7 +106332,5 @@ SceneRoots:
   - {fileID: 613887529}
   - {fileID: 1225368451}
   - {fileID: 862243561}
-  - {fileID: 347425665}
-  - {fileID: 1845752786}
-  - {fileID: 1180030385}
-  - {fileID: 1421616562}
+  - {fileID: 2077355655}
+  - {fileID: 239853793}
