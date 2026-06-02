@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DialogueSystem.Core;
 using DialogueSystem.Data;
+using Otowa.Audio;
 using Otowa.IndoorDialogue;
 using TMPro;
 using UnityEngine;
@@ -47,6 +48,7 @@ namespace Otowa.Day3
             _junko = Resources.Load<Character>("Characters/Junko");
             _playerMovement = FindFirstObjectByType<PlayerMovement>();
             BuildBlackScreen();
+            GameAudioManager.Instance.PlaySfxLoop(AudioId.Wind, fadeIn: 0.5f);
         }
 
         private void Update()
@@ -106,7 +108,7 @@ namespace Otowa.Day3
                 new Line(_junko, "But the weather's really turned. It may start raining before long."),
                 new Line(_junko, "Why don't we head home and turn in early..."),
                 new Line(_junko, "Thank you for coming..."),
-                new Line(_rin, "(...?)"),
+                new Line(_rin, "(...?)", () => GameAudioManager.Instance.PlaySfxOnce(AudioId.WhistleFar)),
                 new Line(_rin, "(Wait, that sound...)"),
             };
 
@@ -119,7 +121,7 @@ namespace Otowa.Day3
                     speaker = lines[i].Speaker,
                     literalText = lines[i].Text,
                     nextNodeId = i == lines.Length - 1 ? "end" : $"line_{i + 2:00}",
-                    onEnter = new UnityEvent(),
+                    onEnter = Event(lines[i].OnEntered),
                     onExit = new UnityEvent(),
                 });
             }
@@ -163,6 +165,9 @@ namespace Otowa.Day3
                 StartCoroutine(LoadNextScene());
                 return;
             }
+
+            if (_blackScreenLineIndex == 1)
+                GameAudioManager.Instance.PlaySfxOnce(AudioId.WhistleClose);
 
             _blackScreenTextPlayer.Play(_blackScreenBody, _blackScreenLines[_blackScreenLineIndex]);
             _blackScreenInputUnlockTime = Time.unscaledTime + 0.15f;
@@ -263,16 +268,26 @@ namespace Otowa.Day3
             return mouseClicked || keyboardPressed;
         }
 
+        private static UnityEvent Event(System.Action action)
+        {
+            var unityEvent = new UnityEvent();
+            if (action != null)
+                unityEvent.AddListener(() => action());
+            return unityEvent;
+        }
+
         private readonly struct Line
         {
-            public Line(Character speaker, string text)
+            public Line(Character speaker, string text, System.Action onEntered = null)
             {
                 Speaker = speaker;
                 Text = text;
+                OnEntered = onEntered;
             }
 
             public Character Speaker { get; }
             public string Text { get; }
+            public System.Action OnEntered { get; }
         }
     }
 }

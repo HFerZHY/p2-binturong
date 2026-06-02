@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Otowa.Audio;
 using Otowa.IndoorDialogue;
 using TMPro;
 using UnityEngine;
@@ -64,8 +65,47 @@ namespace Otowa.Inquiry
 
         private void Start()
         {
+            ConfigureAudioForVisit();
             _fade.alpha = 0f;
             StartCoroutine(StartAfterFade());
+        }
+
+        private void OnDisable()
+        {
+            GameAudioManager.Instance.StopSfxLoop(AudioId.Chopping);
+        }
+
+        private void ConfigureAudioForVisit()
+        {
+            GameAudioManager.Instance.StopBgm();
+
+            if (!Progress.IsNpcIntroduced(Day2InquiryNpc.Jiro))
+            {
+                GameAudioManager.Instance.PlaySfxLoop(AudioId.Chopping, fadeIn: 0.25f);
+                GameAudioManager.Instance.PlayBgm(AudioId.OtowaBlues, fadeIn: 0.25f);
+                return;
+            }
+
+            if (HasPendingJiroConversation())
+                GameAudioManager.Instance.PlaySfxLoop(AudioId.Chopping, fadeIn: 0.25f);
+            else
+                GameAudioManager.Instance.StopSfxLoop(AudioId.Chopping);
+        }
+
+        private static void HandleJiroStopsMusic()
+        {
+            GameAudioManager.Instance.PlaySfxOnce(AudioId.SwitchClick);
+            GameAudioManager.Instance.StopBgm(0.2f);
+        }
+
+        private static void StopChopping()
+        {
+            GameAudioManager.Instance.StopSfxLoop(AudioId.Chopping, 0.15f);
+        }
+
+        private static void ResumeChopping()
+        {
+            GameAudioManager.Instance.PlaySfxLoop(AudioId.Chopping, fadeIn: 0.15f);
         }
 
         private IEnumerator StartAfterFade()
@@ -196,6 +236,7 @@ namespace Otowa.Inquiry
             PlaySequence(BuildFestivalTopic(), () =>
             {
                 Progress.CompleteJiroFestivalTopic();
+                ResumeChopping();
                 ShowChoices();
             });
         }
@@ -241,6 +282,8 @@ namespace Otowa.Inquiry
         {
             _inputLock = true;
             HideChoices();
+            GameAudioManager.Instance.StopSfxLoop(AudioId.Chopping, 0.25f);
+            GameAudioManager.Instance.StopBgm(0.25f);
             yield return FadeTo(0f);
             Progress.RequestDay2MapSpawn("Day2 Ryotei Entrance", new Vector3(0f, -2f, 0f));
             SceneManager.LoadScene(nextSceneName);
@@ -265,7 +308,8 @@ namespace Otowa.Inquiry
             return new[]
             {
                 Rin("(What's Mr. Jiro so busy making...)"),
-                Rin("(Ah, the moment he saw me come in, he shut the music right off.)"),
+                Rin("(Ah, the moment he saw me come in, he shut the music right off.)",
+                    HandleJiroStopsMusic),
                 Rin("Good afternoon. Sorry to intrude, Mr. Jiro."),
                 Jiro("...The acting stationmaster, is it? The ryotei's closed today."),
             };
@@ -297,7 +341,8 @@ namespace Otowa.Inquiry
             {
                 Rin("Tomorrow's the Summer Festival. Is there anyone you're hoping to see at the festival, Mr. Jiro?"),
                 Jiro("...No."),
-                Jiro("I never cared for festivals to begin with. Too noisy. They set my teeth on edge."),
+                Jiro("I never cared for festivals to begin with. Too noisy. They set my teeth on edge.",
+                    StopChopping),
                 Jiro("And even if those young people come back, they wouldn't know how to appreciate traditional cooking. All they chase after is flashy nonsense."),
             };
         }
@@ -311,7 +356,11 @@ namespace Otowa.Inquiry
                 Jiro("...!"),
                 Jiro("It's nothing more than an idle pastime."),
                 Rin("(Mr. Jiro quickly covered the dango on the board with a white cloth, then turned and walked away.)",
-                    () => InspirationManager.Instance.Unlock(15)),
+                    () =>
+                    {
+                        StopChopping();
+                        InspirationManager.Instance.Unlock(15);
+                    }),
             };
         }
 

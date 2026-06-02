@@ -103854,7 +103854,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d7bd554ccebadf4c894f093181d12ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldBGM
-  bgmClip: {fileID: 8300000, guid: 592f683f3d7f6f844b528f32688975ea, type: 3}
+  bgmClip: {fileID: 8300000, guid: b3390a81308636e41b4737cf26d7fd79, type: 3}
   volume: 0.2
 --- !u!4 &1920534068
 Transform:

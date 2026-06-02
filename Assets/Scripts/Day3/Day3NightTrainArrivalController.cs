@@ -1,4 +1,5 @@
 using System.Collections;
+using Otowa.Audio;
 using Otowa.IndoorDialogue;
 using TMPro;
 using UnityEngine;
@@ -16,6 +17,13 @@ namespace Otowa.Day3
             StripLine
         }
 
+        private enum AudioCue
+        {
+            None,
+            StartEnding,
+            StopEnding
+        }
+
         private readonly struct Beat
         {
             public Beat(
@@ -26,7 +34,8 @@ namespace Otowa.Day3
                 int passengerIndex = -1,
                 bool showNamedPair = false,
                 bool clearPassengers = false,
-                bool showInspector = false)
+                bool showInspector = false,
+                AudioCue cue = AudioCue.None)
             {
                 Kind = kind;
                 Speaker = speaker;
@@ -36,6 +45,7 @@ namespace Otowa.Day3
                 ShowNamedPair = showNamedPair;
                 ClearPassengers = clearPassengers;
                 ShowInspector = showInspector;
+                Cue = cue;
             }
 
             public BeatKind Kind { get; }
@@ -46,21 +56,24 @@ namespace Otowa.Day3
             public bool ShowNamedPair { get; }
             public bool ClearPassengers { get; }
             public bool ShowInspector { get; }
+            public AudioCue Cue { get; }
         }
 
         [SerializeField] private TMP_FontAsset _font;
         [SerializeField] private float _charactersPerSecond = 38f;
         [SerializeField] private string _nextSceneName = "Day3InspectorDecision";
         [SerializeField] private float _nightStationTransitionDuration = 1.1f;
+        [SerializeField] private float _runLeadInDuration = 3f;
+        [SerializeField] private float _arrivalLeadInDuration = 3f;
 
         private static readonly Beat[] Beats =
         {
             White("Through a burst of brilliant white light, you see a train drawing near."),
             White("And then,"),
-            White("it slows to a gentle stop right in front of Otowa Station."),
+            White("It slows to a gentle stop right in front of Otowa Station."),
             White("You see young people stepping off the train one after another..."),
             Passenger("Passenger", "It's been forever since I've been back to Otowa! I had no idea there'd be a night train today.", 0),
-            Passenger("Passenger", "Look, look! This exhibition is so cool!", 1),
+            Passenger("Passenger", "Look, look! This exhibition is so cool!", 1, AudioCue.StartEnding),
             Passenger("Passenger", "It's Mr. Yuji's sake! Man, I've missed this taste.", 2),
             Passenger("Passenger", "Tomorrow I am soaking in that hot spring till I melt!", 3),
             Passenger("Passenger", "Hey there, Stationmaster! Sorry we're rolling in so late. Happy Summer Festival!", 4),
@@ -81,7 +94,7 @@ namespace Otowa.Day3
             Pair("Hachi", "Got it. Anyway, happy Summer Festival to you both!", CinematicStripPortraitFocus.SecondaryRight),
             Pair("Rin", "Same to you. Happy Summer Festival!", CinematicStripPortraitFocus.Left),
             Pair("Rin", "(They all came back... Mizuki's friend, Mr. Jiro's son. Every person the villagers longed to see, home again as if by some miracle.)", CinematicStripPortraitFocus.Left),
-            InspectorReveal("Inspector", "..."),
+            InspectorReveal("Inspector", "...", AudioCue.StopEnding),
             Keep("Rin", "Huh?!", CinematicStripPortraitFocus.Left),
         };
 
@@ -125,7 +138,11 @@ namespace Otowa.Day3
         {
             _fade.alpha = 0f;
             _background.color = Color.black;
-            yield return new WaitForSeconds(0.70f);
+            GameAudioManager.Instance.StopSfxLoop(AudioId.Wind, 0.35f);
+            GameAudioManager.Instance.PlaySfxOnce(AudioId.Run);
+            yield return new WaitForSeconds(_runLeadInDuration);
+            GameAudioManager.Instance.PlaySfxOnce(AudioId.WhistleIn);
+            yield return new WaitForSeconds(_arrivalLeadInDuration);
             yield return FadeCanvas(0f, 1f, 0.40f);
             yield return FadeBackground(Color.black, Color.white, 0.55f);
             AdvanceBeat();
@@ -155,6 +172,7 @@ namespace Otowa.Day3
         {
             _beatIndex = beatIndex;
             var beat = Beats[_beatIndex];
+            ApplyAudioCue(beat.Cue);
             _whiteNarrationRoot.SetActive(beat.Kind == BeatKind.WhiteNarration);
             _stripPlayer.SetVisible(beat.Kind == BeatKind.StripLine);
 
@@ -174,6 +192,19 @@ namespace Otowa.Day3
                 _stripPlayer.SetPassengerPortraits(_passengerPortraits[beat.PassengerIndex]);
 
             _stripPlayer.PlayLine(beat.Speaker, beat.Text, beat.Focus);
+        }
+
+        private static void ApplyAudioCue(AudioCue cue)
+        {
+            switch (cue)
+            {
+                case AudioCue.StartEnding:
+                    GameAudioManager.Instance.PlayBgm(AudioId.Ending, fadeIn: 0.75f);
+                    break;
+                case AudioCue.StopEnding:
+                    GameAudioManager.Instance.StopBgm(0.35f);
+                    break;
+            }
         }
 
         private IEnumerator TransitionToNightStation(int nextBeatIndex)
@@ -297,6 +328,17 @@ namespace Otowa.Day3
             _stripPlayer = gameObject.AddComponent<CinematicStripDialoguePlayer>();
             _stripPlayer.Initialize(canvasObject.transform, _font, _charactersPerSecond);
             _stripPlayer.SetStripBackground(LoadSprite("Exhibitions/Icons/passenger-night"));
+            _stripPlayer.SetDecorativeItemSilhouettes(new[]
+            {
+                LoadSprite("Exhibitions/Icons/guitar-14"),
+                LoadSprite("Exhibitions/Icons/sake-7"),
+                LoadSprite("Exhibitions/Icons/fan-9"),
+                LoadSprite("Exhibitions/Icons/dango-5"),
+                LoadSprite("Exhibitions/Icons/firework-10"),
+                LoadSprite("Exhibitions/Icons/painting-15"),
+                LoadSprite("Exhibitions/Icons/pot-13"),
+                LoadSprite("Exhibitions/Icons/book-12"),
+            });
             _stripPlayer.SetPortraits(_rinPortrait, null);
             _stripPlayer.SetVisible(false);
         }
@@ -368,15 +410,15 @@ namespace Otowa.Day3
         }
 
         private static Beat White(string text) => new Beat(BeatKind.WhiteNarration, "", text);
-        private static Beat Passenger(string speaker, string text, int passengerIndex) =>
-            new Beat(BeatKind.StripLine, speaker, text, CinematicStripPortraitFocus.Right, passengerIndex);
+        private static Beat Passenger(string speaker, string text, int passengerIndex, AudioCue cue = AudioCue.None) =>
+            new Beat(BeatKind.StripLine, speaker, text, CinematicStripPortraitFocus.Right, passengerIndex, cue: cue);
         private static Beat Keep(string speaker, string text, CinematicStripPortraitFocus focus) =>
             new Beat(BeatKind.StripLine, speaker, text, focus);
         private static Beat Pair(string speaker, string text, CinematicStripPortraitFocus focus) =>
             new Beat(BeatKind.StripLine, speaker, text, focus, showNamedPair: true);
         private static Beat Clear(string speaker, string text, CinematicStripPortraitFocus focus = CinematicStripPortraitFocus.None) =>
             new Beat(BeatKind.StripLine, speaker, text, focus, clearPassengers: true);
-        private static Beat InspectorReveal(string speaker, string text) =>
-            new Beat(BeatKind.StripLine, speaker, text, CinematicStripPortraitFocus.Right, showInspector: true);
+        private static Beat InspectorReveal(string speaker, string text, AudioCue cue = AudioCue.None) =>
+            new Beat(BeatKind.StripLine, speaker, text, CinematicStripPortraitFocus.Right, showInspector: true, cue: cue);
     }
 }

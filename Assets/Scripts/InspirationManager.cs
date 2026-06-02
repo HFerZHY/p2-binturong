@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using ExhibitionSystem.Data;
 using Otowa.Inquiry;
+using Otowa.Audio;
 
 /// <summary>
 /// Persistent singleton — survives scene loads via DontDestroyOnLoad.
@@ -44,8 +45,7 @@ public class InspirationManager : MonoBehaviour
         get
         {
             if (_instance != null) return _instance;
-            // Load from prefab first — lets Inspector fields (e.g. audio clips) be pre-assigned.
-            // Create the prefab via Tools → Otowa → Audio → Wire InspirationManager Audio.
+            // Load from prefab first so optional Inspector configuration is preserved.
             var prefab = Resources.Load<GameObject>("InspirationManager");
             if (prefab != null)
                 Object.Instantiate(prefab).name = "InspirationManager";
@@ -143,10 +143,6 @@ public class InspirationManager : MonoBehaviour
 
     private TMP_FontAsset _font;
 
-    [Header("Audio")]
-    [SerializeField] private AudioClip inspirationUnlockedClip;
-    private AudioSource _sfxSource;
-
     // ── Journal tab refs ──────────────────────────────────────────────────────
 
     private int         _activeTab = 1; // 0=Items, 1=Inspirations, 2=Themes
@@ -210,8 +206,6 @@ public class InspirationManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         LoadGameData();
         BuildUI();
-        _sfxSource = gameObject.AddComponent<AudioSource>();
-        _sfxSource.playOnAwake = false;
     }
 
     private void OnEnable()
@@ -286,15 +280,15 @@ public class InspirationManager : MonoBehaviour
     /// Safe to call if already unlocked — it's a no-op.
     /// Queues a toast; the first-ever unlock also shows the E-key hint.
     /// </summary>
-    public void Unlock(int id)
+    public void Unlock(int id, bool showJournalHint = true, bool playSfx = true)
     {
         if (id < 1 || id > 16 || _unlocked[id]) return;
         _unlocked[id] = true;
         RefreshEntry(id);
         _openInspirationsOnNextJournalOpen = true;
-        if (inspirationUnlockedClip != null) _sfxSource?.PlayOneShot(inspirationUnlockedClip);
+        if (playSfx) GameAudioManager.Instance.PlaySfxOnce(AudioId.InspirationUnlocked);
 
-        bool firstEver = !_introduced;
+        bool firstEver = !_introduced && showJournalHint;
         _introduced = true;
 
         _toastQueue.Enqueue(id);

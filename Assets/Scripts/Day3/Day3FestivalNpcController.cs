@@ -113,7 +113,7 @@ namespace Otowa.Day3
             {
                 Day3FestivalNpc.Junko => new List<Line>
                 {
-                    Speaker("One... two... three... You're home, children. Thank you for coming all this way."),
+                    Speaker("One... two... three... Are these the only children who came home this year...?"),
                 },
                 Day3FestivalNpc.Jiro => new List<Line>
                 {

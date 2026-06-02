@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Otowa.Audio;
 using Otowa.IndoorDialogue;
 using TMPro;
 using UnityEngine;
@@ -20,19 +21,34 @@ namespace Otowa.Day3
             RecordPopup
         }
 
+        private enum AudioCue
+        {
+            None,
+            Footsteps,
+            SwitchToNightWalk,
+            EnterOffice
+        }
+
         private struct Beat
         {
             public BeatKind Kind;
             public string Speaker;
             public string Text;
             public CinematicStripPortraitFocus Focus;
+            public AudioCue Cue;
 
-            public Beat(BeatKind kind, string speaker, string text, CinematicStripPortraitFocus focus = CinematicStripPortraitFocus.None)
+            public Beat(
+                BeatKind kind,
+                string speaker,
+                string text,
+                CinematicStripPortraitFocus focus = CinematicStripPortraitFocus.None,
+                AudioCue cue = AudioCue.None)
             {
                 Kind = kind;
                 Speaker = speaker;
                 Text = text;
                 Focus = focus;
+                Cue = cue;
             }
         }
 
@@ -82,6 +98,8 @@ namespace Otowa.Day3
 
         private IEnumerator BeginSequence()
         {
+            GameAudioManager.Instance.StopBgm();
+            GameAudioManager.Instance.PlaySfxLoop(AudioId.ForestAtmosphere, fadeIn: 0.35f);
             _canvasGroup.alpha = 0f;
             yield return FadeCanvas(0f, 1f, 0.8f);
             AdvanceBeat();
@@ -91,7 +109,8 @@ namespace Otowa.Day3
         {
             _beats.Add(new Beat(BeatKind.BlackLine, "Rin", "(...Done.)"));
             _beats.Add(new Beat(BeatKind.BlackLine, "Rin", "(That's enough for today. About time to clock out...)"));
-            _beats.Add(new Beat(BeatKind.BlackLine, "Rin", "(Huh? A passenger, at this hour?)"));
+            _beats.Add(new Beat(BeatKind.BlackLine, "Rin", "(Huh? A passenger, at this hour?)",
+                cue: AudioCue.Footsteps));
 
             _beats.Add(new Beat(BeatKind.StripLine, "???", "Hello there.", CinematicStripPortraitFocus.Right));
             _beats.Add(new Beat(BeatKind.StripLine, "???", "Hmm... let me guess. You must be Rin?", CinematicStripPortraitFocus.Right));
@@ -100,7 +119,8 @@ namespace Otowa.Day3
             _beats.Add(new Beat(BeatKind.StripLine, "???", "I'm Hikaru. Nice to finally meet you.", CinematicStripPortraitFocus.Right));
             _beats.Add(new Beat(BeatKind.StripLine, "Rin", "!", CinematicStripPortraitFocus.Left));
 
-            _beats.Add(new Beat(BeatKind.BlackLine, "", "It's Hikaru. The former stationmaster who left this whole place in my hands."));
+            _beats.Add(new Beat(BeatKind.BlackLine, "", "It's Hikaru. The former stationmaster who left this whole place in my hands.",
+                cue: AudioCue.SwitchToNightWalk));
             _beats.Add(new Beat(BeatKind.BlackLine, "", "He stands on the platform, looking around the station I've put back in order, and says nothing for a long while."));
 
             _beats.Add(new Beat(BeatKind.StripLine, "Hikaru", "...It's real.", CinematicStripPortraitFocus.Right));
@@ -126,7 +146,8 @@ namespace Otowa.Day3
             _beats.Add(new Beat(BeatKind.StripLine, "Hikaru", "R-really?", CinematicStripPortraitFocus.Right));
             _beats.Add(new Beat(BeatKind.StripLine, "Rin", "Come on, let's give the song a listen.", CinematicStripPortraitFocus.Left));
 
-            _beats.Add(new Beat(BeatKind.BlackLine, "", "You and Hikaru head back into the stationmaster's office."));
+            _beats.Add(new Beat(BeatKind.BlackLine, "", "You and Hikaru head back into the stationmaster's office.",
+                cue: AudioCue.EnterOffice));
             _beats.Add(new Beat(BeatKind.BlackLine, "", "Hikaru digs an old Walkman out of some corner and loads the Otowa Blues record into it."));
         }
 
@@ -238,6 +259,7 @@ namespace Otowa.Day3
             }
 
             var beat = _beats[_beatIndex];
+            ApplyAudioCue(beat.Cue);
             _blackNarrationRoot.SetActive(false);
             _stripPlayer.SetVisible(false);
 
@@ -281,13 +303,17 @@ namespace Otowa.Day3
 
         private void ShowRecordPopup()
         {
+            GameAudioManager.Instance.PlaySfxOnce(AudioId.Jingle);
+            GameAudioManager.Instance.StopBgm(0.35f);
+            GameAudioManager.Instance.PlaySfxLoop(AudioId.ForestAtmosphere, fadeIn: 0.35f);
+
             if (!_recordGranted)
             {
                 _recordGranted = true;
                 if (InspirationManager.Instance != null)
                 {
                     InspirationManager.Instance.CollectItem(16);
-                    InspirationManager.Instance.Unlock(9);
+                    InspirationManager.Instance.Unlock(9, showJournalHint: false, playSfx: false);
                 }
             }
 
@@ -303,8 +329,28 @@ namespace Otowa.Day3
         private IEnumerator LeaveScene()
         {
             _transitioning = true;
+            GameAudioManager.Instance.PlaySfxOnce(AudioId.SwitchClick);
+            GameAudioManager.Instance.PlayBgm(AudioId.OtowaBlues, fadeIn: 0.8f);
             yield return FadeCanvas(1f, 0f, 0.8f);
             SceneManager.LoadScene(_nextSceneName);
+        }
+
+        private static void ApplyAudioCue(AudioCue cue)
+        {
+            switch (cue)
+            {
+                case AudioCue.Footsteps:
+                    GameAudioManager.Instance.PlaySfxOnce(AudioId.LeatherFootsteps);
+                    break;
+                case AudioCue.SwitchToNightWalk:
+                    GameAudioManager.Instance.StopSfxLoop(AudioId.ForestAtmosphere, 0.35f);
+                    GameAudioManager.Instance.PlayBgm(AudioId.NightWalk, fadeIn: 0.65f);
+                    break;
+                case AudioCue.EnterOffice:
+                    GameAudioManager.Instance.StopSfxLoop(AudioId.ForestAtmosphere, 0.25f);
+                    GameAudioManager.Instance.PlaySfxOnce(AudioId.DoorOpen);
+                    break;
+            }
         }
 
         private IEnumerator FadeCanvas(float from, float to, float duration)

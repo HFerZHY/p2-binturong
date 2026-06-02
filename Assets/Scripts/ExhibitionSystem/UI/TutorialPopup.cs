@@ -309,6 +309,29 @@ namespace ExhibitionSystem.UI
 
         private static void CreateRuntimePopup(Transform parent)
         {
+            var panelObj = CreateRuntimeVisual(
+                parent,
+                out var portrait,
+                out var speakerText,
+                out var bodyText,
+                out var cg);
+
+            var popup = panelObj.AddComponent<TutorialPopup>();
+            popup._panel = panelObj;
+            popup._portraitImage = portrait;
+            popup._speakerText = speakerText;
+            popup._bodyText = bodyText;
+            popup._canvasGroup = cg;
+            popup._rinHeadSprite = portrait.sprite;
+        }
+
+        internal static GameObject CreateRuntimeVisual(
+            Transform parent,
+            out Image portrait,
+            out TextMeshProUGUI speakerText,
+            out TextMeshProUGUI bodyText,
+            out CanvasGroup canvasGroup)
+        {
             var panelObj = CreateRuntimeChild(parent, "TutorialPopup");
             var panelRt = panelObj.GetComponent<RectTransform>();
             panelRt.anchorMin = new Vector2(0.5f, 0f);
@@ -321,9 +344,9 @@ namespace ExhibitionSystem.UI
             bg.color = new Color(0.91f, 0.80f, 0.58f, 0.97f);
             bg.raycastTarget = false;
 
-            var cg = panelObj.AddComponent<CanvasGroup>();
-            cg.blocksRaycasts = false;
-            cg.interactable = false;
+            canvasGroup = panelObj.AddComponent<CanvasGroup>();
+            canvasGroup.blocksRaycasts = false;
+            canvasGroup.interactable = false;
 
             var portraitFrame = CreateRuntimeChild(panelObj.transform, "PortraitFrame");
             var portraitFrameBg = portraitFrame.AddComponent<Image>();
@@ -337,14 +360,14 @@ namespace ExhibitionSystem.UI
             portraitFrameRt.sizeDelta = new Vector2(86f, 86f);
 
             var portraitObj = CreateRuntimeChild(portraitFrame.transform, "RinPortrait");
-            var portrait = portraitObj.AddComponent<Image>();
+            portrait = portraitObj.AddComponent<Image>();
             portrait.sprite = LoadRinHeadSprite();
             portrait.color = Color.white;
             portrait.preserveAspect = true;
             portrait.raycastTarget = false;
             StretchRuntime(portraitObj.GetComponent<RectTransform>(), 5f);
 
-            var speakerText = CreateRuntimeText(panelObj.transform, "SpeakerText", "Rin", 22f, FontStyles.Bold, TextAlignmentOptions.Left);
+            speakerText = CreateRuntimeText(panelObj.transform, "SpeakerText", "Rin", 22f, FontStyles.Bold, TextAlignmentOptions.Left);
             speakerText.color = new Color(0.24f, 0.13f, 0.06f, 1f);
             var speakerRt = speakerText.GetComponent<RectTransform>();
             speakerRt.anchorMin = new Vector2(0f, 1f);
@@ -353,7 +376,7 @@ namespace ExhibitionSystem.UI
             speakerRt.offsetMin = new Vector2(122f, -42f);
             speakerRt.offsetMax = new Vector2(-24f, -14f);
 
-            var bodyText = CreateRuntimeText(
+            bodyText = CreateRuntimeText(
                 panelObj.transform,
                 "BodyText",
                 "I came up with a few exhibition themes yesterday. For now, I should choose one first.",
@@ -368,13 +391,7 @@ namespace ExhibitionSystem.UI
             bodyRt.offsetMin = new Vector2(122f, 18f);
             bodyRt.offsetMax = new Vector2(-24f, -44f);
 
-            var popup = panelObj.AddComponent<TutorialPopup>();
-            popup._panel = panelObj;
-            popup._portraitImage = portrait;
-            popup._speakerText = speakerText;
-            popup._bodyText = bodyText;
-            popup._canvasGroup = cg;
-            popup._rinHeadSprite = portrait.sprite;
+            return panelObj;
         }
 
         private static Sprite LoadRinHeadSprite()

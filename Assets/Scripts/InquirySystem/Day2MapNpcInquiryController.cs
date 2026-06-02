@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DialogueSystem.Core;
 using DialogueSystem.Data;
 using DialogueSystem.Interfaces;
+using Otowa.Audio;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -59,6 +60,7 @@ namespace Otowa.Inquiry
         {
             DialogueManager.OnActionRequested -= HandleActionRequested;
             StopWaitingForConversationEnd();
+            StopRintaroAmbient();
         }
 
         private void OnDestroy()
@@ -148,12 +150,14 @@ namespace Otowa.Inquiry
             StopWaitingForConversationEnd();
             DialogueManager.OnConversationEnded += HandleConversationEnded;
             _waitingForConversationEnd = true;
+            StartRintaroAmbient();
             DialogueManager.Instance.TriggerDialogue(graph);
         }
 
         private void HandleConversationEnded()
         {
             StopWaitingForConversationEnd();
+            StopRintaroAmbient();
             movement?.Resume();
         }
 
@@ -163,6 +167,18 @@ namespace Otowa.Inquiry
 
             DialogueManager.OnConversationEnded -= HandleConversationEnded;
             _waitingForConversationEnd = false;
+        }
+
+        private void StartRintaroAmbient()
+        {
+            if (npc == Day2InquiryNpc.Rintaro)
+                GameAudioManager.Instance.PlaySfxLoop(AudioId.ForestAtmosphere, fadeIn: 0.2f);
+        }
+
+        private void StopRintaroAmbient()
+        {
+            if (npc == Day2InquiryNpc.Rintaro)
+                GameAudioManager.Instance.StopSfxLoop(AudioId.ForestAtmosphere, 0.2f);
         }
 
         private bool HasPendingConversation()

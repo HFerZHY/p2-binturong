@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DialogueSystem.Core;
 using DialogueSystem.Data;
+using Otowa.Audio;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -61,8 +62,16 @@ namespace Otowa.Inquiry
 
             var progress = Day2InquiryProgress.Instance;
             if (progress.IsFreeExplorationUnlocked)
+            {
+                GameAudioManager.Instance.PlayBgm(
+                    AudioId.DayWalk,
+                    fadeIn: 0.35f,
+                    resumePlayback: true);
                 yield break;
+            }
 
+            GameAudioManager.Instance.StopBgm();
+            GameAudioManager.Instance.PlaySfxLoop(AudioId.ForestAtmosphere, fadeIn: 0.3f);
             _playerMovement?.SetExternalMovementLocked(true);
             DialogueManager.Instance.TriggerDialogue(BuildOpeningThoughts());
         }
@@ -157,6 +166,8 @@ namespace Otowa.Inquiry
         {
             yield return null;
 
+            GameAudioManager.Instance.PlaySfxOnce(AudioId.LeatherFootsteps);
+            GameAudioManager.Instance.PlayBgm(AudioId.Crisis, fadeIn: 0.45f);
             PositionInspectorAtViewportX(1.08f);
             SetInspectorVisible(true);
             SetInspectorAlpha(1f);
@@ -202,6 +213,8 @@ namespace Otowa.Inquiry
             SetInspectorVisible(false);
             _playerMovement?.SetExternalMovementLocked(false);
             Day2InquiryProgress.Instance.UnlockFreeExploration();
+            GameAudioManager.Instance.StopSfxLoop(AudioId.ForestAtmosphere, 0.3f);
+            GameAudioManager.Instance.PlayBgm(AudioId.DayWalk, fadeIn: 0.45f);
             InspirationManager.Instance.BeginJournalGuide(restart: true);
         }
 

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DialogueSystem.Core;
 using DialogueSystem.Data;
+using Otowa.Audio;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -71,6 +72,7 @@ namespace Otowa.Day3
             _rin = Resources.Load<Character>("Characters/Rin");
             _inspector = Resources.Load<Character>("Characters/Inspector");
             BuildLetterUi();
+            GameAudioManager.Instance.PlaySfxLoop(AudioId.Wind, fadeIn: 0.4f);
         }
 
         private void Start()
@@ -93,6 +95,7 @@ namespace Otowa.Day3
         private void OnDisable()
         {
             _playerMovement?.SetExternalMovementLocked(false);
+            GameAudioManager.Instance.StopSfxLoop(AudioId.Wind, 0.2f);
         }
 
         private IEnumerator StartWhenReady()
@@ -181,6 +184,7 @@ namespace Otowa.Day3
 
         private void RefreshLetterPage()
         {
+            GameAudioManager.Instance.PlaySfxOnce(AudioId.PageTurn);
             _letterBody.text = LetterPages[_letterPageIndex];
             _letterPage.text = $"{_letterPageIndex + 1}  /  {LetterPages.Length}";
         }
@@ -189,6 +193,8 @@ namespace Otowa.Day3
         {
             _letterActive = false;
             _letterCanvas.SetActive(false);
+            GameAudioManager.Instance.StopSfxLoop(AudioId.Wind, 0.35f);
+            GameAudioManager.Instance.PlayBgm(AudioId.Ending, fadeIn: 0.75f);
             DialogueManager.Instance.TriggerDialogue(BuildEndingGraph());
         }
 

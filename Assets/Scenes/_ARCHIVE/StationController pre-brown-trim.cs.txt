@@ -13,7 +13,8 @@ using Otowa.IndoorDialogue;
 namespace Otowa.Intro
 {
     /// <summary>
-    /// Scene 3 (Intro-3): stationmaster's office discovery and Hikaru's letter.
+    /// Scene 3 (Intro-3): stationmaster's office discovery, Hikaru's letter,
+    /// inventory reveal, and first inspector encounter.
     ///
     /// Setup: empty scene → empty GameObject → attach this script.
     /// Inspector fields: nextSceneName = "SampleScene", assign serifFont + handwrittenFont.
@@ -102,7 +103,7 @@ namespace Otowa.Intro
 
         // ── Colours ───────────────────────────────────────────────────────────
 
-        private static readonly Color NarBg     = new Color32(0x2a, 0x22, 0x18, 0xFF);
+        private static readonly Color NarBg     = new Color32(0x05, 0x18, 0x20, 0xFF);
         private static readonly Color LetterBg  = new Color32(0x2a, 0x22, 0x18, 0xFF);
         private static readonly Color DlgBg     = new Color32(0x07, 0x18, 0x20, 0xFF);
         private static readonly Color PanelBg   = new Color32(0x04, 0x10, 0x16, 0xEE);
@@ -297,8 +298,8 @@ namespace Otowa.Intro
         {
             _bgImage.color     = NarBg;
             _narPanel.SetActive(true);
-            _narText.color     = BodyC;
-            _narText.fontStyle = FontStyles.Normal;
+            _narText.color     = b.IsThought ? ThoughtC : BodyC;
+            _narText.fontStyle = b.IsThought ? FontStyles.Italic : FontStyles.Normal;
             _textPlayer.Play(_narText, b.Text);
         }
 
@@ -373,15 +374,6 @@ namespace Otowa.Intro
         private IEnumerator FadeAndLoad()
         {
             _inputLock = true;
-            _textPlayer.Cancel();
-            SetPrompt(false);
-            ClearText(_narText);
-            ClearText(_ltTitle);
-            ClearText(_ltBody);
-            ClearText(_ltPageNum);
-            ClearText(_speakerTmp);
-            ClearText(_bodyTmp);
-            yield return new WaitForSeconds(1.5f);
             yield return StartCoroutine(FadeTo(0f));
             SceneManager.LoadScene(nextSceneName);
         }
@@ -493,10 +485,10 @@ namespace Otowa.Intro
             _narPanel = MakeRect(cv, "NarPanel", Vector2.zero, Vector2.one);
 
             _narText = MakeTMP(_narPanel.transform, "NarText", "",
-                36f, BodyC, TextAlignmentOptions.Center,
+                36f, ThoughtC, TextAlignmentOptions.Center,
                 new Vector2(0.18f, 0.32f), new Vector2(0.82f, 0.68f));
             _narText.lineSpacing = 8f;
-            _narText.fontStyle   = FontStyles.Normal;
+            _narText.fontStyle   = FontStyles.Italic;
             UseFont(_narText, serifFont);
 
             _narPanel.SetActive(false);
@@ -812,11 +804,11 @@ namespace Otowa.Intro
             _beats = new List<Beat>
             {
                 // ── Phase 1: stationmaster's office thoughts ──────────────────
-                N(false, "Is this the stationmaster's office... It's way too messy."),
-                N(false, "Wooden boards, boxes, and this pile of weird stuff..."),
-                N(false, "Binoculars... stones... why is there even a jug of liquor?"),
-                N(false, "There's a letter??"),
-                N(false, "\"Hi Rin,\" looks like it's for me."),
+                N(true, "(Is this the stationmaster's office... It's way too messy.)"),
+                N(true, "(Wooden boards, boxes, and this pile of weird stuff...)"),
+                N(true, "(Binoculars... stones... why is there even a jug of liquor?)"),
+                N(true, "(There's a letter??)"),
+                N(true, "(\"Hi Rin,\" looks like it's for me.)"),
 
                 // ── Phase 2: Hikaru's letter (5 pages) ───────────────────────
                 L(1,
@@ -852,10 +844,51 @@ namespace Otowa.Intro
                     "— Full of anticipation,\n   Hikaru."),
 
                 // ── Phase 3: post-letter thoughts ─────────────────────────────
-                N(false, "...A \"brilliant idea,\" huh."),
-                N(false, "Piling all these things haphazardly on the floor is called hoarding, not curating, Stationmaster Hikaru."),
-                N(false, "So the so-called \"challenge\" is just cleaning up this stationmaster's mess."),
-                N(false, "Still, turning the station into a little museum is an interesting idea. Let me think about how to approach it..."),
+                N(true, "(Piling all these things haphazardly on the floor is called hoarding, not curating, Stationmaster Hikaru.)"),
+                N(true, "(So the so-called \"challenge\" is just cleaning up this stationmaster's mess.)"),
+                N(true, "(Still, making a country station a little more interesting... sounds a lot easier than writing code in an office building.)"),
+
+                // ── Phase 4: inventory reveal ─────────────────────────────────
+                new Beat { Kind = BeatKind.Inventory },
+
+                // ── Phase 5: voice from outside ───────────────────────────────
+                N(false, "...Excuse me."),
+
+                // ── Phase 6: inspector encounter ──────────────────────────────
+                D("Rin",       false, "Ah, hello!"),
+                D("???",       false, "Are you an employee here? Where is Stationmaster Hikaru?"),
+                D("Rin",       false, "I'm the newly arrived acting stationmaster, Rin. Mr. Hikaru has temporarily left, so I am in charge for the next few days."),
+                D("???",       false, "Acting? The railway company hasn't received any notification of such a personnel change. Whatever, I am here for a follow-up review."),
+                D("Inspector", false, "Have there been any substantive changes in the village? A commercial plan, or new development projects."),
+                D("Rin",       true,  "(I haven't even been off the train for an hour. How would I know?)"),
+                D("Rin",       false, "Mr. Hikaru is planning to transform this place into a museum to showcase Otowa's unique features. Look at these…"),
+                D("Inspector", false, "A museum?"),
+                D("Inspector", false, "I only see a floor full of garbage and extremely poor work efficiency."),
+
+                // ── Branch: Rin's response to the inspector's dismissal ───────
+                B("branch_insp",
+                    C("Y-Yes, sir. I understand your concerns completely.", "kiss_01"),
+                    C("These haven't been set up yet. With a little planning—", "direct_01")
+                ),
+
+                // Kiss-up path
+                D("Rin",       false, "Y-You're absolutely right, sir. The current state is... not ideal. We take your evaluation very seriously.",          id: "kiss_01"),
+                D("Rin",       true,  "(That was painful to say. But maybe it helps.)"),
+                D("Inspector", false, "...At least you have the sense to acknowledge it. Most stations in this condition try to make excuses.",              jump: "merge_insp"),
+
+                // Direct / confrontational path
+                D("Rin",       false, "These haven't been set up yet. With just a little bit of planning...",                                               id: "direct_01"),
+                D("Inspector", false, "I do not need to hear unrealistic plans, Stationmaster Rin. The railway company only looks at data and results."),
+                D("Inspector", false, "It seems this place is just as worthless as it was during the last evaluation."),
+                D("Rin",       false, "You've already reached a conclusion?"),
+                D("Inspector", false, "I reach conclusions based on evidence. I suggest you spend less time arguing and more time preparing something presentable."),
+
+                // ── All paths converge ────────────────────────────────────────
+                D("Inspector", false, "Let's hope that before I finish writing my report, you can present something a bit more convincing.", id: "merge_insp"),
+                new Beat { Kind = BeatKind.Dialogue, Speaker = "Inspector", Text = "Goodbye.", HidesRightChar = true },
+                D("Rin",       true,  "(He really just left...)"),
+                D("Rin",       true,  "(Wait — evaluation report. What happens if we fail?)"),
+                D("Rin",       true,  "(Hikaru, just how big of a mess have you dumped on me?)"),
             };
         }
     }

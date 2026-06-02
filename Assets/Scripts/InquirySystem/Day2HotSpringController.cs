@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Otowa.Audio;
 using Otowa.IndoorDialogue;
 using TMPro;
 using UnityEngine;
@@ -88,6 +89,7 @@ namespace Otowa.Inquiry
 
         private void Start()
         {
+            GameAudioManager.Instance.PlayBgm(AudioId.HotSpring, fadeIn: 0.35f);
             _fade.alpha = 0f;
             StartCoroutine(StartAfterFade());
         }
@@ -349,6 +351,7 @@ namespace Otowa.Inquiry
         {
             _inputLock = true;
             HideChoices();
+            GameAudioManager.Instance.StopBgm(0.25f);
             yield return FadeTo(0f);
             Progress.RequestDay2MapSpawn("Day2 HotSpring Entrance", new Vector3(0f, -2f, 0f));
             SceneManager.LoadScene(nextSceneName);
@@ -455,7 +458,7 @@ namespace Otowa.Inquiry
                 Mizuki("Then... how about the tri-colored dango? Or the octopus pot. They're both things of Otowa."),
                 Rin("Mm... but those are already in the exhibition."),
                 Mizuki("...I see."),
-                Mizuki("Rin..."),
+                Mizuki("Rin...", () => GameAudioManager.Instance.PlaySfxOnce(AudioId.RunningWater)),
                 Mizuki("Tell me... what kind of Otowa would people in the city want to see?"),
                 Rin("Mm... I think maybe everyone holds their own Otowa in their heart."),
                 Rin("There's no single answer. As long as it shows a true voice, it's bound to strike a chord."),

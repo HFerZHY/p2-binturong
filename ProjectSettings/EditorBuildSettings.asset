@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/StartMenu.unity
+    guid: c1389807cebf20542bc4ade3bfd9e5ad
+  - enabled: 1
     path: Assets/Scenes/Intro-1  (START).unity
     guid: 65901290f6913ae4f8976405bca842fb
   - enabled: 1
@@ -23,6 +26,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ExhibitionDay3Scene.unity
     guid: 363d8f571c3bec64ca14efe6eb64b65e
+  - enabled: 1
+    path: Assets/Scenes/ExhibitionDay1Scene.unity
+    guid: ec7a0a922fd46f44e9fd5abc5777e929
   - enabled: 1
     path: Assets/Scenes/Day1World.unity
     guid: 3d731d0c9198412e8f65be6ec9eced7e
@@ -53,6 +59,24 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TutorialToRyotei.unity
     guid: 7b3f5484ddb1949469c2e8dc2e784590
+  - enabled: 1
+    path: Assets/Scenes/Day3HikaruArrival.unity
+    guid: f6935cf4652684549b4a2857c3340b2b
+  - enabled: 1
+    path: Assets/Scenes/Day3OtowaBluesMontage.unity
+    guid: 9acb7d0b738363247b744e1eea848448
+  - enabled: 1
+    path: Assets/Scenes/Day3SummerFestivalSquare.unity
+    guid: 7c796571bf42c174aa7e81458535f7c2
+  - enabled: 1
+    path: Assets/Scenes/Day3NightTrainArrival.unity
+    guid: b4671eabffa67d44e8f176ada433ce71
+  - enabled: 1
+    path: Assets/Scenes/Day3InspectorDecision.unity
+    guid: eebe6a65ab5c3964aa34919a97a6a1b7
+  - enabled: 1
+    path: Assets/Scenes/Day3FinaleCredits.unity
+    guid: 79f38a660263d614487d27f3f732e7f6
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: f4a05da1226d4a64a838972dcc4ee5fb, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

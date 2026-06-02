@@ -148,16 +148,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13b333ce8e2627148be9e49f4e21c62c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Otowa.Intro.StationController
-  nextSceneName: TutorialToRyotei
+  nextSceneName: ExhibitionDay1Scene
   typewriterSpeed: 35
   fadeDuration: 0.35
   serifFont: {fileID: 11400000, guid: 54036173aebd7d44fb3a89ffdef22447, type: 2}
   handwrittenFont: {fileID: 11400000, guid: c10b37ce001875946b8b41cb884463bd, type: 2}
   rinSprite: {fileID: -6861016282177217685, guid: a9ebed865be1ceb4db74f4cf28c853fa, type: 3}
   inspectorSprite: {fileID: -9028713461958575385, guid: dc32d6ccecc457f46bc49e8692c461ca, type: 3}
-  ambientClip: {fileID: 8300000, guid: cc73977a828cb34418e0dae3ffddbf36, type: 3}
-  doorOpenClip: {fileID: 8300000, guid: c66f80f449521994aa82863e4077a9b3, type: 3}
-  pageTurnClip: {fileID: 8300000, guid: fef405d763192834b897f4f2250d3db6, type: 3}
+  ambientClip: {fileID: 8300000, guid: e74f464f55f3308458f93a8bca752189, type: 3}
+  doorOpenClip: {fileID: 8300000, guid: 04d56bd504ab38c4582c7b8aad3ac91b, type: 3}
+  pageTurnClip: {fileID: 8300000, guid: 079c470051ace7d4ca07f2ad25c98818, type: 3}
   musicVolume: 0.225
 --- !u!4 &701008782
 Transform:

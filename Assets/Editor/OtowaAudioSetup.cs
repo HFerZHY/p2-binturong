@@ -10,6 +10,7 @@ using Otowa.Intro;
 /// </summary>
 public static class OtowaAudioSetup
 {
+    private const string MUSIC = "Assets/Audio/Music/";
     private const string SFX = "Assets/Audio/SoundEffects/";
 
     // ── Per-scene wiring ──────────────────────────────────────────────────────
@@ -17,11 +18,11 @@ public static class OtowaAudioSetup
     [MenuItem("Tools/Otowa/Audio/Wire Intro-1 Audio (IntroController)")]
     public static void WireIntro1()
     {
-        var ctrl = Object.FindObjectOfType<IntroController>();
+        var ctrl = GameObject.Find("IntroController")?.GetComponent<IntroController>();
         if (ctrl == null) { Warn("IntroController", "Intro-1"); return; }
 
         var so = new SerializedObject(ctrl);
-        Assign(so, "ambientClip",    SFX + "wind rustling through leaves.mp3");
+        Assign(so, "ambientClip", SFX + "forest-atmosphere.mp3");
         so.ApplyModifiedProperties();
         EditorUtility.SetDirty(ctrl);
         SaveScene();
@@ -32,12 +33,12 @@ public static class OtowaAudioSetup
     [MenuItem("Tools/Otowa/Audio/Wire Intro-3 Audio (StationController)")]
     public static void WireIntro3()
     {
-        var ctrl = Object.FindObjectOfType<StationController>();
+        var ctrl = Object.FindFirstObjectByType<StationController>();
         if (ctrl == null) { Warn("StationController", "Intro-3"); return; }
 
         var so = new SerializedObject(ctrl);
         Assign(so, "ambientClip",  SFX + "faint insect chirp.mp3");
-        Assign(so, "doorOpenClip", SFX + "wooden door open.mp3");
+        Assign(so, "doorOpenClip", SFX + "door open.mp3");
         Assign(so, "pageTurnClip", SFX + "page turn.mp3");
         so.ApplyModifiedProperties();
         EditorUtility.SetDirty(ctrl);
@@ -46,18 +47,18 @@ public static class OtowaAudioSetup
         EditorUtility.DisplayDialog("Done",
             "Intro-3 audio clips assigned:\n" +
             "• Ambient: faint insect chirp\n" +
-            "• Door open: wooden door open\n" +
+            "• Door open: door open\n" +
             "• Page turn: page turn", "OK");
     }
 
     [MenuItem("Tools/Otowa/Audio/Wire Intro-5 Audio (RyoteiController)")]
     public static void WireIntro5()
     {
-        var ctrl = Object.FindObjectOfType<RyoteiController>();
+        var ctrl = Object.FindFirstObjectByType<RyoteiController>();
         if (ctrl == null) { Warn("RyoteiController", "Intro-5"); return; }
 
         var so = new SerializedObject(ctrl);
-        Assign(so, "bgmClip",          SFX + "distant birdsong.mp3");
+        Assign(so, "bgmClip",          MUSIC + "ryotei.mp3");
         Assign(so, "drinkPourClip",    SFX + "drink pour.mp3");
         Assign(so, "glassesToastClip", SFX + "glasses toast.mp3");
         so.ApplyModifiedProperties();
@@ -66,7 +67,7 @@ public static class OtowaAudioSetup
         Debug.Log("[OtowaAudioSetup] Intro-5 audio wired.");
         EditorUtility.DisplayDialog("Done",
             "Intro-5 audio clips assigned:\n" +
-            "• BGM: distant birdsong\n" +
+            "• BGM: ryotei\n" +
             "• Drink pour: drink pour\n" +
             "• Glasses toast: glasses toast", "OK");
     }
@@ -76,7 +77,7 @@ public static class OtowaAudioSetup
     [MenuItem("Tools/Otowa/Audio/Wire Day1World Audio (WorldBGM)")]
     public static void WireDay1World()
     {
-        var ctrl = Object.FindObjectOfType<WorldBGM>();
+        var ctrl = Object.FindFirstObjectByType<WorldBGM>();
         if (ctrl == null)
         {
             EditorUtility.DisplayDialog("Not Found",
@@ -86,12 +87,12 @@ public static class OtowaAudioSetup
         }
 
         var so = new SerializedObject(ctrl);
-        Assign(so, "bgmClip", SFX + "Blues beat.mp3");
+        Assign(so, "bgmClip", MUSIC + "day-walk.mp3");
         so.ApplyModifiedProperties();
         EditorUtility.SetDirty(ctrl);
         SaveScene();
         Debug.Log("[OtowaAudioSetup] Day1World audio wired.");
-        EditorUtility.DisplayDialog("Done", "Day1World BGM assigned:\n• Blues beat.mp3", "OK");
+        EditorUtility.DisplayDialog("Done", "Day1World BGM assigned:\n• day-walk.mp3", "OK");
     }
 
     // ── InspirationManager prefab ─────────────────────────────────────────────
@@ -115,43 +116,40 @@ public static class OtowaAudioSetup
             Object.DestroyImmediate(temp);
         }
 
-        var so = new SerializedObject(existing.GetComponent<InspirationManager>());
-        Assign(so, "inspirationUnlockedClip", SFX + "inspiration unlocked short.mp3");
-        so.ApplyModifiedProperties();
-        EditorUtility.SetDirty(existing);
+        GameAudioCatalogBuilder.RebuildCatalog();
         AssetDatabase.SaveAssets();
 
-        Debug.Log("[OtowaAudioSetup] InspirationManager prefab wired.");
+        Debug.Log("[OtowaAudioSetup] InspirationManager prefab ensured and centralized audio catalog rebuilt.");
         EditorUtility.DisplayDialog("Done",
-            "InspirationManager prefab created/updated at:\n" +
+            "InspirationManager prefab is available at:\n" +
             "Assets/Resources/InspirationManager.prefab\n\n" +
-            "• Inspiration unlocked SFX: inspiration unlocked.mp3", "OK");
+            "The centralized game audio catalog has been rebuilt.", "OK");
     }
 
     // ── Batch ─────────────────────────────────────────────────────────────────
 
-    [MenuItem("Tools/Otowa/Audio/Wire All Intro Scenes")]
+    [MenuItem("Tools/Otowa/Audio/Wire All Known Audio References")]
     public static void WireAll()
     {
         var originalScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().path;
 
-        WireScene("Assets/Scenes/Intro-1.unity", () =>
+        WireScene("Assets/Scenes/Intro-1  (START).unity", () =>
         {
-            var c = Object.FindObjectOfType<IntroController>();
+            var c = GameObject.Find("IntroController")?.GetComponent<IntroController>();
             if (c == null) return;
             var so = new SerializedObject(c);
-            Assign(so, "ambientClip", SFX + "wind rustling through leaves.mp3");
+            Assign(so, "ambientClip", SFX + "forest-atmosphere.mp3");
             so.ApplyModifiedProperties();
             EditorUtility.SetDirty(c);
         });
 
         WireScene("Assets/Scenes/Intro-3.unity", () =>
         {
-            var c = Object.FindObjectOfType<StationController>();
+            var c = Object.FindFirstObjectByType<StationController>();
             if (c == null) return;
             var so = new SerializedObject(c);
             Assign(so, "ambientClip",  SFX + "faint insect chirp.mp3");
-            Assign(so, "doorOpenClip", SFX + "wooden door open.mp3");
+            Assign(so, "doorOpenClip", SFX + "door open.mp3");
             Assign(so, "pageTurnClip", SFX + "page turn.mp3");
             so.ApplyModifiedProperties();
             EditorUtility.SetDirty(c);
@@ -159,12 +157,22 @@ public static class OtowaAudioSetup
 
         WireScene("Assets/Scenes/Intro-5.unity", () =>
         {
-            var c = Object.FindObjectOfType<RyoteiController>();
+            var c = Object.FindFirstObjectByType<RyoteiController>();
             if (c == null) return;
             var so = new SerializedObject(c);
-            Assign(so, "bgmClip",          SFX + "distant birdsong.mp3");
+            Assign(so, "bgmClip",          MUSIC + "ryotei.mp3");
             Assign(so, "drinkPourClip",    SFX + "drink pour.mp3");
             Assign(so, "glassesToastClip", SFX + "glasses toast.mp3");
+            so.ApplyModifiedProperties();
+            EditorUtility.SetDirty(c);
+        });
+
+        WireScene("Assets/Scenes/Day1World.unity", () =>
+        {
+            var c = Object.FindFirstObjectByType<WorldBGM>();
+            if (c == null) return;
+            var so = new SerializedObject(c);
+            Assign(so, "bgmClip", MUSIC + "day-walk.mp3");
             so.ApplyModifiedProperties();
             EditorUtility.SetDirty(c);
         });
@@ -175,9 +183,9 @@ public static class OtowaAudioSetup
         WireInspirationManager();
 
         AssetDatabase.SaveAssets();
-        Debug.Log("[OtowaAudioSetup] All intro scenes wired.");
+        Debug.Log("[OtowaAudioSetup] All known audio references wired.");
         EditorUtility.DisplayDialog("Done",
-            "Audio wired in:\n• Intro-1\n• Intro-3\n• Intro-5\n• InspirationManager prefab\n\nReturned to original scene.", "OK");
+            "Audio wired in:\n• Intro-1\n• Intro-3\n• Intro-5\n• Day1World\n• InspirationManager prefab and centralized catalog\n\nReturned to original scene.", "OK");
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

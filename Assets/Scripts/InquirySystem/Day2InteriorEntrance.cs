@@ -1,4 +1,5 @@
 using DialogueSystem.Interfaces;
+using Otowa.Audio;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -33,6 +34,7 @@ namespace Otowa.Inquiry
                 return;
 
             _loading = true;
+            GameAudioManager.Instance.StopBgm(0.25f, savePosition: true);
             SceneManager.LoadScene(sceneName);
         }
     }

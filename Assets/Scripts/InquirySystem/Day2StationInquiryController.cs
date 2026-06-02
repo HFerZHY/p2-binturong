@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using DialogueSystem.Core;
 using DialogueSystem.Data;
 using DialogueSystem.Interfaces;
+using Otowa.Audio;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -69,7 +70,10 @@ namespace Otowa.Inquiry
         private void HandleActionRequested(string actionKey)
         {
             if (actionKey == RestActionKey)
+            {
+                GameAudioManager.Instance.StopBgm(0.35f);
                 SceneManager.LoadScene(day2EndSceneName);
+            }
         }
     }
 }

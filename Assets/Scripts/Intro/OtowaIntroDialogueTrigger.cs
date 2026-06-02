@@ -1,9 +1,11 @@
+using System.Collections;
 using System.Collections.Generic;
 using DialogueSystem.Core;
 using DialogueSystem.Data;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace Otowa.Intro
 {
@@ -18,14 +20,49 @@ namespace Otowa.Intro
     {
         [SerializeField] private bool autoTriggerOnStart = true;
         [SerializeField] private string nextSceneName = "Intro-3";
+        [SerializeField] private float junkoWalkSpeed = 2.6f;
+        [SerializeField] private float departurePause = 0.15f;
+        [SerializeField] private float fadeDuration = 0.65f;
 
         private Character _junko;
         private Character _rin;
+        private GameObject _junkoObject;
+        private NPCMovement _junkoMovement;
+        private Animator _junkoAnimator;
+        private Rigidbody2D _junkoBody;
+        private PlayerMovement _playerMovement;
+        private CanvasGroup _fadeOverlay;
+        private bool _endingSequenceStarted;
+
+        private void Awake()
+        {
+            _junkoObject = GameObject.Find("Junko");
+            if (_junkoObject != null)
+            {
+                _junkoMovement = _junkoObject.GetComponent<NPCMovement>();
+                _junkoAnimator = _junkoObject.GetComponentInChildren<Animator>(true);
+                _junkoBody = _junkoObject.GetComponent<Rigidbody2D>();
+            }
+
+            var player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+                _playerMovement = player.GetComponent<PlayerMovement>();
+
+            BuildFadeOverlay();
+        }
 
         private void Start()
         {
+            _junkoMovement?.Pause();
+
             if (autoTriggerOnStart)
                 TriggerIntroDialogue();
+        }
+
+        private void OnDisable()
+        {
+            DialogueManager.OnConversationEnded -= HandleConversationEnded;
+            DialogueManager.OnConversationEnded -= HandleClosingThoughtEnded;
         }
 
         public void TriggerIntroDialogue()
@@ -51,8 +88,148 @@ namespace Otowa.Intro
         private void HandleConversationEnded()
         {
             DialogueManager.OnConversationEnded -= HandleConversationEnded;
+
+            if (_endingSequenceStarted)
+                return;
+
+            _endingSequenceStarted = true;
+            _playerMovement?.SetExternalMovementLocked(true);
+            StartCoroutine(RunJunkoDeparture());
+        }
+
+        private IEnumerator RunJunkoDeparture()
+        {
+            yield return null;
+
+            _junkoMovement?.Pause();
+            FaceJunkoRight();
+            yield return MoveJunkoTo(GetViewportWorldX(1.12f));
+
+            if (_junkoObject != null)
+                _junkoObject.SetActive(false);
+
+            yield return new WaitForSeconds(departurePause);
+
+            if (DialogueManager.Instance == null)
+                yield break;
+
+            DialogueManager.OnConversationEnded += HandleClosingThoughtEnded;
+            DialogueManager.Instance.TriggerDialogue(BuildClosingThoughtGraph());
+        }
+
+        private IEnumerator MoveJunkoTo(float targetX)
+        {
+            if (_junkoObject == null)
+                yield break;
+
+            SetJunkoMoving(true);
+            FaceJunkoRight();
+
+            while (Mathf.Abs(_junkoObject.transform.position.x - targetX) > 0.04f)
+            {
+                var position = _junkoObject.transform.position;
+                position.x = Mathf.MoveTowards(position.x, targetX, junkoWalkSpeed * Time.deltaTime);
+                SetJunkoPosition(position);
+                FaceJunkoRight();
+                yield return null;
+            }
+
+            var finalPosition = _junkoObject.transform.position;
+            finalPosition.x = targetX;
+            SetJunkoPosition(finalPosition);
+            SetJunkoMoving(false);
+        }
+
+        private void HandleClosingThoughtEnded()
+        {
+            DialogueManager.OnConversationEnded -= HandleClosingThoughtEnded;
+            StartCoroutine(FadeAndLoadNextScene());
+        }
+
+        private IEnumerator FadeAndLoadNextScene()
+        {
+            if (_fadeOverlay != null)
+            {
+                _fadeOverlay.blocksRaycasts = true;
+
+                float elapsed = 0f;
+                while (elapsed < fadeDuration)
+                {
+                    elapsed += Time.deltaTime;
+                    _fadeOverlay.alpha = Mathf.Clamp01(elapsed / fadeDuration);
+                    yield return null;
+                }
+
+                _fadeOverlay.alpha = 1f;
+            }
+
             if (!string.IsNullOrEmpty(nextSceneName))
                 SceneManager.LoadScene(nextSceneName);
+        }
+
+        private void SetJunkoPosition(Vector3 position)
+        {
+            if (_junkoObject == null)
+                return;
+
+            _junkoObject.transform.position = position;
+            if (_junkoBody != null)
+                _junkoBody.position = position;
+        }
+
+        private void SetJunkoMoving(bool moving)
+        {
+            if (_junkoAnimator != null)
+                _junkoAnimator.SetBool("isMoving", moving);
+        }
+
+        private void FaceJunkoRight()
+        {
+            if (_junkoObject == null)
+                return;
+
+            var scale = _junkoObject.transform.localScale;
+            scale.x = Mathf.Abs(scale.x);
+            _junkoObject.transform.localScale = scale;
+        }
+
+        private static float GetViewportWorldX(float viewportX)
+        {
+            var camera = Camera.main;
+            if (camera == null)
+                return viewportX > 1f ? 10f : 4f;
+
+            float depth = Mathf.Abs(camera.transform.position.z);
+            return camera.ViewportToWorldPoint(new Vector3(viewportX, 0.5f, depth)).x;
+        }
+
+        private void BuildFadeOverlay()
+        {
+            var canvasObject = new GameObject(
+                "Intro2FadeCanvas",
+                typeof(Canvas),
+                typeof(CanvasScaler),
+                typeof(CanvasGroup));
+            canvasObject.transform.SetParent(transform, false);
+
+            var canvas = canvasObject.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 1000;
+
+            _fadeOverlay = canvasObject.GetComponent<CanvasGroup>();
+            _fadeOverlay.alpha = 0f;
+            _fadeOverlay.blocksRaycasts = false;
+
+            var imageObject = new GameObject("Fade", typeof(RectTransform), typeof(Image));
+            imageObject.transform.SetParent(canvasObject.transform, false);
+
+            var rectTransform = imageObject.GetComponent<RectTransform>();
+            rectTransform.anchorMin = Vector2.zero;
+            rectTransform.anchorMax = Vector2.one;
+            rectTransform.offsetMin = Vector2.zero;
+            rectTransform.offsetMax = Vector2.zero;
+
+            imageObject.GetComponent<Image>().color = Color.black;
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────
@@ -156,6 +333,26 @@ namespace Otowa.Intro
                 Line("final_01", "Junko", "Well then, I will leave the stationmaster's office key with you. You can go settle in first. See you tonight.", "final_02"),
                 Line("final_02", "Rin",   "Alright, see you tonight.", "end"),
 
+                Terminal(),
+            };
+
+            graph.BuildLookup();
+            return graph;
+        }
+
+        private DialogueGraph BuildClosingThoughtGraph()
+        {
+            var graph = ScriptableObject.CreateInstance<DialogueGraph>();
+            graph.name = "OtowaIntroClosingThought";
+            graph.hideFlags = HideFlags.HideAndDontSave;
+            graph.entryNodeId = "line_01";
+            graph.nodes = new List<DialogueNode>
+            {
+                Line(
+                    "line_01",
+                    "Rin",
+                    "(Anyway, I should head into the stationmaster's office and take a look.)",
+                    "end"),
                 Terminal(),
             };
 

@@ -1,4 +1,5 @@
 using System.Collections;
+using Otowa.Audio;
 using Otowa.IndoorDialogue;
 using TMPro;
 using UnityEngine;
@@ -18,18 +19,31 @@ namespace Otowa.Day3
             Black
         }
 
+        private enum AudioCue
+        {
+            None,
+            StartTrain,
+            LowerBgm,
+            LowerBgmAgain,
+            StopBgm,
+            StartSnoring,
+            StopSnoring
+        }
+
         private readonly struct Beat
         {
-            public Beat(BeatPhase phase, string text, bool pauseBefore = false)
+            public Beat(BeatPhase phase, string text, bool pauseBefore = false, AudioCue cue = AudioCue.None)
             {
                 Phase = phase;
                 Text = text;
                 PauseBefore = pauseBefore;
+                Cue = cue;
             }
 
             public BeatPhase Phase { get; }
             public string Text { get; }
             public bool PauseBefore { get; }
+            public AudioCue Cue { get; }
         }
 
         [SerializeField] private TMP_FontAsset _serifFont;
@@ -59,19 +73,21 @@ namespace Otowa.Day3
             Indigo("You remember the last day of summer break, saying goodbye to your grandparents in tears."),
             Indigo("On the train back to the city, the Milky Way overhead had never burned so bright."),
             Indigo("The blue mountains slipped away behind you, and never had you longed so badly for that blue world."),
-            DeepBlue("Beyond the window, a train rolls slowly past. The passengers hear the music, too."),
+            DeepBlue("Beyond the window, a train rolls slowly past. The passengers hear the music, too.", AudioCue.StartTrain),
             DeepBlue("You see them. Some holding up their phones. Some with their eyes closed. Some waving hard, saying goodbye to you."),
-            DarkBlue("With the blues still playing, you tell Hikaru about the Inspector, and how the station might be shut down."),
+            DarkBlue("With the blues still playing, you tell Hikaru about the Inspector, and how the station might be shut down.", AudioCue.LowerBgm),
             DarkBlue("Hikaru curls up in the corner of the room, silent, like a child who knows he's done something wrong."),
             DarkBlue("You try to comfort him. No news is good news, you tell him. Things can still turn around."),
             DarkBlue("Then you wait. A long time."),
             DarkBlue("Then the last train pulls away. Only a handful of people step off and head into the village."),
-            Black("Night falls, and still the Inspector never comes to deliver his final verdict."),
-            Black("No miracle came."),
+            Black("Night falls, and still the Inspector never comes to deliver his final verdict.", cue: AudioCue.LowerBgmAgain),
+            Black("No miracle came.", cue: AudioCue.StopBgm),
             Black("So this really is a lonely Summer Festival. This really is Otowa Station's last night."),
-            Black("Hikaru has fallen asleep at the desk, and you watch two trails of tears slide down his round face."),
-            Black("Well then. Time to go check on the villagers in the square.", pauseBefore: true),
-            Black("You drape a coat over Hikaru, then quietly pull the office door shut behind you."),
+            Black("Hikaru has fallen asleep at the desk, and you watch two trails of tears slide down his round face.", cue: AudioCue.StartSnoring),
+            Black("But what can you do?", pauseBefore: true),
+            Black("It is, after all, the night of the Summer Festival. You can go and see the villagers."),
+            Black("You needn't tell them the bad news. You only need to comfort them."),
+            Black("You drape a coat over Hikaru, then quietly pull the office door shut behind you.", cue: AudioCue.StopSnoring),
         };
 
         private CanvasGroup _fade;
@@ -96,6 +112,7 @@ namespace Otowa.Day3
 
         private void Start()
         {
+            GameAudioManager.Instance.PlayBgm(AudioId.OtowaBlues, fadeIn: 0.5f);
             _fade.alpha = 0f;
             StartParticles();
             StartCoroutine(BeginSequence());
@@ -135,6 +152,7 @@ namespace Otowa.Day3
         private void ShowBeat(int index)
         {
             _beatIndex = index;
+            ApplyAudioCue(Beats[index].Cue);
             _background.color = BackgroundFor(Beats[index].Phase);
             if (Beats[index].Phase == BeatPhase.Black)
                 StopParticles();
@@ -176,8 +194,37 @@ namespace Otowa.Day3
 
             _loadingScene = true;
             _inputLock = true;
+            GameAudioManager.Instance.StopSfxLoop(AudioId.OnTheTrain, 0.2f);
+            GameAudioManager.Instance.StopSfxLoop(AudioId.Snoring, 0.2f);
             yield return FadeCanvasTo(0f, 0.65f);
             SceneManager.LoadScene(_nextSceneName);
+        }
+
+        private static void ApplyAudioCue(AudioCue cue)
+        {
+            switch (cue)
+            {
+                case AudioCue.StartTrain:
+                    GameAudioManager.Instance.PlaySfxLoop(AudioId.OnTheTrain, fadeIn: 0.25f);
+                    break;
+                case AudioCue.LowerBgm:
+                    GameAudioManager.Instance.StopSfxLoop(AudioId.OnTheTrain, 0.25f);
+                    GameAudioManager.Instance.FadeBgmTo(0.42f, 0.5f);
+                    break;
+                case AudioCue.LowerBgmAgain:
+                    GameAudioManager.Instance.FadeBgmTo(0.22f, 0.45f);
+                    break;
+                case AudioCue.StopBgm:
+                    GameAudioManager.Instance.PlaySfxOnce(AudioId.SwitchClick);
+                    GameAudioManager.Instance.StopBgm(0.35f);
+                    break;
+                case AudioCue.StartSnoring:
+                    GameAudioManager.Instance.PlaySfxLoop(AudioId.Snoring, fadeIn: 0.3f);
+                    break;
+                case AudioCue.StopSnoring:
+                    GameAudioManager.Instance.StopSfxLoop(AudioId.Snoring, 0.3f);
+                    break;
+            }
         }
 
         private IEnumerator FadeCanvasTo(float target, float duration)
@@ -399,8 +446,8 @@ namespace Otowa.Day3
         }
 
         private static Beat Indigo(string text) => new Beat(BeatPhase.Indigo, text);
-        private static Beat DeepBlue(string text) => new Beat(BeatPhase.DeepBlue, text);
-        private static Beat DarkBlue(string text) => new Beat(BeatPhase.DarkBlue, text);
-        private static Beat Black(string text, bool pauseBefore = false) => new Beat(BeatPhase.Black, text, pauseBefore);
+        private static Beat DeepBlue(string text, AudioCue cue = AudioCue.None) => new Beat(BeatPhase.DeepBlue, text, cue: cue);
+        private static Beat DarkBlue(string text, AudioCue cue = AudioCue.None) => new Beat(BeatPhase.DarkBlue, text, cue: cue);
+        private static Beat Black(string text, bool pauseBefore = false, AudioCue cue = AudioCue.None) => new Beat(BeatPhase.Black, text, pauseBefore, cue);
     }
 }

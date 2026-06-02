@@ -48,11 +48,11 @@ namespace Otowa.Intro
         // ── Colors (editable in Inspector) ───────────────────────────────────────
 
         [Header("Colors")]
-        [SerializeField] private Color bgGreen    = new Color32(0x08, 0x14, 0x08, 0xFF);
+        [SerializeField] private Color bgGreen    = new Color32(0x05, 0x18, 0x20, 0xFF);
         [SerializeField] private Color bgBrown    = new Color32(0x2a, 0x22, 0x18, 0xFF);
-        [SerializeField] private Color textPrimary = new Color32(0xc8, 0xd4, 0xc8, 0xFF);
-        [SerializeField] private Color titleGreen  = new Color32(0x8f, 0xbc, 0x8f, 0xFF);
-        [SerializeField] private Color subtleGreen = new Color32(0x5a, 0x7a, 0x5a, 0xFF);
+        [SerializeField] private Color textPrimary = new Color32(0xc8, 0xdc, 0xda, 0xFF);
+        [SerializeField] private Color titleGreen  = new Color32(0x78, 0xb5, 0xb2, 0xFF);
+        [SerializeField] private Color subtleGreen = new Color32(0x4e, 0x7f, 0x82, 0xFF);
         [SerializeField] private Color parchment   = new Color32(0xc4, 0xb8, 0xa0, 0xFF);
         [SerializeField] private Color inkDark     = new Color32(0x3a, 0x35, 0x2e, 0xFF);
         [SerializeField] private Color promptColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
@@ -62,7 +62,7 @@ namespace Otowa.Intro
         [Header("Font Sizes")]
         [SerializeField] private float titleFontSize    = 110f;
         [SerializeField] private float subtitleFontSize = 22f;
-        [SerializeField] private float bodyFontSize     = 34f;
+        [SerializeField] private float bodyFontSize     = 36f;
         [SerializeField] private float letterFontSize   = 32f;
         [SerializeField] private float itemsTitleSize   = 34f;
         [SerializeField] private float itemLabelSize    = 24f;
@@ -79,6 +79,9 @@ namespace Otowa.Intro
             public string     Subtitle;
             public string     Body;      // TMP rich text; null → skip typewriter
             public bool       IsLast;    // changes prompt text to "Click to begin"
+            public Color      Background;
+            public bool       HideBubbles;
+            public bool       WaitForBackground;
         }
 
         // ── Runtime state ─────────────────────────────────────────────────────
@@ -88,12 +91,18 @@ namespace Otowa.Intro
         private bool     _inputLock = false;
         private IndoorDialogueTextPlayer _textPlayer;
         private Coroutine _glowCR;
+        private Coroutine _backgroundTransition;
 
         // Static guard — prevents two instances from both calling LoadScene
         private static bool _loadingScene = false;
 
-        // Screen index on which "Otowa" should glow (0-based; screen 4 = arrival)
-        private const int OtowaScreenIndex = 4;
+        private static readonly Color CityGray = new Color32(0x30, 0x32, 0x34, 0xFF);
+        private static readonly Color SeasideBlue = new Color32(0x2f, 0x78, 0x98, 0xFF);
+        private static readonly Color MountainGreen = new Color32(0x0b, 0x32, 0x2f, 0xFF);
+        private static readonly Color Black = Color.black;
+
+        // Screen index on which "Otowa" should glow.
+        private const int OtowaScreenIndex = 12;
 
         // ── UI references (built at runtime) ──────────────────────────────────
 
@@ -129,6 +138,7 @@ namespace Otowa.Intro
         {
             _loadingScene = false; // reset each time this scene starts fresh
             Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
+            ApplyBlueTheme();
             BuildScreens();
             BuildUI();
             _textPlayer = gameObject.AddComponent<IndoorDialogueTextPlayer>();
@@ -173,7 +183,7 @@ namespace Otowa.Intro
                 if (next >= _screens.Count)
                     StartCoroutine(FadeAndLoad());
                 else
-                    StartCoroutine(CrossFade(next));
+                    ShowScreen(next);
             }
         }
 
@@ -184,27 +194,44 @@ namespace Otowa.Intro
         private void ShowScreen(int index)
         {
             if (_glowCR != null) { StopCoroutine(_glowCR); _glowCR = null; }
+            _textPlayer?.Cancel();
+            ClearText(_bodyTmp);
+            ClearText(_letterTmp);
 
             _current = index;
             var s = _screens[index];
 
-            _bg.color = s.Type == ScreenType.Letter ? bgBrown : bgGreen;
+            Color targetBackground = s.Type == ScreenType.Letter ? bgBrown : s.Background;
+            if (_backgroundTransition != null)
+                StopCoroutine(_backgroundTransition);
             _openingPanel.SetActive(s.Type == ScreenType.Opening);
             _letterPanel.SetActive(s.Type == ScreenType.Letter);
             _itemsPanel.SetActive(s.Type == ScreenType.Items);
 
-            // Bubbles only on dark-green opening screens
             if (bubblesEnabled)
             {
-                if (s.Type == ScreenType.Opening && _bubbleSpawner == null)
+                if (s.Type == ScreenType.Opening && !s.HideBubbles && _bubbleSpawner == null)
                     _bubbleSpawner = StartCoroutine(BubbleSpawnerCR());
-                else if (s.Type != ScreenType.Opening && _bubbleSpawner != null)
+                else if ((s.Type != ScreenType.Opening || s.HideBubbles) && _bubbleSpawner != null)
                     StopBubbles();
             }
 
             SetPrompt(false);
             _promptTmp.text = s.IsLast ? "Click to begin" : "Click to continue  >";
 
+            if (s.WaitForBackground)
+            {
+                _inputLock = true;
+                _backgroundTransition = StartCoroutine(TransitionBackgroundAndShow(targetBackground, s));
+                return;
+            }
+
+            _backgroundTransition = StartCoroutine(TransitionBackground(targetBackground));
+            ShowScreenContents(s);
+        }
+
+        private void ShowScreenContents(IntroScreen s)
+        {
             switch (s.Type)
             {
                 case ScreenType.Opening: ShowOpening(s); break;
@@ -280,8 +307,39 @@ namespace Otowa.Intro
             if (_loadingScene) yield break;
             _loadingScene = true;
             _inputLock = true;
+            _textPlayer.Cancel();
+            SetPrompt(false);
+            ClearText(_titleTmp);
+            ClearText(_subtitleTmp);
+            ClearText(_bodyTmp);
+            _openingPanel.SetActive(false);
+            yield return null;
+            yield return new WaitForSeconds(1.5f);
             yield return StartCoroutine(FadeTo(0f));
             SceneManager.LoadScene(nextSceneName);
+        }
+
+        private IEnumerator TransitionBackgroundAndShow(Color target, IntroScreen screen)
+        {
+            yield return TransitionBackground(target);
+            ShowScreenContents(screen);
+            _inputLock = false;
+        }
+
+        private IEnumerator TransitionBackground(Color target)
+        {
+            const float duration = 0.65f;
+            Color start = _bg.color;
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                _bg.color = Color.Lerp(start, target, Mathf.Clamp01(elapsed / duration));
+                yield return null;
+            }
+
+            _bg.color = target;
+            _backgroundTransition = null;
         }
 
         private IEnumerator FadeTo(float target)
@@ -298,6 +356,23 @@ namespace Otowa.Intro
         }
 
         private void SetPrompt(bool show) => _textPlayer.SetPromptVisible(show);
+
+        private static void ClearText(TMP_Text text)
+        {
+            if (text == null)
+                return;
+
+            text.text = string.Empty;
+            text.maxVisibleCharacters = 0;
+        }
+
+        private void ApplyBlueTheme()
+        {
+            bgGreen = new Color32(0x05, 0x18, 0x20, 0xFF);
+            textPrimary = new Color32(0xc8, 0xdc, 0xda, 0xFF);
+            titleGreen = new Color32(0x78, 0xb5, 0xb2, 0xFF);
+            subtleGreen = new Color32(0x4e, 0x7f, 0x82, 0xFF);
+        }
 
         // ─────────────────────────────────────────────────────────────────────
         //  UI construction  (all UI created procedurally — no prefabs needed)
@@ -323,13 +398,13 @@ namespace Otowa.Intro
             _fade = canvasGo.AddComponent<CanvasGroup>();
 
             // Full-screen background
-            _bg = MakeImage(canvasGo.transform, "BG", bgGreen, Vector2.zero, Vector2.one);
+            _bg = MakeImage(canvasGo.transform, "BG", CityGray, Vector2.zero, Vector2.one);
 
             BuildOpeningPanel(canvasGo.transform);
             BuildLetterPanel(canvasGo.transform);
             BuildItemsPanel(canvasGo.transform);
 
-            // Bubble layer — bottom 40% of screen, clipped
+            // Lightweight ambience behind the opening narration.
             _bubbleSprite = CreateCircleSprite(32);
             var bubbleGo  = new GameObject("BubbleLayer", typeof(RectTransform));
             bubbleGo.transform.SetParent(canvasGo.transform, false);
@@ -338,6 +413,7 @@ namespace Otowa.Intro
             _bubbleLayer.anchorMax = new Vector2(1f, 0.42f);
             _bubbleLayer.offsetMin = _bubbleLayer.offsetMax = Vector2.zero;
             bubbleGo.AddComponent<RectMask2D>();
+            bubbleGo.transform.SetSiblingIndex(1);
 
             // Continue prompt  — sits at bottom, always above panels
             _promptTmp = MakeTMP(canvasGo.transform, "Prompt",
@@ -369,8 +445,8 @@ namespace Otowa.Intro
             UseFont(_subtitleTmp, serifFont);
 
             _bodyTmp = MakeTMP(p, "Body", "",
-                               bodyFontSize, textPrimary, TextAlignmentOptions.Left,
-                               new Vector2(0.15f, 0.08f), new Vector2(0.85f, 0.92f));
+                               bodyFontSize, textPrimary, TextAlignmentOptions.Center,
+                               new Vector2(0.16f, 0.20f), new Vector2(0.84f, 0.80f));
             _bodyTmp.lineSpacing = 14f;
             UseFont(_bodyTmp, serifFont);
         }
@@ -430,7 +506,7 @@ namespace Otowa.Intro
         {
             // Soft glow circle behind item
             var glow = MakeImage(parent, $"Glow_{labelText}",
-                                 new Color32(0x32, 0x64, 0x32, 0x55),
+                                 new Color32(0x28, 0x68, 0x72, 0x55),
                                  imgMin, imgMax);
             glow.raycastTarget = false;
 
@@ -569,6 +645,7 @@ namespace Otowa.Intro
         private void StopBubbles()
         {
             if (_bubbleSpawner != null) { StopCoroutine(_bubbleSpawner); _bubbleSpawner = null; }
+            if (_bubbleLayer == null) return;
             foreach (Transform child in _bubbleLayer) Destroy(child.gameObject);
         }
 
@@ -690,57 +767,93 @@ namespace Otowa.Intro
         private void BuildScreens()
         {
             // Rich-text colour helpers (match webapp CSS exactly)
-            string H(string t)  => $"<color=#8fbc8f>{t}</color>";          // highlight
-            string D(string t)  => $"<i><color=#a8c8a8>{t}</color></i>";   // dialogue
+            string H(string t)  => $"<color=#78b5b2>{t}</color>";          // highlight
+            string D(string t)  => $"<i><color=#9fc9c6>{t}</color></i>";   // dialogue
             string SX(string t) => $"<color=#d4a8a8>{t}</color>";          // surprise
-            string SB(string t) => $"<color=#3a5a3a>{t}</color>";          // scene break
-            string E(string t)  => $"<b><color=#4a5a3a>{t}</color></b>";   // emphasis
+            string SB(string t) => $"<color=#346872>{t}</color>";          // scene break
+            string E(string t)  => $"<b><color=#4d7780>{t}</color></b>";   // emphasis
             string W(string t)  => $"<b><color=#6a3a3a>{t}</color></b>";   // warning/red
 
             _screens = new List<IntroScreen>
             {
-                // ── Screen 0: Title ──────────────────────────────────────────
-                new() {
-                    Type     = ScreenType.Opening,
-                    Title    = "OTOWA",
-                    Subtitle = "A STORY BEGINS",
-                },
-
                 // ── Screen 1: Leaving the city ───────────────────────────────
                 new() {
                     Type = ScreenType.Opening,
-                    Body =
-                        "The train slowly pulls out of the station. You leave the city for the final time.\n\n" +
-                        $"You really hate this city; you are tired of the gray high-rises and passengers with exhausted faces.\n\n" +
-                        $"Your name is {H("Rin")}. A few days ago, you handed in your resignation to your boss. It's hard to explain exactly why; you only know that it has become increasingly difficult to breathe in the city.",
+                    Body = "The train slowly pulls out of the station. You leave the city for the final time.",
+                    Background = CityGray,
+                },
+                new() {
+                    Type = ScreenType.Opening,
+                    Body = "You really hate this city; you are tired of the gray high-rises and passengers with exhausted faces.",
+                    Background = CityGray,
+                },
+                new() {
+                    Type = ScreenType.Opening,
+                    Body = $"Your name is {H("Rin")}. A few days ago, you handed in your resignation to your boss. It's hard to explain exactly why; you only know that it has become increasingly difficult to breathe in the city.",
+                    Background = CityGray,
                 },
 
                 // ── Screen 2: Hikaru's job posting ───────────────────────────
                 new() {
                     Type = ScreenType.Opening,
-                    Body =
-                        $"You wanted to find a quiet place to completely empty your mind. Then, you saw {H("Hikaru's")} job posting.\n\n" +
-                        $"{H("Position available: Station Attendant.")} In a faraway little mountain village.\n\n" +
-                        "You were drawn in by the attached photos. You wanted to go to that place full of greenery.",
+                    Body = $"You wanted to find a quiet place to completely empty your mind. Then, you saw {H("Hikaru's")} job posting.",
+                    Background = CityGray,
+                },
+                new() {
+                    Type = ScreenType.Opening,
+                    Body = $"{H("Position available: Station Attendant.")} In a faraway little mountain village.",
+                    Background = CityGray,
+                },
+                new() {
+                    Type = ScreenType.Opening,
+                    Body = "You were drawn in by the attached photos. You wanted to go to that place full of greenery.",
+                    Background = CityGray,
                 },
 
                 // ── Screen 3: The phone interview ────────────────────────────
                 new() {
                     Type = ScreenType.Opening,
-                    Body =
-                        $"During the phone interview, Hikaru told you that this job might be a bit {H("\"challenging.\"")} \n\n" +
-                        "You said it didn't matter. As long as you could escape the city, you weren't afraid of any challenges.\n\n" +
-                        "The train begins to accelerate, gradually leaving the high-rises behind.",
+                    Body = $"During the phone interview, Hikaru told you that this job might be a bit {H("\"challenging.\"")}",
+                    Background = CityGray,
+                },
+                new() {
+                    Type = ScreenType.Opening,
+                    Body = "You said it didn't matter. As long as you could escape the city, you weren't afraid of any challenges.",
+                    Background = CityGray,
+                },
+                new() {
+                    Type = ScreenType.Opening,
+                    Body = "The train begins to accelerate, gradually leaving the high-rises behind.",
+                    Background = SeasideBlue,
                 },
 
                 // ── Screen 4: Arriving at Otowa ──────────────────────────────
                 new() {
+                    Type = ScreenType.Opening,
+                    Body = "Your field of vision suddenly opens up: to the left are summer fields and mountains, to the right is the sparkling golden sea. Even the air inside the train car seems to have grown fresher.",
+                    Background = SeasideBlue,
+                },
+                new() {
+                    Type = ScreenType.Opening,
+                    Body = "The train enters the deep mountains. The shadows of massive trees darken the carriage.",
+                    Background = MountainGreen,
+                },
+                new() {
+                    Type = ScreenType.Opening,
+                    Body = "You hear the sound of the train whistle. The train slows down.",
+                    Background = MountainGreen,
+                },
+                new() {
                     Type   = ScreenType.Opening,
-                    IsLast = true,
-                    Body =
-                        "Your field of vision suddenly opens up: to the left are summer fields and mountains, to the right is the sparkling golden sea. Even the air inside the train car seems to have grown fresher.\n\n" +
-                        "The train enters the deep mountains. The shadows of massive trees darken the carriage.\n\n" +
-                        $"You hear the sound of the train whistle. The train slows down.\n\nYou've arrived at the station. This is your destination: {H("Otowa")}.",
+                    Body   = $"You've arrived at the station. This is your destination: {H("Otowa")}.",
+                    Background = MountainGreen,
+                },
+                new() {
+                    Type = ScreenType.Opening,
+                    Body = "An elderly woman dressed in a black kimono stands on the platform, as if waiting to welcome you.",
+                    Background = Black,
+                    HideBubbles = true,
+                    WaitForBackground = true,
                 },
             };
         }

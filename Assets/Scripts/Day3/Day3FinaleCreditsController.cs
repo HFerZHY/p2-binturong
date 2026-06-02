@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Linq;
 using ExhibitionSystem.Data;
+using Otowa.Audio;
 using Otowa.IndoorDialogue;
 using TMPro;
 using UnityEngine;
@@ -76,6 +77,8 @@ namespace Otowa.Day3
 
         private void Start()
         {
+            GameAudioManager.Instance.PlayBgm(AudioId.Ending, fadeIn: 0.5f);
+            GameAudioManager.Instance.PlaySfxLoop(AudioId.Fireworks, fadeIn: 0.35f);
             _fade.alpha = 0f;
             ShowBeat(0);
             StartFireworks();
@@ -116,6 +119,8 @@ namespace Otowa.Day3
         {
             _finished = true;
             _prompt.gameObject.SetActive(false);
+            GameAudioManager.Instance.StopSfxLoop(AudioId.Fireworks);
+            GameAudioManager.Instance.StopBgm();
 
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
@@ -142,7 +147,12 @@ namespace Otowa.Day3
             _inputLock = true;
             yield return FadeTo(0f);
             if (Beats[next].Phase != BeatPhase.Sky)
+            {
                 StopFireworks();
+                GameAudioManager.Instance.StopSfxLoop(AudioId.Fireworks, 0.5f);
+            }
+            if (Beats[_beatIndex].Phase == BeatPhase.Sky && Beats[next].Phase == BeatPhase.Silhouettes)
+                GameAudioManager.Instance.CrossFadeBgm(AudioId.OtowaBlues, 1.1f);
             ShowBeat(next);
             yield return FadeTo(1f);
             _inputLock = false;

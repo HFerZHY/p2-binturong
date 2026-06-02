@@ -44,4 +44,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aaf4ceb9daee04e49bcf1b69e83b4a20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InspirationManager
-  inspirationUnlockedClip: {fileID: 8300000, guid: d9ead4674f053d646823aeda371549d6, type: 3}
+  inspirationUnlockedClip: {fileID: 8300000, guid: b1312b29d6fb36c44b207560581fe3eb, type: 3}

@@ -17,6 +17,7 @@ namespace Otowa.Day3
     public class CinematicStripDialoguePlayer : MonoBehaviour
     {
         private GameObject _root;
+        private Transform _stripTransform;
         private Image _stripBackground;
         private Image _leftPortrait;
         private Image _rightPortrait;
@@ -37,6 +38,7 @@ namespace Otowa.Day3
             blackBackground.color = Color.black;
 
             var strip = CreateRect("PassengerStrip", _root.transform, new Vector2(0f, 0.23f), new Vector2(1f, 0.81f));
+            _stripTransform = strip.transform;
             _stripBackground = strip.AddComponent<Image>();
             _stripBackground.color = Color.white;
             _stripBackground.raycastTarget = false;
@@ -84,6 +86,37 @@ namespace Otowa.Day3
         public void SetStripBackground(Sprite sprite)
         {
             _stripBackground.sprite = sprite;
+        }
+
+        public void SetDecorativeItemSilhouettes(Sprite[] sprites)
+        {
+            if (_stripTransform == null || sprites == null)
+                return;
+
+            var anchors = new[]
+            {
+                (new Vector2(0.015f, 0.54f), new Vector2(0.105f, 0.92f)),
+                (new Vector2(0.115f, 0.50f), new Vector2(0.205f, 0.88f)),
+                (new Vector2(0.015f, 0.10f), new Vector2(0.105f, 0.48f)),
+                (new Vector2(0.115f, 0.14f), new Vector2(0.205f, 0.52f)),
+                (new Vector2(0.795f, 0.50f), new Vector2(0.885f, 0.88f)),
+                (new Vector2(0.895f, 0.54f), new Vector2(0.985f, 0.92f)),
+                (new Vector2(0.795f, 0.14f), new Vector2(0.885f, 0.52f)),
+                (new Vector2(0.895f, 0.10f), new Vector2(0.985f, 0.48f)),
+            };
+
+            var count = Mathf.Min(sprites.Length, anchors.Length);
+            for (var i = 0; i < count; i++)
+            {
+                var silhouette = CreatePortrait(
+                    $"ItemSilhouette{i + 1:00}",
+                    _stripTransform,
+                    anchors[i].Item1,
+                    anchors[i].Item2);
+                silhouette.sprite = sprites[i];
+                silhouette.color = new Color(0.76f, 0.70f, 0.58f, 0.28f);
+                silhouette.transform.SetSiblingIndex(i);
+            }
         }
 
         public void SetPortraits(Sprite left, Sprite right)
