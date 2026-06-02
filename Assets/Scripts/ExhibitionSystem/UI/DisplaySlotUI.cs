@@ -12,7 +12,7 @@ namespace ExhibitionSystem.UI
     /// Also supports dragging items out to return to shelf.
     /// </summary>
     public class DisplaySlotUI : DropSlot,
-        IBeginDragHandler, IDragHandler, IEndDragHandler
+        IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
     {
         // ── Serialized Fields ───────────────────────────────────────────────────
 
@@ -293,6 +293,15 @@ namespace ExhibitionSystem.UI
         {
             base.OnPointerExit(eventData);
             ItemTooltip.Instance?.Hide();
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            var manager = ExhibitionManager.Instance;
+            if (_placedItem == null || _isDragging || manager == null || manager.IsRunning)
+                return;
+
+            ExhibitionUIManager.Instance?.ShowInspirationPopupForSlot(_slotIndex);
         }
 
         // ── Ghost Management ────────────────────────────────────────────────────

@@ -203,7 +203,6 @@ public static class ExhibitionSceneBuilder
         var inspirationPopup = CreateInspirationPopup(layoutRoot);
         var tooltip = CreateTooltip(layoutRoot);
         CreateTutorialPopup(layoutRoot);
-        CreateInspirationSuccessPopup(layoutRoot);
         CreateRewardPopup(layoutRoot);
         if (includeDay2CompletionPopup)
             CreateDay2CompletionPopup(layoutRoot);
@@ -707,9 +706,9 @@ public static class ExhibitionSceneBuilder
         var panelObj = CreateOverlay(parent, "InspirationSelectionPopup");
         var windowObj = CreateWindow(panelObj.transform, "Window", new Vector2(860, 680));
         ConfigureLargePopupWindow(windowObj);
-        var title = CreatePopupTitle(windowObj.transform, "Inspiration Selection");
+        var title = CreatePopupTitle(windowObj.transform, "Choose an Inspiration Label");
 
-        var themeLabel = CreateText(windowObj.transform, "ThemeText", "Theme: <b><color=#FFD96A>Exhibition</color></b>", 24, FontStyles.Bold, TextAlignmentOptions.Center);
+        var themeLabel = CreateText(windowObj.transform, "ThemeText", "Theme: <b><color=#FFD96A>Exhibition</color></b>", 32, FontStyles.Bold, TextAlignmentOptions.Center);
         var themeRt = themeLabel.GetComponent<RectTransform>();
         themeRt.anchorMin = new Vector2(0, 1);
         themeRt.anchorMax = new Vector2(1, 1);
@@ -721,71 +720,24 @@ public static class ExhibitionSceneBuilder
         themeLabel.overflowMode = TextOverflowModes.Ellipsis;
         themeLabel.color = new Color(0.95f, 0.86f, 0.66f, 1f);
 
-        var selectedPanel = CreateColumnPanel(
-            windowObj.transform,
-            "SelectedColumn",
-            "Selected Inspirations",
-            new Vector2(0, 0),
-            new Vector2(0.49f, 1),
-            new Vector2(40, 176),
-            new Vector2(-14, -118));
-        var selectedList = CreateListContainer(selectedPanel.transform, Vector2.zero, new Vector2(0, -48));
-
         var libraryPanel = CreateColumnPanel(
             windowObj.transform,
             "LibraryColumn",
-            "Inspiration Library",
-            new Vector2(0.51f, 0),
-            new Vector2(1, 1),
-            new Vector2(14, 176),
-            new Vector2(-40, -118));
+            "Inspirations",
+            Vector2.zero,
+            Vector2.one,
+            new Vector2(40, 104),
+            new Vector2(-40, -176));
         var listObj = CreateListContainer(libraryPanel.transform, Vector2.zero, new Vector2(0, -48));
 
-        var hintPanel = CreateChild(windowObj.transform, "HintPanel");
-        var hintBg = hintPanel.AddComponent<Image>();
-        hintBg.color = new Color(0.12f, 0.08f, 0.05f, 0.92f);
-        var hintRt = hintPanel.GetComponent<RectTransform>();
-        hintRt.anchorMin = new Vector2(0, 0);
-        hintRt.anchorMax = new Vector2(1, 0);
-        hintRt.pivot = new Vector2(0.5f, 0);
-        hintRt.anchoredPosition = new Vector2(0, 88);
-        hintRt.sizeDelta = new Vector2(-80, 74);
-
-        var avatarObj = CreateChild(hintPanel.transform, "AvatarPlaceholder");
-        var avatar = avatarObj.AddComponent<Image>();
-        avatar.color = Color.white;
-        avatar.sprite = AssetDatabase.LoadAllAssetRepresentationsAtPath("Assets/Resources/Characters/WorldSprite/rin.png")
-            .OfType<Sprite>()
-            .FirstOrDefault(sprite => sprite.name == "spritesheet_template_0") ?? LoadSprite("Assets/Resources/Characters/WorldSprite/rin.png");
-        avatar.preserveAspect = true;
-        avatar.raycastTarget = false;
-        var avatarRt = avatarObj.GetComponent<RectTransform>();
-        avatarRt.anchorMin = new Vector2(0, 0.5f);
-        avatarRt.anchorMax = new Vector2(0, 0.5f);
-        avatarRt.pivot = new Vector2(0, 0.5f);
-        avatarRt.anchoredPosition = new Vector2(14, 0);
-        avatarRt.sizeDelta = new Vector2(54, 54);
-
-        var hint = CreateText(hintPanel.transform, "HintText", "Hmm... which ones should I choose?", 22, FontStyles.Italic, TextAlignmentOptions.MidlineLeft);
-        var hintTextRt = hint.GetComponent<RectTransform>();
-        hintTextRt.anchorMin = new Vector2(0, 0);
-        hintTextRt.anchorMax = new Vector2(1, 1);
-        hintTextRt.offsetMin = new Vector2(84, 10);
-        hintTextRt.offsetMax = new Vector2(-18, -10);
-        hint.textWrappingMode = TextWrappingModes.Normal;
-        hint.color = new Color(0.98f, 0.88f, 0.66f, 1f);
-
-        var confirmBtn = CreateAnchoredButton(windowObj.transform, "ConfirmButton", "Confirm Inspirations", 310, new Vector2(155, 20));
-        var closeBtn = CreateAnchoredButton(windowObj.transform, "CloseButton", "Back", 220, new Vector2(-180, 20));
+        var confirmBtn = CreateAnchoredButton(windowObj.transform, "ConfirmButton", "Confirm", 220, new Vector2(150, 20));
+        var closeBtn = CreateAnchoredButton(windowObj.transform, "CloseButton", "Back", 220, new Vector2(-150, 20));
         var cg = panelObj.AddComponent<CanvasGroup>();
 
         var popup = panelObj.AddComponent<InspirationSelectionPopup>();
         SetPrivateField(popup, "_panel", panelObj);
         SetPrivateField(popup, "_titleText", title);
         SetPrivateField(popup, "_themeText", themeLabel);
-        SetPrivateField(popup, "_hintText", hint);
-        SetPrivateField(popup, "_hintBackground", hintBg);
-        SetPrivateField(popup, "_selectedContainer", selectedList.transform);
         SetPrivateField(popup, "_libraryContainer", listObj.transform);
         SetPrivateField(popup, "_listContainer", listObj.transform);
         SetPrivateField(popup, "_confirmButton", confirmBtn.GetComponent<Button>());

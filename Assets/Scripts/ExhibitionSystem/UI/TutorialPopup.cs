@@ -1,14 +1,19 @@
+using System;
 using System.Collections.Generic;
 using ExhibitionSystem.Core;
 using ExhibitionSystem.Data;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace ExhibitionSystem.UI
 {
     public class TutorialPopup : MonoBehaviour
     {
+        public static event Action OnPlayerHintDismissed;
+        public static bool IsShowingPlayerHint { get; private set; }
+
         private const string RIN_SPRITE_RESOURCE = "Characters/WorldSprite/rin";
         private const string RIN_HEAD_SPRITE_NAME = "spritesheet_template_0";
 
@@ -27,9 +32,9 @@ namespace ExhibitionSystem.UI
         [SerializeField] private string _selectThemeMessage =
             "I came up with a few exhibition themes yesterday. For now, I should choose one first.";
         [SerializeField] private string _chooseInspirationsMessage =
-            "I need to pick a few inspirations that fit this theme...";
+            "I should click the label above the exhibit and choose a matching inspiration.";
         [SerializeField] private string _arrangeItemsMessage =
-            "Next, I should drag the exhibits into the positions that match these inspirations.";
+            "Next, I should drag items into the empty display slots.";
         [SerializeField] private string _startExhibitionMessage =
             "Great! Now I can let the passengers visit the exhibition!";
         [SerializeField] private string _tryAnotherThemeMessage =
@@ -42,6 +47,8 @@ namespace ExhibitionSystem.UI
         private bool _startHintShown;
         private bool _tryAnotherThemeHintShown;
         private bool _tryAnotherThemeHintDismissed;
+        private bool _dismissOnNextPointerPress;
+        private int _dismissibleShownFrame;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         internal static void EnsureTutorialPopupExists()
@@ -63,14 +70,15 @@ namespace ExhibitionSystem.UI
         {
             ThemeSelector.OnSelectThemeClicked += HandleSelectThemeClicked;
             ExhibitionManager.OnThemeSelected += HandleThemeSelected;
-            ExhibitionManager.OnInspirationValidationAttempted += HandleInspirationValidationAttempted;
-            InspirationSuccessPopup.OnSuccessConfirmed += HandleInspirationSuccessConfirmed;
+            InspirationSelectionPopup.OnPopupOpened += HandleInspirationPopupOpened;
             InspirationSelectionPopup.OnInspirationClicked += HandleInspirationClicked;
+            ExhibitionManager.OnSlotInspirationChanged += HandleSlotInspirationChanged;
             ExhibitionManager.OnItemPlaced += HandleItemPlaced;
             ExhibitionManager.OnItemRemoved += HandleItemChanged;
             ExhibitionManager.OnItemsSwapped += HandleItemsSwapped;
             ExhibitionManager.OnExhibitionStarted += HandleExhibitionStarted;
             ExhibitionManager.OnCurationCleared += HandleCurationCleared;
+            ExhibitionManager.OnPlayerHint += HandlePlayerHint;
             RewardPopup.OnRewardConfirmed += HandleRewardConfirmed;
         }
 
@@ -78,14 +86,15 @@ namespace ExhibitionSystem.UI
         {
             ThemeSelector.OnSelectThemeClicked -= HandleSelectThemeClicked;
             ExhibitionManager.OnThemeSelected -= HandleThemeSelected;
-            ExhibitionManager.OnInspirationValidationAttempted -= HandleInspirationValidationAttempted;
-            InspirationSuccessPopup.OnSuccessConfirmed -= HandleInspirationSuccessConfirmed;
+            InspirationSelectionPopup.OnPopupOpened -= HandleInspirationPopupOpened;
             InspirationSelectionPopup.OnInspirationClicked -= HandleInspirationClicked;
+            ExhibitionManager.OnSlotInspirationChanged -= HandleSlotInspirationChanged;
             ExhibitionManager.OnItemPlaced -= HandleItemPlaced;
             ExhibitionManager.OnItemRemoved -= HandleItemChanged;
             ExhibitionManager.OnItemsSwapped -= HandleItemsSwapped;
             ExhibitionManager.OnExhibitionStarted -= HandleExhibitionStarted;
             ExhibitionManager.OnCurationCleared -= HandleCurationCleared;
+            ExhibitionManager.OnPlayerHint -= HandlePlayerHint;
             RewardPopup.OnRewardConfirmed -= HandleRewardConfirmed;
         }
 
@@ -98,6 +107,19 @@ namespace ExhibitionSystem.UI
                 Show(_selectThemeMessage);
             else
                 Hide();
+        }
+
+        private void Update()
+        {
+            if (!_dismissOnNextPointerPress || Time.frameCount <= _dismissibleShownFrame)
+                return;
+
+            bool mousePressed = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
+            bool touchPressed = Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame;
+            if (!mousePressed && !touchPressed)
+                return;
+
+            DismissPlayerHint();
         }
 
         private void HandleSelectThemeClicked()
@@ -119,18 +141,18 @@ namespace ExhibitionSystem.UI
 
         private void HandleThemeSelected(ExhibitionTheme theme)
         {
-            if (theme == null || _inspirationHintDismissed)
+            if (theme == null || _arrangementHintDismissed)
                 return;
 
-            Show(_chooseInspirationsMessage);
+            Show(_arrangeItemsMessage);
         }
 
-        private void HandleInspirationValidationAttempted()
+        private void HandleInspirationClicked()
         {
             DismissInspirationHint();
         }
 
-        private void HandleInspirationClicked()
+        private void HandleInspirationPopupOpened()
         {
             DismissInspirationHint();
         }
@@ -144,14 +166,6 @@ namespace ExhibitionSystem.UI
             Hide();
         }
 
-        private void HandleInspirationSuccessConfirmed()
-        {
-            if (_arrangementHintDismissed)
-                return;
-
-            Show(_arrangeItemsMessage);
-        }
-
         private void HandleItemPlaced(int slotIndex, ExhibitItemData item)
         {
             if (!_arrangementHintDismissed)
@@ -159,6 +173,17 @@ namespace ExhibitionSystem.UI
                 _arrangementHintDismissed = true;
                 Hide();
             }
+
+            if (!_inspirationHintDismissed)
+                Show(_chooseInspirationsMessage);
+
+            TryShowStartHint();
+        }
+
+        private void HandleSlotInspirationChanged(int slotIndex, InspirationData inspiration)
+        {
+            if (inspiration != null)
+                DismissInspirationHint();
 
             TryShowStartHint();
         }
@@ -196,6 +221,15 @@ namespace ExhibitionSystem.UI
             Show(_tryAnotherThemeMessage);
         }
 
+        private void HandlePlayerHint(string hint)
+        {
+            if (!string.IsNullOrWhiteSpace(hint))
+            {
+                IsShowingPlayerHint = true;
+                Show(NormalizeHint(hint), true);
+            }
+        }
+
         private static bool AreAllThemesCompleted()
         {
             var manager = ExhibitionManager.Instance;
@@ -219,8 +253,7 @@ namespace ExhibitionSystem.UI
             var manager = ExhibitionManager.Instance;
             bool canStart = manager != null &&
                 !manager.IsRunning &&
-                manager.HasConfirmedInspirations &&
-                manager.AreAllSlotsFilled();
+                manager.AreAllSlotsReady();
 
             if (!canStart)
             {
@@ -241,7 +274,14 @@ namespace ExhibitionSystem.UI
 
         private void Show(string message)
         {
+            Show(message, false);
+        }
+
+        private void Show(string message, bool dismissOnNextPointerPress)
+        {
             ConfigurePortrait();
+            _dismissOnNextPointerPress = dismissOnNextPointerPress;
+            _dismissibleShownFrame = Time.frameCount;
 
             if (_speakerText != null)
                 _speakerText.text = _speakerName;
@@ -262,11 +302,34 @@ namespace ExhibitionSystem.UI
 
         private void Hide()
         {
+            _dismissOnNextPointerPress = false;
+            IsShowingPlayerHint = false;
+
             if (_canvasGroup != null)
                 _canvasGroup.alpha = 0f;
 
             if (_panel != null && _panel != gameObject)
                 _panel.SetActive(false);
+        }
+
+        private void DismissPlayerHint()
+        {
+            bool notify = IsShowingPlayerHint;
+            Hide();
+            if (notify)
+                OnPlayerHintDismissed?.Invoke();
+        }
+
+        private static string NormalizeHint(string hint)
+        {
+            string normalized = hint.Trim();
+            if (normalized.StartsWith("Rin:", StringComparison.OrdinalIgnoreCase))
+                normalized = normalized.Substring(4).Trim();
+
+            if (normalized.Length >= 2 && normalized[0] == '(' && normalized[^1] == ')')
+                normalized = normalized.Substring(1, normalized.Length - 2).Trim();
+
+            return normalized;
         }
 
         private void ConfigurePortrait()

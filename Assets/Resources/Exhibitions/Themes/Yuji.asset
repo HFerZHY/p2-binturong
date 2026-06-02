@@ -22,13 +22,13 @@ MonoBehaviour:
   validInspirationIds: 080000000a0000000c000000
   missingIdeaHints:
   - inspirationId: 8
-    hintText: 'Rin: (Yuji said running the pub was just a hobby. What was his main
-      profession again?)'
+    hintText: Yuji said running the pub was just a hobby. What was his main profession
+      again?
   - inspirationId: 10
-    hintText: 'Rin: (Where exactly does the unique flavor in Yuji''s sake come from?)'
+    hintText: Where exactly does the unique flavor in Yuji's sake come from?
   - inspirationId: 12
-    hintText: 'Rin: (I remember Yuji once brought honor to Otowa in a competition.)'
-  fallbackMissingHint: 'Rin: (I am missing one of the ideas that really belongs to
-    this exhibition.)'
-  fallbackInvalidHint: 'Rin: (One of these ideas feels out of place for this exhibition.)'
-  isCompleted: 0
+    hintText: I remember Yuji once brought honor to Otowa in a competition.
+  fallbackMissingHint: I am missing one of the ideas that really belongs to this
+    exhibition.
+  fallbackInvalidHint: One of these ideas feels out of place for this exhibition.
+  isCompleted: 1

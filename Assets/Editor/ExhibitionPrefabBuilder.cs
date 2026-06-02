@@ -188,6 +188,7 @@ public static class ExhibitionPrefabBuilder
         layout.spacing = 10;
         layout.childControlHeight = true;
         layout.childControlWidth = true;
+        layout.childForceExpandWidth = false;
         layout.childAlignment = TextAnchor.MiddleLeft;
 
         var bodyText = CreateText(root.transform, "Body", "Idea text", 22, FontStyles.Bold, TextAlignmentOptions.MidlineLeft);
@@ -199,58 +200,17 @@ public static class ExhibitionPrefabBuilder
 
         var matchBadgeObj = CreateChild(root.transform, "MatchBadge");
         var matchBadgeIcon = matchBadgeObj.AddComponent<Image>();
-        matchBadgeIcon.sprite = LoadSprite("Assets/Resources/Exhibitions/Icons/sakura.png");
         matchBadgeIcon.color = Color.white;
         matchBadgeIcon.preserveAspect = true;
-        matchBadgeIcon.raycastTarget = true;
+        matchBadgeIcon.raycastTarget = false;
         var matchBadgeLayout = matchBadgeObj.AddComponent<LayoutElement>();
         matchBadgeLayout.preferredWidth = 34;
         matchBadgeLayout.preferredHeight = 34;
         matchBadgeLayout.flexibleWidth = 0;
         matchBadgeObj.SetActive(false);
 
-        var tooltipObj = CreateChild(matchBadgeObj.transform, "MatchTooltip");
-        var tooltipBg = tooltipObj.AddComponent<Image>();
-        tooltipBg.color = new Color(0.16f, 0.12f, 0.08f, 0.96f);
-        tooltipBg.raycastTarget = false;
-        tooltipObj.SetActive(false);
-        tooltipObj.AddComponent<LayoutElement>().ignoreLayout = true;
-        var tooltipRt = tooltipObj.GetComponent<RectTransform>();
-        tooltipRt.anchorMin = new Vector2(0, 0.5f);
-        tooltipRt.anchorMax = new Vector2(0, 0.5f);
-        tooltipRt.pivot = new Vector2(1, 0.5f);
-        tooltipRt.anchoredPosition = new Vector2(-10, 0);
-        tooltipRt.sizeDelta = new Vector2(172, 78);
-
-        var tooltipLayout = tooltipObj.AddComponent<HorizontalLayoutGroup>();
-        tooltipLayout.padding = new RectOffset(12, 12, 10, 10);
-        tooltipLayout.spacing = 10;
-        tooltipLayout.childAlignment = TextAnchor.MiddleCenter;
-        tooltipLayout.childControlWidth = true;
-        tooltipLayout.childControlHeight = true;
-        tooltipLayout.childForceExpandWidth = false;
-        tooltipLayout.childForceExpandHeight = false;
-
-        var tooltipItemIconObj = CreateChild(tooltipObj.transform, "ItemIcon");
-        var tooltipItemIcon = tooltipItemIconObj.AddComponent<Image>();
-        tooltipItemIcon.color = Color.white;
-        tooltipItemIcon.preserveAspect = true;
-        tooltipItemIcon.raycastTarget = false;
-        var tooltipItemLayout = tooltipItemIconObj.AddComponent<LayoutElement>();
-        tooltipItemLayout.preferredWidth = 48;
-        tooltipItemLayout.preferredHeight = 48;
-
-        var tooltipText = CreateText(tooltipObj.transform, "Text", "Already\nmatched", 18, FontStyles.Bold, TextAlignmentOptions.MidlineLeft);
-        tooltipText.color = Color.white;
-        tooltipText.textWrappingMode = TextWrappingModes.Normal;
-        tooltipText.raycastTarget = false;
-        tooltipText.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
-
         var matchBadge = matchBadgeObj.AddComponent<InspirationMatchBadge>();
         SetPrivateField(matchBadge, "_badgeIcon", matchBadgeIcon);
-        SetPrivateField(matchBadge, "_tooltipPanel", tooltipObj);
-        SetPrivateField(matchBadge, "_itemIcon", tooltipItemIcon);
-        SetPrivateField(matchBadge, "_tooltipText", tooltipText);
 
         var item = root.AddComponent<InspirationListItem>();
         SetPrivateField(item, "_bodyText", bodyText);
@@ -272,6 +232,8 @@ public static class ExhibitionPrefabBuilder
         labelBg.color = Color.white;
         labelBg.type = Image.Type.Simple;
         labelBg.preserveAspect = false;
+        var labelButton = labelObj.AddComponent<Button>();
+        labelButton.targetGraphic = labelBg;
         var labelRt = labelObj.GetComponent<RectTransform>();
         labelRt.anchorMin = new Vector2(0.5f, 1f);
         labelRt.anchorMax = new Vector2(0.5f, 1f);
@@ -326,6 +288,8 @@ public static class ExhibitionPrefabBuilder
         SetPrivateField(slot, "_displaySlot", displaySlot);
         SetPrivateField(slot, "_tooltipPanel", tooltipObj);
         SetPrivateField(slot, "_tooltipText", tooltipText);
+        SetPrivateField(slot, "_labelButton", labelButton);
+        SetPrivateField(slot, "_labelBackground", labelBg);
 
         SaveAndDestroy(root, "InspirationDisplaySlot");
     }

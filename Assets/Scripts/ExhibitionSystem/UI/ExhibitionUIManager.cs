@@ -116,6 +116,12 @@ namespace ExhibitionSystem.UI
                 _inspirationPopup.Show();
         }
 
+        public void ShowInspirationPopupForSlot(int slotIndex)
+        {
+            if (_inspirationPopup != null)
+                _inspirationPopup.ShowForSlot(slotIndex);
+        }
+
         public void HideInspirationPopup()
         {
             if (_inspirationPopup != null)

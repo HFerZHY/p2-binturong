@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using ExhibitionSystem.Core;
-using ExhibitionSystem.Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -39,16 +37,6 @@ namespace ExhibitionSystem.UI
             CreateRuntimePopup(layoutRoot.transform);
         }
 
-        private void OnEnable()
-        {
-            ExhibitionManager.OnInspirationsConfirmed += HandleInspirationsConfirmed;
-        }
-
-        private void OnDisable()
-        {
-            ExhibitionManager.OnInspirationsConfirmed -= HandleInspirationsConfirmed;
-        }
-
         private void Start()
         {
             if (_confirmButton != null)
@@ -61,11 +49,6 @@ namespace ExhibitionSystem.UI
         {
             Hide();
             OnSuccessConfirmed?.Invoke();
-        }
-
-        private void HandleInspirationsConfirmed(IReadOnlyList<InspirationData> inspirations)
-        {
-            Show();
         }
 
         private void Show()

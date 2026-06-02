@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace ExhibitionSystem.UI
 {
     /// <summary>
-    /// Vertical display area where each selected inspiration owns one item slot.
+    /// Display area where each theme creates empty exhibit slots with editable labels.
     /// </summary>
     public class DisplayPanel : MonoBehaviour
     {
@@ -23,29 +23,31 @@ namespace ExhibitionSystem.UI
 
         private void OnEnable()
         {
-            ExhibitionManager.OnInspirationsConfirmed += HandleInspirationsConfirmed;
+            ExhibitionManager.OnThemeSelected += HandleThemeSelected;
+            ExhibitionManager.OnDisplaySlotsInitialized += HandleDisplaySlotsInitialized;
+            ExhibitionManager.OnSlotInspirationChanged += HandleSlotInspirationChanged;
             ExhibitionManager.OnItemPlaced += HandleItemPlaced;
             ExhibitionManager.OnItemRemoved += HandleItemRemoved;
             ExhibitionManager.OnItemsSwapped += HandleItemsSwapped;
             ExhibitionManager.OnExhibitionStarted += HandleExhibitionStarted;
             ExhibitionManager.OnVisitorReacted += HandleVisitorReacted;
-            ExhibitionManager.OnExhibitionEnded += HandleExhibitionEnded;
             ExhibitionManager.OnCurationCleared += HandleCurationCleared;
         }
 
         private void OnDisable()
         {
-            ExhibitionManager.OnInspirationsConfirmed -= HandleInspirationsConfirmed;
+            ExhibitionManager.OnThemeSelected -= HandleThemeSelected;
+            ExhibitionManager.OnDisplaySlotsInitialized -= HandleDisplaySlotsInitialized;
+            ExhibitionManager.OnSlotInspirationChanged -= HandleSlotInspirationChanged;
             ExhibitionManager.OnItemPlaced -= HandleItemPlaced;
             ExhibitionManager.OnItemRemoved -= HandleItemRemoved;
             ExhibitionManager.OnItemsSwapped -= HandleItemsSwapped;
             ExhibitionManager.OnExhibitionStarted -= HandleExhibitionStarted;
             ExhibitionManager.OnVisitorReacted -= HandleVisitorReacted;
-            ExhibitionManager.OnExhibitionEnded -= HandleExhibitionEnded;
             ExhibitionManager.OnCurationCleared -= HandleCurationCleared;
         }
 
-        public void RebuildSlots(IReadOnlyList<InspirationData> inspirations)
+        public void RebuildSlots(int slotCount)
         {
             foreach (var slot in _slots)
             {
@@ -54,17 +56,22 @@ namespace ExhibitionSystem.UI
             }
             _slots.Clear();
 
-            if (_slotPrefab == null || _slotContainer == null || inspirations == null) return;
+            if (_slotPrefab == null || _slotContainer == null || slotCount <= 0)
+                return;
 
-            ConfigureGrid(inspirations.Count);
+            ConfigureGrid(slotCount);
 
             var manager = ExhibitionManager.Instance;
-            for (int i = 0; i < inspirations.Count; i++)
+            for (int i = 0; i < slotCount; i++)
             {
                 var slot = Instantiate(_slotPrefab, _slotContainer);
-                var item = manager != null && i < manager.DisplaySlots.Count ? manager.DisplaySlots[i] : null;
-                bool locked = manager != null && manager.IsSlotLocked(i);
-                slot.SetData(i, inspirations[i], item, locked);
+                var inspiration = manager != null && i < manager.SlotInspirations.Count
+                    ? manager.SlotInspirations[i]
+                    : null;
+                var item = manager != null && i < manager.DisplaySlots.Count
+                    ? manager.DisplaySlots[i]
+                    : null;
+                slot.SetData(i, inspiration, item);
                 _slots.Add(slot);
             }
         }
@@ -75,9 +82,21 @@ namespace ExhibitionSystem.UI
                 slot?.ClearFeedback();
         }
 
-        private void HandleInspirationsConfirmed(IReadOnlyList<InspirationData> inspirations)
+        private void HandleThemeSelected(ExhibitionTheme theme)
         {
-            RebuildSlots(inspirations);
+            if (theme == null)
+                RebuildSlots(0);
+        }
+
+        private void HandleDisplaySlotsInitialized(int slotCount)
+        {
+            RebuildSlots(slotCount);
+        }
+
+        private void HandleSlotInspirationChanged(int slotIndex, InspirationData inspiration)
+        {
+            if (slotIndex < 0 || slotIndex >= _slots.Count) return;
+            _slots[slotIndex].SetInspiration(inspiration);
         }
 
         private void HandleItemPlaced(int slotIndex, ExhibitItemData item)
@@ -106,19 +125,20 @@ namespace ExhibitionSystem.UI
             ClearAllFeedback();
         }
 
-        private void HandleVisitorReacted(int slotIndex, InspirationData inspiration, ExhibitItemData item, bool isCorrect, int satisfaction)
+        private void HandleVisitorReacted(
+            int slotIndex,
+            InspirationData inspiration,
+            ExhibitItemData item,
+            ExhibitionSlotValidation validation,
+            int satisfaction)
         {
             if (slotIndex < 0 || slotIndex >= _slots.Count) return;
-            _slots[slotIndex].ShowFeedback(isCorrect);
-        }
-
-        private void HandleExhibitionEnded(bool success, int satisfaction, int threshold)
-        {
+            _slots[slotIndex].ShowFeedback(validation);
         }
 
         private void HandleCurationCleared()
         {
-            RebuildSlots(null);
+            RebuildSlots(0);
         }
 
         private void ConfigureGrid(int slotCount)

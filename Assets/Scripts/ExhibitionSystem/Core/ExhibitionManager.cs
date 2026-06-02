@@ -17,8 +17,21 @@ namespace ExhibitionSystem.Core
         Result
     }
 
+    public readonly struct ExhibitionSlotValidation
+    {
+        public ExhibitionSlotValidation(bool itemCorrect, bool? inspirationCorrect)
+        {
+            ItemCorrect = itemCorrect;
+            InspirationCorrect = inspirationCorrect;
+        }
+
+        public bool ItemCorrect { get; }
+        public bool? InspirationCorrect { get; }
+        public bool IsCorrect => ItemCorrect && InspirationCorrect == true;
+    }
+
     /// <summary>
-    /// Manages the museum inspiration curation loop.
+    /// Manages the museum curation loop. Each display slot owns an exhibit and a label.
     /// </summary>
     public class ExhibitionManager : MonoSingleton<ExhibitionManager>
     {
@@ -33,16 +46,17 @@ namespace ExhibitionSystem.Core
         private static readonly HashSet<int> KnownInspirationMatchIds = new();
 
         private ExhibitionTheme _currentTheme;
-        private readonly List<InspirationData> _selectedInspirations = new();
+        private readonly List<InspirationData> _slotInspirations = new();
         private readonly List<ExhibitItemData> _displaySlots = new();
-        private readonly List<bool> _lockedSlots = new();
+        private readonly List<ExhibitionSlotValidation> _validationResults = new();
         private int _satisfaction;
         private int _visitorIndex;
         private bool _isRunning;
         private ExhibitionState _state = ExhibitionState.ThemeSelection;
 
         public ExhibitionTheme CurrentTheme => _currentTheme;
-        public IReadOnlyList<InspirationData> SelectedInspirations => _selectedInspirations;
+        public IReadOnlyList<InspirationData> SelectedInspirations => _slotInspirations;
+        public IReadOnlyList<InspirationData> SlotInspirations => _slotInspirations;
         public IReadOnlyList<ExhibitItemData> DisplaySlots => _displaySlots;
         public IReadOnlyList<ExhibitionTheme> AllThemes => _allThemes;
         public IReadOnlyList<InspirationData> AllInspirations => _allInspirations;
@@ -51,19 +65,23 @@ namespace ExhibitionSystem.Core
         public bool IsRunning => _isRunning;
         public int SlotCount => _displaySlots.Count;
         public ExhibitionState State => _state;
-        public bool HasConfirmedInspirations => _selectedInspirations.Count > 0;
+        public bool HasConfirmedInspirations => HasAllLabelsFilled;
+        public bool HasAllLabelsFilled => _slotInspirations.Count > 0 &&
+                                         _slotInspirations.All(inspiration => inspiration != null);
+        public bool HasCurationProgress => _displaySlots.Any(item => item != null) ||
+                                           _slotInspirations.Any(inspiration => inspiration != null);
 
         public static event Action<ExhibitionState> OnStateChanged;
         public static event Action<ExhibitionTheme> OnThemeSelected;
-        public static event Action<IReadOnlyList<InspirationData>> OnInspirationsConfirmed;
+        public static event Action<int> OnDisplaySlotsInitialized;
+        public static event Action<int, InspirationData> OnSlotInspirationChanged;
         public static event Action<int, ExhibitItemData> OnItemPlaced;
         public static event Action<int> OnItemRemoved;
         public static event Action<int, int> OnItemsSwapped;
         public static event Action OnExhibitionStarted;
-        public static event Action<int, InspirationData, ExhibitItemData, bool, int> OnVisitorReacted;
+        public static event Action<int, InspirationData, ExhibitItemData, ExhibitionSlotValidation, int> OnVisitorReacted;
         public static event Action<bool, int, int> OnExhibitionEnded;
         public static event Action OnCurationCleared;
-        public static event Action OnInspirationValidationAttempted;
         public static event Action<string> OnPlayerHint;
 
         protected override void Awake()
@@ -112,62 +130,42 @@ namespace ExhibitionSystem.Core
             }
 
             _currentTheme = theme;
-            _selectedInspirations.Clear();
-            _displaySlots.Clear();
-            _lockedSlots.Clear();
+            InitializeDisplaySlots(theme.RequiredSlots);
             _satisfaction = 0;
             _visitorIndex = 0;
 
-            SetState(ExhibitionState.InspirationSelection);
+            SetState(ExhibitionState.DisplayArrangement);
             OnThemeSelected?.Invoke(theme);
+            OnDisplaySlotsInitialized?.Invoke(theme.RequiredSlots);
         }
 
-        public bool TryConfirmInspirations(IReadOnlyList<InspirationData> selectedInspirations, out string hint)
+        public void AssignInspiration(int slotIndex, InspirationData inspiration)
         {
-            hint = string.Empty;
-            OnInspirationValidationAttempted?.Invoke();
+            if (!ValidateSlotIndex(slotIndex) || inspiration == null || _isRunning)
+                return;
 
-            if (_currentTheme == null)
+            int existingIndex = _slotInspirations.IndexOf(inspiration);
+            if (existingIndex >= 0 && existingIndex != slotIndex)
             {
-                hint = "Rin: (I should choose an exhibition theme first.)";
-                OnPlayerHint?.Invoke(hint);
-                return false;
+                _slotInspirations[existingIndex] = null;
+                OnSlotInspirationChanged?.Invoke(existingIndex, null);
             }
 
-            if (selectedInspirations == null || selectedInspirations.Count != _currentTheme.requiredInspirations)
-            {
-                hint = $"Rin: (I need exactly {_currentTheme.requiredInspirations} ideas for this exhibition.)";
-                OnPlayerHint?.Invoke(hint);
-                return false;
-            }
-
-            if (!_currentTheme.IsSelectionValid(selectedInspirations))
-            {
-                hint = PickSelectionErrorHint(selectedInspirations);
-                OnPlayerHint?.Invoke(hint);
-                return false;
-            }
-
-            _selectedInspirations.Clear();
-            _selectedInspirations.AddRange(selectedInspirations.OrderBy(inspiration => inspiration.id));
-            BuildDisplaySlotsFromInspirations();
-
-            SetState(ExhibitionState.DisplayArrangement);
-            OnInspirationsConfirmed?.Invoke(_selectedInspirations);
-            return true;
+            _slotInspirations[slotIndex] = inspiration;
+            OnSlotInspirationChanged?.Invoke(slotIndex, inspiration);
         }
 
         public ExhibitItemData PlaceItem(int slotIndex, ExhibitItemData item)
         {
             if (!ValidateSlotIndex(slotIndex)) return null;
-            if (_isRunning || IsSlotLocked(slotIndex) || item == null) return null;
+            if (_isRunning || item == null) return null;
 
             var previousItem = _displaySlots[slotIndex];
             if (previousItem == item)
                 return previousItem;
 
             int existingIndex = _displaySlots.IndexOf(item);
-            if (existingIndex >= 0 && existingIndex != slotIndex && !IsSlotLocked(existingIndex))
+            if (existingIndex >= 0 && existingIndex != slotIndex)
             {
                 _displaySlots[existingIndex] = null;
                 OnItemRemoved?.Invoke(existingIndex);
@@ -181,13 +179,13 @@ namespace ExhibitionSystem.Core
 
             _displaySlots[slotIndex] = item;
             OnItemPlaced?.Invoke(slotIndex, item);
+            AutoAssignKnownInspiration(slotIndex, item);
             return previousItem;
         }
 
         public ExhibitItemData RemoveItem(int slotIndex)
         {
-            if (!ValidateSlotIndex(slotIndex)) return null;
-            if (_isRunning || IsSlotLocked(slotIndex)) return null;
+            if (!ValidateSlotIndex(slotIndex) || _isRunning) return null;
 
             var removed = _displaySlots[slotIndex];
             _displaySlots[slotIndex] = null;
@@ -201,7 +199,6 @@ namespace ExhibitionSystem.Core
         {
             if (!ValidateSlotIndex(slotA) || !ValidateSlotIndex(slotB)) return;
             if (_isRunning || slotA == slotB) return;
-            if (IsSlotLocked(slotA) || IsSlotLocked(slotB)) return;
 
             (_displaySlots[slotA], _displaySlots[slotB]) = (_displaySlots[slotB], _displaySlots[slotA]);
             OnItemsSwapped?.Invoke(slotA, slotB);
@@ -215,9 +212,9 @@ namespace ExhibitionSystem.Core
                 return;
             }
 
-            if (_selectedInspirations.Count == 0)
+            if (!AreAllSlotsReady())
             {
-                Debug.LogWarning("[ExhibitionManager] Inspirations have not been confirmed.");
+                Debug.LogWarning("[ExhibitionManager] Every display slot needs an exhibit and an inspiration label.");
                 return;
             }
 
@@ -229,6 +226,7 @@ namespace ExhibitionSystem.Core
 
             _satisfaction = 0;
             _visitorIndex = 0;
+            _validationResults.Clear();
             _isRunning = true;
             SetState(ExhibitionState.ExhibitionRunning);
             OnExhibitionStarted?.Invoke();
@@ -238,7 +236,7 @@ namespace ExhibitionSystem.Core
 
         public void RetryExhibition()
         {
-            if (_currentTheme == null || _selectedInspirations.Count == 0 || _isRunning) return;
+            if (_currentTheme == null || _isRunning) return;
             StartExhibition();
         }
 
@@ -248,9 +246,9 @@ namespace ExhibitionSystem.Core
                 return;
 
             _currentTheme = null;
-            _selectedInspirations.Clear();
+            _slotInspirations.Clear();
             _displaySlots.Clear();
-            _lockedSlots.Clear();
+            _validationResults.Clear();
             _satisfaction = 0;
             _visitorIndex = 0;
 
@@ -266,7 +264,7 @@ namespace ExhibitionSystem.Core
 
         public bool IsSlotLocked(int index)
         {
-            return index >= 0 && index < _lockedSlots.Count && _lockedSlots[index];
+            return false;
         }
 
         public bool IsInspirationMatchKnown(InspirationData inspiration)
@@ -277,6 +275,18 @@ namespace ExhibitionSystem.Core
         public static void ResetKnownInspirationMatches()
         {
             KnownInspirationMatchIds.Clear();
+        }
+
+        public ExhibitItemData GetHintItemForInspiration(InspirationData inspiration)
+        {
+            if (inspiration == null)
+                return null;
+
+            int slotIndex = _slotInspirations.IndexOf(inspiration);
+            if (slotIndex >= 0 && slotIndex < _displaySlots.Count && _displaySlots[slotIndex] != null)
+                return _displaySlots[slotIndex];
+
+            return IsInspirationMatchKnown(inspiration) ? inspiration.mappedItem : null;
         }
 
         public IEnumerable<InspirationData> GetKnownInspirationsForItem(ExhibitItemData item)
@@ -309,37 +319,37 @@ namespace ExhibitionSystem.Core
             return _displaySlots.Count > 0 && CountEmptySlots() == 0;
         }
 
-        private string PickSelectionErrorHint(IReadOnlyList<InspirationData> selectedInspirations)
+        public bool AreAllSlotsReady()
         {
-            var selectedIds = selectedInspirations
-                .Where(inspiration => inspiration != null)
-                .Select(inspiration => inspiration.id)
-                .ToHashSet();
-
-            var missingIds = _currentTheme.validInspirationIds
-                .Where(id => !selectedIds.Contains(id))
-                .ToList();
-
-            if (missingIds.Count > 0)
-            {
-                int id = missingIds[UnityEngine.Random.Range(0, missingIds.Count)];
-                return _currentTheme.GetHintForMissingId(id);
-            }
-
-            return _currentTheme.GetInvalidHint();
+            return AreAllSlotsFilled() && HasAllLabelsFilled;
         }
 
-        private void BuildDisplaySlotsFromInspirations()
+        private void InitializeDisplaySlots(int slotCount)
         {
             _displaySlots.Clear();
-            _lockedSlots.Clear();
+            _slotInspirations.Clear();
+            _validationResults.Clear();
 
-            foreach (var inspiration in _selectedInspirations)
+            for (int i = 0; i < slotCount; i++)
             {
-                bool known = IsInspirationMatchKnown(inspiration);
-                _displaySlots.Add(known ? inspiration.mappedItem : null);
-                _lockedSlots.Add(known);
+                _displaySlots.Add(null);
+                _slotInspirations.Add(null);
             }
+        }
+
+        private void AutoAssignKnownInspiration(int slotIndex, ExhibitItemData item)
+        {
+            if (item == null || _currentTheme == null || _slotInspirations[slotIndex] != null)
+                return;
+
+            var knownInspiration = _allInspirations.FirstOrDefault(inspiration =>
+                inspiration != null &&
+                inspiration.mappedItem == item &&
+                _currentTheme.IsInspirationValid(inspiration.id) &&
+                IsInspirationMatchKnown(inspiration));
+
+            if (knownInspiration != null)
+                AssignInspiration(slotIndex, knownInspiration);
         }
 
         private bool ValidateSlotIndex(int index)
@@ -354,7 +364,7 @@ namespace ExhibitionSystem.Core
 
         private IEnumerator ProcessVisitorsCoroutine()
         {
-            while (_visitorIndex < _selectedInspirations.Count)
+            while (_visitorIndex < _displaySlots.Count)
             {
                 ProcessCurrentVisitor();
                 _visitorIndex++;
@@ -366,24 +376,43 @@ namespace ExhibitionSystem.Core
 
         private void ProcessCurrentVisitor()
         {
-            var inspiration = _selectedInspirations[_visitorIndex];
+            var inspiration = _slotInspirations[_visitorIndex];
             var item = _displaySlots[_visitorIndex];
-            bool isCorrect = inspiration != null && item != null && inspiration.mappedItem == item;
+            bool itemCorrect = IsItemValidForTheme(item);
+            bool? inspirationCorrect = itemCorrect
+                ? inspiration != null &&
+                  _currentTheme.IsInspirationValid(inspiration.id) &&
+                  inspiration.mappedItem == item
+                : null;
+            var validation = new ExhibitionSlotValidation(itemCorrect, inspirationCorrect);
 
-            if (isCorrect)
+            _validationResults.Add(validation);
+            if (validation.IsCorrect)
             {
                 _satisfaction++;
                 KnownInspirationMatchIds.Add(inspiration.id);
+                item.RecordUsage(_currentTheme.title);
             }
 
-            OnVisitorReacted?.Invoke(_visitorIndex, inspiration, item, isCorrect, _satisfaction);
+            OnVisitorReacted?.Invoke(_visitorIndex, inspiration, item, validation, _satisfaction);
+        }
+
+        private bool IsItemValidForTheme(ExhibitItemData item)
+        {
+            if (_currentTheme == null || item == null)
+                return false;
+
+            return _allInspirations.Any(inspiration =>
+                inspiration != null &&
+                _currentTheme.IsInspirationValid(inspiration.id) &&
+                inspiration.mappedItem == item);
         }
 
         private void EndExhibition()
         {
             _isRunning = false;
 
-            int threshold = _selectedInspirations.Count;
+            int threshold = _displaySlots.Count;
             bool success = _satisfaction >= threshold;
 
             if (success)
@@ -391,6 +420,39 @@ namespace ExhibitionSystem.Core
 
             SetState(ExhibitionState.Result);
             OnExhibitionEnded?.Invoke(success, _satisfaction, threshold);
+
+            if (!success)
+                OnPlayerHint?.Invoke(PickExhibitionErrorHint());
+        }
+
+        private string PickExhibitionErrorHint()
+        {
+            var correctlyMatchedIds = new HashSet<int>();
+            for (int i = 0; i < _displaySlots.Count; i++)
+            {
+                var item = _displaySlots[i];
+                var inspiration = _slotInspirations[i];
+                if (item != null &&
+                    inspiration != null &&
+                    IsItemValidForTheme(item) &&
+                    _currentTheme.IsInspirationValid(inspiration.id) &&
+                    inspiration.mappedItem == item)
+                {
+                    correctlyMatchedIds.Add(inspiration.id);
+                }
+            }
+
+            var missingIds = _currentTheme.validInspirationIds
+                .Where(id => !correctlyMatchedIds.Contains(id))
+                .ToList();
+
+            if (missingIds.Count > 0)
+                return _currentTheme.GetHintForMissingId(missingIds[UnityEngine.Random.Range(0, missingIds.Count)]);
+
+            if (_validationResults.Any(result => !result.ItemCorrect))
+                return "One of the exhibits does not fit. I should replace the item marked in red.";
+
+            return "One of the exhibit labels does not fit. I should replace the label marked in red.";
         }
 
         private void SetState(ExhibitionState state)

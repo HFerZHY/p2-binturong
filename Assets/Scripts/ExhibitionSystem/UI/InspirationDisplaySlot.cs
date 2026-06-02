@@ -3,6 +3,7 @@ using ExhibitionSystem.Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace ExhibitionSystem.UI
 {
@@ -13,57 +14,91 @@ namespace ExhibitionSystem.UI
         [SerializeField] private DisplaySlotUI _displaySlot;
         [SerializeField] private GameObject _tooltipPanel;
         [SerializeField] private TMP_Text _tooltipText;
+        [SerializeField] private Button _labelButton;
+        [SerializeField] private Image _labelBackground;
+
+        [Header("Label Colors")]
+        [SerializeField] private Color _labelDefaultColor = Color.white;
+        [SerializeField] private Color _labelCorrectColor = new(0.65f, 0.92f, 0.58f, 1f);
+        [SerializeField] private Color _labelIncorrectColor = new(0.95f, 0.48f, 0.44f, 1f);
 
         private int _slotIndex;
         private InspirationData _inspiration;
+        private ExhibitItemData _item;
 
         public DisplaySlotUI DisplaySlot => _displaySlot;
         public InspirationData Inspiration => _inspiration;
 
-        public void SetData(int slotIndex, InspirationData inspiration, ExhibitItemData item, bool locked)
+        private void Awake()
+        {
+            EnsureLabelReferences();
+            if (_labelButton != null)
+                _labelButton.onClick.AddListener(HandleLabelClicked);
+        }
+
+        public void SetData(int slotIndex, InspirationData inspiration, ExhibitItemData item)
         {
             _slotIndex = slotIndex;
-            _inspiration = inspiration;
-
-            if (_inspirationText != null)
-                _inspirationText.text = inspiration != null ? ToShortLabel(inspiration.text) : string.Empty;
-
-            if (_tooltipText != null)
-                _tooltipText.text = inspiration != null ? inspiration.text : string.Empty;
+            SetInspiration(inspiration);
+            SetItem(item);
 
             if (_tooltipPanel != null)
                 _tooltipPanel.SetActive(false);
 
-            if (_statusText != null)
-                _statusText.text = locked ? "Matched" : "Find the item";
-
             if (_displaySlot != null)
             {
                 _displaySlot.SetSlotIndex(slotIndex);
-                _displaySlot.SetLocked(locked);
-                _displaySlot.SetItem(item);
+                _displaySlot.SetLocked(false);
             }
+
+            ClearFeedback();
+        }
+
+        public void SetInspiration(InspirationData inspiration)
+        {
+            _inspiration = inspiration;
+
+            if (_inspirationText != null)
+                _inspirationText.text = inspiration != null ? ToShortLabel(inspiration.text) : "Select inspiration";
+
+            if (_tooltipText != null)
+                _tooltipText.text = inspiration != null ? inspiration.text : "Click to choose an inspiration label.";
+
+            UpdateLabelInteractable();
         }
 
         public void SetItem(ExhibitItemData item)
         {
+            _item = item;
             if (_displaySlot != null)
                 _displaySlot.SetItem(item);
+
+            UpdateLabelInteractable();
         }
 
         public void ClearItem()
         {
+            _item = null;
             if (_displaySlot != null)
                 _displaySlot.ClearItem();
+
+            UpdateLabelInteractable();
         }
 
-        public void ShowFeedback(bool isCorrect)
+        public void ShowFeedback(ExhibitionSlotValidation validation)
         {
             if (_displaySlot != null)
-                _displaySlot.ShowFeedback(isCorrect);
+                _displaySlot.ShowFeedback(validation.ItemCorrect);
+
+            SetLabelColor(validation.InspirationCorrect switch
+            {
+                true => _labelCorrectColor,
+                false => _labelIncorrectColor,
+                _ => _labelDefaultColor
+            });
 
             if (_statusText != null)
-                _statusText.text = isCorrect ? "Correct" : "Try again";
+                _statusText.text = validation.IsCorrect ? "Correct" : "Try again";
         }
 
         public void ClearFeedback()
@@ -71,15 +106,14 @@ namespace ExhibitionSystem.UI
             if (_displaySlot != null)
                 _displaySlot.ClearFeedback();
 
-            var manager = ExhibitionManager.Instance;
-            bool locked = manager != null && manager.IsSlotLocked(_slotIndex);
+            SetLabelColor(_labelDefaultColor);
             if (_statusText != null)
-                _statusText.text = locked ? "Matched" : "Find the item";
+                _statusText.text = _inspiration != null ? "Label selected" : "Choose a label";
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (_tooltipPanel != null && _inspiration != null)
+            if (_tooltipPanel != null)
                 _tooltipPanel.SetActive(true);
         }
 
@@ -87,6 +121,49 @@ namespace ExhibitionSystem.UI
         {
             if (_tooltipPanel != null)
                 _tooltipPanel.SetActive(false);
+        }
+
+        private void HandleLabelClicked()
+        {
+            var manager = ExhibitionManager.Instance;
+            if (manager == null || manager.IsRunning || _item == null)
+                return;
+
+            ExhibitionUIManager.Instance?.ShowInspirationPopupForSlot(_slotIndex);
+        }
+
+        private void EnsureLabelReferences()
+        {
+            var label = transform.Find("LabelStrip");
+            if (label == null)
+                return;
+
+            if (_labelBackground == null)
+                _labelBackground = label.GetComponent<Image>();
+
+            if (_labelButton == null)
+            {
+                _labelButton = label.GetComponent<Button>();
+                if (_labelButton == null)
+                    _labelButton = label.gameObject.AddComponent<Button>();
+            }
+
+            if (_labelButton != null && _labelBackground != null)
+                _labelButton.targetGraphic = _labelBackground;
+        }
+
+        private void UpdateLabelInteractable()
+        {
+            EnsureLabelReferences();
+            if (_labelButton != null)
+                _labelButton.interactable = _item != null && !(ExhibitionManager.Instance?.IsRunning ?? false);
+        }
+
+        private void SetLabelColor(Color color)
+        {
+            EnsureLabelReferences();
+            if (_labelBackground != null)
+                _labelBackground.color = color;
         }
 
         private static string ToShortLabel(string text)

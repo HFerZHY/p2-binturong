@@ -46,7 +46,6 @@ namespace ExhibitionSystem.UI
         private void OnEnable()
         {
             ExhibitionManager.OnThemeSelected += HandleThemeSelected;
-            ExhibitionManager.OnInspirationsConfirmed += HandleInspirationsConfirmed;
             ExhibitionManager.OnExhibitionStarted += HandleExhibitionStarted;
             ExhibitionManager.OnVisitorReacted += HandleVisitorReacted;
             ExhibitionManager.OnExhibitionEnded += HandleExhibitionEnded;
@@ -56,7 +55,6 @@ namespace ExhibitionSystem.UI
         private void OnDisable()
         {
             ExhibitionManager.OnThemeSelected -= HandleThemeSelected;
-            ExhibitionManager.OnInspirationsConfirmed -= HandleInspirationsConfirmed;
             ExhibitionManager.OnExhibitionStarted -= HandleExhibitionStarted;
             ExhibitionManager.OnVisitorReacted -= HandleVisitorReacted;
             ExhibitionManager.OnExhibitionEnded -= HandleExhibitionEnded;
@@ -152,21 +150,17 @@ namespace ExhibitionSystem.UI
             Initialize(theme.requiredInspirations, theme.SuccessThreshold);
         }
 
-        private void HandleInspirationsConfirmed(System.Collections.Generic.IReadOnlyList<InspirationData> inspirations)
-        {
-            var manager = ExhibitionManager.Instance;
-            var theme = manager?.CurrentTheme;
-            if (theme == null) return;
-
-            Initialize(inspirations.Count, inspirations.Count);
-        }
-
         private void HandleExhibitionStarted()
         {
             Reset();
         }
 
-        private void HandleVisitorReacted(int slotIndex, InspirationData inspiration, ExhibitItemData item, bool isCorrect, int satisfaction)
+        private void HandleVisitorReacted(
+            int slotIndex,
+            InspirationData inspiration,
+            ExhibitItemData item,
+            ExhibitionSlotValidation validation,
+            int satisfaction)
         {
             SetValue(satisfaction);
             UpdateColor();

@@ -20,8 +20,20 @@ MonoBehaviour:
   requiredInspirations: 4
   selectionMode: 0
   validInspirationIds: 04000000060000000d0000000e000000
-  missingIdeaHints: []
-  fallbackMissingHint: 'Rin: (I am missing one of the ideas that really belongs to
-    this exhibition.)'
-  fallbackInvalidHint: 'Rin: (One of these ideas feels out of place for this exhibition.)'
+  missingIdeaHints:
+  - inspirationId: 4
+    hintText: This piece embodies Mizuki's dream, I promised her I'd show it to the
+      world.
+  - inspirationId: 6
+    hintText: Let's pick something that belongs to the seaside... it even comes with
+      a haiku.
+  - inspirationId: 13
+    hintText: This is the blessing Mizuki gave me, let's share it with the travelers,
+      too.
+  - inspirationId: 14
+    hintText: They say Otowa's hot spring holds a wondrous energy... that's exactly
+      what I should put into the exhibition.
+  fallbackMissingHint: I am missing one of the ideas that really belongs to this
+    exhibition.
+  fallbackInvalidHint: One of these ideas feels out of place for this exhibition.
   isCompleted: 0

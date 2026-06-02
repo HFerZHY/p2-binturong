@@ -24,7 +24,7 @@ namespace ExhibitionSystem.UI
         private const string SummerFestivalRewardText =
             "The Otowa Summer Festival is not only a reverence for the ancient bird deity, but also a ceremony of \"homecoming.\" When the fireworks light up all of Otowa, even the migratory birds that flew the furthest will follow the railway tracks back to their original nest on this day.";
         private const string ChefJiroRewardText =
-            "He is an artisan devoted to tradition, who revived the century-old recipe for shichimi pepper and breathed soul back into his dishes. He is also a clumsy father, who could only watch his son's retreating figure carried away by the current of time. Mr. Jiro, surely you know it too: the only thing that endures across the years, ever renewed, is that quiet, unspoken love.";
+            "He is an artisan devoted to tradition, who revived the century-old recipe for shichimi pepper. He is also a clumsy father, who could only watch his son's retreating figure carried away by the current of time. Mr. Jiro, surely you know it too: the only thing that endures across the years, ever renewed, is that quiet, unspoken love.";
         private const string HotSpringsRewardText =
             "Hot spring in the mountains:\n" +
             "high above the naked bathers\n" +

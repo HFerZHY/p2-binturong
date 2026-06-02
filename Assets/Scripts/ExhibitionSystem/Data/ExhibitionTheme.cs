@@ -59,10 +59,10 @@ namespace ExhibitionSystem.Data
         public List<InspirationHint> missingIdeaHints = new();
 
         [TextArea(2, 4)]
-        public string fallbackMissingHint = "Rin: (Some of the ideas I need are still missing.)";
+        public string fallbackMissingHint = "Some of the ideas I need are still missing.";
 
         [TextArea(2, 4)]
-        public string fallbackInvalidHint = "Rin: (Something in this set of ideas does not fit the theme.)";
+        public string fallbackInvalidHint = "Something in this set of ideas does not fit the theme.";
 
         [Header("State")]
         [Tooltip("Whether this exhibition has been successfully completed")]
@@ -104,7 +104,7 @@ namespace ExhibitionSystem.Data
         public string GetInvalidHint()
         {
             return string.IsNullOrWhiteSpace(fallbackInvalidHint)
-                ? "Rin: (Something in this set of ideas does not fit the theme.)"
+                ? "Something in this set of ideas does not fit the theme."
                 : fallbackInvalidHint;
         }
 

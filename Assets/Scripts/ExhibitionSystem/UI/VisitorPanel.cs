@@ -42,6 +42,13 @@ namespace ExhibitionSystem.UI
             "Interesting, but not what I expected."
         };
 
+        [SerializeField] private string[] _labelNegativeComments =
+        {
+            "The exhibit belongs here, but this label seems off.",
+            "I think this piece needs a different explanation.",
+            "This exhibit fits the theme, but the label does not."
+        };
+
         [SerializeField] private string[] _emptySlotComments =
         {
             "There's nothing here to see...",
@@ -190,7 +197,12 @@ namespace ExhibitionSystem.UI
             _isCharacterVisible = false;
         }
 
-        private void HandleVisitorReacted(int slotIndex, InspirationData inspiration, ExhibitItemData item, bool isCorrect, int satisfaction)
+        private void HandleVisitorReacted(
+            int slotIndex,
+            InspirationData inspiration,
+            ExhibitItemData item,
+            ExhibitionSlotValidation validation,
+            int satisfaction)
         {
             var manager = ExhibitionManager.Instance;
             if (manager == null) return;
@@ -202,9 +214,13 @@ namespace ExhibitionSystem.UI
             {
                 comment = GetRandomComment(_emptySlotComments);
             }
-            else if (isCorrect)
+            else if (validation.IsCorrect)
             {
                 comment = GetRandomComment(_positiveComments);
+            }
+            else if (validation.ItemCorrect)
+            {
+                comment = GetRandomComment(_labelNegativeComments);
             }
             else
             {
@@ -226,7 +242,7 @@ namespace ExhibitionSystem.UI
         {
             string message = success
                 ? $"{_successMessage}\nMatches: {satisfaction}/{threshold}"
-                : $"{_failureMessage}\nMatches: {satisfaction}/{threshold}. Rearrange the items and try again.";
+                : $"{_failureMessage}\nMatches: {satisfaction}/{threshold}. Rearrange the items or labels and try again.";
 
             ShowDialogue(message);
 

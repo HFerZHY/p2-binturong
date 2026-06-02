@@ -33,7 +33,7 @@ namespace ExhibitionSystem.UI
 
         private void OnEnable()
         {
-            ExhibitionManager.OnInspirationsConfirmed += HandleInspirationsConfirmed;
+            ExhibitionManager.OnThemeSelected += HandleThemeSelected;
             ExhibitionManager.OnItemPlaced += HandleItemPlaced;
             ExhibitionManager.OnItemRemoved += HandleItemRemoved;
             ExhibitionManager.OnCurationCleared += HandleCurationCleared;
@@ -41,7 +41,7 @@ namespace ExhibitionSystem.UI
 
         private void OnDisable()
         {
-            ExhibitionManager.OnInspirationsConfirmed -= HandleInspirationsConfirmed;
+            ExhibitionManager.OnThemeSelected -= HandleThemeSelected;
             ExhibitionManager.OnItemPlaced -= HandleItemPlaced;
             ExhibitionManager.OnItemRemoved -= HandleItemRemoved;
             ExhibitionManager.OnCurationCleared -= HandleCurationCleared;
@@ -146,7 +146,7 @@ namespace ExhibitionSystem.UI
 
         // ── Event Handlers ──────────────────────────────────────────────────────
 
-        private void HandleInspirationsConfirmed(IReadOnlyList<InspirationData> inspirations)
+        private void HandleThemeSelected(ExhibitionTheme theme)
         {
             RefreshSlotStates();
         }

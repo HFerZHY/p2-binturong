@@ -15,7 +15,7 @@ namespace ExhibitionSystem.UI
         private static void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             TutorialPopup.EnsureTutorialPopupExists();
-            InspirationSuccessPopup.EnsurePopupExists();
+            ExhibitionErrorHintBar.EnsureErrorHintBarExists();
             RewardPopup.EnsureRewardPopupExists();
         }
     }

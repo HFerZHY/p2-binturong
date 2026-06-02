@@ -23,7 +23,7 @@ namespace ExhibitionSystem.Data
 
         [TextArea(2, 4)]
         [Tooltip("Fallback hint if this idea is missing from a theme selection.")]
-        public string fallbackHint = "Rin: (This idea might matter here.)";
+        public string fallbackHint = "This idea might matter here.";
 
         [Tooltip("Editor reset value only. Runtime match memory is stored in ExhibitionManager for the current Play Session.")]
         [HideInInspector]

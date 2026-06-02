@@ -33,9 +33,10 @@ namespace ExhibitionSystem.UI
         private void OnEnable()
         {
             ExhibitionManager.OnThemeSelected += HandleThemeSelected;
-            ExhibitionManager.OnInspirationsConfirmed += HandleInspirationsConfirmed;
+            ExhibitionManager.OnSlotInspirationChanged += HandleSlotInspirationChanged;
             ExhibitionManager.OnItemPlaced += HandleItemChanged;
             ExhibitionManager.OnItemRemoved += HandleItemRemoved;
+            ExhibitionManager.OnItemsSwapped += HandleItemsSwapped;
             ExhibitionManager.OnExhibitionStarted += HandleExhibitionStarted;
             ExhibitionManager.OnExhibitionEnded += HandleExhibitionEnded;
             ExhibitionManager.OnStateChanged += HandleStateChanged;
@@ -44,9 +45,10 @@ namespace ExhibitionSystem.UI
         private void OnDisable()
         {
             ExhibitionManager.OnThemeSelected -= HandleThemeSelected;
-            ExhibitionManager.OnInspirationsConfirmed -= HandleInspirationsConfirmed;
+            ExhibitionManager.OnSlotInspirationChanged -= HandleSlotInspirationChanged;
             ExhibitionManager.OnItemPlaced -= HandleItemChanged;
             ExhibitionManager.OnItemRemoved -= HandleItemRemoved;
+            ExhibitionManager.OnItemsSwapped -= HandleItemsSwapped;
             ExhibitionManager.OnExhibitionStarted -= HandleExhibitionStarted;
             ExhibitionManager.OnExhibitionEnded -= HandleExhibitionEnded;
             ExhibitionManager.OnStateChanged -= HandleStateChanged;
@@ -96,7 +98,7 @@ namespace ExhibitionSystem.UI
             UpdateUI();
         }
 
-        private void HandleInspirationsConfirmed(System.Collections.Generic.IReadOnlyList<InspirationData> inspirations)
+        private void HandleSlotInspirationChanged(int slotIndex, InspirationData inspiration)
         {
             _canRetry = false;
             UpdateUI();
@@ -108,6 +110,11 @@ namespace ExhibitionSystem.UI
         }
 
         private void HandleItemRemoved(int slotIndex)
+        {
+            UpdateUI();
+        }
+
+        private void HandleItemsSwapped(int slotA, int slotB)
         {
             UpdateUI();
         }
@@ -137,16 +144,14 @@ namespace ExhibitionSystem.UI
             var theme = manager?.CurrentTheme;
             bool isRunning = manager != null && manager.IsRunning;
             bool hasTheme = theme != null;
-            bool hasIdeas = manager != null && manager.HasConfirmedInspirations;
-            bool canStart = hasTheme && hasIdeas && !isRunning && manager.AreAllSlotsFilled();
+            bool allLabelsFilled = manager != null && manager.HasAllLabelsFilled;
+            bool canStart = hasTheme && !isRunning && manager.AreAllSlotsReady();
             bool themeLocked = IsThemeLocked();
 
             if (_titleText != null)
             {
                 if (theme == null)
                     _titleText.text = "Select a Theme";
-                else if (!hasIdeas)
-                    _titleText.text = theme.title;
                 else
                     _titleText.text = theme.title;
             }
@@ -164,7 +169,7 @@ namespace ExhibitionSystem.UI
             }
 
             if (_startButton != null)
-                _startButton.interactable = _canRetry || canStart;
+                _startButton.interactable = canStart;
 
             if (_startButtonText != null)
             {
@@ -172,7 +177,7 @@ namespace ExhibitionSystem.UI
                     _startButtonText.text = _runningText;
                 else if (_canRetry)
                     _startButtonText.text = _retryText;
-                else if (!hasIdeas)
+                else if (!allLabelsFilled)
                     _startButtonText.text = _lockedText;
                 else
                     _startButtonText.text = _startText;
@@ -183,7 +188,7 @@ namespace ExhibitionSystem.UI
         {
             var manager = ExhibitionManager.Instance;
             var theme = manager?.CurrentTheme;
-            return theme != null && manager.HasConfirmedInspirations && !theme.isCompleted;
+            return theme != null && manager.HasCurationProgress && !theme.isCompleted;
         }
 
         private void EnsureSelectButtonReferences()

@@ -227,7 +227,6 @@ namespace ExhibitionSystem.UI
 
             ExhibitionManager.Instance?.SelectTheme(_selectedTheme);
             Hide();
-            ExhibitionUIManager.Instance?.ShowInspirationPopup();
         }
 
         private void UpdateSelectionVisuals()

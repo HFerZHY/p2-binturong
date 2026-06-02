@@ -141,7 +141,7 @@ public static class ExhibitionTestDataBuilder
             inspiration.text = def.text;
             inspiration.mappedItem = def.item;
             inspiration.isUnlocked = true;
-            inspiration.fallbackHint = "Rin: (This idea feels connected, but I need to place it in the right context.)";
+            inspiration.fallbackHint = "This idea feels connected, but I need to place it in the right context.";
 
             EditorUtility.SetDirty(inspiration);
             inspirations.Add(inspiration);
@@ -164,9 +164,9 @@ public static class ExhibitionTestDataBuilder
                 "A festival exhibition about belief, fireworks, and homecoming.",
                 new (int, string)[]
                 {
-                    (7, "Rin: (Junko seemed to mention that the origin of the Summer Festival is related to birds.)"),
-                    (8, "Rin: (Summer's most beautiful night seems to bloom above the town.)"),
-                    (16, "Rin: (The Summer Festival isn't just a ceremony, it is also tied to family bonds.)")
+                    (7, "Junko seemed to mention that the origin of the Summer Festival is related to birds."),
+                    (8, "Summer's most beautiful night seems to bloom above the town."),
+                    (16, "The Summer Festival isn't just a ceremony, it is also tied to family bonds.")
                 }),
             CreateTheme(
                 "Yuji",
@@ -178,9 +178,9 @@ public static class ExhibitionTestDataBuilder
                 "A profile of Yuji's pub, inventions, and local specialty work.",
                 new (int, string)[]
                 {
-                    (8, "Rin: (Yuji said running the pub was just a hobby. What was his main profession again?)"),
-                    (10, "Rin: (Where exactly does the unique flavor in Yuji's sake come from?)"),
-                    (12, "Rin: (I remember Yuji once brought honor to Otowa in a competition.)")
+                    (8, "Yuji said running the pub was just a hobby. What was his main profession again?"),
+                    (10, "Where exactly does the unique flavor in Yuji's sake come from?"),
+                    (12, "I remember Yuji once brought honor to Otowa in a competition.")
                 }),
             CreateTheme(
                 "Birdwatching",
@@ -190,7 +190,13 @@ public static class ExhibitionTestDataBuilder
                 InspirationSelectionMode.AnyFromPool,
                 new[] {1, 2, 3, 7},
                 "An exhibition about birds, watchers, and local belief.",
-                null),
+                new (int, string)[]
+                {
+                    (1, "Professor Rintaro was after some rare bird. What color was it again...?"),
+                    (2, "You absolutely can't go birdwatching without one of these..."),
+                    (3, "From geology professor to birdwatching devotee... let's put that turning point into the exhibition!"),
+                    (7, "Junko seemed to mention that the origin of the Summer Festival is related to birds.")
+                }),
             CreateTheme(
                 "ChefJiro",
                 "Master Jiro: Culinary Devotion and Hidden Sorrows",
@@ -199,7 +205,13 @@ public static class ExhibitionTestDataBuilder
                 InspirationSelectionMode.ExactSet,
                 new[] {5, 10, 11, 15},
                 "A focused exhibition about Jiro's cooking and family history.",
-                null),
+                new (int, string)[]
+                {
+                    (5, "I should find an exhibit that captures the rift between Jiro and his son."),
+                    (10, "What could possibly capture the taste of Otowa...?"),
+                    (11, "This exhibition definitely needs Jiro's signature creation."),
+                    (15, "I remember... Jiro was secretly making Hachi's favorite treat.")
+                }),
             CreateTheme(
                 "HotSprings",
                 "The Mountain Springs: A Soak Beneath the Milky Way",
@@ -208,7 +220,13 @@ public static class ExhibitionTestDataBuilder
                 InspirationSelectionMode.AnyFromPool,
                 new[] {4, 6, 13, 14},
                 "An exhibition about Otowa's water, health, and hot spring culture.",
-                null)
+                new (int, string)[]
+                {
+                    (4, "This piece embodies Mizuki's dream, I promised her I'd show it to the world."),
+                    (6, "Let's pick something that belongs to the seaside... it even comes with a haiku."),
+                    (13, "This is the blessing Mizuki gave me, let's share it with the travelers, too."),
+                    (14, "They say Otowa's hot spring holds a wondrous energy... that's exactly what I should put into the exhibition.")
+                })
         };
 
         return themes;
@@ -233,8 +251,8 @@ public static class ExhibitionTestDataBuilder
         theme.requiredInspirations = requiredIdeas;
         theme.selectionMode = mode;
         theme.validInspirationIds = validIdeaIds.ToList();
-        theme.fallbackMissingHint = "Rin: (I am missing one of the ideas that really belongs to this exhibition.)";
-        theme.fallbackInvalidHint = "Rin: (One of these ideas feels out of place for this exhibition.)";
+        theme.fallbackMissingHint = "I am missing one of the ideas that really belongs to this exhibition.";
+        theme.fallbackInvalidHint = "One of these ideas feels out of place for this exhibition.";
         theme.missingIdeaHints = hints == null
             ? new List<InspirationHint>()
             : hints.Select(hint => new InspirationHint { inspirationId = hint.id, hintText = hint.hint }).ToList();

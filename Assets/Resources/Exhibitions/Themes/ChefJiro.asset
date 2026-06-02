@@ -20,8 +20,17 @@ MonoBehaviour:
   requiredInspirations: 4
   selectionMode: 1
   validInspirationIds: 050000000a0000000b0000000f000000
-  missingIdeaHints: []
-  fallbackMissingHint: 'Rin: (I am missing one of the ideas that really belongs to
-    this exhibition.)'
-  fallbackInvalidHint: 'Rin: (One of these ideas feels out of place for this exhibition.)'
-  isCompleted: 0
+  missingIdeaHints:
+  - inspirationId: 5
+    hintText: I should find an exhibit that captures the rift between Jiro and his
+      son.
+  - inspirationId: 10
+    hintText: What could possibly capture the taste of Otowa...?
+  - inspirationId: 11
+    hintText: This exhibition definitely needs Jiro's signature creation.
+  - inspirationId: 15
+    hintText: I remember... Jiro was secretly making Hachi's favorite treat.
+  fallbackMissingHint: I am missing one of the ideas that really belongs to this
+    exhibition.
+  fallbackInvalidHint: One of these ideas feels out of place for this exhibition.
+  isCompleted: 1

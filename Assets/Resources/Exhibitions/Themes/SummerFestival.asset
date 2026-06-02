@@ -22,14 +22,14 @@ MonoBehaviour:
   validInspirationIds: 070000000800000010000000
   missingIdeaHints:
   - inspirationId: 7
-    hintText: 'Rin: (Junko seemed to mention that the origin of the Summer Festival
-      is related to birds.)'
+    hintText: Junko seemed to mention that the origin of the Summer Festival is related
+      to birds.
   - inspirationId: 8
-    hintText: 'Rin: (Summer''s most beautiful night seems to bloom above the town.)'
+    hintText: Summer's most beautiful night seems to bloom above the town.
   - inspirationId: 16
-    hintText: 'Rin: (The Summer Festival isn''t just a ceremony, it is also tied
-      to family bonds.)'
-  fallbackMissingHint: 'Rin: (I am missing one of the ideas that really belongs to
-    this exhibition.)'
-  fallbackInvalidHint: 'Rin: (One of these ideas feels out of place for this exhibition.)'
-  isCompleted: 0
+    hintText: The Summer Festival isn't just a ceremony, it is also tied to family
+      bonds.
+  fallbackMissingHint: I am missing one of the ideas that really belongs to this
+    exhibition.
+  fallbackInvalidHint: One of these ideas feels out of place for this exhibition.
+  isCompleted: 1
