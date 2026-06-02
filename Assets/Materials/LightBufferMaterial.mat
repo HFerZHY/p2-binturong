@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: NightViewMaterial
-  m_Shader: {fileID: 4800000, guid: 9249f585bb440be408373e8b135ae997, type: 3}
+  m_Name: LightBufferMaterial
+  m_Shader: {fileID: 4800000, guid: b10b90f1b8f0ef6448df5bc54eac7e3b, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -41,12 +41,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Alpha: 0
+    - _CoreRadius: 0.105
     - _EnableExternalAlpha: 0
+    - _Intensity: 1
     - _ZWrite: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _NightCol: {r: 0.18884134, g: 0.23377237, b: 0.5707547, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

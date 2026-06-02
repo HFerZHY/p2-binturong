@@ -16,6 +16,7 @@ MonoBehaviour:
   settings:
     renderPassEvent: 600
     nightMaterial: {fileID: 2100000, guid: 4c08ff1233242a54d950269317740578, type: 2}
+    lightCircleMaterial: {fileID: 2100000, guid: 8b03b7bd9f3de264fa9ed25d06e1ca9f, type: 2}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47,7 +48,7 @@ MonoBehaviour:
   m_LayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_TransparencySortMode: 0
+  m_TransparencySortMode: 3
   m_TransparencySortAxis: {x: 0, y: 1, z: 0}
   m_HDREmulationScale: 1
   m_LightRenderTextureScale: 0.5
