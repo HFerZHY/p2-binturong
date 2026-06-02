@@ -87,6 +87,12 @@ namespace Otowa.Day3
             if (_inputLock || _finished || !WasAdvancePressed())
                 return;
 
+            if (Beats[_beatIndex].Phase == BeatPhase.Credits)
+            {
+                QuitGame();
+                return;
+            }
+
             if (_textPlayer.IsTyping)
             {
                 _textPlayer.Skip();
@@ -96,8 +102,7 @@ namespace Otowa.Day3
             var next = _beatIndex + 1;
             if (next >= Beats.Length)
             {
-                _finished = true;
-                _prompt.gameObject.SetActive(false);
+                QuitGame();
                 return;
             }
 
@@ -105,6 +110,18 @@ namespace Otowa.Day3
                 StartCoroutine(CrossFadeTo(next));
             else
                 ShowBeat(next);
+        }
+
+        private void QuitGame()
+        {
+            _finished = true;
+            _prompt.gameObject.SetActive(false);
+
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
         }
 
         private void ShowBeat(int index)

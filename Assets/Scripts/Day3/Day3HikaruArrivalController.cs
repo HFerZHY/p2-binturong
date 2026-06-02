@@ -117,7 +117,7 @@ namespace Otowa.Day3
             _beats.Add(new Beat(BeatKind.StripLine, "Rin", "Why does this record matter so much to you, Hikaru?", CinematicStripPortraitFocus.Left));
             _beats.Add(new Beat(BeatKind.StripLine, "Hikaru", "I think our exhibition can't only be about the village's past.", CinematicStripPortraitFocus.Right));
             _beats.Add(new Beat(BeatKind.StripLine, "Hikaru", "It should hold the village's future, too. This record, for instance... after Hachi left Otowa, he went and wrote a song about home.", CinematicStripPortraitFocus.Right));
-            _beats.Add(new Beat(BeatKind.StripLine, "Rin", "(Hachi? Mr. Jiro's son, the boy with the guitar?)", CinematicStripPortraitFocus.Left));
+            _beats.Add(new Beat(BeatKind.StripLine, "Rin", "(Hachi? Mr. Jiro's son, the guitar boy?)", CinematicStripPortraitFocus.Left));
             _beats.Add(new Beat(BeatKind.RecordPopup, "", ""));
             _beats.Add(new Beat(BeatKind.StripLine, "Hikaru", "Otowa Blues... I'd been thinking, if this ever became a real exhibition, that could be its name.", CinematicStripPortraitFocus.Right));
             _beats.Add(new Beat(BeatKind.StripLine, "Rin", "...Mr. Hikaru.", CinematicStripPortraitFocus.Left));

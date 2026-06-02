@@ -38,6 +38,7 @@ namespace Otowa.Day3
         private bool _finaleStarted;
         private bool _waitingForClosingConversation;
         private bool _blackScreenActive;
+        private float _blackScreenInputUnlockTime;
         private bool _loadingScene;
 
         private void Awake()
@@ -50,7 +51,7 @@ namespace Otowa.Day3
 
         private void Update()
         {
-            if (!_blackScreenActive || _loadingScene || !WasAdvancePressed())
+            if (!_blackScreenActive || _loadingScene || Time.unscaledTime < _blackScreenInputUnlockTime || !WasAdvancePressed())
                 return;
 
             if (_blackScreenTextPlayer.IsTyping)
@@ -147,10 +148,11 @@ namespace Otowa.Day3
 
         private IEnumerator BeginBlackScreen()
         {
-            _blackScreenActive = true;
             _blackScreen.gameObject.SetActive(true);
             yield return FadeBlackScreen(0f, 1f, 0.60f);
             ShowNextBlackScreenLine();
+            _blackScreenActive = true;
+            _blackScreenInputUnlockTime = Time.unscaledTime + 0.25f;
         }
 
         private void ShowNextBlackScreenLine()
@@ -163,6 +165,7 @@ namespace Otowa.Day3
             }
 
             _blackScreenTextPlayer.Play(_blackScreenBody, _blackScreenLines[_blackScreenLineIndex]);
+            _blackScreenInputUnlockTime = Time.unscaledTime + 0.15f;
         }
 
         private IEnumerator LoadNextScene()

@@ -47,7 +47,7 @@ namespace Otowa.Day3
         private static readonly Beat[] Beats =
         {
             Indigo("You hear the melody of the blues."),
-            Indigo("You hear a guitar-playing boy who once pictured the shape of the city from his mountain village, then dreamed of that village once he reached the city."),
+            Indigo("You hear a guitar boy who once pictured the shape of the city from his mountain village, then dreamed of that village once he reached the city."),
             Indigo("Then you start to hear more."),
             Indigo("A blue bird. Fireworks over the sea."),
             Indigo("The taste of shichimi. The taste of dango."),

@@ -15,7 +15,7 @@ namespace Otowa.Day3
     {
         [SerializeField] private float _inspectorWalkSpeed = 2.6f;
         [SerializeField] private float _departurePause = 0.55f;
-        [SerializeField] private float _cameraPanDuration = 1.1f;
+        [SerializeField] private float _cameraPanDuration = 2f;
         [SerializeField] private string _nextSceneName = "Day3FinaleCredits";
         [SerializeField] private TMP_FontAsset _serifFont;
 
@@ -133,7 +133,7 @@ namespace Otowa.Day3
         {
             return BuildGraph("Day3InspectorFarewell", new[]
             {
-                InspectorFacingAway("Rin. Happy Summer Festival."),
+                InspectorFacingAway("Happy Summer Festival, Rin."),
             }, BeginInspectorFinalExit);
         }
 
@@ -258,7 +258,7 @@ namespace Otowa.Day3
                 yield break;
 
             var start = camera.transform.position;
-            var target = start + new Vector3(0f, 7f, 0f);
+            var target = start + new Vector3(0f, 14f, 0f);
             var elapsed = 0f;
             while (elapsed < _cameraPanDuration)
             {
@@ -302,7 +302,7 @@ namespace Otowa.Day3
             separator.AddComponent<Image>().color = new Color32(0x9a, 0x90, 0x80, 0xFF);
 
             _letterBody = MakeText(paper.transform, "Body", string.Empty,
-                27f, new Color32(0x3a, 0x35, 0x2e, 0xFF), TextAlignmentOptions.Left,
+                31f, new Color32(0x3a, 0x35, 0x2e, 0xFF), TextAlignmentOptions.Left,
                 new Vector2(0.06f, 0.14f), new Vector2(0.94f, 0.85f));
             _letterBody.lineSpacing = 7f;
 

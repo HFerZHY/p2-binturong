@@ -25,7 +25,8 @@ namespace Otowa.Day3
                 CinematicStripPortraitFocus focus = CinematicStripPortraitFocus.None,
                 int passengerIndex = -1,
                 bool showNamedPair = false,
-                bool clearPassengers = false)
+                bool clearPassengers = false,
+                bool showInspector = false)
             {
                 Kind = kind;
                 Speaker = speaker;
@@ -34,6 +35,7 @@ namespace Otowa.Day3
                 PassengerIndex = passengerIndex;
                 ShowNamedPair = showNamedPair;
                 ClearPassengers = clearPassengers;
+                ShowInspector = showInspector;
             }
 
             public BeatKind Kind { get; }
@@ -43,19 +45,22 @@ namespace Otowa.Day3
             public int PassengerIndex { get; }
             public bool ShowNamedPair { get; }
             public bool ClearPassengers { get; }
+            public bool ShowInspector { get; }
         }
 
         [SerializeField] private TMP_FontAsset _font;
         [SerializeField] private float _charactersPerSecond = 38f;
         [SerializeField] private string _nextSceneName = "Day3InspectorDecision";
+        [SerializeField] private float _nightStationTransitionDuration = 1.1f;
 
         private static readonly Beat[] Beats =
         {
             White("Through a burst of brilliant white light, you see a train drawing near."),
             White("And then,"),
             White("it slows to a gentle stop right in front of Otowa Station."),
+            White("You see young people stepping off the train one after another..."),
             Passenger("Passenger", "It's been forever since I've been back to Otowa! I had no idea there'd be a night train today.", 0),
-            Passenger("Passenger", "Look, look! This display case is so cool!", 1),
+            Passenger("Passenger", "Look, look! This exhibition is so cool!", 1),
             Passenger("Passenger", "It's Mr. Yuji's sake! Man, I've missed this taste.", 2),
             Passenger("Passenger", "Tomorrow I am soaking in that hot spring till I melt!", 3),
             Passenger("Passenger", "Hey there, Stationmaster! Sorry we're rolling in so late. Happy Summer Festival!", 4),
@@ -76,8 +81,8 @@ namespace Otowa.Day3
             Pair("Hachi", "Got it. Anyway, happy Summer Festival to you both!", CinematicStripPortraitFocus.SecondaryRight),
             Pair("Rin", "Same to you. Happy Summer Festival!", CinematicStripPortraitFocus.Left),
             Pair("Rin", "(They all came back... Mizuki's friend, Mr. Jiro's son. Every person the villagers longed to see, home again as if by some miracle.)", CinematicStripPortraitFocus.Left),
-            Clear("Inspector", "..."),
-            Clear("Rin", "Huh?!", CinematicStripPortraitFocus.Left),
+            InspectorReveal("Inspector", "..."),
+            Keep("Rin", "Huh?!", CinematicStripPortraitFocus.Left),
         };
 
         private CanvasGroup _fade;
@@ -89,6 +94,7 @@ namespace Otowa.Day3
         private Sprite _rinPortrait;
         private Sprite _misakiPortrait;
         private Sprite _hachiPortrait;
+        private Sprite _inspectorPortrait;
         private Sprite[] _passengerPortraits;
         private int _beatIndex = -1;
         private bool _inputLock;
@@ -127,13 +133,27 @@ namespace Otowa.Day3
 
         private void AdvanceBeat()
         {
-            _beatIndex++;
-            if (_beatIndex >= Beats.Length)
+            var nextBeatIndex = _beatIndex + 1;
+            if (nextBeatIndex >= Beats.Length)
             {
                 StartCoroutine(LeaveScene());
                 return;
             }
 
+            if (_beatIndex >= 0 &&
+                Beats[_beatIndex].Kind == BeatKind.WhiteNarration &&
+                Beats[nextBeatIndex].Kind == BeatKind.StripLine)
+            {
+                StartCoroutine(TransitionToNightStation(nextBeatIndex));
+                return;
+            }
+
+            ShowBeat(nextBeatIndex);
+        }
+
+        private void ShowBeat(int beatIndex)
+        {
+            _beatIndex = beatIndex;
             var beat = Beats[_beatIndex];
             _whiteNarrationRoot.SetActive(beat.Kind == BeatKind.WhiteNarration);
             _stripPlayer.SetVisible(beat.Kind == BeatKind.StripLine);
@@ -144,7 +164,9 @@ namespace Otowa.Day3
                 return;
             }
 
-            if (beat.ClearPassengers)
+            if (beat.ShowInspector)
+                _stripPlayer.SetCenteredFullBodyPortrait(_inspectorPortrait);
+            else if (beat.ClearPassengers)
                 _stripPlayer.SetPassengerPortraits(null);
             else if (beat.ShowNamedPair)
                 _stripPlayer.SetPassengerPortraits(_misakiPortrait, _hachiPortrait);
@@ -152,6 +174,15 @@ namespace Otowa.Day3
                 _stripPlayer.SetPassengerPortraits(_passengerPortraits[beat.PassengerIndex]);
 
             _stripPlayer.PlayLine(beat.Speaker, beat.Text, beat.Focus);
+        }
+
+        private IEnumerator TransitionToNightStation(int nextBeatIndex)
+        {
+            _inputLock = true;
+            yield return FadeCanvas(1f, 0f, _nightStationTransitionDuration);
+            ShowBeat(nextBeatIndex);
+            yield return FadeCanvas(0f, 1f, _nightStationTransitionDuration);
+            _inputLock = false;
         }
 
         private bool CurrentBeatIsTyping()
@@ -216,6 +247,7 @@ namespace Otowa.Day3
             _rinPortrait = LoadSpriteSlice("Characters/WorldSprite/rin", "spritesheet_template_0");
             _misakiPortrait = LoadSprite("Characters/PassengerPortraits/Misaki");
             _hachiPortrait = LoadSprite("Characters/PassengerPortraits/Hachi");
+            _inspectorPortrait = LoadSprite("Characters/WorldSprite/Inspector_portrait");
             _passengerPortraits = new[]
             {
                 LoadSprite("Characters/PassengerPortraits/Passenger01"),
@@ -344,5 +376,7 @@ namespace Otowa.Day3
             new Beat(BeatKind.StripLine, speaker, text, focus, showNamedPair: true);
         private static Beat Clear(string speaker, string text, CinematicStripPortraitFocus focus = CinematicStripPortraitFocus.None) =>
             new Beat(BeatKind.StripLine, speaker, text, focus, clearPassengers: true);
+        private static Beat InspectorReveal(string speaker, string text) =>
+            new Beat(BeatKind.StripLine, speaker, text, CinematicStripPortraitFocus.Right, showInspector: true);
     }
 }

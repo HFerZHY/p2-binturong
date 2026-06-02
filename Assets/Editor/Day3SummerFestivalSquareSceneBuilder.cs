@@ -55,11 +55,11 @@ public static class Day3SummerFestivalSquareSceneBuilder
 
     private static void ConfigureCharacters()
     {
-        ConfigureNpc("Junko", Day3FestivalNpc.Junko, new Vector3(0.00f, 1.40f, 0f));
-        ConfigureNpc("Jiro", Day3FestivalNpc.Jiro, new Vector3(-1.85f, 1.10f, 0f));
-        ConfigureNpc("Yuji", Day3FestivalNpc.Yuji, new Vector3(1.85f, 1.10f, 0f));
-        ConfigureNpc("Mizuki", Day3FestivalNpc.Mizuki, new Vector3(-1.05f, -0.65f, 0f));
-        ConfigureNpc("Rintaro", Day3FestivalNpc.Rintaro, new Vector3(1.05f, -0.65f, 0f));
+        ConfigureNpc("Junko", Day3FestivalNpc.Junko, new Vector3(0.00f, 3.15f, 0f));
+        ConfigureNpc("Jiro", Day3FestivalNpc.Jiro, new Vector3(-2.52f, 1.32f, 0f));
+        ConfigureNpc("Yuji", Day3FestivalNpc.Yuji, new Vector3(2.52f, 1.32f, 0f));
+        ConfigureNpc("Mizuki", Day3FestivalNpc.Mizuki, new Vector3(-1.56f, -1.64f, 0f));
+        ConfigureNpc("Rintaro", Day3FestivalNpc.Rintaro, new Vector3(1.56f, -1.64f, 0f));
         PlacePlayerNearSquare();
         SetActive("Inspector", false);
         RemoveHiddenInspectorMovement();
@@ -82,7 +82,7 @@ public static class Day3SummerFestivalSquareSceneBuilder
         if (player == null)
             return;
 
-        player.transform.position = new Vector3(0f, -2.75f, 0f);
+        player.transform.position = new Vector3(0f, -3.75f, 0f);
         EditorUtility.SetDirty(player.transform);
     }
 

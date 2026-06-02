@@ -42,7 +42,7 @@ namespace Otowa.Day3
             _stripBackground.raycastTarget = false;
 
             _rightPortrait = CreatePortrait("RightPortrait", strip.transform, new Vector2(0.34f, -0.03f), new Vector2(0.66f, 0.98f));
-            _secondaryRightPortrait = CreatePortrait("SecondaryRightPortrait", strip.transform, new Vector2(0.52f, -0.03f), new Vector2(0.78f, 0.98f));
+            _secondaryRightPortrait = CreatePortrait("SecondaryRightPortrait", strip.transform, new Vector2(0.52f, -0.08f), new Vector2(0.78f, 0.93f));
             _secondaryRightPortrait.enabled = false;
 
             var subtitleBar = CreateRect("SubtitleBar", _root.transform, new Vector2(0f, 0f), new Vector2(1f, 0.23f));
@@ -97,6 +97,16 @@ namespace Otowa.Day3
             SetPortrait(_rightPortrait, primary);
             SetPortrait(_secondaryRightPortrait, secondary);
             SetPassengerLayout(secondary != null);
+        }
+
+        public void SetCenteredFullBodyPortrait(Sprite portrait)
+        {
+            SetPortrait(_rightPortrait, portrait);
+            SetPortrait(_secondaryRightPortrait, null);
+
+            var rect = (RectTransform)_rightPortrait.transform;
+            rect.anchorMin = new Vector2(0.34f, -0.24f);
+            rect.anchorMax = new Vector2(0.66f, 1.02f);
         }
 
         public void PlayLine(string speaker, string text, CinematicStripPortraitFocus focus)

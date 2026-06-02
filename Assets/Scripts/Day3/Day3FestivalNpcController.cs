@@ -117,7 +117,7 @@ namespace Otowa.Day3
                 },
                 Day3FestivalNpc.Jiro => new List<Line>
                 {
-                    Rin("(Mr. Jiro is carrying a bag, and you can make out the tri-colored dango inside it.)"),
+                    Rin("(Mr. Jiro is carrying a bag, and I can see the dango inside it.)"),
                 },
                 Day3FestivalNpc.Yuji => new List<Line>
                 {
