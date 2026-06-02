@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: 5d48d1ac2fb96bf4c91aad209a60f03c
+guid: 6d1d1fb73534a36499a54287432b8472
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5663061954668274717
-    second: tileset_0
+      213: -3239100841381136530
+    second: onsen_0
+  - first:
+      213: -2698888031525315511
+    second: onsen_1
+  - first:
+      213: -7687830406343215781
+    second: onsen_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +57,7 @@ TextureImporter:
   spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 64
+  spritePixelsToUnits: 256
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,35 +119,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: tileset_0
+      name: sidewalk_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 192
-        width: 64
-        height: 64
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: d142805f7dc379e40800000000000000
-      internalID: 5663061954668274717
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tileset_1
-      rect:
-        serializedVersion: 2
-        x: 64
-        y: 192
-        width: 64
-        height: 64
+        y: 768
+        width: 256
+        height: 256
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -150,20 +134,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3d4036ff848a70c4297d3aae8cd9b44c
-      internalID: 1729908645
+      spriteID: b71d01196d53c4e429af4046c93a7f0f
+      internalID: 18377607
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tileset_2
+      name: sidewalk_1
       rect:
         serializedVersion: 2
-        x: 128
-        y: 192
-        width: 64
-        height: 64
+        x: 256
+        y: 768
+        width: 256
+        height: 256
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -172,20 +156,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 156a76ab2c14bba4f853519c18eb98f9
-      internalID: -1594430547
+      spriteID: f0451249167d1c946a7cd5d8e7d2dac0
+      internalID: -1227261166
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tileset_3
+      name: sidewalk_2
       rect:
         serializedVersion: 2
-        x: 192
-        y: 192
-        width: 64
-        height: 64
+        x: 512
+        y: 768
+        width: 256
+        height: 256
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -194,20 +178,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 85790ce8e60631f40b2c6ca09c7abaf8
-      internalID: -277296353
+      spriteID: b9b7b4ffb2514044cb9d1f1876dfe0a7
+      internalID: -1816155873
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tileset_4
+      name: sidewalk_3
       rect:
         serializedVersion: 2
-        x: 0
-        y: 128
-        width: 64
-        height: 64
+        x: 768
+        y: 768
+        width: 256
+        height: 256
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -216,86 +200,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0a58c9974debd7949a7fa05dc9c86b49
-      internalID: -1281262731
+      spriteID: fc28cf0e41fc82445975279ea26df3af
+      internalID: -1438202356
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tileset_5
-      rect:
-        serializedVersion: 2
-        x: 64
-        y: 128
-        width: 64
-        height: 64
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 857ed17a991aeec44a1f3699598cce03
-      internalID: 1335403680
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tileset_6
-      rect:
-        serializedVersion: 2
-        x: 128
-        y: 128
-        width: 64
-        height: 64
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: f43537dae3141aa428e714016b5592d5
-      internalID: -321041687
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tileset_7
-      rect:
-        serializedVersion: 2
-        x: 192
-        y: 128
-        width: 64
-        height: 64
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 78da27b610ff0bf45b2cb5f6d640b9ee
-      internalID: -198126058
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tileset_8
+      name: sidewalk_4
       rect:
         serializedVersion: 2
         x: 0
-        y: 64
-        width: 64
-        height: 64
+        y: 512
+        width: 256
+        height: 256
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -304,20 +222,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0176543e75db0034e9cb7c26cf4df45c
-      internalID: -71367555
+      spriteID: 52b7f997564b5e645962a18402535a83
+      internalID: 32692365
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tileset_9
+      name: sidewalk_5
       rect:
         serializedVersion: 2
-        x: 64
-        y: 64
-        width: 64
-        height: 64
+        x: 256
+        y: 512
+        width: 256
+        height: 256
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -326,20 +244,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ded28e55fc95fc740abd8f95cbc10c29
-      internalID: 1343847914
+      spriteID: 94f62ffa1f22f2744ad5781f631502d2
+      internalID: -1763328730
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tileset_10
+      name: sidewalk_6
       rect:
         serializedVersion: 2
-        x: 128
-        y: 64
-        width: 64
-        height: 64
+        x: 512
+        y: 512
+        width: 256
+        height: 256
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -348,20 +266,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f6d7942c43cb053438698e7a78f1ba74
-      internalID: 965139343
+      spriteID: 22c089f71e492084bab79c680f6167cc
+      internalID: 2074828756
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tileset_11
+      name: sidewalk_7
       rect:
         serializedVersion: 2
-        x: 192
-        y: 64
-        width: 64
-        height: 64
+        x: 768
+        y: 512
+        width: 256
+        height: 256
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -370,20 +288,108 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4d390547736572e4da9ab1b1f1f63ffc
-      internalID: 801127981
+      spriteID: 26b82fc504a064d418c1677905f46f2e
+      internalID: 1722939271
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tileset_12
+      name: sidewalk_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 256
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2bbd0ac55d0bf81429d08b178a008710
+      internalID: -787116699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sidewalk_9
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 256
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fbf4c90ddfdc8a64db272847fe6dabf3
+      internalID: -1049912544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sidewalk_10
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 256
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 31f8b375c0c4a264f9767009a07ffd89
+      internalID: -29565526
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sidewalk_11
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 256
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: df85aa84492f1154daaa3c1ae85657de
+      internalID: -1736091654
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sidewalk_12
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 64
-        height: 64
+        width: 256
+        height: 256
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -392,20 +398,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b89e9f25a508da44ba638f1e3ac6d996
-      internalID: 653041425
+      spriteID: 82ba45c84ea3e114bbfc7086d38fab6e
+      internalID: 1551393062
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tileset_13
+      name: sidewalk_13
       rect:
         serializedVersion: 2
-        x: 64
+        x: 256
         y: 0
-        width: 64
-        height: 64
+        width: 256
+        height: 256
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -414,20 +420,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b032829707b16d6498f21586bda8dda8
-      internalID: 1323826153
+      spriteID: eade3c4af646a044caa40c6b18a033ed
+      internalID: -1463737932
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tileset_14
+      name: sidewalk_14
       rect:
         serializedVersion: 2
-        x: 128
+        x: 512
         y: 0
-        width: 64
-        height: 64
+        width: 256
+        height: 256
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -436,20 +442,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5465e46d6a65615429c89f5bc369ebc9
-      internalID: 871559657
+      spriteID: bb8e0ec37b91e0947a0604c3628c1334
+      internalID: 609501797
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tileset_15
+      name: sidewalk_15
       rect:
         serializedVersion: 2
-        x: 192
+        x: 768
         y: 0
-        width: 64
-        height: 64
+        width: 256
+        height: 256
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -458,8 +464,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b74dc1554b2336f45956ff5e34465929
-      internalID: 586770065
+      spriteID: 7bf4ce43443e36746aa455ec2b866961
+      internalID: 501743635
       vertices: []
       indices: 
       edges: []
@@ -478,24 +484,24 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":4.0,"y":4.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":true,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":4.0,"y":4.0},"gridSpriteSize":{"x":256.0,"y":256.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":true,"isAlternate":false}'
     nameFileIdTable:
-      tileset_0: 5663061954668274717
-      tileset_1: 1729908645
-      tileset_10: 965139343
-      tileset_11: 801127981
-      tileset_12: 653041425
-      tileset_13: 1323826153
-      tileset_14: 871559657
-      tileset_15: 586770065
-      tileset_2: -1594430547
-      tileset_3: -277296353
-      tileset_4: -1281262731
-      tileset_5: 1335403680
-      tileset_6: -321041687
-      tileset_7: -198126058
-      tileset_8: -71367555
-      tileset_9: 1343847914
+      sidewalk_0: 18377607
+      sidewalk_1: -1227261166
+      sidewalk_10: -29565526
+      sidewalk_11: -1736091654
+      sidewalk_12: 1551393062
+      sidewalk_13: -1463737932
+      sidewalk_14: 609501797
+      sidewalk_15: 501743635
+      sidewalk_2: -1816155873
+      sidewalk_3: -1438202356
+      sidewalk_4: 32692365
+      sidewalk_5: -1763328730
+      sidewalk_6: 2074828756
+      sidewalk_7: 1722939271
+      sidewalk_8: -787116699
+      sidewalk_9: -1049912544
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
