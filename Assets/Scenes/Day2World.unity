@@ -45751,6 +45751,7 @@ GameObject:
   - component: {fileID: 419220489}
   - component: {fileID: 419220493}
   - component: {fileID: 419220494}
+  - component: {fileID: 419220495}
   m_Layer: 0
   m_Name: TestPlayer
   m_TagString: Player
@@ -45932,6 +45933,21 @@ MonoBehaviour:
     m_Bits: 4294967295
   interactOrigin: {fileID: 419220492}
   interactActionName: Interact
+--- !u!114 &419220495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 419220488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 457e5bc6e2c2e7b43a626b20bf52cc3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Minimap.MinimapIcon
+  portrait: {fileID: -6861016282177217685, guid: a9ebed865be1ceb4db74f4cf28c853fa, type: 3}
+  iconColor: {r: 0.56, g: 0.74, b: 0.56, a: 1}
+  displayName: Rin
 --- !u!1 &434222050
 GameObject:
   m_ObjectHideFlags: 0
@@ -57319,6 +57335,7 @@ GameObject:
   - component: {fileID: 725900506}
   - component: {fileID: 725900505}
   - component: {fileID: 725900508}
+  - component: {fileID: 725900509}
   m_Layer: 0
   m_Name: Yuji
   m_TagString: Untagged
@@ -57440,6 +57457,21 @@ MonoBehaviour:
   npc: 2
   movement: {fileID: 725900505}
   interactPrompt: '[Space] Talk'
+--- !u!114 &725900509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 725900502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 457e5bc6e2c2e7b43a626b20bf52cc3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Minimap.MinimapIcon
+  portrait: {fileID: 5456670085736376123, guid: b78574e41f6f41a4282871269eab9bb5, type: 3}
+  iconColor: {r: 0.5, g: 0.72, b: 0.91, a: 1}
+  displayName: Yuji
 --- !u!1 &742978745
 GameObject:
   m_ObjectHideFlags: 0
@@ -59004,6 +59036,7 @@ GameObject:
   - component: {fileID: 1249090597}
   - component: {fileID: 1249090596}
   - component: {fileID: 1249090600}
+  - component: {fileID: 1249090601}
   m_Layer: 0
   m_Name: Junko
   m_TagString: Untagged
@@ -59125,6 +59158,21 @@ MonoBehaviour:
   npc: 3
   movement: {fileID: 1249090596}
   interactPrompt: '[Space] Talk'
+--- !u!114 &1249090601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249090594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 457e5bc6e2c2e7b43a626b20bf52cc3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Minimap.MinimapIcon
+  portrait: {fileID: -5979425423447815568, guid: d2cb6335438500142ba87b57557e27b4, type: 3}
+  iconColor: {r: 0.83, g: 0.63, b: 0.38, a: 1}
+  displayName: Junko
 --- !u!1 &1257784143
 GameObject:
   m_ObjectHideFlags: 0
@@ -61346,6 +61394,7 @@ GameObject:
   - component: {fileID: 1400429730}
   - component: {fileID: 1400429729}
   - component: {fileID: 1400429732}
+  - component: {fileID: 1400429733}
   m_Layer: 0
   m_Name: Rintaro
   m_TagString: Untagged
@@ -61467,6 +61516,21 @@ MonoBehaviour:
   npc: 4
   movement: {fileID: 1400429729}
   interactPrompt: '[Space] Talk'
+--- !u!114 &1400429733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1400429726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 457e5bc6e2c2e7b43a626b20bf52cc3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Minimap.MinimapIcon
+  portrait: {fileID: 2018020307873150759, guid: f5218d4d475647248a4dce826623486e, type: 3}
+  iconColor: {r: 1, g: 1, b: 1, a: 1}
+  displayName: Rintaro
 --- !u!1 &1411713834
 GameObject:
   m_ObjectHideFlags: 0
@@ -61694,6 +61758,58 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &1421616560
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1421616562}
+  - component: {fileID: 1421616561}
+  m_Layer: 0
+  m_Name: MinimapManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1421616561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1421616560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8409b8f6957569144bc698b268d844e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Minimap.MinimapController
+  worldMin: {x: -22, y: -18}
+  worldMax: {x: 22, y: 14}
+  panelSize: {x: 820, y: 600}
+  iconSize: {x: 40, y: 40}
+  locationSize: {x: 32, y: 32}
+  panelAlpha: 0.7
+  mapBackground: {fileID: 3211415059234917704, guid: 5e100fcc4705fde40ada5946d09fa965, type: 3}
+  mapIconSprite: {fileID: 7906180512882132660, guid: e7d73b00a72250d4c836bed24c496f2a, type: 3}
+--- !u!4 &1421616562
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1421616560}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1459514647
 GameObject:
   m_ObjectHideFlags: 0
@@ -106405,3 +106521,4 @@ SceneRoots:
   - {fileID: 347425665}
   - {fileID: 1845752786}
   - {fileID: 1180030385}
+  - {fileID: 1421616562}

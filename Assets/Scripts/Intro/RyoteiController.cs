@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 using TMPro;
 using Otowa.IndoorDialogue;
 
@@ -45,6 +46,8 @@ namespace Otowa.Intro
 
         [Header("Audio")]
         [SerializeField] private AudioClip bgmClip;
+        [SerializeField] private AudioClip drinkPourClip;
+        [SerializeField] private AudioClip glassesToastClip;
         [SerializeField] [Range(0f, 1f)] private float musicVolume = 0.4f;
 
         // ── Beat data ─────────────────────────────────────────────────────────
@@ -54,12 +57,22 @@ namespace Otowa.Intro
             public string   Speaker;
             public string   Text;
             public bool     IsThought;
-            public bool     ShowsInspector;      // fade inspector in at start of this beat
-            public bool     HidesInspector;      // fade inspector out after this beat is advanced
-            public int[]    UnlocksInspirations; // IDs to unlock when advancing past this beat
+            public bool     ShowsInspector;
+            public bool     HidesInspector;
+            public int[]    UnlocksInspirations;
+            public string   Id;          // optional: target ID for branch jumps
+            public string   JumpToId;   // if set, advance jumps to this ID instead of next sequential beat
+            public BChoice[] Choices;    // if set, show choice buttons instead of auto-advancing
+        }
+
+        private struct BChoice
+        {
+            public string Label;
+            public string TargetId;
         }
 
         private List<Beat> _beats;
+        private Dictionary<string, int> _beatIndex;
         private int _current = -1;
 
         // ── State ─────────────────────────────────────────────────────────────
@@ -67,11 +80,15 @@ namespace Otowa.Intro
         private bool      _inputLock;
         private IndoorDialogueTextPlayer _textPlayer;
         private bool      _inspectorVisible;
+        private bool      _choosingBranch;
+        private AudioSource _sfxSource;
+        private Coroutine _shimmerCR;
 
         // ── UI refs ───────────────────────────────────────────────────────────
 
         private CanvasGroup _fade;
 
+        private GameObject _choicePanel;
         private GameObject _dlgPanel;
         private Image      _rinImg;
         private Image      _jiroImg;
@@ -106,6 +123,10 @@ namespace Otowa.Intro
         {
             Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
             BuildBeats();
+            _beatIndex = new Dictionary<string, int>();
+            for (int i = 0; i < _beats.Count; i++)
+                if (!string.IsNullOrEmpty(_beats[i].Id))
+                    _beatIndex[_beats[i].Id] = i;
             LoadSprites();
             BuildUI();
             _textPlayer = gameObject.AddComponent<IndoorDialogueTextPlayer>();
@@ -138,6 +159,7 @@ namespace Otowa.Intro
                         || (kb    != null && kb.spaceKey.wasPressedThisFrame)
                         || (kb    != null && kb.enterKey.wasPressedThisFrame);
             if (!clicked) return;
+            if (_choosingBranch) return;
             if (_textPlayer.IsTyping) { _textPlayer.Skip(); return; }
             AdvanceBeat();
         }
@@ -146,26 +168,106 @@ namespace Otowa.Intro
 
         private void AdvanceBeat()
         {
+            FirePrevEffects();
+            if (_current >= 0 && !string.IsNullOrEmpty(_beats[_current].JumpToId))
+            {
+                string jumpId = _beats[_current].JumpToId;
+                if (_beatIndex.TryGetValue(jumpId, out int jumpIdx))
+                { ShowBeat(jumpIdx); return; }
+            }
             int next = _current + 1;
             if (next >= _beats.Count) { StartCoroutine(FadeAndLoad()); return; }
-
-            if (_current >= 0)
-            {
-                var prev = _beats[_current];
-                if (prev.HidesInspector)
-                    StartCoroutine(FadeOutInspector());
-                if (prev.UnlocksInspirations != null)
-                    foreach (int id in prev.UnlocksInspirations)
-                        InspirationManager.Instance.Unlock(id);
-            }
-
             ShowBeat(next);
+        }
+
+        private void JumpToBeat(string targetId)
+        {
+            if (_shimmerCR != null) { StopCoroutine(_shimmerCR); _shimmerCR = null; }
+            if (!_beatIndex.TryGetValue(targetId, out int idx))
+            {
+                Debug.LogWarning($"[RyoteiController] Branch target '{targetId}' not found.");
+                int fallback = _current + 1;
+                if (fallback < _beats.Count) ShowBeat(fallback);
+                return;
+            }
+            _choosingBranch = false;
+            _choicePanel.SetActive(false);
+            ShowBeat(idx);
+        }
+
+        private void FirePrevEffects()
+        {
+            if (_shimmerCR != null) { StopCoroutine(_shimmerCR); _shimmerCR = null; }
+            if (_current < 0) return;
+            var prev = _beats[_current];
+            if (prev.HidesInspector)
+                StartCoroutine(FadeOutInspector());
+            if (prev.UnlocksInspirations != null)
+                foreach (int id in prev.UnlocksInspirations)
+                    InspirationManager.Instance.Unlock(id);
+        }
+
+        private void ShowChoices(Beat b)
+        {
+            _choosingBranch = true;
+            _dlgPanel.SetActive(false);
+            _choicePanel.SetActive(true);
+
+            // Clear old buttons
+            foreach (Transform child in _choicePanel.transform)
+                Destroy(child.gameObject);
+
+            float btnH = 0.16f;
+            float gap   = 0.03f;
+            int   count = b.Choices.Length;
+            float totalH = count * btnH + (count - 1) * gap;
+            float startY = 0.5f + totalH * 0.5f - btnH * 0.5f;
+
+            for (int i = 0; i < count; i++)
+            {
+                var choice = b.Choices[i];
+                float yMax = startY - i * (btnH + gap);
+                float yMin = yMax - btnH;
+
+                var btnGo = new GameObject($"Choice{i}", typeof(RectTransform));
+                btnGo.transform.SetParent(_choicePanel.transform, false);
+                var brt = (RectTransform)btnGo.transform;
+                brt.anchorMin = new Vector2(0.2f, yMin);
+                brt.anchorMax = new Vector2(0.8f, yMax);
+                brt.offsetMin = brt.offsetMax = Vector2.zero;
+
+                var bg  = btnGo.AddComponent<Image>();
+                bg.color = new Color32(0x10, 0x28, 0x10, 0xDD);
+
+                var btn = btnGo.AddComponent<Button>();
+                string targetId = choice.TargetId;
+                btn.onClick.AddListener(() => JumpToBeat(targetId));
+
+                var lbl = new GameObject("Label", typeof(RectTransform));
+                lbl.transform.SetParent(btnGo.transform, false);
+                var lrt = (RectTransform)lbl.transform;
+                lrt.anchorMin = Vector2.zero; lrt.anchorMax = Vector2.one;
+                lrt.offsetMin = lrt.offsetMax = Vector2.zero;
+                var tmp = lbl.AddComponent<TextMeshProUGUI>();
+                tmp.text      = choice.Label;
+                tmp.fontSize  = 26f;
+                tmp.color     = new Color32(0xc8, 0xd4, 0xc8, 0xFF);
+                tmp.alignment = TextAlignmentOptions.Center;
+                tmp.richText  = true;
+                if (serifFont != null) tmp.font = serifFont;
+            }
         }
 
         private void ShowBeat(int index)
         {
             _current = index;
             var b = _beats[index];
+
+            if (b.Choices != null && b.Choices.Length > 0)
+            {
+                ShowChoices(b);
+                return;
+            }
 
             _dlgPanel.SetActive(true);
             SetPrompt(false);
@@ -208,7 +310,15 @@ namespace Otowa.Intro
             _bodyTmp.color     = b.IsThought ? ThoughtC : BodyC;
             _bodyTmp.fontStyle = b.IsThought ? FontStyles.Italic : FontStyles.Normal;
 
-            _textPlayer.Play(_bodyTmp, b.Text);
+            // SFX triggers keyed to beat IDs
+            if (b.Id == "offer_sake"   && drinkPourClip    != null) _sfxSource?.PlayOneShot(drinkPourClip);
+            if (b.Id == "welcome_seat" && glassesToastClip != null) _sfxSource?.PlayOneShot(glassesToastClip);
+
+            if (b.Id == "inspire_moment")
+                _textPlayer.Play(_bodyTmp, b.Text,
+                    () => { _shimmerCR = StartCoroutine(ShimmerWordCR(_bodyTmp, "inspiration")); });
+            else
+                _textPlayer.Play(_bodyTmp, b.Text);
         }
 
         // ── Inspector fade in / out ───────────────────────────────────────────
@@ -224,6 +334,50 @@ namespace Otowa.Intro
                 yield return null;
             }
             SetAlpha(_inspImg, targetAlpha);
+        }
+
+        private IEnumerator ShimmerWordCR(TMP_Text tmp, string word)
+        {
+            yield return null;
+            tmp.ForceMeshUpdate();
+
+            var charInfo = tmp.textInfo.characterInfo;
+            int charCount = tmp.textInfo.characterCount;
+            int wordStart = -1;
+            for (int i = 0; i <= charCount - word.Length; i++)
+            {
+                bool match = true;
+                for (int j = 0; j < word.Length; j++)
+                    if (char.ToLower(charInfo[i + j].character) != char.ToLower(word[j]))
+                    { match = false; break; }
+                if (match) { wordStart = i; break; }
+            }
+            if (wordStart < 0) yield break;
+
+            Color baseCol = ThoughtC;
+            Color glowCol = new Color(0.96f, 0.86f, 0.55f); // warm gold
+
+            while (true)
+            {
+                tmp.ForceMeshUpdate();
+                var meshInfo = tmp.textInfo.meshInfo;
+                charInfo     = tmp.textInfo.characterInfo;
+
+                for (int i = wordStart; i < wordStart + word.Length; i++)
+                {
+                    if (!charInfo[i].isVisible) continue;
+                    float phase = Time.time * 2.5f + (i - wordStart) * 0.7f;
+                    float t = (Mathf.Sin(phase) + 1f) * 0.5f;
+                    Color32 c32 = Color.Lerp(baseCol, glowCol, t * 0.55f);
+                    int mat  = charInfo[i].materialReferenceIndex;
+                    int vert = charInfo[i].vertexIndex;
+                    var cols = meshInfo[mat].colors32;
+                    cols[vert] = cols[vert+1] = cols[vert+2] = cols[vert+3] = c32;
+                }
+
+                tmp.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32);
+                yield return null;
+            }
         }
 
         private IEnumerator FadeOutInspector()
@@ -297,8 +451,20 @@ namespace Otowa.Intro
 
         // ── UI construction ───────────────────────────────────────────────────
 
+        private static void EnsureEventSystem()
+        {
+            if (FindObjectOfType<EventSystem>() != null) return;
+            var go = new GameObject("EventSystem");
+            go.AddComponent<EventSystem>();
+            var iiType = System.Type.GetType(
+                "UnityEngine.InputSystem.UI.InputSystemUIInputModule, Unity.InputSystem");
+            if (iiType != null) go.AddComponent(iiType);
+            else                go.AddComponent<StandaloneInputModule>();
+        }
+
         private void BuildUI()
         {
+            EnsureEventSystem();
             var cvGo = new GameObject("RyoteiCanvas",
                 typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             cvGo.transform.SetParent(transform, false);
@@ -329,6 +495,7 @@ namespace Otowa.Intro
             }
 
             BuildDialoguePanel(cvGo.transform);
+            BuildChoicePanel(cvGo.transform);
 
             _promptTmp = MakeTMP(cvGo.transform, "Prompt", "Click to continue  ▼",
                 22f, PromptC, TextAlignmentOptions.Right,
@@ -366,18 +533,25 @@ namespace Otowa.Intro
             var pt = panel.transform;
 
             _speakerTmp = MakeTMP(pt, "Speaker", "",
-                28f, RinGreen, TextAlignmentOptions.Left,
+                36f, RinGreen, TextAlignmentOptions.Left,
                 new Vector2(0.04f, 0.68f), new Vector2(0.96f, 0.96f));
             _speakerTmp.fontStyle = FontStyles.Bold;
             UseFont(_speakerTmp);
 
             _bodyTmp = MakeTMP(pt, "Body", "",
-                27f, BodyC, TextAlignmentOptions.Left,
+                31f, BodyC, TextAlignmentOptions.Left,
                 new Vector2(0.04f, 0.04f), new Vector2(0.96f, 0.65f));
             _bodyTmp.lineSpacing = 6f;
             UseFont(_bodyTmp);
 
             _dlgPanel.SetActive(false);
+        }
+
+        private void BuildChoicePanel(Transform cv)
+        {
+            _choicePanel = MakeRect(cv, "ChoicePanel", Vector2.zero, new Vector2(1f, 0.60f));
+            _choicePanel.AddComponent<Image>().color = new Color(0, 0, 0, 0);
+            _choicePanel.SetActive(false);
         }
 
         private Image CharSlot(Transform parent, string name,
@@ -442,18 +616,32 @@ namespace Otowa.Intro
             _audioSource.loop        = true;
             _audioSource.playOnAwake = false;
             if (bgmClip != null) _audioSource.Play();
+
+            _sfxSource             = gameObject.AddComponent<AudioSource>();
+            _sfxSource.playOnAwake = false;
         }
 
         // ── Beat helpers ──────────────────────────────────────────────────────
 
         private static Beat D(string speaker, bool thought, string text,
-                               int[] unlocks = null) => new()
+                               int[] unlocks = null, string id = null, string jump = null) => new()
         {
             Speaker              = speaker,
             IsThought            = thought,
             Text                 = text,
             UnlocksInspirations  = unlocks,
+            Id                   = id,
+            JumpToId             = jump,
         };
+
+        private static Beat Br(string id, params BChoice[] choices) => new()
+        {
+            Id      = id,
+            Choices = choices,
+        };
+
+        private static BChoice Ch(string label, string target) =>
+            new() { Label = label, TargetId = target };
 
         // ── Beat list ─────────────────────────────────────────────────────────
 
@@ -462,48 +650,82 @@ namespace Otowa.Intro
             _beats = new List<Beat>
             {
                 // ── Arrival + introductions ───────────────────────────────────
-                D("Junko", false, "Rin, you've arrived. Please, have a seat."),
+                D("Junko", false, "Rin, you've arrived. Please, have a seat.", id: "welcome_seat"),
                 D("Junko", false, "You've had a long day today. Welcome to Otowa."),
-                D("Rin",   false, "It's no problem, Chief. Although it was a bit unexpected, I'll just treat it as a change of pace."),
                 D("Rin",   false, "It's just... this afternoon on the platform, I ran into a man in a suit who said he was here for a follow-up evaluation."),
                 D("Junko", false, "Sigh... Let's save the heavy topics for later. Tonight is a welcome banquet prepared just for you."),
 
                 D("Yuji",  false, "Exactly, exactly! Toss the work stuff right out of your head! Welcome to Otowa, I'm Yuji!"),
                 D("Rin",   false, "Hello, Mr. Yuji."),
-                D("Yuji",  false, "The Chief's been talking non-stop these past few days about a young person coming. If you ever get bored hanging around the station, come hang out at my pub anytime! It's the hippest spot in the whole village!"),
+                D("Yuji",  false, "The Chief's been talking non-stop about a young person coming. Come hang out at my pub anytime — it's the hippest spot in the whole village!"),
 
                 D("Jiro",  false, "Hmph. Don't go corrupting the youth the second they arrive."),
-                D("Rin",   true,  "(The older man next to him is wearing a pristine chef's uniform, arms crossed, looking incredibly stern.)"),
+                D("Rin",   true,  "(The older man next to him is wearing a pristine chef's uniform, arms crossed, looking stern.)"),
                 D("Jiro",  false, "I am the head chef here, Jiro. Try the food on the table. It'd be a waste if it gets cold."),
                 D("Rin",   false, "Thank you, Mr. Jiro."),
 
-                // ── Food & sake ───────────────────────────────────────────────
-                D("Rin",   true,  "(Hmm... the taste is fascinating. It has a very unique, refreshing feel to it.)"),
+                // ── Branch 1: Food reaction ───────────────────────────────────
+                Br("branch_food",
+                    Ch("(Take a bite.) ...This flavor is really something.", "food_good"),
+                    Ch("(Take a bite.) Hmm... not sure what to make of this.", "food_bad"),
+                    Ch("(Take a bite.) It's... really quite something, Mr. Jiro.", "food_lie")
+                ),
+
+                // Food good path
+                D("Rin",   true,  "(Fascinating. A very unique, refreshing feel — like the mountains distilled into a single bite.)", id: "food_good"),
                 D("Rin",   false, "This flavor... is really special. It tastes like the mountains."),
-                D("Jiro",  false, "At least you have some taste, unlike those city folks that are used to eating cheap, mass-produced garbage."),
-                D("Jiro",  false, "The soul of this dish is the shichimi powder I hand-grind and blend myself. It's a recreation of a recipe from hundreds of years ago."),
+                D("Jiro",  false, "At least you have some taste, unlike those city folks used to eating cheap, mass-produced garbage.", jump: "food_merge"),
+
+                // Food bad path
+                D("Rin",   true,  "(Hmm... it's quite intense. Not what I was expecting at all.)", id: "food_bad"),
+                D("Rin",   false, "It's... quite strong, isn't it."),
+                D("Jiro",  false, "(Studies Rin's face for a long moment.) Your expression says it all. City palates. Ruined by processed food."),
+                D("Jiro",  false, "Hmph. I'll tell you what you just ate anyway, since you clearly won't figure it out on your own.", jump: "food_merge"),
+
+                // Food lie path
+                D("Rin",   true,  "(Strange... I can't tell if I like it. But there's something genuinely compelling here.)", id: "food_lie"),
+                D("Rin",   true,  "(Please don't ask a follow-up question...)"),
+                D("Jiro",  false, "..."),
+                D("Jiro",  false, "Hmph. At least you're not pretending to rave about it. I'll give you that much.", jump: "food_merge"),
+
+                // ── All food paths converge ───────────────────────────────────
+                D("Jiro",  false, "The soul of this dish is the shichimi powder I hand-grind and blend myself. It's a recreation of a recipe from hundreds of years ago.", id: "food_merge"),
                 D("Rin",   false, "A centuries-old recipe? No wonder the flavor has so much depth."),
 
-                D("Yuji",  false, "How can you have good food without good booze! Come on, Rin, try my pride and joy."),
+                // ── Sake ─────────────────────────────────────────────────────
+                D("Yuji",  false, "How can you have good food without good booze! Come on, Rin, try my pride and joy.", id: "offer_sake"),
                 D("Rin",   false, "Is this... sake?"),
-                D("Yuji",  false, "This isn't just any ordinary sake. Look at that old newspaper on the wall. My sake won a prize at the local specialty competition over a decade ago!"),
-                D("Yuji",  false, "I tweaked the recipe during the brewing process to make the mouthfeel softer. A lot of young people really love this flavor."),
-                D("Rin",   true,  "(So bitter! It's way too bitter... Do young people actually like this?)"),
-                D("Jiro",  false, "Newfangled nonsense. Brewing should follow the rules. Adding all sorts of random garbage just to pander to the youth is nothing but grandstanding."),
-                D("Yuji",  false, "Times are changing, old man Jiro! Back in that competition, my booze and your cooking were fighting for the gold medal, and the judges ultimately gave their votes to me, didn't they?"),
-                D("Jiro",  false, "That just proves the judges had terrible taste."),
-                D("Rin",   false, "Haha... you two really are complete opposites."),
+                D("Yuji",  false, "This isn't just any ordinary sake. Look at that old newspaper on the wall — my sake won a prize at the local specialty competition over a decade ago!"),
+                D("Yuji",  false, "I tweaked the recipe to make the mouthfeel softer. A lot of young people really love this flavor."),
 
-                // ── Shared flavour revelation ─────────────────────────────────
-                D("Rin",   false, "However, it's a bit strange. Whether it was the food or the sake just now, I tasted a very similar flavor in both."),
-                D("Yuji",  false, "Oh? You've got a sharp palate."),
-                D("Yuji",  false, "Whether it's my sake or his shichimi powder, we both added a kind of herb unique to these mountains. Yep... this is the flavor of Otowa!"),
-                D("Rin",   true,  "(Mr. Jiro's shichimi powder, Mr. Yuji's gold medal sake, and the specialty herb...)"),
-                D("Rin",   true,  "(I think I saw these things in the stationmaster's office, too. I thought they were just junk before, but I never expected them to have stories like this.)"),
+                // ── Branch 2: Sake reaction ───────────────────────────────────
+                Br("branch_sake",
+                    Ch("(Sip.) Hmm... it's a bit bitter.", "sake_bad"),
+                    Ch("(Sip.) Oh — this is actually quite smooth.", "sake_good")
+                ),
 
-                // Advancing past THIS beat fires unlocks 10, 11, 12 → InspirationManager shows toasts
-                D("Rin",   true,  "(Well, I guess that sparked some inspiration...)",
-                    unlocks: new[] { 10, 11, 12 }),
+                // Sake bad path
+                D("Rin",   true,  "(So bitter! It's way too bitter... Do young people actually like this?)", id: "sake_bad"),
+                D("Jiro",  false, "Newfangled nonsense. Brewing should follow the rules. Adding random ingredients just to pander to the youth is nothing but grandstanding."),
+                D("Yuji",  false, "Times are changing, old man Jiro! Back in that competition, my booze and your cooking were fighting for the gold medal — and the judges gave their votes to me, didn't they?"),
+                D("Jiro",  false, "That just proves the judges had terrible taste.", jump: "sake_merge"),
+
+                // Sake good path
+                D("Rin",   true,  "(Oh — this is quite smooth. A delicate sweetness underneath. I see what he means about 'soft mouthfeel'.)", id: "sake_good"),
+                D("Rin",   false, "This is... really smooth. I can see why young people like it."),
+                D("Yuji",  false, "Ha! See that, old man Jiro? Even the new kid gets it!"),
+                D("Jiro",  false, "Hmph. Pandering to the masses isn't artistry. That's commerce."),
+                D("Yuji",  false, "He's just sore that my sake beat his cooking at the competition!", jump: "sake_merge"),
+
+                // ── All sake paths converge ───────────────────────────────────
+                D("Rin",   false, "Haha... you two really are complete opposites.", id: "sake_merge"),
+
+                // ── Shared flavor revelation ──────────────────────────────────
+                D("Rin",   false, "But it's a bit strange. Whether it was the food or the sake just now, I tasted a very similar flavor in both."),
+                D("Rin",   true,  "(Mr. Jiro's shichimi powder, Mr. Yuji's gold medal sake, and that specialty herb...)"),
+                D("Rin",   true,  "(I saw those things in the stationmaster's office. I thought they were junk. I never expected them to have stories like this.)"),
+                D("Rin",   true,  "(Well, I guess that sparked some <b>inspiration</b>...", unlocks: new[] { 10, 11, 12 }, id: "inspire_moment"),
+
 
                 // ── Inspector arrives ─────────────────────────────────────────
                 new Beat
@@ -513,46 +735,32 @@ namespace Otowa.Intro
                     ShowsInspector = true,
                 },
 
-                D("Junko",     false, "You must be... the inspector sent by the railway company, right? Please, sit down and eat with us."),
+                D("Junko",     false, "You must be... the inspector from the railway company, right? Please, sit down and eat with us."),
                 D("Inspector", false, "That won't be necessary. My time is limited, and I have already completed my on-site follow-up evaluation of Otowa Station."),
-                D("Inspector", false, "Regrettably, the platform is dilapidated, passenger traffic is practically non-existent, and it holds absolutely no economic value."),
                 D("Inspector", false, "The results of these past few inspections have shown zero signs of improvement. The railway company is not running a charity."),
-                D("Junko",     false, "Mr. Inspector, we are already working hard to rectify the situation. Please just give us a little more time…"),
+                D("Junko",     false, "Mr. Inspector, we are working hard to rectify the situation. Please, just give us a little more time…"),
                 D("Inspector", false, "The company's patience has been exhausted. Just now, my superiors replied with their final decision."),
                 D("Inspector", false, "In two days, Otowa Station will be permanently closed. All trains will cease stopping here."),
                 D("Yuji",      false, "Hey! Are you kidding me?! Two days? That's way too sudden!"),
-                D("Junko",     false, "Two days from now... Absolutely not!"),
-                D("Junko",     false, "Two days from now is the Summer Festival! That is the most important day for us in Otowa! The trains absolutely cannot stop running at this time!"),
-                D("Inspector", false, "Madam Chief, my duty is solely to convey the company's decision."),
+                D("Junko",     false, "Two days from now is the Summer Festival! That is the most important day for us in Otowa! The trains absolutely cannot stop running then!"),
                 D("Inspector", false, "Unless you can prove to me within these two days that this station possesses irreplaceable value, our decision will not change."),
 
-                // Advancing past THIS beat fades out the inspector
-                new Beat
-                {
-                    Speaker        = "Inspector",
-                    Text           = "Excuse me.",
-                    HidesInspector = true,
-                },
+                new Beat { Speaker = "Inspector", Text = "Excuse me.", HidesInspector = true },
 
                 // ── Aftermath ─────────────────────────────────────────────────
-                D("Rin",   true,  "(Silence... Yuji is tightly clenching his fists, and Jiro has his head bowed without saying a word.)"),
-                D("Junko", false, "Rin... I am truly very sorry."),
-                D("Junko", false, "You came here full of expectations, and right after you got off the train, we dragged you into such a massive mess."),
-                D("Junko", false, "Take the early train tomorrow and head back to the city. This mess shouldn't be yours to bear."),
-                D("Rin",   false, "Chief, since the inspector said there might be a turning point if we can prove the station's value, that means it's not time to give up entirely just yet."),
-                D("Rin",   false, "In his letter, Mr. Hikaru said he wanted to transform the station into a museum that showcases Otowa's charm."),
-                D("Rin",   false, "Even though he only collected a pile of \"junk,\" he asked me to be the curator."),
-                D("Rin",   false, "If I can properly exhibit these items that carry the soul of Otowa, wouldn't that make the inspector change his mind?"),
-                D("Yuji",  false, "Turn the station into a museum? That guy Hikaru was actually doing something like that behind our backs?!"),
-                D("Jiro",  false, "Hmph, with that kid's brain, he wouldn't be able to display anything decent anyway. But, if it's you..."),
-                D("Yuji",  false, "Yeah! Rin! If even a picky guy like Jiro approves of your taste, I think you can definitely pull it off!"),
-                D("Yuji",  false, "If you need anything at all, come find me at the pub next door anytime!"),
+                D("Rin",   true,  "(Silence. Yuji is tightly clenching his fists. Jiro has his head bowed without saying a word.)"),
+                D("Junko", false, "Rin... I am truly very sorry. You came full of expectations, and right away we dragged you into a massive mess."),
+                D("Junko", false, "Take the early train tomorrow and head back to the city. This shouldn't be yours to bear."),
+                D("Rin",   false, "It may not be time to give up yet. In his letter, Mr. Hikaru said he wanted to turn the station into a museum that showcases Otowa's charm."),
+                D("Rin",   false, "Even though he only collected a pile of \"junk,\" he asked me to be the curator. If I can properly exhibit these items that carry the soul of Otowa, wouldn't that make the inspector change his mind?"),
+                D("Yuji",  false, "Turn the station into a museum? That guy Hikaru was doing something like that behind our backs?!"),
+                D("Jiro",  false, "Hmph, with Hikaru's brain, he wouldn't be able to display anything decent. But, if it's you..."),
+                D("Yuji",  false, "Yeah! Rin! If even a picky guy like Jiro approves of your taste, you can definitely pull it off!"),
                 D("Junko", false, "Rin... are you really willing to help us with this?"),
                 D("Rin",   false, "Yeah. Just leave it to me."),
                 D("Junko", false, "No matter what happens... on behalf of all the villagers in Otowa, I thank you."),
-                D("Junko", false, "We will prepare properly for this year's Summer Festival... but for it to be held successfully, we are counting on you."),
+                D("Junko", false, "We will prepare for this year's Summer Festival... but for it to be held successfully, we are counting on you."),
                 D("Rin",   true,  "(The Summer Festival... what kind of day is that? Why do they value it so much?)"),
-                D("Rin",   true,  "(Regardless, I need to solve the crisis right in front of me first. Looks like I've got my work cut out for me for the next two days.)"),
             };
         }
     }
