@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DialogueSystem.Core;
+using Otowa.Audio;
 using UnityEngine;
 
 namespace Otowa.Inquiry
@@ -30,6 +31,11 @@ namespace Otowa.Inquiry
 
         private void Start()
         {
+            var audio = GameAudioManager.Instance;
+            audio.StopSfxLoop(AudioId.BluesBeat);
+            audio.StopSfxLoop(AudioId.Wind);
+            audio.PlayBgm(AudioId.NightWalk, fadeIn: 0.35f, resumePlayback: true);
+
             var progress = Day1InquiryProgress.Instance;
             if (progress.TryConsumeObjectivePrompt())
                 _pendingThoughts.Enqueue((

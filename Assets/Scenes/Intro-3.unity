@@ -155,10 +155,6 @@ MonoBehaviour:
   handwrittenFont: {fileID: 11400000, guid: c10b37ce001875946b8b41cb884463bd, type: 2}
   rinSprite: {fileID: -6861016282177217685, guid: a9ebed865be1ceb4db74f4cf28c853fa, type: 3}
   inspectorSprite: {fileID: -9028713461958575385, guid: dc32d6ccecc457f46bc49e8692c461ca, type: 3}
-  ambientClip: {fileID: 8300000, guid: e74f464f55f3308458f93a8bca752189, type: 3}
-  doorOpenClip: {fileID: 8300000, guid: 04d56bd504ab38c4582c7b8aad3ac91b, type: 3}
-  pageTurnClip: {fileID: 8300000, guid: 079c470051ace7d4ca07f2ad25c98818, type: 3}
-  musicVolume: 0.225
 --- !u!4 &701008782
 Transform:
   m_ObjectHideFlags: 0

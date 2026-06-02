@@ -65,6 +65,7 @@ audio.PlaySfxOnce(AudioId.DoorOpen);
 audio.PlaySfxLoop(AudioId.Wind, fadeIn: 0.4f);
 audio.FadeSfxLoopTo(AudioId.Wind, volume: 0.2f, duration: 0.5f);
 audio.StopSfxLoop(AudioId.Wind, fadeOut: 0.4f);
+audio.StopAllSfx(); // 切入需要完全清空声音的演出时使用。
 
 // 同一个循环 SFX 需要并发多份时，保留 handle。
 var handle = audio.PlaySfxLoop(AudioId.Wind, allowDuplicate: true);
@@ -75,6 +76,37 @@ audio.SetMasterVolume(0.8f, duration: 0.3f);
 audio.SetBgmBusVolume(0.6f, duration: 0.3f);
 audio.SetSfxBusVolume(0.9f, duration: 0.3f);
 ```
+
+## Intro 接入
+
+Intro 使用与 Day 3 蒙太奇相同的集中播放方式。剧情控制器只发送
+`GameAudioManager` 指令，不再在场景中拖拽 `AudioClip` 或创建独立
+`AudioSource`。
+
+| 场景 | 主要声音 |
+|------|----------|
+| `Intro-1  (START)` | 列车环境；进入山林后切换到鸟鸣，抵达时播放列车声 |
+| `JunkoIntro` | `day-walk` 与森林环境持续播放 |
+| `Intro-3` | 延续 `day-walk`，进门时停止森林环境并播放开门声；翻信件时播放翻页声 |
+| `Intro-4` | 敲门声后淡入 `crisis` |
+| `TutorialToRyotei` | 停止 BGM，循环播放风声 |
+| `Intro-5` | 淡入 `ryotei`；倒酒、碰杯；灵感解锁后停顿、淡出并播放敲门声，Inspector 到场时淡入 `crisis`，后段切换 `decision` |
+
+Day 1 展览教程取得 Hikaru 日志时，由
+`ExhibitionDay1TutorialController` 播放一次 `jingle`。Intro-5 取得地图时，
+由 `RyoteiController` 播放一次 `jingle`。
+
+## Day 1 地图接入
+
+Day 1 夜间探索进入 `Day1World` 时播放 `night-walk`。进入
+`Day1HotSpring` 前保存地图音乐位置，室内切换到 `hot-spring`；离开温泉后
+回到地图并从保存位置继续播放 `night-walk`。
+
+Yuji 首次地图对话期间暂停地图 BGM，先循环播放 `blues beat`，随后切换为
+风声；选项出现前停止风声并恢复 `night-walk`。返回车站休息后，`day1end`
+梦境演出播放 `hot-spring`，长鸣文字出现时停止 BGM 并播放一次近距离汽笛。
+Rin 醒来后循环播放森林环境；进入 Day 2 展览前停止环境音、播放一次列车声，
+等待两秒后淡出。
 
 ## Day 2 接入
 
@@ -87,7 +119,8 @@ Day 2 的地图 BGM 需要跨室内场景保存进度：
 | `Day2World` 与 Rintaro 对话 | 对话期间额外播放森林环境，不影响 `day-walk` |
 | `Day2Ryotei` 首次进入 | 切菜声循环；短暂播放 `otowa blues`，Jiro 看到 Rin 后按键并关闭 BGM |
 | `Day2Ryotei` 再次进入 | 对话未耗尽时只有切菜声；耗尽后 BGM 和 SFX 都不播放 |
-| `Day2HotSpring` | `hot-spring`；绘画剧情关键句播放清晰水声 |
+| `Day2HotSpring` | `hot-spring` |
+| `day2end` | 开场清空声音并循环播放虫鸣；DAY 3 标题后切换为远处汽笛和森林环境；进入 Day 3 展览前播放列车声并等待两秒 |
 
 进入 `Day2Ryotei` 或 `Day2HotSpring` 前，`Day2InteriorEntrance` 会调用：
 
@@ -134,7 +167,6 @@ Day 3 的声音触发点直接写在剧情控制器中：
 
 ## 设计边界
 
-- Intro 现有实现暂未迁移，避免在本轮改动中扩大范围。
 - 新的剧情声音不要直接调用 `AudioSource.Play`。
 - 场景切换前显式停止不再需要的循环 SFX；需要延续的 BGM 可以保留。
 - `GameAudioCatalog.asset` 是生成资产。文件改名或替换后应重建，而不是

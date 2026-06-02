@@ -103,6 +103,7 @@ namespace Otowa.Inquiry
             if (_day1NightInitialized) return;
 
             _day1NightInitialized = true;
+            InspirationManager.Instance.PrepareDay1ExplorationJournal();
             OnProgressChanged?.Invoke();
         }
 
@@ -221,7 +222,7 @@ namespace Otowa.Inquiry
 
         private void InitializeIfDay1ExplorationScene(string sceneName)
         {
-            if (sceneName == "Day1World" || sceneName == "HotSpring")
+            if (sceneName == "Day1World" || sceneName == "Day1HotSpring")
                 InitializeDay1Night();
         }
 

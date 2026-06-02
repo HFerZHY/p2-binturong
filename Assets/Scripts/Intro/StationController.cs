@@ -8,6 +8,7 @@ using UnityEngine.InputSystem.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 using ExhibitionSystem.Data;
+using Otowa.Audio;
 using Otowa.IndoorDialogue;
 
 namespace Otowa.Intro
@@ -36,12 +37,6 @@ namespace Otowa.Intro
         [Header("Sprites (leave blank to auto-load)")]
         [SerializeField] private Sprite rinSprite;
         [SerializeField] private Sprite inspectorSprite;
-
-        [Header("Audio")]
-        [SerializeField] private AudioClip ambientClip;
-        [SerializeField] private AudioClip doorOpenClip;
-        [SerializeField] private AudioClip pageTurnClip;
-        [SerializeField] [Range(0f, 1f)] private float musicVolume = 0.3f;
 
         // ── Beat data ─────────────────────────────────────────────────────────
 
@@ -97,9 +92,6 @@ namespace Otowa.Intro
 
         private TMP_Text    _promptTmp;
         private GameObject  _choicePanel;
-        private AudioSource _audioSource;
-        private AudioSource _sfxSource;
-
         // ── Colours ───────────────────────────────────────────────────────────
 
         private static readonly Color NarBg     = new Color32(0x2a, 0x22, 0x18, 0xFF);
@@ -133,7 +125,7 @@ namespace Otowa.Intro
             BuildUI();
             _textPlayer = gameObject.AddComponent<IndoorDialogueTextPlayer>();
             _textPlayer.Initialize(_promptTmp, typewriterSpeed);
-            SetupAudio();
+            ApplyOpeningAudio();
         }
 
         private void Start()
@@ -207,42 +199,15 @@ namespace Otowa.Intro
             foreach (Transform child in _choicePanel.transform)
                 Destroy(child.gameObject);
 
-            float btnH = 0.16f;
-            float gap   = 0.03f;
             int   count = b.Choices.Length;
-            float totalH = count * btnH + (count - 1) * gap;
-            float startY = 0.5f + totalH * 0.5f - btnH * 0.5f;
 
             for (int i = 0; i < count; i++)
             {
                 var choice = b.Choices[i];
-                float yMax = startY - i * (btnH + gap);
-                float yMin = yMax - btnH;
-
-                var btnGo = new GameObject($"Choice{i}", typeof(RectTransform));
-                btnGo.transform.SetParent(_choicePanel.transform, false);
-                var brt = (RectTransform)btnGo.transform;
-                brt.anchorMin = new Vector2(0.15f, yMin);
-                brt.anchorMax = new Vector2(0.85f, yMax);
-                brt.offsetMin = brt.offsetMax = Vector2.zero;
-
-                btnGo.AddComponent<Image>().color = new Color32(0x0b, 0x2b, 0x34, 0xDD);
-                var btn = btnGo.AddComponent<Button>();
                 string targetId = choice.TargetId;
-                btn.onClick.AddListener(() => JumpToBeat(targetId));
-
-                var lbl = new GameObject("Label", typeof(RectTransform));
-                lbl.transform.SetParent(btnGo.transform, false);
-                var lrt = (RectTransform)lbl.transform;
-                lrt.anchorMin = Vector2.zero; lrt.anchorMax = Vector2.one;
-                lrt.offsetMin = lrt.offsetMax = Vector2.zero;
-                var tmp = lbl.AddComponent<TextMeshProUGUI>();
-                tmp.text      = choice.Label;
-                tmp.fontSize  = 26f;
-                tmp.color     = BodyC;
-                tmp.alignment = TextAlignmentOptions.Center;
-                tmp.richText  = true;
-                if (serifFont != null) tmp.font = serifFont;
+                IndoorDialogueChoiceStyle.AddButton(
+                    _choicePanel.transform, $"Choice{i}", choice.Label, serifFont,
+                    () => JumpToBeat(targetId));
             }
         }
 
@@ -311,8 +276,8 @@ namespace Otowa.Intro
             _ltTitle.text   = "A Letter from Hikaru";
             _ltBody.text    = b.Text;
             _ltPageNum.text = $"{b.LetterPage}  /  5";
-            if (b.LetterPage > 1 && pageTurnClip != null && _sfxSource != null)
-            { _sfxSource.Stop(); _sfxSource.clip = pageTurnClip; _sfxSource.Play(); }
+            if (b.LetterPage > 1)
+                GameAudioManager.Instance.PlaySfxOnce(AudioId.PageTurn);
             SetPrompt(true);
         }
 
@@ -528,7 +493,7 @@ namespace Otowa.Intro
             sep.AddComponent<Image>().color = new Color32(0x9a, 0x90, 0x80, 0xFF);
 
             _ltBody = MakeTMP(pt, "LtBody", "",
-                30f, LetterTxt, TextAlignmentOptions.Left,
+                34f, LetterTxt, TextAlignmentOptions.Left,
                 new Vector2(0.06f, 0.10f), new Vector2(0.94f, 0.82f));
             _ltBody.lineSpacing = 6f;
             UseFont(_ltBody, handwrittenFont);
@@ -666,8 +631,9 @@ namespace Otowa.Intro
 
         private void BuildChoicePanel(Transform cv)
         {
-            _choicePanel = MakeRect(cv, "ChoicePanel", new Vector2(0f, 0.28f), new Vector2(1f, 0.72f));
+            _choicePanel = MakeRect(cv, "ChoicePanel", new Vector2(0.25f, 0.32f), new Vector2(0.75f, 0.72f));
             _choicePanel.AddComponent<Image>().color = new Color(0, 0, 0, 0);
+            IndoorDialogueChoiceStyle.ConfigureContainer(_choicePanel);
             _choicePanel.SetActive(false);
         }
 
@@ -772,18 +738,12 @@ namespace Otowa.Intro
 
         // ── Audio ─────────────────────────────────────────────────────────────
 
-        private void SetupAudio()
+        private static void ApplyOpeningAudio()
         {
-            _audioSource             = gameObject.AddComponent<AudioSource>();
-            _audioSource.clip        = ambientClip;
-            _audioSource.volume      = musicVolume;
-            _audioSource.loop        = true;
-            _audioSource.playOnAwake = false;
-            if (ambientClip != null) _audioSource.Play();
-
-            _sfxSource             = gameObject.AddComponent<AudioSource>();
-            _sfxSource.playOnAwake = false;
-            if (doorOpenClip != null) _sfxSource.PlayOneShot(doorOpenClip);
+            var audio = GameAudioManager.Instance;
+            audio.StopSfxLoop(AudioId.ForestAtmosphere, 0.25f);
+            audio.PlayBgm(AudioId.DayWalk, fadeIn: 0.35f);
+            audio.PlaySfxOnce(AudioId.DoorOpen);
         }
 
         // ── Beat helpers ──────────────────────────────────────────────────────
@@ -849,7 +809,7 @@ namespace Otowa.Intro
                     "It's something I have to go and handle personally, and I can't delay for even a moment.\n\n" +
                     "So, I'm temporarily leaving the station in your hands for the next few days! " +
                     "You can study the exhibits in the room first, and I'll be back soon!\n\n" +
-                    "— Full of anticipation,\n   Hikaru."),
+                    "Hikaru."),
 
                 // ── Phase 3: post-letter thoughts ─────────────────────────────
                 N(false, "...A \"brilliant idea,\" huh."),

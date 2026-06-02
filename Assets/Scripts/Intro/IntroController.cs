@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using TMPro;
+using Otowa.Audio;
 using Otowa.IndoorDialogue;
 
 namespace Otowa.Intro
@@ -30,10 +31,6 @@ namespace Otowa.Intro
         [SerializeField] private string nextSceneName = "SampleScene";
         [SerializeField] private float  typewriterSpeed = 40f;   // visible chars/sec
         [SerializeField] private float  fadeDuration    = 0.35f;
-
-        [Header("Ambient Music")]
-        [SerializeField] private AudioClip ambientClip;
-        [SerializeField] [Range(0f, 1f)] private float musicVolume = 0.35f;
 
         [Header("Bubbles")]
         [SerializeField] private bool  bubblesEnabled  = true;
@@ -127,9 +124,6 @@ namespace Otowa.Intro
         private Sprite        _bubbleSprite;
         private Coroutine     _bubbleSpawner;
 
-        // ── Audio ─────────────────────────────────────────────────────────────
-        private AudioSource _audioSource;
-
         // ─────────────────────────────────────────────────────────────────────
         //  Unity lifecycle
         // ─────────────────────────────────────────────────────────────────────
@@ -138,12 +132,12 @@ namespace Otowa.Intro
         {
             _loadingScene = false; // reset each time this scene starts fresh
             Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
-            ApplyBlueTheme();
+            ApplyNeutralTextTheme();
             BuildScreens();
             BuildUI();
             _textPlayer = gameObject.AddComponent<IndoorDialogueTextPlayer>();
             _textPlayer.Initialize(_promptTmp, typewriterSpeed);
-            SetupAudio();
+            StartIntroAudio();
         }
 
         private void Start()
@@ -200,6 +194,7 @@ namespace Otowa.Intro
 
             _current = index;
             var s = _screens[index];
+            ApplyAudioCue(index);
 
             Color targetBackground = s.Type == ScreenType.Letter ? bgBrown : s.Background;
             if (_backgroundTransition != null)
@@ -283,11 +278,7 @@ namespace Otowa.Intro
             _textPlayer.Play(tmp, text, HandleTextCompleted);
         }
 
-        private void HandleTextCompleted()
-        {
-            if (_current == OtowaScreenIndex && _glowCR == null)
-                _glowCR = StartCoroutine(GlowWordCR(_bodyTmp, "Otowa"));
-        }
+        private void HandleTextCompleted() { }
 
         // ─────────────────────────────────────────────────────────────────────
         //  Transitions
@@ -316,6 +307,7 @@ namespace Otowa.Intro
             yield return null;
             yield return new WaitForSeconds(1.5f);
             yield return StartCoroutine(FadeTo(0f));
+            PrepareJunkoIntroAudio();
             SceneManager.LoadScene(nextSceneName);
         }
 
@@ -366,12 +358,12 @@ namespace Otowa.Intro
             text.maxVisibleCharacters = 0;
         }
 
-        private void ApplyBlueTheme()
+        private void ApplyNeutralTextTheme()
         {
             bgGreen = new Color32(0x05, 0x18, 0x20, 0xFF);
-            textPrimary = new Color32(0xc8, 0xdc, 0xda, 0xFF);
-            titleGreen = new Color32(0x78, 0xb5, 0xb2, 0xFF);
-            subtleGreen = new Color32(0x4e, 0x7f, 0x82, 0xFF);
+            textPrimary = new Color32(0xf0, 0xee, 0xe8, 0xFF);
+            titleGreen = textPrimary;
+            subtleGreen = textPrimary;
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -690,6 +682,9 @@ namespace Otowa.Intro
 
         private IEnumerator AnimateBubbleCR(RectTransform rt, Image img, float layerH, float startY)
         {
+            if (rt == null || img == null)
+                yield break;
+
             float speed     = Random.Range(bubbleMinSpeed, bubbleMaxSpeed);
             float driftFreq = Random.Range(0.4f, 0.9f);
             float driftPhase= Random.Range(0f, Mathf.PI * 2f);
@@ -700,7 +695,7 @@ namespace Otowa.Intro
 
             Color c = img.color;
 
-            while (y < layerH)
+            while (rt != null && img != null && y < layerH)
             {
                 elapsed += Time.deltaTime;
                 y       += speed * Time.deltaTime;
@@ -716,7 +711,8 @@ namespace Otowa.Intro
                 yield return null;
             }
 
-            Destroy(rt.gameObject);
+            if (rt != null)
+                Destroy(rt.gameObject);
         }
 
         private static Sprite CreateCircleSprite(int radius)
@@ -750,14 +746,38 @@ namespace Otowa.Intro
         //  Audio
         // ─────────────────────────────────────────────────────────────────────
 
-        private void SetupAudio()
+        private static void StartIntroAudio()
         {
-            _audioSource        = gameObject.AddComponent<AudioSource>();
-            _audioSource.clip   = ambientClip;
-            _audioSource.volume = musicVolume;
-            _audioSource.loop   = true;
-            _audioSource.playOnAwake = false;
-            if (ambientClip != null) _audioSource.Play();
+            var audio = GameAudioManager.Instance;
+            audio.StopBgm();
+            audio.StopSfxLoop(AudioId.ForestAtmosphere);
+            audio.StopSfxLoop(AudioId.LivelierBirdsong);
+            audio.StopSfxLoop(AudioId.Wind);
+            audio.PlaySfxLoop(AudioId.OnTheTrain, fadeIn: 0.25f);
+        }
+
+        private static void ApplyAudioCue(int screenIndex)
+        {
+            var audio = GameAudioManager.Instance;
+            switch (screenIndex)
+            {
+                case 10:
+                    audio.PlaySfxLoop(AudioId.LivelierBirdsong, fadeIn: 0.35f);
+                    audio.StopSfxLoop(AudioId.OnTheTrain, 0.25f);
+                    break;
+                case 11:
+                    audio.PlaySfxOnce(AudioId.TrainRunning);
+                    break;
+            }
+        }
+
+        private static void PrepareJunkoIntroAudio()
+        {
+            var audio = GameAudioManager.Instance;
+            audio.StopSfxLoop(AudioId.OnTheTrain, 0.25f);
+            audio.StopSfxLoop(AudioId.LivelierBirdsong, 0.25f);
+            audio.PlayBgm(AudioId.DayWalk, fadeIn: 0.35f);
+            audio.PlaySfxLoop(AudioId.ForestAtmosphere, fadeIn: 0.3f);
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -767,7 +787,7 @@ namespace Otowa.Intro
         private void BuildScreens()
         {
             // Rich-text colour helpers (match webapp CSS exactly)
-            string H(string t)  => $"<color=#78b5b2>{t}</color>";          // highlight
+            string H(string t)  => t;
             string D(string t)  => $"<i><color=#9fc9c6>{t}</color></i>";   // dialogue
             string SX(string t) => $"<color=#d4a8a8>{t}</color>";          // surprise
             string SB(string t) => $"<color=#346872>{t}</color>";          // scene break

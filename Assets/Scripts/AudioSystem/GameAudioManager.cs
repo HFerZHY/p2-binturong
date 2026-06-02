@@ -298,6 +298,20 @@ namespace Otowa.Audio
             }
         }
 
+        public void StopAllSfx(float loopFadeOut = 0f)
+        {
+            foreach (var voice in new List<SfxVoice>(_oneShotVoices))
+            {
+                _oneShotVoices.Remove(voice);
+                ReleaseSource(voice.Source);
+            }
+
+            foreach (var voice in new List<SfxVoice>(_loopVoicesByHandle.Values))
+            {
+                FadeSfxVoiceTo(voice, 0f, loopFadeOut, stopAfterFade: true);
+            }
+        }
+
         public void SetMasterVolume(float volume, float duration = 0f)
         {
             FadeBusTo(Bus.Master, volume, duration);

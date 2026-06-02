@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Otowa.Audio;
 using Otowa.IndoorDialogue;
 using TMPro;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace Otowa.Day1End
         [SerializeField] private TMP_FontAsset serifFont;
 
         private static readonly Color DreamBg = Color.black;
+        private static readonly Color BrightDreamBg = Color.white;
         private static readonly Color DreamText = new(0.92f, 0.96f, 1f, 1f);
         private static readonly Color TitleBg = new(0.97f, 0.96f, 0.92f, 1f);
         private static readonly Color WakeBg = new(0.88f, 0.92f, 0.90f, 1f);
@@ -58,6 +60,7 @@ namespace Otowa.Day1End
         private int _beatIndex;
         private bool _inputLock;
         private bool _loadingScene;
+        private Coroutine _dreamBrightenCoroutine;
 
         private void Awake()
         {
@@ -70,6 +73,10 @@ namespace Otowa.Day1End
         private void Start()
         {
             _fade.alpha = 0f;
+            var audio = GameAudioManager.Instance;
+            audio.StopSfxLoop(AudioId.BluesBeat);
+            audio.StopSfxLoop(AudioId.Wind);
+            audio.PlayBgm(AudioId.HotSpring, fadeIn: 0.4f);
             ShowBeat(0);
             StartDreamParticles();
             StartCoroutine(FadeTo(1f));
@@ -97,16 +104,14 @@ namespace Otowa.Day1End
             int next = _beatIndex + 1;
             if (next >= Beats.Length)
                 StartCoroutine(FadeAndLoad());
-            else if (Beats[_beatIndex].Phase == BeatPhase.Wake
-                     && Beats[next].Phase == BeatPhase.Wake)
-                ShowBeat(next);
             else
-                StartCoroutine(CrossFadeTo(next));
+                ShowBeat(next);
         }
 
         private void ShowBeat(int index)
         {
             _beatIndex = index;
+            ApplyAudioCue(index);
             var beat = Beats[index];
             bool isDream = beat.Phase == BeatPhase.Dream;
             bool isTitle = beat.Phase == BeatPhase.Title;
@@ -117,7 +122,13 @@ namespace Otowa.Day1End
 
             if (isDream)
             {
-                _textPlayer.Play(_dreamBody, beat.Text);
+                bool isBrightDream = index == 3;
+                _background.color = isBrightDream ? BrightDreamBg : DreamBg;
+                _dreamBody.color = isBrightDream ? WakeText : DreamText;
+                _textPlayer.Play(
+                    _dreamBody,
+                    beat.Text,
+                    index == 2 ? HandleDreamFireworksCompleted : null);
                 return;
             }
 
@@ -131,12 +142,48 @@ namespace Otowa.Day1End
             _textPlayer.Play(_wakeBody, beat.Text);
         }
 
-        private IEnumerator CrossFadeTo(int next)
+        private static void ApplyAudioCue(int beatIndex)
+        {
+            var audio = GameAudioManager.Instance;
+            switch (beatIndex)
+            {
+                case 3:
+                    audio.StopBgm(0.35f);
+                    audio.PlaySfxOnce(AudioId.WhistleClose);
+                    break;
+                case 5:
+                    audio.PlaySfxLoop(AudioId.ForestAtmosphere, fadeIn: 0.25f);
+                    break;
+            }
+        }
+
+        private void HandleDreamFireworksCompleted()
+        {
+            if (_beatIndex != 2 || _dreamBrightenCoroutine != null)
+                return;
+
+            _dreamBrightenCoroutine = StartCoroutine(BrightenDreamThenShowWhistle());
+        }
+
+        private IEnumerator BrightenDreamThenShowWhistle()
         {
             _inputLock = true;
-            yield return FadeTo(0f);
-            ShowBeat(next);
-            yield return FadeTo(1f);
+            _textPlayer.SetPromptVisible(false);
+            StopDreamParticles();
+
+            const float duration = 3f;
+            Color start = _background.color;
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                _background.color = Color.Lerp(start, BrightDreamBg, Mathf.Clamp01(elapsed / duration));
+                yield return null;
+            }
+
+            _background.color = BrightDreamBg;
+            ShowBeat(3);
+            _dreamBrightenCoroutine = null;
             _inputLock = false;
         }
 
@@ -147,6 +194,9 @@ namespace Otowa.Day1End
 
             _loadingScene = true;
             _inputLock = true;
+            GameAudioManager.Instance.StopSfxLoop(AudioId.ForestAtmosphere, 0.25f);
+            GameAudioManager.Instance.PlaySfxOnce(AudioId.TrainRunning);
+            yield return new WaitForSeconds(2f);
             yield return FadeTo(0f);
             SceneManager.LoadScene(nextSceneName);
         }

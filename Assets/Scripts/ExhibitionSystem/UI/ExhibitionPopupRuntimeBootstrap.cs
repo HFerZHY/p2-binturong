@@ -17,6 +17,7 @@ namespace ExhibitionSystem.UI
             TutorialPopup.EnsureTutorialPopupExists();
             ExhibitionErrorHintBar.EnsureErrorHintBarExists();
             RewardPopup.EnsureRewardPopupExists();
+            Day3CompletionPopup.EnsurePopupExists();
         }
     }
 }

@@ -1,4 +1,5 @@
 using DialogueSystem.Interfaces;
+using Otowa.Audio;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,18 +12,24 @@ namespace Otowa.Intro
     /// </summary>
     public class RyoteiEntrance : MonoBehaviour, IInteractable
     {
+        private const string DEFAULT_INTERACT_PROMPT = "Space to interact";
+
         [SerializeField] private string nextSceneName = "Intro-5";
-        [SerializeField] private string interactPrompt = "[Space] Enter Ryotei";
+        [SerializeField] private string interactPrompt = DEFAULT_INTERACT_PROMPT;
 
         private bool _loading;
 
         public bool CanInteract => !_loading && !InspirationManager.IsJournalOpen;
-        public string InteractPrompt => interactPrompt;
+        public string InteractPrompt =>
+            string.IsNullOrWhiteSpace(interactPrompt) || interactPrompt == "[Space] Enter Ryotei"
+                ? DEFAULT_INTERACT_PROMPT
+                : interactPrompt;
 
         public void Interact(GameObject initiator)
         {
             if (!CanInteract) return;
             _loading = true;
+            GameAudioManager.Instance.StopSfxLoop(AudioId.Wind, 0.25f);
             SceneManager.LoadScene(nextSceneName);
         }
     }

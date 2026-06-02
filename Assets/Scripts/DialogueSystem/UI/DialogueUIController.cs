@@ -11,6 +11,7 @@ using DialogueSystem.Interfaces;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.Tables;
 using UnityEngine.Serialization;
+using Otowa.IndoorDialogue;
 
 namespace DialogueSystem.UI
 {
@@ -70,12 +71,12 @@ namespace DialogueSystem.UI
         private float _secondsPerChar;
         private float _paginationWidth = -1f;
         private readonly List<Button> _choiceButtons = new();
+        private LocalizationManager _localizationManager;
 
         private const int MAX_LINES_PER_PAGE = 3;
         private const float PAGINATION_WIDTH_EPSILON = 0.5f;
 
         private static readonly Color PanelBg    = new Color32(0x06, 0x0e, 0x06, 0xE8);
-        private static readonly Color ChoiceBg   = new Color32(0x06, 0x0e, 0x06, 0xD8);
         private static readonly Color BodyFg     = new Color32(0xc8, 0xd4, 0xc8, 0xFF);
         private static readonly Color RinFg      = new Color32(0x8f, 0xbc, 0x8f, 0xFF);
         private static readonly Color JunkoFg    = new Color32(0xd4, 0xa0, 0x60, 0xFF);
@@ -113,9 +114,7 @@ namespace DialogueSystem.UI
             // Speaker
             if (speakerNameText != null && node.speaker != null)
             {
-                speakerNameText.text = node.speaker.characterName == "???"
-                    ? "???"
-                    : LocalizationManager.Instance.GetCharacterName(node.speaker.characterName);
+                speakerNameText.text = ResolveCharacterName(node.speaker);
                 speakerNameText.color = GetSpeakerColor(node.speaker.characterName);
             }
             else if (speakerNameText != null)
@@ -124,9 +123,7 @@ namespace DialogueSystem.UI
             }
 
             // Body text (typewriter)
-            _fullText = !string.IsNullOrEmpty(node.literalText)
-                ? node.literalText
-                : LocalizationManager.Instance.GetDialogueText(node.textKey);
+            _fullText = ResolveDialogueText(node);
             _onTypingComplete = onTypingComplete;
             _secondsPerChar = node.typewriterSpeed > 0 ? node.typewriterSpeed : defaultTypewriterSpeed;
             BuildPages(_fullText);
@@ -182,7 +179,7 @@ namespace DialogueSystem.UI
                 {
                     label.text = !string.IsNullOrEmpty(choice.literalLabel)
                         ? choice.literalLabel
-                        : LocalizationManager.Instance.GetDialogueChoice(choice.labelKey);
+                        : ResolveDialogueChoice(choice.labelKey);
                 }
                 btn.interactable = isInteractable;
 
@@ -385,6 +382,21 @@ namespace DialogueSystem.UI
                 dialogueBodyText.maxVisibleLines = MAX_LINES_PER_PAGE;
             }
 
+            if (interactPromptRoot != null)
+            {
+                SetRect(interactPromptRoot.transform as RectTransform,
+                    new Vector2(0.34f, 0.72f), new Vector2(0.66f, 0.82f));
+            }
+
+            if (interactPromptText != null)
+            {
+                if (dialogueFont != null) interactPromptText.font = dialogueFont;
+                interactPromptText.fontSize = 26f;
+                interactPromptText.color = Color.black;
+                interactPromptText.alignment = TextAlignmentOptions.Center;
+                interactPromptText.raycastTarget = false;
+            }
+
             if (choicesContainer == null) return;
 
             if (dialoguePanel != null && dialoguePanel.transform.parent != null)
@@ -392,16 +404,7 @@ namespace DialogueSystem.UI
             SetRect(choicesContainer as RectTransform,
                 new Vector2(0.25f, 0.32f), new Vector2(0.75f, 0.72f));
 
-            var layout = choicesContainer.GetComponent<VerticalLayoutGroup>();
-            if (layout == null)
-                layout = choicesContainer.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(0, 0, 0, 0);
-            layout.spacing = 14f;
-            layout.childAlignment = TextAnchor.MiddleCenter;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
+            IndoorDialogueChoiceStyle.ConfigureContainer(choicesContainer.gameObject);
 
             choicesContainer.gameObject.SetActive(false);
         }
@@ -410,37 +413,7 @@ namespace DialogueSystem.UI
         {
             if (button == null) return;
 
-            var image = button.GetComponent<Image>();
-            if (image != null)
-            {
-                image.color = ChoiceBg;
-                image.type = Image.Type.Simple;
-            }
-
-            var colors = button.colors;
-            colors.normalColor = Color.white;
-            colors.highlightedColor = new Color32(0xd9, 0xe2, 0xd9, 0xFF);
-            colors.pressedColor = new Color32(0xb8, 0xc8, 0xb8, 0xFF);
-            colors.selectedColor = colors.highlightedColor;
-            colors.disabledColor = new Color32(0x80, 0x88, 0x80, 0x88);
-            button.colors = colors;
-
-            var layout = button.GetComponent<LayoutElement>();
-            if (layout == null)
-                layout = button.gameObject.AddComponent<LayoutElement>();
-            layout.minHeight = 64f;
-            layout.preferredHeight = 72f;
-            layout.flexibleWidth = 1f;
-
-            var label = button.GetComponentInChildren<TMP_Text>();
-            if (label == null) return;
-            if (dialogueFont != null) label.font = dialogueFont;
-            label.fontSize = 28f;
-            label.fontStyle = FontStyles.Normal;
-            label.color = BodyFg;
-            label.alignment = TextAlignmentOptions.Center;
-            label.margin = new Vector4(24f, 8f, 24f, 8f);
-            label.raycastTarget = false;
+            IndoorDialogueChoiceStyle.ApplyButton(button, dialogueFont);
         }
 
         private void ConfigureText(TMP_Text text, float fontSize, FontStyles style,
@@ -479,6 +452,49 @@ namespace DialogueSystem.UI
                 "inspector" => InspectorFg,
                 _           => BodyFg,
             };
+        }
+
+        private string ResolveCharacterName(Character speaker)
+        {
+            if (speaker == null || string.IsNullOrEmpty(speaker.characterName))
+                return string.Empty;
+            if (speaker.characterName == "???")
+                return "???";
+
+            var localization = GetLocalizationManager();
+            return localization != null && localization.characterNameTable != null
+                ? localization.GetCharacterName(speaker.characterName)
+                : speaker.characterName;
+        }
+
+        private string ResolveDialogueText(DialogueNode node)
+        {
+            if (!string.IsNullOrEmpty(node.literalText))
+                return node.literalText;
+
+            var localization = GetLocalizationManager();
+            return localization != null && localization.dialogueTextTable != null
+                ? localization.GetDialogueText(node.textKey)
+                : node.textKey ?? string.Empty;
+        }
+
+        private string ResolveDialogueChoice(string labelKey)
+        {
+            var localization = GetLocalizationManager();
+            return localization != null && localization.dialogueChoiceLabelTable != null
+                ? localization.GetDialogueChoice(labelKey)
+                : labelKey ?? string.Empty;
+        }
+
+        private LocalizationManager GetLocalizationManager()
+        {
+            if (_localizationManager == null)
+            {
+                _localizationManager = FindFirstObjectByType<LocalizationManager>(
+                    FindObjectsInactive.Include);
+            }
+
+            return _localizationManager;
         }
 
         private void ClearChoiceButtons()

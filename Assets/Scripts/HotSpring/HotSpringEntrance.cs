@@ -1,4 +1,5 @@
 using DialogueSystem.Interfaces;
+using Otowa.Audio;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,7 +10,7 @@ namespace Otowa.HotSpring
     {
         private const string DEFAULT_INTERACT_PROMPT = "Space to react";
 
-        [SerializeField] private string sceneName = "HotSpring";
+        [SerializeField] private string sceneName = "Day1HotSpring";
         [SerializeField] private string interactPrompt = DEFAULT_INTERACT_PROMPT;
 
         private bool _loading;
@@ -25,6 +26,7 @@ namespace Otowa.HotSpring
             if (!CanInteract) return;
 
             _loading = true;
+            GameAudioManager.Instance.StopBgm(0.25f, savePosition: true);
             SceneManager.LoadScene(sceneName);
         }
     }

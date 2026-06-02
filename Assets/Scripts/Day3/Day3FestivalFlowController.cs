@@ -18,6 +18,7 @@ namespace Otowa.Day3
         private const int REQUIRED_VISITS = 5;
 
         [SerializeField] private string _nextSceneName = "Day3NightTrainArrival";
+        [SerializeField] private TMP_FontAsset _centeredFont;
         [SerializeField] private float _charactersPerSecond = 38f;
 
         private readonly HashSet<Day3FestivalNpc> _visited = new HashSet<Day3FestivalNpc>();
@@ -230,9 +231,9 @@ namespace Otowa.Day3
             canvasObject.SetActive(false);
         }
 
-        private static TMP_Text MakeText(Transform parent, string name, string value, float size,
-                                         Color color, TextAlignmentOptions alignment,
-                                         Vector2 anchorMin, Vector2 anchorMax)
+        private TMP_Text MakeText(Transform parent, string name, string value, float size,
+                                  Color color, TextAlignmentOptions alignment,
+                                  Vector2 anchorMin, Vector2 anchorMax)
         {
             var gameObject = MakeRect(parent, name, anchorMin, anchorMax);
             var text = gameObject.AddComponent<TextMeshProUGUI>();
@@ -242,6 +243,8 @@ namespace Otowa.Day3
             text.alignment = alignment;
             text.textWrappingMode = TextWrappingModes.Normal;
             text.raycastTarget = false;
+            if (_centeredFont != null)
+                text.font = _centeredFont;
             return text;
         }
 

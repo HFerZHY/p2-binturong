@@ -22,20 +22,25 @@ public static class GameAudioCatalogBuilder
 
         catalog.SetEntries(new List<AudioCatalog.Entry>
         {
-            Entry(AudioId.NightWalk, "Assets/Audio/Music/night-walk.mp3", 0.65f),
+            Entry(AudioId.NightWalk, "Assets/Audio/Music/night-walk.mp3", 0.3185f),
             Entry(AudioId.OtowaBlues, "Assets/Audio/Music/otowa blues.mp3", 0.72f),
-            Entry(AudioId.Ending, "Assets/Audio/Music/ending.mp3", 0.72f),
-            Entry(AudioId.DayWalk, "Assets/Audio/Music/day-walk.mp3", 0.65f),
-            Entry(AudioId.Crisis, "Assets/Audio/Music/crisis.mp3", 0.68f),
-            Entry(AudioId.HotSpring, "Assets/Audio/Music/hot-spring.mp3", 0.65f),
-            Entry(AudioId.Gameplay, "Assets/Audio/Music/gameplay.mp3", 0.62f),
+            Entry(AudioId.Ending, "Assets/Audio/Music/ending.mp3", 0.504f),
+            Entry(AudioId.DayWalk, "Assets/Audio/Music/day-walk.mp3", 0.455f),
+            Entry(AudioId.Crisis, "Assets/Audio/Music/crisis.mp3", 0.476f),
+            Entry(AudioId.HotSpring, "Assets/Audio/Music/hot-spring.mp3", 0.3185f),
+            Entry(AudioId.Gameplay, "Assets/Audio/Music/gameplay.mp3", 0.434f),
+            Entry(AudioId.Ryotei, "Assets/Audio/Music/ryotei.mp3", 0.28f),
+            Entry(AudioId.Decision, "Assets/Audio/Music/decision.mp3", 0.7f),
             Entry(AudioId.ForestAtmosphere, "Assets/Audio/SoundEffects/forest-atmosphere.mp3", 0.45f),
             Entry(AudioId.LeatherFootsteps, "Assets/Audio/SoundEffects/leather footsteps.mp3", 0.8f),
+            Entry(AudioId.LivelierBirdsong, "Assets/Audio/SoundEffects/livelier birdsong.mp3", 0.52f),
             Entry(AudioId.InspirationUnlocked, "Assets/Audio/SoundEffects/inspiration unlocked.mp3", 0.9f),
             Entry(AudioId.Failure, "Assets/Audio/SoundEffects/failure.mp3", 0.9f),
             Entry(AudioId.Jingle, "Assets/Audio/SoundEffects/jingle.mp3", 0.9f),
             Entry(AudioId.DoorOpen, "Assets/Audio/SoundEffects/door open.mp3", 0.85f),
             Entry(AudioId.KnockingDoor, "Assets/Audio/SoundEffects/knocking door.mp3", 0.9f),
+            Entry(AudioId.DrinkPour, "Assets/Audio/SoundEffects/drink pour.mp3", 0.85f),
+            Entry(AudioId.GlassesToast, "Assets/Audio/SoundEffects/glasses toast.mp3", 0.9f),
             Entry(AudioId.SwitchClick, "Assets/Audio/SoundEffects/swtich click.mp3", 0.9f),
             Entry(AudioId.OnTheTrain, "Assets/Audio/SoundEffects/on the train.mp3", 0.5f),
             Entry(AudioId.Snoring, "Assets/Audio/SoundEffects/snoring.mp3", 0.45f),
@@ -49,7 +54,9 @@ public static class GameAudioCatalogBuilder
             Entry(AudioId.TrainRunning, "Assets/Audio/SoundEffects/Train running.mp3", 0.65f),
             Entry(AudioId.WhistleMid, "Assets/Audio/SoundEffects/whistle-mid.mp3", 0.9f),
             Entry(AudioId.Chopping, "Assets/Audio/SoundEffects/chopping.mp3", 0.58f),
-            Entry(AudioId.RunningWater, "Assets/Audio/SoundEffects/running water.mp3", 0.7f)
+            Entry(AudioId.RunningWater, "Assets/Audio/SoundEffects/running water.mp3", 0.7f),
+            Entry(AudioId.BluesBeat, "Assets/Audio/SoundEffects/Blues beat.mp3", 0.62f),
+            Entry(AudioId.FaintInsectChirp, "Assets/Audio/SoundEffects/faint insect chirp.mp3", 0.45f)
         });
 
         EditorUtility.SetDirty(catalog);

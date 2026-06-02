@@ -1,4 +1,5 @@
 using System.Collections;
+using Otowa.Audio;
 using Otowa.IndoorDialogue;
 using TMPro;
 using UnityEngine;
@@ -71,6 +72,10 @@ namespace Otowa.Day2End
         private void Start()
         {
             _fade.alpha = 0f;
+            var audio = GameAudioManager.Instance;
+            audio.StopBgm();
+            audio.StopAllSfx();
+            audio.PlaySfxLoop(AudioId.FaintInsectChirp, fadeIn: 0.25f);
             ShowBeat(0);
             StartCoroutine(FadeTo(1f));
         }
@@ -115,6 +120,7 @@ namespace Otowa.Day2End
         private void ShowBeat(int index)
         {
             _beatIndex = index;
+            ApplyAudioCue(index);
             var beat = Beats[index];
             bool isMorning = beat.Phase == BeatPhase.Morning;
             bool isTitle = beat.Phase == BeatPhase.Title;
@@ -132,6 +138,17 @@ namespace Otowa.Day2End
             }
 
             _textPlayer.Play(isMorning ? _morningBody : _narrationBody, beat.Text);
+        }
+
+        private static void ApplyAudioCue(int beatIndex)
+        {
+            if (beatIndex != 7)
+                return;
+
+            var audio = GameAudioManager.Instance;
+            audio.StopSfxLoop(AudioId.FaintInsectChirp, 0.2f);
+            audio.PlaySfxOnce(AudioId.WhistleFar);
+            audio.PlaySfxLoop(AudioId.ForestAtmosphere, fadeIn: 0.25f);
         }
 
         private IEnumerator CrossFadeTo(int next)
@@ -162,6 +179,10 @@ namespace Otowa.Day2End
 
             _loadingScene = true;
             _inputLock = true;
+            GameAudioManager.Instance.StopSfxLoop(AudioId.FaintInsectChirp, 0.2f);
+            GameAudioManager.Instance.StopSfxLoop(AudioId.ForestAtmosphere, 0.25f);
+            GameAudioManager.Instance.PlaySfxOnce(AudioId.TrainRunning);
+            yield return new WaitForSeconds(2f);
             yield return FadeTo(0f);
             SceneManager.LoadScene(nextSceneName);
         }

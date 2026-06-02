@@ -11,14 +11,19 @@ namespace Otowa.Audio
         Crisis,
         HotSpring,
         Gameplay,
+        Ryotei,
+        Decision,
 
         ForestAtmosphere,
         LeatherFootsteps,
+        LivelierBirdsong,
         InspirationUnlocked,
         Failure,
         Jingle,
         DoorOpen,
         KnockingDoor,
+        DrinkPour,
+        GlassesToast,
         SwitchClick,
         OnTheTrain,
         Snoring,
@@ -32,6 +37,8 @@ namespace Otowa.Audio
         TrainRunning,
         WhistleMid,
         Chopping,
-        RunningWater
+        RunningWater,
+        BluesBeat,
+        FaintInsectChirp
     }
 }

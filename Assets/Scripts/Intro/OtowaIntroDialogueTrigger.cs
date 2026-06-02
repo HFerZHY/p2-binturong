@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DialogueSystem.Core;
 using DialogueSystem.Data;
+using Otowa.Audio;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -53,6 +54,10 @@ namespace Otowa.Intro
 
         private void Start()
         {
+            var audio = GameAudioManager.Instance;
+            audio.StopSfxLoop(AudioId.LivelierBirdsong, 0.2f);
+            audio.PlayBgm(AudioId.DayWalk, fadeIn: 0.35f);
+            audio.PlaySfxLoop(AudioId.ForestAtmosphere, fadeIn: 0.3f);
             _junkoMovement?.Pause();
 
             if (autoTriggerOnStart)

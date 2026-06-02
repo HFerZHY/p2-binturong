@@ -38,8 +38,10 @@ namespace Otowa.Minimap
         // ── UI refs ───────────────────────────────────────────────────────────
 
         private GameObject    _panel;
+        private GameObject    _toggleButton;
         private RectTransform _iconContainer;
         private bool          _isOpen;
+        private bool          _externalToggleLocked;
 
         // ── Character icon tracking ───────────────────────────────────────────
 
@@ -87,8 +89,24 @@ namespace Otowa.Minimap
 
         public void Toggle()
         {
+            if (_externalToggleLocked)
+                return;
+
             _isOpen = !_isOpen;
             _panel.SetActive(_isOpen);
+        }
+
+        public void SetExternalToggleLocked(bool locked)
+        {
+            _externalToggleLocked = locked;
+            if (_toggleButton != null)
+                _toggleButton.SetActive(!locked);
+
+            if (!locked || !_isOpen)
+                return;
+
+            _isOpen = false;
+            _panel.SetActive(false);
         }
 
         public void Register(MinimapIcon icon)
@@ -120,7 +138,6 @@ namespace Otowa.Minimap
             if (_locationRects.TryGetValue(loc, out var rt))
             {
                 if (rt != null) Destroy(rt.gameObject);
-                _locationRects.Remove(rt.gameObject.GetComponent<MinimapLocationMarker>());
             }
             _locationRects.Remove(loc);
             _locations.Remove(loc);
@@ -140,9 +157,6 @@ namespace Otowa.Minimap
             if (icon.Portrait != null) { img.sprite = icon.Portrait; img.preserveAspect = true; }
             else img.color = icon.IconColor;
 
-            if (!string.IsNullOrEmpty(icon.DisplayName))
-                AttachLabel(go.transform, icon.DisplayName);
-
             _iconRects[icon] = rt;
         }
 
@@ -152,39 +166,41 @@ namespace Otowa.Minimap
             go.transform.SetParent(_iconContainer, false);
 
             var rt = (RectTransform)go.transform;
-            rt.sizeDelta = loc.MarkerSize;
+            rt.sizeDelta = loc.MarkerSize.sqrMagnitude > 0f ? loc.MarkerSize : locationSize;
 
             var img = go.AddComponent<Image>();
             if (loc.MarkerIcon != null) { img.sprite = loc.MarkerIcon; img.preserveAspect = true; }
             else img.color = loc.MarkerColor;
 
             if (!string.IsNullOrEmpty(loc.LocationName))
-                AttachLabel(go.transform, loc.LocationName);
+                AttachLocationLabel(go.transform, loc.LocationName);
 
             _locationRects[loc] = rt;
         }
 
-        private static void AttachLabel(Transform parent, string text)
+        private static void AttachLocationLabel(Transform parent, string text)
         {
             var labelGo = new GameObject("Label", typeof(RectTransform));
             labelGo.transform.SetParent(parent, false);
             var label = labelGo.AddComponent<TextMeshProUGUI>();
             label.text      = text;
-            label.fontSize  = 9f;
-            label.alignment = TextAlignmentOptions.Center;
+            label.fontSize  = 16f;
+            label.fontStyle = FontStyles.Bold;
+            label.alignment = TextAlignmentOptions.Top;
             label.color     = Color.white;
             var lrt = (RectTransform)labelGo.transform;
-            lrt.anchorMin = new Vector2(0f, -0.6f);
-            lrt.anchorMax = new Vector2(1f,  0f);
-            lrt.offsetMin = lrt.offsetMax = Vector2.zero;
+            lrt.anchorMin        = lrt.anchorMax = new Vector2(0.5f, 0f);
+            lrt.pivot            = new Vector2(0.5f, 1f);
+            lrt.anchoredPosition = new Vector2(0f, -4f);
+            lrt.sizeDelta        = new Vector2(160f, 28f);
         }
 
         // ── Position updates ──────────────────────────────────────────────────
 
         private void UpdatePositions()
         {
-            float mapW = panelSize.x * 0.92f;
-            float mapH = panelSize.y * 0.82f;
+            float mapW = _iconContainer.rect.width;
+            float mapH = _iconContainer.rect.height;
 
             foreach (var (icon, rt) in _iconRects)
             {
@@ -230,14 +246,15 @@ namespace Otowa.Minimap
         {
             var go = new GameObject("MapButton", typeof(RectTransform));
             go.transform.SetParent(canvas, false);
+            _toggleButton = go;
 
             var rt = (RectTransform)go.transform;
             rt.anchorMin        = rt.anchorMax = new Vector2(0f, 1f);
             rt.pivot            = new Vector2(0f, 1f);
-            rt.anchoredPosition = new Vector2(14f, -90f);
+            rt.anchoredPosition = new Vector2(12f, -12f);
             rt.sizeDelta        = new Vector2(182f, 182f);
 
-            go.AddComponent<Image>().color = new Color32(0x06, 0x0e, 0x06, 0xCC);
+            go.AddComponent<Image>().color = Color.clear;
             var btn = go.AddComponent<Button>();
             btn.onClick.AddListener(Toggle);
 
@@ -268,9 +285,10 @@ namespace Otowa.Minimap
             _panel.transform.SetParent(canvas, false);
 
             var panelRt = (RectTransform)_panel.transform;
-            panelRt.anchorMin        = panelRt.anchorMax = new Vector2(0.5f, 0.5f);
+            panelRt.anchorMin        = panelRt.anchorMax = new Vector2(0f, 1f);
+            panelRt.pivot            = new Vector2(0f, 1f);
             panelRt.sizeDelta        = panelSize;
-            panelRt.anchoredPosition = Vector2.zero;
+            panelRt.anchoredPosition = new Vector2(12f, -12f);
 
             // Semi-transparent panel background
             var bg = _panel.AddComponent<Image>();
@@ -280,8 +298,8 @@ namespace Otowa.Minimap
             var titleGo = new GameObject("Title", typeof(RectTransform));
             titleGo.transform.SetParent(_panel.transform, false);
             var titleLabel = titleGo.AddComponent<TextMeshProUGUI>();
-            titleLabel.text      = "MAP  <size=70%><color=#d4a060>[Tab]</color></size>";
-            titleLabel.fontSize  = 20f;
+            titleLabel.text      = "MAP  <color=#d4a060>[TAB]</color>";
+            titleLabel.fontSize  = 28f;
             titleLabel.fontStyle = FontStyles.Bold;
             titleLabel.alignment = TextAlignmentOptions.Center;
             titleLabel.color     = new Color32(0xc8, 0xd4, 0xc8, 0xFF);
@@ -302,7 +320,8 @@ namespace Otowa.Minimap
             var closeLbl = new GameObject("X", typeof(RectTransform));
             closeLbl.transform.SetParent(closeGo.transform, false);
             var xl = closeLbl.AddComponent<TextMeshProUGUI>();
-            xl.text = "✕"; xl.fontSize = 18f;
+            xl.text = "X"; xl.fontSize = 30f;
+            xl.fontStyle = FontStyles.Bold;
             xl.alignment = TextAlignmentOptions.Center;
             xl.color = new Color32(0xc8, 0xd4, 0xc8, 0xFF);
             var xlrt = (RectTransform)closeLbl.transform;
@@ -337,10 +356,9 @@ namespace Otowa.Minimap
             var containerGo = new GameObject("IconContainer", typeof(RectTransform));
             containerGo.transform.SetParent(mapAreaGo.transform, false);
             _iconContainer = (RectTransform)containerGo.transform;
-            _iconContainer.anchorMin        = new Vector2(0.5f, 0.5f);
-            _iconContainer.anchorMax        = new Vector2(0.5f, 0.5f);
-            _iconContainer.sizeDelta        = Vector2.zero;
-            _iconContainer.anchoredPosition = Vector2.zero;
+            _iconContainer.anchorMin = Vector2.zero;
+            _iconContainer.anchorMax = Vector2.one;
+            _iconContainer.offsetMin = _iconContainer.offsetMax = Vector2.zero;
 
             _panel.SetActive(false);
         }

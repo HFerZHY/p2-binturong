@@ -289,16 +289,12 @@ MonoBehaviour:
   typewriterSpeed: 35
   fadeDuration: 0.35
   serifFont: {fileID: 11400000, guid: 54036173aebd7d44fb3a89ffdef22447, type: 2}
-  backgroundSprite: {fileID: -8392133590878875442, guid: 766f91df5121b8e4da31bb346db03f78, type: 3}
+  backgroundSprite: {fileID: 1351253016937070520, guid: 1a44d66fd715a6c49859dffead4e311f, type: 3}
   rinSprite: {fileID: -6861016282177217685, guid: a9ebed865be1ceb4db74f4cf28c853fa, type: 3}
   junkoSprite: {fileID: -5979425423447815568, guid: d2cb6335438500142ba87b57557e27b4, type: 3}
   yujiSprite: {fileID: 5456670085736376123, guid: b78574e41f6f41a4282871269eab9bb5, type: 3}
   jiroSprite: {fileID: -176969345565329483, guid: dc18918c530507046b5ab3ca5ec7142f, type: 3}
   inspectorSprite: {fileID: -9028713461958575385, guid: dc32d6ccecc457f46bc49e8692c461ca, type: 3}
-  bgmClip: {fileID: 8300000, guid: 917667971d97e2d4a807c828065cba38, type: 3}
-  drinkPourClip: {fileID: 8300000, guid: 9dc6afde642820b46b1e6c5dd242d524, type: 3}
-  glassesToastClip: {fileID: 8300000, guid: 41bc9a24309b86d42bb67d2144c5d2ef, type: 3}
-  musicVolume: 0.4
 --- !u!4 &1860887578
 Transform:
   m_ObjectHideFlags: 0

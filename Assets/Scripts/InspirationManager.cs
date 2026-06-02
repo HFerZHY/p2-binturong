@@ -110,6 +110,8 @@ public class InspirationManager : MonoBehaviour
     private bool _journalOpen;
     private bool _introduced;
     private bool _openInspirationsOnNextJournalOpen;
+    private bool _forceItemsOnNextJournalOpen;
+    private bool _externalToggleLocked;
 
     // ── UI refs ───────────────────────────────────────────────────────────────
 
@@ -137,7 +139,7 @@ public class InspirationManager : MonoBehaviour
     private bool _journalGuidePending;
     private bool _journalGuideShown;
 
-    private readonly Queue<int> _toastQueue = new();
+    private readonly Queue<ToastRequest> _toastQueue = new();
     private readonly Queue<int> _themeUnlockQueue = new();
     private bool _toastActive;
 
@@ -169,6 +171,7 @@ public class InspirationManager : MonoBehaviour
 
     private TMP_Text[] _themeEntryTitles;
     private Image[]    _themeEntryBgs;
+    private static Sprite _circleButtonSprite;
 
     // ── Colours ───────────────────────────────────────────────────────────────
 
@@ -234,6 +237,9 @@ public class InspirationManager : MonoBehaviour
             return;
         }
 
+        if (_externalToggleLocked)
+            return;
+
         var kb = Keyboard.current;
         if (kb != null && kb.eKey.wasPressedThisFrame)
         {
@@ -287,7 +293,8 @@ public class InspirationManager : MonoBehaviour
     /// Safe to call if already unlocked — it's a no-op.
     /// Queues a toast; the first-ever unlock also shows the E-key hint.
     /// </summary>
-    public void Unlock(int id, bool showJournalHint = true, bool playSfx = true)
+    public void Unlock(int id, bool showJournalHint = true, bool playSfx = true,
+                       float? toastHoldDuration = null)
     {
         if (id < 1 || id > 16 || _unlocked[id]) return;
         _unlocked[id] = true;
@@ -298,9 +305,43 @@ public class InspirationManager : MonoBehaviour
         bool firstEver = !_introduced && showJournalHint;
         _introduced = true;
 
-        _toastQueue.Enqueue(id);
+        _toastQueue.Enqueue(new ToastRequest(
+            $"<b>{id:D2}.</b>  {Texts[id]}",
+            toastHoldDuration));
         if (!_toastActive)
             StartCoroutine(ProcessToastQueue(firstEver));
+    }
+
+    /// <summary>
+    /// Unlock several inspirations with one combined toast and no Journal hint.
+    /// Used for scenes that award a bundle of inspirations in one story beat.
+    /// </summary>
+    public void UnlockBatch(IEnumerable<int> ids, bool playSfx = true,
+                            float? toastHoldDuration = null)
+    {
+        if (ids == null) return;
+
+        var unlockedIds = new List<int>();
+        foreach (int id in ids)
+        {
+            if (id < 1 || id > 16 || _unlocked[id]) continue;
+            _unlocked[id] = true;
+            RefreshEntry(id);
+            unlockedIds.Add(id);
+        }
+
+        if (unlockedIds.Count == 0) return;
+
+        _openInspirationsOnNextJournalOpen = true;
+        _introduced = true;
+        if (playSfx) GameAudioManager.Instance.PlaySfxOnce(AudioId.InspirationUnlocked);
+
+        string joinedIds = string.Join(", ", unlockedIds.ConvertAll(id => id.ToString("D2")));
+        _toastQueue.Enqueue(new ToastRequest(
+            $"<b>{joinedIds}</b>  New inspirations were added to the journal.",
+            toastHoldDuration));
+        if (!_toastActive)
+            StartCoroutine(ProcessToastQueue(false));
     }
 
     /// <summary>Mark item with the given sortOrder (1–16) as collected. No-op if already collected.</summary>
@@ -316,6 +357,16 @@ public class InspirationManager : MonoBehaviour
     {
         for (int i = 1; i <= 16; i++)
             CollectItem(i);
+    }
+
+    /// <summary>
+    /// Prepare the Day 1 exploration Journal. Inspiration 03 belongs to the
+    /// Day 2 Rintaro inquiry, and the first Day 1 Journal open must show Items.
+    /// </summary>
+    public void PrepareDay1ExplorationJournal()
+    {
+        SetInspirationUnlockedSilently(3, false);
+        _forceItemsOnNextJournalOpen = true;
     }
 
     /// <summary>Mark the theme with the given title as completed.</summary>
@@ -351,6 +402,10 @@ public class InspirationManager : MonoBehaviour
     /// </summary>
     public void SeedDay2JournalBaseline()
     {
+        // These are Day 2 inquiry rewards, not entries available on arrival.
+        SetInspirationUnlockedSilently(3, false);
+        SetInspirationUnlockedSilently(5, false);
+
         foreach (int id in Day1CompletedInspirationIds)
         {
             if (id < 1 || id > 16 || _unlocked[id]) continue;
@@ -363,6 +418,15 @@ public class InspirationManager : MonoBehaviour
             CompleteTheme(themeTitle, showPopup: false);
 
         _introduced = true;
+    }
+
+    private void SetInspirationUnlockedSilently(int id, bool unlocked)
+    {
+        if (id < 1 || id > 16 || _unlocked[id] == unlocked)
+            return;
+
+        _unlocked[id] = unlocked;
+        RefreshEntry(id);
     }
 
     /// <summary>
@@ -420,6 +484,16 @@ public class InspirationManager : MonoBehaviour
         _font = font;
         foreach (var tmp in GetComponentsInChildren<TMP_Text>(true))
             tmp.font = font;
+    }
+
+    public void SetExternalToggleLocked(bool locked)
+    {
+        _externalToggleLocked = locked;
+        if (locked && _journalOpen)
+            SetJournalOpen(false);
+        if (locked && IsJournalGuideVisible)
+            DismissJournalGuide();
+        RefreshJournalEntryVisibility(SceneManager.GetActiveScene().name);
     }
 
     // ── Journal toggle ────────────────────────────────────────────────────────
@@ -507,6 +581,9 @@ public class InspirationManager : MonoBehaviour
                                 int? requestedTab = null,
                                 bool consumePendingInspirationTab = true)
     {
+        if (open && _externalToggleLocked)
+            return;
+
         if (!open)
             ClearInquiryMode(invokeCancelled: true);
 
@@ -514,7 +591,10 @@ public class InspirationManager : MonoBehaviour
         _journalGo.SetActive(_journalOpen);
         if (open)
         {
-            int tab = requestedTab ?? (_openInspirationsOnNextJournalOpen ? 1 : 0);
+            int tab = _forceItemsOnNextJournalOpen
+                ? 0
+                : requestedTab ?? (_openInspirationsOnNextJournalOpen ? 1 : 0);
+            _forceItemsOnNextJournalOpen = false;
             SwitchTab(tab);
             if (consumePendingInspirationTab && tab == 1)
                 _openInspirationsOnNextJournalOpen = false;
@@ -540,14 +620,15 @@ public class InspirationManager : MonoBehaviour
         if (_journalEntryGo == null) return;
         bool showsJournalEntry = SupportsJournal(sceneName);
         _journalEntryGo.SetActive(
-            showsJournalEntry && !_journalOpen && !_themeUnlockPopupVisible);
+            showsJournalEntry && !_journalOpen && !_themeUnlockPopupVisible
+            && !_externalToggleLocked);
     }
 
     private static bool SupportsJournal(string sceneName)
     {
         return sceneName == "WorldScene"
                || sceneName == "Day1World"
-               || sceneName == "HotSpring"
+               || sceneName == "Day1HotSpring"
                || sceneName == "Day2World"
                || sceneName == "Day2Ryotei"
                || sceneName == "Day2HotSpring";
@@ -641,10 +722,10 @@ public class InspirationManager : MonoBehaviour
 
         while (_toastQueue.Count > 0)
         {
-            int id = _toastQueue.Dequeue();
+            var request = _toastQueue.Dequeue();
             _popupTitle.text = "INSPIRATION UNLOCKED";
-            _popupBody.text  = $"<b>{id:D2}.</b>  {Texts[id]}";
-            yield return StartCoroutine(RunInspirationToast());
+            _popupBody.text  = request.Body;
+            yield return StartCoroutine(RunInspirationToast(request.HoldDuration));
 
             if (hintPending)
             {
@@ -666,11 +747,12 @@ public class InspirationManager : MonoBehaviour
         go.SetActive(false);
     }
 
-    private IEnumerator RunInspirationToast()
+    private IEnumerator RunInspirationToast(float? holdDuration)
     {
         const float fadeIn = 0.35f;
-        const float hold = 3.75f;
+        const float defaultHold = 3.75f;
         const float fadeOut = 0.65f;
+        float hold = holdDuration ?? defaultHold;
 
         _popupGo.SetActive(true);
         _popupGo.transform.localScale = Vector3.one;
@@ -685,6 +767,18 @@ public class InspirationManager : MonoBehaviour
             _popupBg.color = InspirationToastBg;
         yield return Fade(_popupCG, 1f, 0f, fadeOut);
         _popupGo.SetActive(false);
+    }
+
+    private readonly struct ToastRequest
+    {
+        public ToastRequest(string body, float? holdDuration)
+        {
+            Body = body;
+            HoldDuration = holdDuration;
+        }
+
+        public string Body { get; }
+        public float? HoldDuration { get; }
     }
 
     private IEnumerator Fade(CanvasGroup cg, float from, float to, float duration)
@@ -1049,6 +1143,8 @@ public class InspirationManager : MonoBehaviour
             24f, CloseFg, TextAlignmentOptions.Right,
             new Vector2(0.76f, 0.91f), new Vector2(0.93f, 0.975f));
 
+        BuildInquiryGuideButton(ct);
+
         var closeGo = Rect(ct, "CloseButton",
             new Vector2(0.94f, 0.91f), new Vector2(0.975f, 0.975f));
         var closeBg = closeGo.AddComponent<Image>();
@@ -1096,12 +1192,12 @@ public class InspirationManager : MonoBehaviour
             new Vector2(0.06f, 0.68f), new Vector2(0.94f, 0.91f));
 
         Tmp(panel.transform, "Body",
-            "Find the villagers whose portraits appear on the items, and ask them about the stories behind those items.",
+            "Find the villagers whose portraits appear on the items, and ask them about the stories behind those items.\n\nYou can end the day only after every marked item has been asked about.",
             23f, PopupBody, TextAlignmentOptions.Center,
-            new Vector2(0.08f, 0.29f), new Vector2(0.92f, 0.67f));
+            new Vector2(0.08f, 0.24f), new Vector2(0.92f, 0.67f));
 
         var okGo = Rect(panel.transform, "OkayButton",
-            new Vector2(0.39f, 0.07f), new Vector2(0.61f, 0.24f));
+            new Vector2(0.39f, 0.05f), new Vector2(0.61f, 0.20f));
         var okBg = okGo.AddComponent<Image>();
         okBg.color = TabActiveBg;
         var okButton = okGo.AddComponent<Button>();
@@ -1112,6 +1208,35 @@ public class InspirationManager : MonoBehaviour
             Vector2.zero, Vector2.one);
 
         _journalGuideGo.SetActive(false);
+    }
+
+    private void BuildInquiryGuideButton(Transform parent)
+    {
+        var helpGo = Rect(parent, "InquiryGuideButton",
+            new Vector2(0.715f, 0.91f), new Vector2(0.75f, 0.975f));
+        var helpBg = helpGo.AddComponent<Image>();
+        helpBg.sprite = GetCircleButtonSprite();
+        helpBg.color = PopupLine;
+
+        var outline = helpGo.AddComponent<Outline>();
+        outline.effectColor = new Color32(0x6d, 0x43, 0x2d, 0xFF);
+        outline.effectDistance = new Vector2(3f, -3f);
+
+        var helpButton = helpGo.AddComponent<Button>();
+        helpButton.targetGraphic = helpBg;
+        helpButton.onClick.AddListener(ShowJournalGuide);
+
+        var helpText = Tmp(helpGo.transform, "Text", "?",
+            36f, JournalHdr, TextAlignmentOptions.Center,
+            Vector2.zero, Vector2.one);
+        helpText.fontStyle = FontStyles.Bold;
+        helpText.raycastTarget = false;
+    }
+
+    private void ShowJournalGuide()
+    {
+        if (_journalGuideGo != null)
+            _journalGuideGo.SetActive(true);
     }
 
     // ── Tab bar ───────────────────────────────────────────────────────────────
@@ -1378,5 +1503,37 @@ public class InspirationManager : MonoBehaviour
         rt.offsetMin = rt.offsetMax = Vector2.zero;
         if (_font != null) tmp.font = _font;
         return tmp;
+    }
+
+    private static Sprite GetCircleButtonSprite()
+    {
+        if (_circleButtonSprite != null)
+            return _circleButtonSprite;
+
+        const int radius = 32;
+        const int size = radius * 2;
+        var texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        var pixels = new Color32[size * size];
+        float center = radius - 0.5f;
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float distance = Mathf.Sqrt(
+                    (x - center) * (x - center) + (y - center) * (y - center));
+                byte alpha = (byte)(Mathf.Clamp01(radius - distance) * 255);
+                pixels[y * size + x] = new Color32(255, 255, 255, alpha);
+            }
+        }
+
+        texture.SetPixels32(pixels);
+        texture.Apply();
+        _circleButtonSprite = Sprite.Create(
+            texture,
+            new Rect(0f, 0f, size, size),
+            new Vector2(0.5f, 0.5f),
+            size);
+        return _circleButtonSprite;
     }
 }

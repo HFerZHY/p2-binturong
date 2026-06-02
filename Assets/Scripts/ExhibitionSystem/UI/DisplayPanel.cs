@@ -129,7 +129,14 @@ namespace ExhibitionSystem.UI
 
         private void HandleExhibitionStarted()
         {
-            ClearAllFeedback();
+            var manager = ExhibitionManager.Instance;
+            for (int i = 0; i < _slots.Count; i++)
+            {
+                if (manager != null && manager.TryGetSlotValidation(i, out var validation))
+                    _slots[i].ShowFeedback(validation);
+                else
+                    _slots[i].ClearFeedback();
+            }
         }
 
         private void HandleVisitorReacted(

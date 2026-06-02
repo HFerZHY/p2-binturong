@@ -2,9 +2,7 @@ using System.Collections.Generic;
 using DialogueSystem.Core;
 using DialogueSystem.Data;
 using DialogueSystem.Interfaces;
-using Otowa.Audio;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Otowa.Inquiry
 {
@@ -20,7 +18,10 @@ namespace Otowa.Inquiry
         [SerializeField] private string interactPrompt = "[Space] Return to station";
         [SerializeField] private string day2EndSceneName = "day2end";
 
+        private bool _transitioning;
+
         public bool CanInteract => !InspirationManager.IsJournalOpen
+                                   && !_transitioning
                                    && Day2InquiryProgress.Instance.IsFreeExplorationUnlocked
                                    && DialogueManager.Instance != null
                                    && !DialogueManager.Instance.IsActive;
@@ -71,8 +72,8 @@ namespace Otowa.Inquiry
         {
             if (actionKey == RestActionKey)
             {
-                GameAudioManager.Instance.StopBgm(0.35f);
-                SceneManager.LoadScene(day2EndSceneName);
+                _transitioning = true;
+                StartCoroutine(MapStationFadeTransition.FadeOutAndLoad(day2EndSceneName));
             }
         }
     }

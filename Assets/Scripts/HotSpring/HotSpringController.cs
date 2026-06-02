@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Otowa.Audio;
 using Otowa.IndoorDialogue;
 using Otowa.Inquiry;
 using TMPro;
@@ -32,7 +33,6 @@ namespace Otowa.HotSpring
         private const float INACTIVE_ALPHA = 0.32f;
 
         private static readonly Color PanelBg = new(0.02f, 0.05f, 0.02f, 0.93f);
-        private static readonly Color ChoiceBg = new(0.02f, 0.05f, 0.02f, 0.86f);
         private static readonly Color BodyColor = new(0.78f, 0.83f, 0.78f, 1f);
         private static readonly Color RinColor = new(0.88f, 0.76f, 0.62f, 1f);
         private static readonly Color MizukiColor = new(0.50f, 0.72f, 0.91f, 1f);
@@ -68,6 +68,10 @@ namespace Otowa.HotSpring
         private void Start()
         {
             _fade.alpha = 0f;
+            var audio = GameAudioManager.Instance;
+            audio.StopSfxLoop(AudioId.BluesBeat);
+            audio.StopSfxLoop(AudioId.Wind);
+            audio.PlayBgm(AudioId.HotSpring, fadeIn: 0.35f);
             StartCoroutine(StartAfterFade());
         }
 
@@ -190,7 +194,7 @@ namespace Otowa.HotSpring
             choices.Add(("Leave", Leave));
 
             for (int i = 0; i < choices.Count; i++)
-                BuildChoiceButton(choices[i].label, choices[i].action, i, choices.Count);
+                BuildChoiceButton(choices[i].label, choices[i].action, i);
 
             _choicesContainer.SetActive(true);
         }
@@ -254,6 +258,7 @@ namespace Otowa.HotSpring
             _inputLock = true;
             HideChoices();
             yield return FadeTo(0f);
+            GameAudioManager.Instance.StopBgm(0.25f);
             Progress.RequestDay1MapSpawn("HotSpring Entrance", new Vector3(0f, -2f, 0f));
             SceneManager.LoadScene(nextSceneName);
         }
@@ -400,7 +405,8 @@ namespace Otowa.HotSpring
 
             BuildDialoguePanel(canvasObject.transform);
             _choicesContainer = MakeRect(canvasObject.transform, "Choices",
-                new Vector2(0.25f, 0.32f), new Vector2(0.75f, 0.68f));
+                new Vector2(0.25f, 0.32f), new Vector2(0.75f, 0.72f));
+            IndoorDialogueChoiceStyle.ConfigureContainer(_choicesContainer);
             _choicesContainer.SetActive(false);
 
             _promptText = MakeText(canvasObject.transform, "Prompt", "Click to continue  v",
@@ -417,12 +423,12 @@ namespace Otowa.HotSpring
             panel.raycastTarget = false;
 
             _speakerText = MakeText(panelObject.transform, "Speaker", string.Empty,
-                28f, MizukiColor, TextAlignmentOptions.Right,
+                38f, MizukiColor, TextAlignmentOptions.Right,
                 new Vector2(0.04f, 0.68f), new Vector2(0.96f, 0.96f));
             _speakerText.fontStyle = FontStyles.Bold;
 
             _bodyText = MakeText(panelObject.transform, "Body", string.Empty,
-                27f, BodyColor, TextAlignmentOptions.Left,
+                34f, BodyColor, TextAlignmentOptions.Left,
                 new Vector2(0.04f, 0.04f), new Vector2(0.96f, 0.65f));
             _bodyText.lineSpacing = 6f;
         }
@@ -433,31 +439,10 @@ namespace Otowa.HotSpring
                 Destroy(child.gameObject);
         }
 
-        private void BuildChoiceButton(string label, Action action, int index, int count)
+        private void BuildChoiceButton(string label, Action action, int index)
         {
-            const float gap = 0.045f;
-            float height = (1f - gap * (count - 1)) / count;
-            float yMax = 1f - index * (height + gap);
-            float yMin = yMax - height;
-
-            var buttonObject = MakeRect(_choicesContainer.transform, $"Choice_{index + 1}",
-                new Vector2(0f, yMin), new Vector2(1f, yMax));
-            var image = buttonObject.AddComponent<Image>();
-            image.color = ChoiceBg;
-
-            var button = buttonObject.AddComponent<Button>();
-            button.targetGraphic = image;
-            button.onClick.AddListener(() => action());
-
-            var colors = button.colors;
-            colors.normalColor = Color.white;
-            colors.highlightedColor = new Color(0.82f, 0.89f, 0.82f, 1f);
-            colors.pressedColor = new Color(0.68f, 0.78f, 0.68f, 1f);
-            button.colors = colors;
-
-            MakeText(buttonObject.transform, "Label", label,
-                28f, BodyColor, TextAlignmentOptions.Center,
-                new Vector2(0.04f, 0.08f), new Vector2(0.96f, 0.92f));
+            IndoorDialogueChoiceStyle.AddButton(
+                _choicesContainer.transform, $"Choice_{index + 1}", label, serifFont, action);
         }
 
         private Image BuildPortrait(Transform parent, string name, string resourcePath,

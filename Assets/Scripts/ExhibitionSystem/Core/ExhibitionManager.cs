@@ -164,7 +164,7 @@ namespace ExhibitionSystem.Core
                 InitializeDisplaySlots(theme.RequiredSlots);
 
             AutoAssignKnownInspirationsInCurrentTheme();
-            _satisfaction = 0;
+            RestoreVerifiedSlotProgress();
             _visitorIndex = 0;
             _validationResults.Clear();
 
@@ -197,7 +197,7 @@ namespace ExhibitionSystem.Core
         public ExhibitItemData PlaceItem(int slotIndex, ExhibitItemData item)
         {
             if (!ValidateSlotIndex(slotIndex)) return null;
-            if (_isRunning || item == null) return null;
+            if (_isRunning || item == null || IsSlotLocked(slotIndex)) return null;
 
             var previousItem = _displaySlots[slotIndex];
             if (previousItem == item)
@@ -209,6 +209,9 @@ namespace ExhibitionSystem.Core
             int existingIndex = _displaySlots.IndexOf(item);
             if (existingIndex >= 0 && existingIndex != slotIndex)
             {
+                if (IsSlotLocked(existingIndex))
+                    return null;
+
                 ClearFixedInspirationForItem(existingIndex, item);
                 ClearBindingIfOwned(_slotInspirations[existingIndex], _currentTheme, existingIndex);
                 _displaySlots[existingIndex] = null;
@@ -236,7 +239,7 @@ namespace ExhibitionSystem.Core
 
         public ExhibitItemData RemoveItem(int slotIndex)
         {
-            if (!ValidateSlotIndex(slotIndex) || _isRunning) return null;
+            if (!ValidateSlotIndex(slotIndex) || _isRunning || IsSlotLocked(slotIndex)) return null;
 
             var removed = _displaySlots[slotIndex];
             ClearFixedInspirationForItem(slotIndex, removed);
@@ -252,7 +255,7 @@ namespace ExhibitionSystem.Core
         public void SwapItems(int slotA, int slotB)
         {
             if (!ValidateSlotIndex(slotA) || !ValidateSlotIndex(slotB)) return;
-            if (_isRunning || slotA == slotB) return;
+            if (_isRunning || slotA == slotB || IsSlotLocked(slotA) || IsSlotLocked(slotB)) return;
 
             ClearFixedInspirationForItem(slotA, _displaySlots[slotA]);
             ClearFixedInspirationForItem(slotB, _displaySlots[slotB]);
@@ -286,10 +289,9 @@ namespace ExhibitionSystem.Core
                 return;
             }
 
-            _satisfaction = 0;
             _visitorIndex = 0;
             _validationResults.Clear();
-            ClearSlotValidations();
+            RestoreVerifiedSlotProgress();
             _isRunning = true;
             SetState(ExhibitionState.ExhibitionRunning);
             OnExhibitionStarted?.Invoke();
@@ -331,6 +333,11 @@ namespace ExhibitionSystem.Core
             return index >= 0 &&
                    index < _displaySlots.Count &&
                    GetKnownInspirationForItem(_displaySlots[index]) != null;
+        }
+
+        public bool IsSlotLocked(int index)
+        {
+            return IsSlotAlreadyVerifiedCorrect(index);
         }
 
         public bool TryGetSlotValidation(int index, out ExhibitionSlotValidation validation)
@@ -472,10 +479,40 @@ namespace ExhibitionSystem.Core
                 _slotValidationResults[slotIndex] = null;
         }
 
-        private void ClearSlotValidations()
+        private bool IsSlotAlreadyVerifiedCorrect(int slotIndex)
         {
-            for (int i = 0; i < _slotValidationResults.Count; i++)
-                _slotValidationResults[i] = null;
+            if (slotIndex < 0 ||
+                slotIndex >= _displaySlots.Count ||
+                slotIndex >= _slotValidationResults.Count ||
+                _currentTheme == null ||
+                !_slotValidationResults[slotIndex].HasValue ||
+                !_slotValidationResults[slotIndex].Value.IsCorrect)
+            {
+                return false;
+            }
+
+            var inspiration = _slotInspirations[slotIndex];
+            var item = _displaySlots[slotIndex];
+            return item != null &&
+                   inspiration != null &&
+                   inspiration.mappedItem == item &&
+                   _currentTheme.IsInspirationValid(inspiration.id);
+        }
+
+        private void RestoreVerifiedSlotProgress()
+        {
+            _satisfaction = 0;
+
+            for (int i = 0; i < _displaySlots.Count; i++)
+            {
+                if (IsSlotAlreadyVerifiedCorrect(i))
+                {
+                    _satisfaction++;
+                    continue;
+                }
+
+                ClearSlotValidation(i);
+            }
         }
 
         private void RememberVerifiedMatch(int slotIndex, InspirationData inspiration, ExhibitItemData item)
@@ -675,6 +712,12 @@ namespace ExhibitionSystem.Core
         {
             while (_visitorIndex < _displaySlots.Count)
             {
+                if (IsSlotAlreadyVerifiedCorrect(_visitorIndex))
+                {
+                    _visitorIndex++;
+                    continue;
+                }
+
                 ProcessCurrentVisitor();
                 _visitorIndex++;
                 yield return new WaitForSeconds(_visitorDelay);

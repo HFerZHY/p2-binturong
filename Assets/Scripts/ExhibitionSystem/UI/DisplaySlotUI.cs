@@ -167,7 +167,7 @@ namespace ExhibitionSystem.UI
             if (item == null) return false;
 
             var manager = ExhibitionManager.Instance;
-            if (manager == null) return false;
+            if (manager == null || manager.IsSlotLocked(_slotIndex)) return false;
 
             // Can't drop during exhibition
             if (manager.IsRunning) return false;
@@ -197,7 +197,7 @@ namespace ExhibitionSystem.UI
             }
 
             var manager = ExhibitionManager.Instance;
-            if (manager != null && manager.IsRunning)
+            if (manager != null && (manager.IsRunning || manager.IsSlotLocked(_slotIndex)))
             {
                 eventData.pointerDrag = null;
                 return;
@@ -283,6 +283,7 @@ namespace ExhibitionSystem.UI
                 _isDragging ||
                 manager == null ||
                 manager.IsRunning ||
+                manager.IsSlotLocked(_slotIndex) ||
                 manager.IsSlotInspirationFixed(_slotIndex))
             {
                 return;

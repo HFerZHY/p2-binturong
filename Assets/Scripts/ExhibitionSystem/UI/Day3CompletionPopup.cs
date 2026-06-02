@@ -17,7 +17,7 @@ namespace ExhibitionSystem.UI
         private bool _isTransitioning;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void EnsurePopupExists()
+        internal static void EnsurePopupExists()
         {
             if (SceneManager.GetActiveScene().name != DAY3_EXHIBITION_SCENE)
                 return;

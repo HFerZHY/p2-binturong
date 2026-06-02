@@ -153,8 +153,6 @@ MonoBehaviour:
   nextSceneName: JunkoIntro
   typewriterSpeed: 40
   fadeDuration: 0.35
-  ambientClip: {fileID: 8300000, guid: ebd7fbcd5057f7d4fb0c84af76228efe, type: 3}
-  musicVolume: 0.35
   bubblesEnabled: 1
   bubbleSpawnRate: 0.55
   bubbleMinSize: 8
@@ -190,84 +188,9 @@ Transform:
   m_LocalPosition: {x: -9.06647, y: -4.10466, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 465369664}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &465369663
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 465369664}
-  - component: {fileID: 465369665}
-  m_Layer: 0
-  m_Name: IntroController (1)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &465369664
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 465369663}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 239253793}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &465369665
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 465369663}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5b55c448ae27d3f42bbe31137997dfa0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Intro.IntroController
-  serifFont: {fileID: 0}
-  handwrittenFont: {fileID: 0}
-  nextSceneName: SampleScene
-  typewriterSpeed: 40
-  fadeDuration: 0.35
-  ambientClip: {fileID: 0}
-  musicVolume: 0.35
-  bubblesEnabled: 1
-  bubbleSpawnRate: 0.55
-  bubbleMinSize: 8
-  bubbleMaxSize: 24
-  bubbleMinSpeed: 70
-  bubbleMaxSpeed: 160
-  bubbleDrift: 28
-  bubbleColor: {r: 1, g: 1, b: 1, a: 0.16}
-  bgGreen: {r: 0.03137255, g: 0.078431375, b: 0.03137255, a: 1}
-  bgBrown: {r: 0.16470589, g: 0.13333334, b: 0.09411765, a: 1}
-  textPrimary: {r: 0.78431374, g: 0.83137256, b: 0.78431374, a: 1}
-  titleGreen: {r: 0.56078434, g: 0.7372549, b: 0.56078434, a: 1}
-  subtleGreen: {r: 0.3529412, g: 0.47843137, b: 0.3529412, a: 1}
-  parchment: {r: 0.76862746, g: 0.72156864, b: 0.627451, a: 1}
-  inkDark: {r: 0.22745098, g: 0.20784314, b: 0.18039216, a: 1}
-  promptColor: {r: 1, g: 1, b: 1, a: 1}
-  titleFontSize: 110
-  subtitleFontSize: 22
-  bodyFontSize: 30
-  letterFontSize: 28
-  itemsTitleSize: 34
-  itemLabelSize: 24
-  promptFontSize: 22
 --- !u!1 &985951544
 GameObject:
   m_ObjectHideFlags: 0

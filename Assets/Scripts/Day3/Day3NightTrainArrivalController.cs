@@ -60,6 +60,7 @@ namespace Otowa.Day3
         }
 
         [SerializeField] private TMP_FontAsset _font;
+        [SerializeField] private TMP_FontAsset _centeredFont;
         [SerializeField] private float _charactersPerSecond = 38f;
         [SerializeField] private string _nextSceneName = "Day3InspectorDecision";
         [SerializeField] private float _nightStationTransitionDuration = 1.1f;
@@ -314,6 +315,7 @@ namespace Otowa.Day3
             _whiteNarrationBody.fontSize = 39f;
             _whiteNarrationBody.alignment = TextAlignmentOptions.Center;
             _whiteNarrationBody.color = new Color(0.14f, 0.17f, 0.22f, 1f);
+            UseFont(_whiteNarrationBody, _centeredFont);
 
             var prompt = MakeText("Prompt", _whiteNarrationRoot.transform,
                 new Vector2(0.30f, 0.035f), new Vector2(0.70f, 0.095f));
@@ -321,6 +323,7 @@ namespace Otowa.Day3
             prompt.fontSize = 22f;
             prompt.alignment = TextAlignmentOptions.Center;
             prompt.color = new Color(0.27f, 0.34f, 0.44f, 0.90f);
+            UseFont(prompt, _centeredFont);
 
             _whiteNarrationPlayer = gameObject.AddComponent<IndoorDialogueTextPlayer>();
             _whiteNarrationPlayer.Initialize(prompt, _charactersPerSecond);
@@ -385,6 +388,12 @@ namespace Otowa.Day3
             text.textWrappingMode = TextWrappingModes.Normal;
             text.raycastTarget = false;
             return text;
+        }
+
+        private static void UseFont(TMP_Text text, TMP_FontAsset font)
+        {
+            if (font != null)
+                text.font = font;
         }
 
         private static GameObject MakeRect(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax)

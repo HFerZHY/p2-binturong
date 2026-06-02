@@ -46,6 +46,7 @@ namespace DialogueSystem.Player
         // private PlayerInput _playerInput;
         private InputAction _interactAction;
         private IInteractable _closestInteractable;
+        private bool _externalInteractionLocked;
 
         // Collider buffer — avoids GC allocs each physics step
         private readonly Collider2D[] _overlapBuffer = new Collider2D[16];
@@ -85,6 +86,9 @@ namespace DialogueSystem.Player
 
         private void OnInteractPerformed(InputAction.CallbackContext ctx)
         {
+            if (_externalInteractionLocked)
+                return;
+
             Debug.Log("Interact");
             // If a dialogue is already running, let the manager handle advancing
             if (DialogueManager.Instance != null && DialogueManager.Instance.IsActive)
@@ -105,6 +109,16 @@ namespace DialogueSystem.Player
 
         private void UpdateClosestInteractable()
         {
+            if (_externalInteractionLocked)
+            {
+                if (_closestInteractable != null)
+                {
+                    _closestInteractable = null;
+                    DialogueManager.Instance?.ShowInteractPrompt(null);
+                }
+                return;
+            }
+
             // Don't update the prompt while mid-dialogue
             if (DialogueManager.Instance != null && DialogueManager.Instance.IsActive)
                 return;
@@ -137,6 +151,16 @@ namespace DialogueSystem.Player
                 
                 DialogueManager.Instance.ShowInteractPrompt(_closestInteractable);
             }
+        }
+
+        public void SetExternalInteractionLocked(bool locked)
+        {
+            _externalInteractionLocked = locked;
+            if (!locked || _closestInteractable == null)
+                return;
+
+            _closestInteractable = null;
+            DialogueManager.Instance?.ShowInteractPrompt(null);
         }
 
         // ── Gizmos ────────────────────────────────────────────────────────────

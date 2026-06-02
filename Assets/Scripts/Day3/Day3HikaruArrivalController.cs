@@ -53,6 +53,7 @@ namespace Otowa.Day3
         }
 
         [SerializeField] private TMP_FontAsset _font;
+        [SerializeField] private TMP_FontAsset _centeredFont;
         [SerializeField] private float _charactersPerSecond = 38f;
         [SerializeField] private string _nextSceneName = "Day3OtowaBluesMontage";
 
@@ -178,11 +179,13 @@ namespace Otowa.Day3
             _narrationSpeaker.fontStyle = FontStyles.Bold;
             _narrationSpeaker.alignment = TextAlignmentOptions.Center;
             _narrationSpeaker.color = new Color(0.74f, 0.86f, 1f);
+            UseFont(_narrationSpeaker, _centeredFont);
 
             _narrationBody = CreateText("Narration", _blackNarrationRoot.transform, new Vector2(0.18f, 0.36f), new Vector2(0.82f, 0.57f));
             _narrationBody.fontSize = 34f;
             _narrationBody.alignment = TextAlignmentOptions.Center;
             _narrationBody.color = Color.white;
+            UseFont(_narrationBody, _centeredFont);
 
             var prompt = CreateText("Prompt", _blackNarrationRoot.transform, new Vector2(0.72f, 0.08f), new Vector2(0.94f, 0.15f));
             prompt.text = "click to continue";
@@ -428,6 +431,12 @@ namespace Otowa.Day3
             text.enableWordWrapping = true;
             text.raycastTarget = false;
             return text;
+        }
+
+        private static void UseFont(TMP_Text text, TMP_FontAsset font)
+        {
+            if (font != null)
+                text.font = font;
         }
 
         private static GameObject CreateRect(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax)

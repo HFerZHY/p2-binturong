@@ -3,7 +3,6 @@ using DialogueSystem.Core;
 using DialogueSystem.Data;
 using DialogueSystem.Interfaces;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Otowa.Inquiry
 {
@@ -19,7 +18,10 @@ namespace Otowa.Inquiry
         [SerializeField] private string interactPrompt = "[Space] Return to station";
         [SerializeField] private string day1EndSceneName = "day1end";
 
+        private bool _transitioning;
+
         public bool CanInteract => !InspirationManager.IsJournalOpen
+                                   && !_transitioning
                                    && DialogueManager.Instance != null
                                    && !DialogueManager.Instance.IsActive;
 
@@ -68,7 +70,10 @@ namespace Otowa.Inquiry
         private void HandleActionRequested(string actionKey)
         {
             if (actionKey == RestActionKey)
-                SceneManager.LoadScene(day1EndSceneName);
+            {
+                _transitioning = true;
+                StartCoroutine(MapStationFadeTransition.FadeOutAndLoad(day1EndSceneName));
+            }
         }
     }
 }

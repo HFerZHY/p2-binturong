@@ -241,9 +241,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Otowa.Day3.Day3NightTrainArrivalController
   _font: {fileID: 11400000, guid: 54036173aebd7d44fb3a89ffdef22447, type: 2}
+  _centeredFont: {fileID: 11400000, guid: 54036173aebd7d44fb3a89ffdef22447, type: 2}
   _charactersPerSecond: 38
   _nextSceneName: Day3InspectorDecision
   _nightStationTransitionDuration: 1.1
+  _runLeadInDuration: 3
+  _arrivalLeadInDuration: 3
 --- !u!4 &1072600962
 Transform:
   m_ObjectHideFlags: 0

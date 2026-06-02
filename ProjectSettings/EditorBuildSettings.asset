@@ -36,7 +36,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Day1World.unity
     guid: 3d731d0c9198412e8f65be6ec9eced7e
   - enabled: 1
-    path: Assets/Scenes/HotSpring.unity
+    path: Assets/Scenes/Day1HotSpring.unity
     guid: 8b72c81e312d63144adc24c5010e46be
   - enabled: 1
     path: Assets/Scenes/day1end.unity

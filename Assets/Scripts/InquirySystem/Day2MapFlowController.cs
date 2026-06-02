@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DialogueSystem.Core;
 using DialogueSystem.Data;
 using Otowa.Audio;
+using Otowa.Minimap;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -41,11 +42,14 @@ namespace Otowa.Inquiry
 
             _rin = Resources.Load<Character>("Characters/Rin");
             _inspector = Resources.Load<Character>("Characters/Inspector");
+
+            SetExplorationUiLocked(!Day2InquiryProgress.Instance.IsFreeExplorationUnlocked);
         }
 
         private void OnDisable()
         {
             _playerMovement?.SetExternalMovementLocked(false);
+            SetExplorationUiLocked(false);
         }
 
         private void Start()
@@ -63,6 +67,7 @@ namespace Otowa.Inquiry
             var progress = Day2InquiryProgress.Instance;
             if (progress.IsFreeExplorationUnlocked)
             {
+                SetExplorationUiLocked(false);
                 GameAudioManager.Instance.PlayBgm(
                     AudioId.DayWalk,
                     fadeIn: 0.35f,
@@ -72,6 +77,7 @@ namespace Otowa.Inquiry
 
             GameAudioManager.Instance.StopBgm();
             GameAudioManager.Instance.PlaySfxLoop(AudioId.ForestAtmosphere, fadeIn: 0.3f);
+            SetExplorationUiLocked(true);
             _playerMovement?.SetExternalMovementLocked(true);
             DialogueManager.Instance.TriggerDialogue(BuildOpeningThoughts());
         }
@@ -213,9 +219,16 @@ namespace Otowa.Inquiry
             SetInspectorVisible(false);
             _playerMovement?.SetExternalMovementLocked(false);
             Day2InquiryProgress.Instance.UnlockFreeExploration();
+            SetExplorationUiLocked(false);
             GameAudioManager.Instance.StopSfxLoop(AudioId.ForestAtmosphere, 0.3f);
             GameAudioManager.Instance.PlayBgm(AudioId.DayWalk, fadeIn: 0.45f);
             InspirationManager.Instance.BeginJournalGuide(restart: true);
+        }
+
+        private static void SetExplorationUiLocked(bool locked)
+        {
+            InspirationManager.Instance.SetExternalToggleLocked(locked);
+            MinimapController.Instance?.SetExternalToggleLocked(locked);
         }
 
         private IEnumerator MoveInspectorTo(float targetX)

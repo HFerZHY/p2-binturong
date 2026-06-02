@@ -149,6 +149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Otowa.Day3.Day3HikaruArrivalController
   _font: {fileID: 0}
+  _centeredFont: {fileID: 11400000, guid: 54036173aebd7d44fb3a89ffdef22447, type: 2}
   _charactersPerSecond: 38
   _nextSceneName: Day3OtowaBluesMontage
 --- !u!4 &558488239

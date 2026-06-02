@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DialogueSystem.Core;
 using DialogueSystem.Data;
 using DialogueSystem.Interfaces;
+using Otowa.Audio;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -51,6 +52,12 @@ namespace Otowa.Inquiry
         {
             DialogueManager.OnActionRequested -= HandleActionRequested;
             StopWaitingForConversationEnd();
+
+            if (npc == Day1InquiryNpc.Yuji)
+            {
+                GameAudioManager.Instance.StopSfxLoop(AudioId.BluesBeat, 0.15f);
+                GameAudioManager.Instance.StopSfxLoop(AudioId.Wind, 0.15f);
+            }
         }
 
         public void Configure(Day1InquiryNpc inquiryNpc)
@@ -146,19 +153,24 @@ namespace Otowa.Inquiry
                     "Day1YujiIntroduction",
                     new[]
                     {
-                        Rin("(Is that... Mr. Yuji up ahead? He's wearing headphones and seems to be listening to music, swaying to the rhythm.)"),
+                        Rin(
+                            "(Is that... Mr. Yuji up ahead? He's wearing headphones and seems to be listening to music, swaying to the rhythm.)",
+                            StartYujiIntroAudio),
                         Rin("Good evening, Mr. Yuji."),
                         Speaker("Oh! It's Rin! Still wandering around the village this late?"),
                         Rin("Listening to some music?"),
                         Speaker("Haha, it's called the Blues! It's the most popular thing out there right now - you young folks all love this, right?"),
-                        Rin("(...Since when was this the most popular thing in the city?)"),
+                        Rin(
+                            "(...Since when was this the most popular thing in the city?)",
+                            SwitchYujiIntroToWind),
                         Rin("The blues... do you really like this kind of music, Mr. Yuji?"),
                         Speaker("Of course! You know, literally speaking, \"the blues\" means sorrow."),
                         Speaker("Sorrow! You know what I mean? Like getting drunk and having the mountain wind make your head pound..."),
                         Speaker("Or standing alone on the beach in the middle of the night, staring at the black ocean, feeling like it could swallow you whole..."),
                         Speaker("Whenever I listen to this music, I can feel the blues! The kind of blues that hits right in the soul!"),
                         Speaker("...Hahaha! Sorry, sorry - I had a couple too many today and said some weird things. Don't mind me!"),
-                    }),
+                    },
+                    RestoreYujiIntroAudio),
                 Day1InquiryNpc.Junko => BuildDialogueWithMenu(
                     "Day1JunkoIntroduction",
                     new[]
@@ -211,7 +223,10 @@ namespace Otowa.Inquiry
             };
         }
 
-        private DialogueGraph BuildDialogueWithMenu(string graphName, IReadOnlyList<Line> lines)
+        private DialogueGraph BuildDialogueWithMenu(
+            string graphName,
+            IReadOnlyList<Line> lines,
+            Action onMenuEntered = null)
         {
             var graph = CreateGraph(graphName);
             AppendLines(graph, lines, "line", "menu");
@@ -232,7 +247,7 @@ namespace Otowa.Inquiry
                 targetNodeId = "leave",
             });
 
-            graph.nodes.Add(CreateBranch("menu", choices));
+            graph.nodes.Add(CreateBranch("menu", choices, onMenuEntered));
             graph.nodes.Add(CreateTerminal("leave"));
             return FinishGraph(graph, lines.Count > 0 ? "line_01" : "menu");
         }
@@ -360,7 +375,7 @@ namespace Otowa.Inquiry
             string nextNodeId,
             IReadOnlyList<int> inspirationUnlockIds = null)
         {
-            return new DialogueNode
+            var node = new DialogueNode
             {
                 id = id,
                 nodeType = NodeType.Line,
@@ -373,11 +388,19 @@ namespace Otowa.Inquiry
                 onEnter = new UnityEvent(),
                 onExit = new UnityEvent(),
             };
+
+            if (line.OnEntered != null)
+                node.onEnter.AddListener(() => line.OnEntered());
+
+            return node;
         }
 
-        private static DialogueNode CreateBranch(string id, List<DialogueChoice> choices)
+        private static DialogueNode CreateBranch(
+            string id,
+            List<DialogueChoice> choices,
+            Action onEntered = null)
         {
-            return new DialogueNode
+            var node = new DialogueNode
             {
                 id = id,
                 nodeType = NodeType.Branch,
@@ -385,6 +408,11 @@ namespace Otowa.Inquiry
                 onEnter = new UnityEvent(),
                 onExit = new UnityEvent(),
             };
+
+            if (onEntered != null)
+                node.onEnter.AddListener(() => onEntered());
+
+            return node;
         }
 
         private static DialogueNode CreateTerminal(string id)
@@ -398,19 +426,44 @@ namespace Otowa.Inquiry
             };
         }
 
-        private Line Rin(string text) => new(_rin, text);
-        private Line Speaker(string text) => new(_speaker, text);
+        private static void StartYujiIntroAudio()
+        {
+            var audio = GameAudioManager.Instance;
+            audio.StopSfxLoop(AudioId.Wind, 0.15f);
+            audio.StopBgm(0.2f, savePosition: true);
+            audio.PlaySfxLoop(AudioId.BluesBeat, fadeIn: 0.15f);
+        }
+
+        private static void SwitchYujiIntroToWind()
+        {
+            var audio = GameAudioManager.Instance;
+            audio.StopSfxLoop(AudioId.BluesBeat, 0.15f);
+            audio.PlaySfxLoop(AudioId.Wind, fadeIn: 0.2f);
+        }
+
+        private static void RestoreYujiIntroAudio()
+        {
+            var audio = GameAudioManager.Instance;
+            audio.StopSfxLoop(AudioId.BluesBeat, 0.15f);
+            audio.StopSfxLoop(AudioId.Wind, 0.15f);
+            audio.PlayBgm(AudioId.NightWalk, fadeIn: 0.25f, resumePlayback: true);
+        }
+
+        private Line Rin(string text, Action onEntered = null) => new(_rin, text, onEntered);
+        private Line Speaker(string text, Action onEntered = null) => new(_speaker, text, onEntered);
 
         private readonly struct Line
         {
-            public Line(Character speaker, string text)
+            public Line(Character speaker, string text, Action onEntered = null)
             {
                 Speaker = speaker;
                 Text = text;
+                OnEntered = onEntered;
             }
 
             public Character Speaker { get; }
             public string Text { get; }
+            public Action OnEntered { get; }
         }
     }
 }

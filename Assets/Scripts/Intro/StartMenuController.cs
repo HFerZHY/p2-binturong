@@ -99,7 +99,7 @@ namespace Otowa.Intro
             title.fontStyle = FontStyles.Bold;
             title.characterSpacing = 17f;
 
-            var subtitle = MakeText(canvasObject.transform, "Subtitle", "A STORY FROM THE LAST STOP",
+            var subtitle = MakeText(canvasObject.transform, "Subtitle", "A tale of the village",
                 24f, Accent, TextAlignmentOptions.Center,
                 new Vector2(0.20f, 0.57f), new Vector2(0.80f, 0.65f));
             subtitle.characterSpacing = 7f;

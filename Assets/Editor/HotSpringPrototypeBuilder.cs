@@ -9,7 +9,7 @@ using Otowa.HotSpring;
 public static class HotSpringPrototypeBuilder
 {
     private const string DAY1_SCENE_PATH = "Assets/Scenes/Day1World.unity";
-    private const string HOT_SPRING_SCENE_PATH = "Assets/Scenes/HotSpring.unity";
+    private const string HOT_SPRING_SCENE_PATH = "Assets/Scenes/Day1HotSpring.unity";
     private const string FONT_PATH =
         "Assets/TextMesh Pro/Fonts/CormorantGaramond-VariableFont_wght SDF.asset";
 
