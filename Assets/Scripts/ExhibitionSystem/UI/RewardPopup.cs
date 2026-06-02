@@ -22,7 +22,7 @@ namespace ExhibitionSystem.UI
         private const string YujiRewardText =
             "He is the trendy boss of the pub, and the magician under the night sky. Whether it's the gentle buzz on the tip of the tongue or the passionate bloom in the night sky, both are the most romantic blues Yuji has dedicated to this village.";
         private const string SummerFestivalRewardText =
-            "The Otowa Summer Festival is not only a reverence for the ancient bird deity, but also a ceremony of \"homecoming.\" When the fireworks light up all of Otowa, even the migratory birds that flew the furthest will follow the railway tracks back to their original nest on this day.";
+            "The Otowa Summer Festival is not only a reverence for the ancient bird deity, but also a ceremony of \"homecoming.\"\nWhen the fireworks light up all of Otowa, even the migratory birds that flew the furthest will follow the railway tracks back to their original nest on this day.";
         private const string ChefJiroRewardText =
             "He is an artisan devoted to tradition, who revived the century-old recipe for shichimi pepper.\nHe is also a clumsy father, who could only watch his son's retreating figure carried away by the current of time.\nMr. Jiro, surely you know it too: the only thing that endures across the years, ever renewed, is that quiet, unspoken love.";
         private const string HotSpringsRewardText =

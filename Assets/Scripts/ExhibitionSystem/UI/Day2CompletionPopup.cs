@@ -1,7 +1,6 @@
 using ExhibitionSystem.Core;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace ExhibitionSystem.UI
@@ -19,6 +18,7 @@ namespace ExhibitionSystem.UI
         private const string BodyText = "Today's work is done.";
 
         private bool _pendingShow;
+        private bool _isTransitioning;
 
         private void OnEnable()
         {
@@ -78,8 +78,14 @@ namespace ExhibitionSystem.UI
 
         private void HandleConfirmClicked()
         {
-            Hide();
-            SceneManager.LoadScene(_nextSceneName);
+            if (_isTransitioning)
+                return;
+
+            _isTransitioning = true;
+            if (_confirmButton != null)
+                _confirmButton.interactable = false;
+
+            StartCoroutine(ExhibitionSceneFadeTransition.FadeOutAndLoad(_nextSceneName));
         }
 
         private void Hide()

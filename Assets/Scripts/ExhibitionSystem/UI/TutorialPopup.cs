@@ -2,6 +2,7 @@ using ExhibitionSystem.Core;
 using ExhibitionSystem.Data;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace ExhibitionSystem.UI
@@ -10,6 +11,7 @@ namespace ExhibitionSystem.UI
     {
         private const string RIN_SPRITE_RESOURCE = "Characters/WorldSprite/rin";
         private const string RIN_HEAD_SPRITE_NAME = "spritesheet_template_0";
+        private const string DAY3_EXHIBITION_SCENE = "ExhibitionDay3Scene";
 
         [Header("UI References")]
         [SerializeField] private GameObject _panel;
@@ -46,6 +48,9 @@ namespace ExhibitionSystem.UI
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         internal static void EnsureTutorialPopupExists()
         {
+            if (SceneManager.GetActiveScene().name == DAY3_EXHIBITION_SCENE)
+                return;
+
             if (FindFirstObjectByType<TutorialPopup>(FindObjectsInactive.Include) != null)
                 return;
 

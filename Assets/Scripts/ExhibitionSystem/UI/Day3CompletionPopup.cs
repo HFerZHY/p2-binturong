@@ -14,6 +14,7 @@ namespace ExhibitionSystem.UI
         private GameObject _popupRoot;
         private Button _confirmButton;
         private bool _pendingShow;
+        private bool _isTransitioning;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void EnsurePopupExists()
@@ -116,7 +117,7 @@ namespace ExhibitionSystem.UI
             buttonImage.color = new Color(0.68f, 0.47f, 0.27f, 1f);
             _confirmButton = buttonObject.AddComponent<Button>();
             _confirmButton.targetGraphic = buttonImage;
-            _confirmButton.onClick.AddListener(() => SceneManager.LoadScene(NEXT_SCENE));
+            _confirmButton.onClick.AddListener(HandleConfirmClicked);
 
             var buttonLabel = CreateText("Label", buttonObject.transform, Vector2.zero, Vector2.one);
             buttonLabel.text = "Continue";
@@ -126,6 +127,18 @@ namespace ExhibitionSystem.UI
             buttonLabel.color = Color.white;
 
             _popupRoot.SetActive(false);
+        }
+
+        private void HandleConfirmClicked()
+        {
+            if (_isTransitioning)
+                return;
+
+            _isTransitioning = true;
+            if (_confirmButton != null)
+                _confirmButton.interactable = false;
+
+            StartCoroutine(ExhibitionSceneFadeTransition.FadeOutAndLoad(NEXT_SCENE));
         }
 
         private static GameObject CreateRect(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax)
