@@ -105,6 +105,7 @@ namespace Otowa.Intro
         private static readonly Color InspBlue  = new Color32(0xa0, 0xa8, 0xc0, 0xFF);
         private static readonly Color UnknownC  = new Color32(0x80, 0x80, 0x80, 0xFF);
         private static readonly Color BodyC     = new Color32(0xc8, 0xdc, 0xda, 0xFF);
+        private static readonly Color NarrationC = Color.white;
         private static readonly Color ThoughtC  = new Color32(0x91, 0xaa, 0xa8, 0xFF);
         private static readonly Color PromptC   = new Color32(0xFF, 0xFF, 0xFF, 0xBB);
 
@@ -262,7 +263,7 @@ namespace Otowa.Intro
         {
             _bgImage.color     = NarBg;
             _narPanel.SetActive(true);
-            _narText.color     = BodyC;
+            _narText.color     = NarrationC;
             _narText.fontStyle = FontStyles.Normal;
             _textPlayer.Play(_narText, b.Text);
         }
@@ -458,7 +459,7 @@ namespace Otowa.Intro
             _narPanel = MakeRect(cv, "NarPanel", Vector2.zero, Vector2.one);
 
             _narText = MakeTMP(_narPanel.transform, "NarText", "",
-                36f, BodyC, TextAlignmentOptions.Center,
+                36f, NarrationC, TextAlignmentOptions.Center,
                 new Vector2(0.18f, 0.32f), new Vector2(0.82f, 0.68f));
             _narText.lineSpacing = 8f;
             _narText.fontStyle   = FontStyles.Normal;

@@ -41,6 +41,7 @@ namespace Otowa.Inquiry
         private bool _dangoAskedByMizuki;
         private bool _paintingInquiryStarted;
         private bool _paintingReceived;
+        private bool _allInquiryThoughtShown;
         private string _requestedMapSpawnObjectName;
         private Vector3 _requestedMapSpawnOffset;
 
@@ -300,6 +301,15 @@ namespace Otowa.Inquiry
             && _dangoAskedByMizuki
             && _paintingInquiryStarted
             && _paintingReceived;
+
+        public bool TryConsumeAllInquiryThought()
+        {
+            if (!AreAllInquiryItemsAsked || _allInquiryThoughtShown)
+                return false;
+
+            _allInquiryThoughtShown = true;
+            return true;
+        }
 
         private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
         {

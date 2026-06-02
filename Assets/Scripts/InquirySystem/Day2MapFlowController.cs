@@ -12,6 +12,9 @@ namespace Otowa.Inquiry
     /// <summary>Runs the station-side Inspector scene before Day 2 free exploration.</summary>
     public class Day2MapFlowController : MonoBehaviour
     {
+        private const string AllInquiryThought =
+            "(It looks like there's nothing left I need to ask about. I can head back to the station now.)";
+
         [SerializeField] private float inspectorWalkSpeed = 2.6f;
         [SerializeField] private float entrancePause = 0.45f;
         [SerializeField] private float departurePause = 0.55f;
@@ -24,6 +27,12 @@ namespace Otowa.Inquiry
         private PlayerMovement _playerMovement;
         private Character _rin;
         private Character _inspector;
+        private bool _allInquiryThoughtPending;
+
+        private void OnEnable()
+        {
+            Day2InquiryProgress.OnProgressChanged += HandleProgressChanged;
+        }
 
         private void Awake()
         {
@@ -48,8 +57,22 @@ namespace Otowa.Inquiry
 
         private void OnDisable()
         {
+            Day2InquiryProgress.OnProgressChanged -= HandleProgressChanged;
             _playerMovement?.SetExternalMovementLocked(false);
             SetExplorationUiLocked(false);
+        }
+
+        private void Update()
+        {
+            if (!_allInquiryThoughtPending || InspirationManager.IsJournalOpen)
+                return;
+
+            var dialogueManager = DialogueManager.Instance;
+            if (dialogueManager == null || dialogueManager.IsActive)
+                return;
+
+            _allInquiryThoughtPending = false;
+            dialogueManager.TriggerDialogue(BuildAllInquiryThought());
         }
 
         private void Start()
@@ -72,6 +95,7 @@ namespace Otowa.Inquiry
                     AudioId.DayWalk,
                     fadeIn: 0.35f,
                     resumePlayback: true);
+                QueueAllInquiryThoughtIfReady();
                 yield break;
             }
 
@@ -126,6 +150,14 @@ namespace Otowa.Inquiry
                 Rin("(Tomorrow is the Summer Festival, and the deadline for the station's shutdown. Time's running out.)"),
                 Rin("(There are still some items at the station whose stories I haven't figured out. Let me ask the villagers some more.)"),
             }, UnlockFreeExploration);
+        }
+
+        private DialogueGraph BuildAllInquiryThought()
+        {
+            return BuildGraph("Day2MapInquiryComplete", new List<Line>
+            {
+                Rin(AllInquiryThought),
+            }, null);
         }
 
         private DialogueGraph BuildGraph(string graphName, IReadOnlyList<Line> lines,
@@ -223,6 +255,18 @@ namespace Otowa.Inquiry
             GameAudioManager.Instance.StopSfxLoop(AudioId.ForestAtmosphere, 0.3f);
             GameAudioManager.Instance.PlayBgm(AudioId.DayWalk, fadeIn: 0.45f);
             InspirationManager.Instance.BeginJournalGuide(restart: true);
+            QueueAllInquiryThoughtIfReady();
+        }
+
+        private void HandleProgressChanged()
+        {
+            QueueAllInquiryThoughtIfReady();
+        }
+
+        private void QueueAllInquiryThoughtIfReady()
+        {
+            if (Day2InquiryProgress.Instance.TryConsumeAllInquiryThought())
+                _allInquiryThoughtPending = true;
         }
 
         private static void SetExplorationUiLocked(bool locked)

@@ -54,12 +54,21 @@ namespace Otowa.Intro
 
         private void Start()
         {
+            StartCoroutine(StartAfterFadeIn());
+        }
+
+        private IEnumerator StartAfterFadeIn()
+        {
             var audio = GameAudioManager.Instance;
             audio.StopSfxLoop(AudioId.LivelierBirdsong, 0.2f);
             audio.PlayBgm(AudioId.DayWalk, fadeIn: 0.35f);
             audio.PlaySfxLoop(AudioId.ForestAtmosphere, fadeIn: 0.3f);
             _junkoMovement?.Pause();
+            _playerMovement?.SetExternalMovementLocked(true);
 
+            yield return FadeOverlay(1f, 0f);
+
+            _playerMovement?.SetExternalMovementLocked(false);
             if (autoTriggerOnStart)
                 TriggerIntroDialogue();
         }
@@ -99,15 +108,14 @@ namespace Otowa.Intro
 
             _endingSequenceStarted = true;
             _playerMovement?.SetExternalMovementLocked(true);
+            _junkoMovement?.Pause();
+            FaceJunkoRight();
+            SetJunkoMoving(true);
             StartCoroutine(RunJunkoDeparture());
         }
 
         private IEnumerator RunJunkoDeparture()
         {
-            yield return null;
-
-            _junkoMovement?.Pause();
-            FaceJunkoRight();
             yield return MoveJunkoTo(GetViewportWorldX(1.12f));
 
             if (_junkoObject != null)
@@ -156,20 +164,29 @@ namespace Otowa.Intro
             if (_fadeOverlay != null)
             {
                 _fadeOverlay.blocksRaycasts = true;
-
-                float elapsed = 0f;
-                while (elapsed < fadeDuration)
-                {
-                    elapsed += Time.deltaTime;
-                    _fadeOverlay.alpha = Mathf.Clamp01(elapsed / fadeDuration);
-                    yield return null;
-                }
-
-                _fadeOverlay.alpha = 1f;
+                yield return FadeOverlay(_fadeOverlay.alpha, 1f);
             }
 
             if (!string.IsNullOrEmpty(nextSceneName))
                 SceneManager.LoadScene(nextSceneName);
+        }
+
+        private IEnumerator FadeOverlay(float from, float to)
+        {
+            if (_fadeOverlay == null)
+                yield break;
+
+            _fadeOverlay.blocksRaycasts = true;
+            float elapsed = 0f;
+            while (elapsed < fadeDuration)
+            {
+                elapsed += Time.deltaTime;
+                _fadeOverlay.alpha = Mathf.Lerp(from, to, Mathf.Clamp01(elapsed / fadeDuration));
+                yield return null;
+            }
+
+            _fadeOverlay.alpha = to;
+            _fadeOverlay.blocksRaycasts = to > 0.001f;
         }
 
         private void SetJunkoPosition(Vector3 position)
@@ -222,8 +239,8 @@ namespace Otowa.Intro
             canvas.sortingOrder = 1000;
 
             _fadeOverlay = canvasObject.GetComponent<CanvasGroup>();
-            _fadeOverlay.alpha = 0f;
-            _fadeOverlay.blocksRaycasts = false;
+            _fadeOverlay.alpha = 1f;
+            _fadeOverlay.blocksRaycasts = true;
 
             var imageObject = new GameObject("Fade", typeof(RectTransform), typeof(Image));
             imageObject.transform.SetParent(canvasObject.transform, false);

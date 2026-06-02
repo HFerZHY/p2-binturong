@@ -392,7 +392,8 @@ namespace DialogueSystem.UI
             {
                 if (dialogueFont != null) interactPromptText.font = dialogueFont;
                 interactPromptText.fontSize = 26f;
-                interactPromptText.color = Color.black;
+                interactPromptText.color = Color.white;
+                interactPromptText.fontStyle = FontStyles.Bold;
                 interactPromptText.alignment = TextAlignmentOptions.Center;
                 interactPromptText.raycastTarget = false;
             }
