@@ -30,6 +30,9 @@ EditorBuildSettings:
     path: Assets/Scenes/ExhibitionDay1Scene.unity
     guid: ec7a0a922fd46f44e9fd5abc5777e929
   - enabled: 1
+    path: Assets/Scenes/Intro-4.unity
+    guid: 4527e9b04dcf172499fcaaf519cfc6fc
+  - enabled: 1
     path: Assets/Scenes/Day1World.unity
     guid: 3d731d0c9198412e8f65be6ec9eced7e
   - enabled: 1

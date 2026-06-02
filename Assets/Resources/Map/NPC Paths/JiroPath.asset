@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: JiroPath
   m_EditorClassIdentifier: Assembly-CSharp::NPCPath
   waypoints:
-  - position: {x: 14.428861, y: -2.7751455}
+  - position: {x: 20.238525, y: -1.1019617}
     stopDuration: 2.7
-  - position: {x: 20.081614, y: -8.349158}
+  - position: {x: 25.891281, y: -1.7493786}
     stopDuration: 0
-  - position: {x: 21.109123, y: -2.6328306}
+  - position: {x: 23.502699, y: 1.5733675}
     stopDuration: 2.82
   loop: 1

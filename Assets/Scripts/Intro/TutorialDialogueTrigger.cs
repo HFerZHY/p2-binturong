@@ -21,13 +21,7 @@ namespace Otowa.Intro
         {
             "Use <b>WASD</b> to walk around the village. Press <b>Space</b> or click to advance dialogue like this.",
             "Walk up to characters or objects and press <b>SPACE</b> to interact with them.",
-            "Press <b>E</b> (or click the journal icon in the top right) to open my inventory and journal.",
-            "As I explore, I'll find items with stories behind them. Each item has a history — I should read carefully.",
-            "Learning about items unlocks <b>Inspirations</b>: fragments of Otowa's cultural knowledge.",
-            "Inspirations connect into <b>Themes</b>, which form the basis of the museum exhibition at the station.",
-            "That's the real goal — curating a meaningful exhibition. The stories I learn here will shape it.",
-            "Press <b>Tab</b> or click the map icon (top left) to open the map and see where characters and locations are.",
-            "For now, I should head to the Ryotei restaurant for the welcome banquet. (Look for the red marker.)",
+            "For now, I should head to the Ryotei restaurant for the welcome banquet.",
         };
 
         private void Start()

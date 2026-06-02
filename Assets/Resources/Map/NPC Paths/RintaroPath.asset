@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: RintaroPath
   m_EditorClassIdentifier: Assembly-CSharp::NPCPath
   waypoints:
-  - position: {x: -10.749491, y: -6.862049}
+  - position: {x: -22.829096, y: 18.113106}
     stopDuration: 4.79
-  - position: {x: -4.79138, y: -7.1206193}
+  - position: {x: -15.842207, y: 15.8979435}
     stopDuration: 2.64
-  - position: {x: -8.698711, y: -10.899719}
+  - position: {x: -28.487198, y: 14.897829}
     stopDuration: 0
   loop: 1

@@ -119,6 +119,19 @@ Day 3 的声音触发点直接写在剧情控制器中：
 
 祭典鼓点不播放。结局台词中仍可保留对鼓点的文字描述。
 
+## Exhibition Day 2 / Day 3 接入
+
+`ExhibitionDay2Scene` 和 `ExhibitionDay3Scene` 共用
+`ExhibitionAudioController`。控制器会在场景加载后自动创建，不需要在场景
+中添加 `AudioSource` 或拖拽 `AudioClip`。
+
+| 触发点 | 声音 |
+|--------|------|
+| 进入展览场景 | 循环播放 `gameplay` BGM |
+| 每个访客验证成功 | 播放一次 `inspiration unlocked` |
+| 每个访客验证失败 | 播放一次 `failure` |
+| 整场展览成功 | 播放一次 `jingle` |
+
 ## 设计边界
 
 - Intro 现有实现暂未迁移，避免在本轮改动中扩大范围。

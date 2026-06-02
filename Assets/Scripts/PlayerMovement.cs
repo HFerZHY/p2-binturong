@@ -109,6 +109,9 @@ public class PlayerMovement : MonoBehaviour
         if (cameraTransform == null) return;
 
         Vector3 targetPos = new Vector3(transform.position.x, transform.position.y, cameraTransform.position.z);
+        var camera = cameraTransform.GetComponent<Camera>();
+        if (MapBoundary2D.Instance != null && camera != null)
+            targetPos = MapBoundary2D.Instance.ClampCameraPosition(targetPos, camera);
 
         if (cameraSmoothing <= 0f)
             cameraTransform.position = targetPos;

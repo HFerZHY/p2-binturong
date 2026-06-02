@@ -23,6 +23,7 @@ public class NightViewPass : ScriptableRenderPass
     private class MaskPassData
     {
         public Material              material;
+        public Mesh                  mesh;
         public List<LightSource2D>   sources;  // snapshot taken at record time
     }
 
@@ -39,8 +40,8 @@ public class NightViewPass : ScriptableRenderPass
     {
         renderPassEvent  = evt;
         profilingSampler = new ProfilingSampler("NightView");
-        _nightMaterial        = nightMaterial;
-        _lightCircleMaterial  = lightCircleMaterial;
+        _nightMaterial        = CreateRuntimeMaterial(nightMaterial);
+        _lightCircleMaterial  = CreateRuntimeMaterial(lightCircleMaterial);
         EnsureQuadMesh();
     }
 
@@ -50,6 +51,9 @@ public class NightViewPass : ScriptableRenderPass
     public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
     {
         if (_nightMaterial == null || _lightCircleMaterial == null) return;
+
+        EnsureQuadMesh();
+        if (_quadMesh == null) return;
 
         NightViewController ctrl = NightViewController.Instance;
         if (ctrl == null || !ctrl.isActiveAndEnabled) return;
@@ -73,6 +77,7 @@ public class NightViewPass : ScriptableRenderPass
         {
             // Snapshot the active sources so the list is stable inside the render func
             data.material = _lightCircleMaterial;
+            data.mesh     = _quadMesh;
             data.sources  = new List<LightSource2D>(LightSource2D.ActiveSources);
 
             builder.SetRenderAttachment(maskBuffer, 0, AccessFlags.Write);
@@ -82,15 +87,16 @@ public class NightViewPass : ScriptableRenderPass
             builder.SetRenderFunc((MaskPassData d, RasterGraphContext ctx) =>
             {
                 ctx.cmd.ClearRenderTarget(false, true, Color.black);
+                var properties = new MaterialPropertyBlock();
 
                 foreach (LightSource2D ls in d.sources)
                 {
                     if (ls == null) continue;
 
-                    // Set per-source properties on the shared material
-                    d.material.SetColor("_Color",      ls.lightColor);
-                    d.material.SetFloat("_Intensity",  ls.intensity);
-                    d.material.SetFloat("_CoreRadius", ls.coreRadius);
+                    properties.Clear();
+                    properties.SetColor("_Color",      ls.lightColor);
+                    properties.SetFloat("_Intensity",  ls.intensity);
+                    properties.SetFloat("_CoreRadius", ls.coreRadius);
 
                     // DrawMesh: the quad is 1×1 unit; scale it to world radius
                     float   r  = ls.radius;
@@ -99,7 +105,7 @@ public class NightViewPass : ScriptableRenderPass
                         Quaternion.identity,
                         new Vector3(r * 2f, r * 2f, 1f));
 
-                    ctx.cmd.DrawMesh(_quadMesh, m, d.material, 0, 0);
+                    ctx.cmd.DrawMesh(d.mesh, m, d.material, 0, 0, properties);
                 }
             });
         }
@@ -135,6 +141,7 @@ public class NightViewPass : ScriptableRenderPass
     {
         if (_quadMesh != null) return;
         _quadMesh = new Mesh { name = "NightView_LightQuad" };
+        _quadMesh.hideFlags = HideFlags.HideAndDontSave;
         _quadMesh.SetVertices(new[]
         {
             new Vector3(-0.5f, -0.5f, 0f),
@@ -154,5 +161,18 @@ public class NightViewPass : ScriptableRenderPass
         _quadMesh.UploadMeshData(false);
     }
 
-    public void Dispose() { /* materials are project assets — not owned here */ }
+    private static Material CreateRuntimeMaterial(Material source)
+    {
+        if (source == null) return null;
+
+        var material = new Material(source);
+        material.hideFlags = HideFlags.HideAndDontSave;
+        return material;
+    }
+
+    public void Dispose()
+    {
+        CoreUtils.Destroy(_nightMaterial);
+        CoreUtils.Destroy(_lightCircleMaterial);
+    }
 }

@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
 using TMPro;
 using Otowa.IndoorDialogue;
+using Otowa.Audio;
 
 namespace Otowa.Intro
 {
@@ -81,6 +82,7 @@ namespace Otowa.Intro
         private IndoorDialogueTextPlayer _textPlayer;
         private bool      _inspectorVisible;
         private bool      _choosingBranch;
+        private bool      _mapPopupShown;
         private AudioSource _sfxSource;
         private Coroutine _shimmerCR;
 
@@ -90,6 +92,8 @@ namespace Otowa.Intro
 
         private GameObject _choicePanel;
         private GameObject _dlgPanel;
+        private GameObject _mapPopup;
+        private Button     _mapConfirmButton;
         private Image      _rinImg;
         private Image      _jiroImg;
         private Image      _junkoImg;
@@ -105,6 +109,7 @@ namespace Otowa.Intro
         // ── Colours ───────────────────────────────────────────────────────────
 
         private static readonly Color PanelBg  = new Color32(0x06, 0x0e, 0x06, 0xEE);
+        private static readonly Color ChoiceBg = new(0.02f, 0.05f, 0.02f, 0.86f);
         private static readonly Color RinGreen = new Color32(0x8f, 0xbc, 0x8f, 0xFF);
         private static readonly Color JunkoC   = new Color32(0xd4, 0xa0, 0x60, 0xFF);
         private static readonly Color YujiC    = new Color32(0x80, 0xb8, 0xe8, 0xFF);
@@ -152,6 +157,7 @@ namespace Otowa.Intro
         {
             if (_inputLock) return;
             if (InspirationManager.IsJournalOpen) return; // journal blocks dialogue input
+            if (_mapPopup != null && _mapPopup.activeSelf) return;
 
             var mouse = Mouse.current;
             var kb    = Keyboard.current;
@@ -176,7 +182,7 @@ namespace Otowa.Intro
                 { ShowBeat(jumpIdx); return; }
             }
             int next = _current + 1;
-            if (next >= _beats.Count) { StartCoroutine(FadeAndLoad()); return; }
+            if (next >= _beats.Count) { ShowMapPopup(); return; }
             ShowBeat(next);
         }
 
@@ -217,41 +223,47 @@ namespace Otowa.Intro
             foreach (Transform child in _choicePanel.transform)
                 Destroy(child.gameObject);
 
-            float btnH = 0.16f;
-            float gap   = 0.03f;
-            int   count = b.Choices.Length;
-            float totalH = count * btnH + (count - 1) * gap;
-            float startY = 0.5f + totalH * 0.5f - btnH * 0.5f;
+            const float gap = 0.045f;
+            int count = b.Choices.Length;
+            float height = (1f - gap * (count - 1)) / count;
 
             for (int i = 0; i < count; i++)
             {
                 var choice = b.Choices[i];
-                float yMax = startY - i * (btnH + gap);
-                float yMin = yMax - btnH;
+                float yMax = 1f - i * (height + gap);
+                float yMin = yMax - height;
 
                 var btnGo = new GameObject($"Choice{i}", typeof(RectTransform));
                 btnGo.transform.SetParent(_choicePanel.transform, false);
                 var brt = (RectTransform)btnGo.transform;
-                brt.anchorMin = new Vector2(0.2f, yMin);
-                brt.anchorMax = new Vector2(0.8f, yMax);
+                brt.anchorMin = new Vector2(0f, yMin);
+                brt.anchorMax = new Vector2(1f, yMax);
                 brt.offsetMin = brt.offsetMax = Vector2.zero;
 
                 var bg  = btnGo.AddComponent<Image>();
-                bg.color = new Color32(0x10, 0x28, 0x10, 0xDD);
+                bg.color = ChoiceBg;
 
                 var btn = btnGo.AddComponent<Button>();
+                btn.targetGraphic = bg;
                 string targetId = choice.TargetId;
                 btn.onClick.AddListener(() => JumpToBeat(targetId));
+
+                var colors = btn.colors;
+                colors.normalColor = Color.white;
+                colors.highlightedColor = new Color(0.82f, 0.89f, 0.82f, 1f);
+                colors.pressedColor = new Color(0.68f, 0.78f, 0.68f, 1f);
+                btn.colors = colors;
 
                 var lbl = new GameObject("Label", typeof(RectTransform));
                 lbl.transform.SetParent(btnGo.transform, false);
                 var lrt = (RectTransform)lbl.transform;
-                lrt.anchorMin = Vector2.zero; lrt.anchorMax = Vector2.one;
+                lrt.anchorMin = new Vector2(0.04f, 0.08f);
+                lrt.anchorMax = new Vector2(0.96f, 0.92f);
                 lrt.offsetMin = lrt.offsetMax = Vector2.zero;
                 var tmp = lbl.AddComponent<TextMeshProUGUI>();
                 tmp.text      = choice.Label;
-                tmp.fontSize  = 26f;
-                tmp.color     = new Color32(0xc8, 0xd4, 0xc8, 0xFF);
+                tmp.fontSize  = 28f;
+                tmp.color     = BodyC;
                 tmp.alignment = TextAlignmentOptions.Center;
                 tmp.richText  = true;
                 if (serifFont != null) tmp.font = serifFont;
@@ -449,6 +461,21 @@ namespace Otowa.Intro
             return Sprite.Create(fb, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0f), 100f);
         }
 
+        private static Sprite LoadMapIcon()
+        {
+            var sprites = Resources.LoadAll<Sprite>("Map/map_icon-removebg-preview");
+            if (sprites.Length > 0)
+                return sprites[0];
+
+            var texture = Resources.Load<Texture2D>("Map/map_icon-removebg-preview");
+            return texture != null
+                ? Sprite.Create(
+                    texture,
+                    new Rect(0f, 0f, texture.width, texture.height),
+                    new Vector2(0.5f, 0.5f))
+                : null;
+        }
+
         // ── UI construction ───────────────────────────────────────────────────
 
         private static void EnsureEventSystem()
@@ -502,6 +529,85 @@ namespace Otowa.Intro
                 new Vector2(0.60f, 0.02f), new Vector2(0.97f, 0.08f));
             UseFont(_promptTmp);
             _promptTmp.gameObject.SetActive(false);
+
+            BuildMapPopup(cvGo.transform);
+        }
+
+        private void BuildMapPopup(Transform canvasRoot)
+        {
+            _mapPopup = MakeRect(canvasRoot, "MapObtainedPopup", Vector2.zero, Vector2.one);
+            var blocker = _mapPopup.AddComponent<Image>();
+            blocker.color = new Color(0f, 0f, 0f, 0.72f);
+
+            var panel = MakeRect(_mapPopup.transform, "Window", new Vector2(0.27f, 0.20f), new Vector2(0.73f, 0.80f));
+            panel.AddComponent<Image>().color = new Color(0.91f, 0.80f, 0.58f, 0.98f);
+
+            var title = MakeTMP(
+                panel.transform,
+                "Title",
+                "Item obtained",
+                52f,
+                new Color(0.24f, 0.13f, 0.06f, 1f),
+                TextAlignmentOptions.Center,
+                new Vector2(0.08f, 0.80f),
+                new Vector2(0.92f, 0.95f));
+            UseFont(title);
+
+            var iconObject = MakeRect(panel.transform, "MapIcon", new Vector2(0.38f, 0.53f), new Vector2(0.62f, 0.78f));
+            var icon = iconObject.AddComponent<Image>();
+            icon.sprite = LoadMapIcon();
+            icon.preserveAspect = true;
+            icon.raycastTarget = false;
+
+            var body = MakeTMP(
+                panel.transform,
+                "Body",
+                "Obtained the map of Otowa! With this as a guide, I won't get lost.",
+                32f,
+                new Color(0.24f, 0.13f, 0.06f, 1f),
+                TextAlignmentOptions.Center,
+                new Vector2(0.09f, 0.23f),
+                new Vector2(0.91f, 0.51f));
+            UseFont(body);
+
+            var confirmObject = MakeRect(panel.transform, "ConfirmButton", new Vector2(0.35f, 0.06f), new Vector2(0.65f, 0.18f));
+            var confirmImage = confirmObject.AddComponent<Image>();
+            confirmImage.color = new Color(0.64f, 0.45f, 0.28f, 1f);
+
+            _mapConfirmButton = confirmObject.AddComponent<Button>();
+            _mapConfirmButton.targetGraphic = confirmImage;
+            _mapConfirmButton.onClick.AddListener(ConfirmMapPopup);
+
+            var confirmLabel = MakeTMP(
+                confirmObject.transform,
+                "Text",
+                "Continue",
+                30f,
+                new Color(0.98f, 0.92f, 0.78f, 1f),
+                TextAlignmentOptions.Center,
+                Vector2.zero,
+                Vector2.one);
+            UseFont(confirmLabel);
+
+            _mapPopup.SetActive(false);
+        }
+
+        private void ShowMapPopup()
+        {
+            if (_mapPopupShown)
+                return;
+
+            _mapPopupShown = true;
+            _dlgPanel.SetActive(false);
+            _mapPopup.SetActive(true);
+            GameAudioManager.Instance.PlaySfxOnce(AudioId.Jingle);
+        }
+
+        private void ConfirmMapPopup()
+        {
+            _mapConfirmButton.interactable = false;
+            _mapPopup.SetActive(false);
+            StartCoroutine(FadeAndLoad());
         }
 
         private void BuildDialoguePanel(Transform cv)
@@ -549,8 +655,8 @@ namespace Otowa.Intro
 
         private void BuildChoicePanel(Transform cv)
         {
-            _choicePanel = MakeRect(cv, "ChoicePanel", Vector2.zero, new Vector2(1f, 0.60f));
-            _choicePanel.AddComponent<Image>().color = new Color(0, 0, 0, 0);
+            _choicePanel = MakeRect(cv, "ChoicePanel",
+                new Vector2(0.25f, 0.32f), new Vector2(0.75f, 0.68f));
             _choicePanel.SetActive(false);
         }
 
@@ -761,6 +867,8 @@ namespace Otowa.Intro
                 D("Junko", false, "No matter what happens... on behalf of all the villagers in Otowa, I thank you."),
                 D("Junko", false, "We will prepare for this year's Summer Festival... but for it to be held successfully, we are counting on you."),
                 D("Rin",   true,  "(The Summer Festival... what kind of day is that? Why do they value it so much?)"),
+                D("Junko", false, "Oh, right. Here's a map of Otowa. It is a small place, but it's always better to be prepared."),
+                D("Rin",   false, "Thank you, Chief."),
             };
         }
     }

@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: YujiPath
   m_EditorClassIdentifier: Assembly-CSharp::NPCPath
   waypoints:
-  - position: {x: 7.7936745, y: -9.530307}
+  - position: {x: -22.742416, y: -1.0370436}
     stopDuration: 0
-  - position: {x: 13.646721, y: -7.2394323}
+  - position: {x: -18.938332, y: -0.16722107}
     stopDuration: 0
-  - position: {x: 8.214002, y: -4.076573}
+  - position: {x: -20.074844, y: 8.051939}
     stopDuration: 1.09
   loop: 1

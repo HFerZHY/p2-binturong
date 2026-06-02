@@ -227,6 +227,13 @@ public class InspirationManager : MonoBehaviour
         if (_themeUnlockPopupVisible)
             return;
 
+        if (!SupportsJournal(SceneManager.GetActiveScene().name))
+        {
+            if (_journalOpen)
+                SetJournalOpen(false);
+            return;
+        }
+
         var kb = Keyboard.current;
         if (kb != null && kb.eKey.wasPressedThisFrame)
         {
@@ -531,15 +538,19 @@ public class InspirationManager : MonoBehaviour
     private void RefreshJournalEntryVisibility(string sceneName)
     {
         if (_journalEntryGo == null) return;
-        bool showsJournalEntry = sceneName == "WorldScene"
-                                 || sceneName == "Day1World"
-                                 || sceneName == "HotSpring"
-                                 || sceneName == "TutorialToRyotei"
-                                 || sceneName == "Day2World"
-                                 || sceneName == "Day2Ryotei"
-                                 || sceneName == "Day2HotSpring";
+        bool showsJournalEntry = SupportsJournal(sceneName);
         _journalEntryGo.SetActive(
             showsJournalEntry && !_journalOpen && !_themeUnlockPopupVisible);
+    }
+
+    private static bool SupportsJournal(string sceneName)
+    {
+        return sceneName == "WorldScene"
+               || sceneName == "Day1World"
+               || sceneName == "HotSpring"
+               || sceneName == "Day2World"
+               || sceneName == "Day2Ryotei"
+               || sceneName == "Day2HotSpring";
     }
 
     private IEnumerator PulseJournalEntry()

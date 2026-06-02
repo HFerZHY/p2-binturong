@@ -17,6 +17,7 @@ namespace Otowa.Day3
         [SerializeField] private float _inspectorWalkSpeed = 2.6f;
         [SerializeField] private float _departurePause = 0.55f;
         [SerializeField] private float _cameraPanDuration = 2f;
+        [SerializeField] private float _cameraPanDistance = 28f;
         [SerializeField] private string _nextSceneName = "Day3FinaleCredits";
         [SerializeField] private TMP_FontAsset _serifFont;
 
@@ -264,7 +265,7 @@ namespace Otowa.Day3
                 yield break;
 
             var start = camera.transform.position;
-            var target = start + new Vector3(0f, 14f, 0f);
+            var target = start + new Vector3(0f, _cameraPanDistance, 0f);
             var elapsed = 0f;
             while (elapsed < _cameraPanDuration)
             {
