@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: e5dcae1383c33404f89624deeb31aa18
+guid: e6406d8ed0f566545849fcccf2f2d1fa
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5120494269201950607
-    second: izakaya_0
-  - first:
-      213: -819519874512440250
-    second: izakaya_1
+      213: -3239100841381136530
+    second: onsen_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -116,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: izakaya_1
+      name: onsen_0
       rect:
         serializedVersion: 2
-        x: 2147
-        y: 540
-        width: 4577
-        height: 2436
+        x: 1257
+        y: 504
+        width: 5475
+        height: 3990
       alignment: 9
-      pivot: {x: 0.5, y: 0.065}
+      pivot: {x: 0.5, y: 0.04}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6443051240b70a4f0800000000000000
-      internalID: -819519874512440250
+      spriteID: e67fecd32f66c03d0800000000000000
+      internalID: -3239100841381136530
       vertices: []
       indices: 
       edges: []
@@ -141,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 4f6122be35f0a454794d8a4880abae82
+    spriteID: 7929a9262f12f5b4d8097ab00df2aa4c
     internalID: 0
     vertices: []
     indices: 
@@ -151,8 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      izakaya_0: 5120494269201950607
-      izakaya_1: -819519874512440250
+      onsen_0: -3239100841381136530
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
