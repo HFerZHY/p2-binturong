@@ -50,8 +50,10 @@ public class InspirationManager : MonoBehaviour
         }
     }
 
-    /// <summary>True while the journal overlay is open.</summary>
-    public static bool IsJournalOpen => _instance != null && _instance._journalOpen;
+    /// <summary>True while a Journal-owned modal is blocking world interaction.</summary>
+    public static bool IsJournalOpen => _instance != null
+                                        && (_instance._journalOpen
+                                            || _instance._themeUnlockPopupVisible);
 
     // ── Inspiration text ──────────────────────────────────────────────────────
 
@@ -114,6 +116,10 @@ public class InspirationManager : MonoBehaviour
     private TMP_Text    _popupTitle;
     private TMP_Text    _popupBody;
 
+    private GameObject _themeUnlockPopupGo;
+    private TMP_Text _themeUnlockPopupTitle;
+    private bool _themeUnlockPopupVisible;
+
     private GameObject  _hintGo;
     private CanvasGroup _hintCG;
 
@@ -127,6 +133,7 @@ public class InspirationManager : MonoBehaviour
     private bool _journalGuideShown;
 
     private readonly Queue<int> _toastQueue = new();
+    private readonly Queue<int> _themeUnlockQueue = new();
     private bool _toastActive;
 
     private TMP_FontAsset _font;
@@ -156,14 +163,12 @@ public class InspirationManager : MonoBehaviour
     private System.Action _onInquiryCancelled;
 
     private TMP_Text[] _themeEntryTitles;
-    private TMP_Text[] _themeEntryDescriptions;
     private Image[]    _themeEntryBgs;
 
     // ── Colours ───────────────────────────────────────────────────────────────
 
     private static readonly Color PopupBg       = new Color32(0x4b, 0x2f, 0x20, 0xF2);
     private static readonly Color InspirationToastBg = new Color32(0x6b, 0x43, 0x29, 0xFA);
-    private static readonly Color InspirationToastPulseBg = new Color32(0x86, 0x59, 0x35, 0xFF);
     private static readonly Color PopupLine     = new Color32(0xc9, 0x9b, 0x65, 0xFF);
     private static readonly Color PopupHdr      = new Color32(0xf0, 0xd7, 0xa5, 0xFF);
     private static readonly Color PopupBody     = new Color32(0xf7, 0xea, 0xc9, 0xFF);
@@ -214,6 +219,9 @@ public class InspirationManager : MonoBehaviour
 
     private void Update()
     {
+        if (_themeUnlockPopupVisible)
+            return;
+
         var kb = Keyboard.current;
         if (kb != null && kb.eKey.wasPressedThisFrame)
         {
@@ -300,6 +308,11 @@ public class InspirationManager : MonoBehaviour
     /// <summary>Mark the theme with the given title as completed.</summary>
     public void CompleteTheme(string themeTitle)
     {
+        CompleteTheme(themeTitle, showPopup: true);
+    }
+
+    private void CompleteTheme(string themeTitle, bool showPopup)
+    {
         if (_themeData == null) return;
         for (int i = 0; i < _themeData.Length; i++)
         {
@@ -308,6 +321,11 @@ public class InspirationManager : MonoBehaviour
                 if (_themesCompleted[i]) return;
                 _themesCompleted[i] = true;
                 RefreshThemeEntry(i);
+                if (showPopup)
+                {
+                    _themeUnlockQueue.Enqueue(i);
+                    ShowNextThemeUnlockPopup();
+                }
                 break;
             }
         }
@@ -329,8 +347,39 @@ public class InspirationManager : MonoBehaviour
         }
 
         foreach (string themeTitle in Day1CompletedThemeTitles)
-            CompleteTheme(themeTitle);
+            CompleteTheme(themeTitle, showPopup: false);
 
+        _introduced = true;
+    }
+
+    /// <summary>
+    /// Restore the Journal state expected at the start of Day 3.
+    /// This is intentionally silent so the exhibition opens without replaying
+    /// unlock notifications earned during the previous days.
+    /// </summary>
+    public void SeedDay3JournalBaseline()
+    {
+        for (int id = 1; id <= 16; id++)
+        {
+            _unlocked[id] = id != 9;
+            RefreshEntry(id);
+        }
+
+        for (int sortOrder = 1; sortOrder <= 16; sortOrder++)
+            _itemsCollected[sortOrder] = sortOrder != 16;
+
+        if (_themeData != null)
+        {
+            for (int i = 0; i < _themeData.Length; i++)
+            {
+                var theme = _themeData[i];
+                _themesCompleted[i] = theme != null
+                                      && (theme.name == "Yuji" || theme.name == "SummerFestival");
+                RefreshThemeEntry(i);
+            }
+        }
+
+        RefreshAllItemSlots();
         _introduced = true;
     }
 
@@ -399,6 +448,9 @@ public class InspirationManager : MonoBehaviour
 
     private void ToggleJournal()
     {
+        if (_themeUnlockPopupVisible)
+            return;
+
         SetJournalOpen(!_journalOpen);
     }
 
@@ -479,7 +531,8 @@ public class InspirationManager : MonoBehaviour
                                  || sceneName == "Day2World"
                                  || sceneName == "Day2Ryotei"
                                  || sceneName == "Day2HotSpring";
-        _journalEntryGo.SetActive(showsJournalEntry && !_journalOpen);
+        _journalEntryGo.SetActive(
+            showsJournalEntry && !_journalOpen && !_themeUnlockPopupVisible);
     }
 
     private IEnumerator PulseJournalEntry()
@@ -598,7 +651,7 @@ public class InspirationManager : MonoBehaviour
     private IEnumerator RunInspirationToast()
     {
         const float fadeIn = 0.35f;
-        const float hold = 4.75f;
+        const float hold = 3.75f;
         const float fadeOut = 0.65f;
 
         _popupGo.SetActive(true);
@@ -607,17 +660,7 @@ public class InspirationManager : MonoBehaviour
             _popupBg.color = InspirationToastBg;
 
         yield return Fade(_popupCG, 0f, 1f, fadeIn);
-
-        float elapsed = 0f;
-        while (elapsed < hold)
-        {
-            float wave = (Mathf.Sin(elapsed * 3.2f) + 1f) * 0.5f;
-            _popupGo.transform.localScale = Vector3.one * (1f + 0.025f * wave);
-            if (_popupBg != null)
-                _popupBg.color = Color.Lerp(InspirationToastBg, InspirationToastPulseBg, wave);
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
+        yield return new WaitForSeconds(hold);
 
         _popupGo.transform.localScale = Vector3.one;
         if (_popupBg != null)
@@ -644,10 +687,11 @@ public class InspirationManager : MonoBehaviour
     {
         var e = _entries[id];
         if (e == null) return;
-        e.text      = $"<b>{id:D2}.</b>  {Texts[id]}";
-        e.color     = UnlockedFg;
-        e.fontStyle = FontStyles.Normal;
-        if (_entryBgs[id] != null) _entryBgs[id].color = ThemeHaveBg;
+        bool known = _unlocked[id];
+        e.text      = known ? $"<b>{id:D2}.</b>  {Texts[id]}" : $"<b>{id:D2}.</b>  ???";
+        e.color     = known ? UnlockedFg : LockedFg;
+        e.fontStyle = known ? FontStyles.Normal : FontStyles.Italic;
+        if (_entryBgs[id] != null) _entryBgs[id].color = known ? ThemeHaveBg : ThemeLackBg;
     }
 
     private void RefreshItemSlot(int sortOrder)
@@ -746,28 +790,23 @@ public class InspirationManager : MonoBehaviour
 
     private void RefreshThemeEntry(int index)
     {
+        bool completed = _themesCompleted != null
+                         && index >= 0
+                         && index < _themesCompleted.Length
+                         && _themesCompleted[index];
+
         if (_themeEntryBgs != null && index < _themeEntryBgs.Length && _themeEntryBgs[index] != null)
-            _themeEntryBgs[index].color = ThemeHaveBg;
+            _themeEntryBgs[index].color = completed ? ThemeHaveBg : ThemeLackBg;
 
         if (_themeEntryTitles != null && index < _themeEntryTitles.Length && _themeEntryTitles[index] != null)
         {
             var theme = _themeData[index];
-            _themeEntryTitles[index].text      = theme != null ? theme.title : $"Theme {index + 1}";
-            _themeEntryTitles[index].fontSize  = 28f;
-            _themeEntryTitles[index].color     = UnlockedFg;
-            _themeEntryTitles[index].fontStyle = FontStyles.Normal;
+            _themeEntryTitles[index].text      = completed && theme != null ? theme.title : "???";
+            _themeEntryTitles[index].fontSize  = completed ? 30f : 32f;
+            _themeEntryTitles[index].color     = completed ? UnlockedFg : LockedFg;
+            _themeEntryTitles[index].fontStyle = completed ? FontStyles.Normal : FontStyles.Italic;
         }
 
-        if (_themeEntryDescriptions != null
-            && index < _themeEntryDescriptions.Length
-            && _themeEntryDescriptions[index] != null)
-        {
-            var theme = _themeData[index];
-            _themeEntryDescriptions[index].text = theme != null ? theme.description : string.Empty;
-            _themeEntryDescriptions[index].color = UnlockedFg;
-            _themeEntryDescriptions[index].fontStyle = FontStyles.Normal;
-            _themeEntryDescriptions[index].gameObject.SetActive(true);
-        }
     }
 
     // ── UI construction ───────────────────────────────────────────────────────
@@ -792,6 +831,7 @@ public class InspirationManager : MonoBehaviour
         BuildHintBanner(cvGo.transform);
         BuildJournalEntryButton(cvGo.transform);
         BuildJournal(cvGo.transform);
+        BuildThemeUnlockPopup(cvGo.transform);
         RefreshJournalEntryVisibility(SceneManager.GetActiveScene().name);
     }
 
@@ -876,6 +916,87 @@ public class InspirationManager : MonoBehaviour
         var texture = Resources.Load<Texture2D>("Map/journal");
         return texture != null
             ? Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), new Vector2(0.5f, 0.5f))
+            : null;
+    }
+
+    // ── Theme unlock popup ───────────────────────────────────────────────────
+
+    private void BuildThemeUnlockPopup(Transform cv)
+    {
+        _themeUnlockPopupGo = Rect(cv, "ThemeUnlockPopup", Vector2.zero, Vector2.one);
+        _themeUnlockPopupGo.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0.58f);
+
+        var panel = Rect(_themeUnlockPopupGo.transform, "Panel",
+            new Vector2(0.25f, 0.20f), new Vector2(0.75f, 0.80f));
+        panel.AddComponent<Image>().color = PopupBg;
+
+        Rect(panel.transform, "Line",
+            new Vector2(0.04f, 0.90f), new Vector2(0.96f, 0.91f))
+            .AddComponent<Image>().color = PopupLine;
+
+        var portraitGo = Rect(panel.transform, "RinPortrait",
+            new Vector2(0.06f, 0.14f), new Vector2(0.35f, 0.82f));
+        var portrait = portraitGo.AddComponent<Image>();
+        portrait.sprite = LoadFirstSprite("Characters/WorldSprite/rin_portrait");
+        portrait.preserveAspect = true;
+        portrait.raycastTarget = false;
+
+        var title = Tmp(panel.transform, "Title",
+            "A new exhibition theme came to mind!",
+            34f, PopupHdr, TextAlignmentOptions.Center,
+            new Vector2(0.08f, 0.78f), new Vector2(0.92f, 0.91f));
+        title.fontStyle = FontStyles.Bold;
+
+        _themeUnlockPopupTitle = Tmp(panel.transform, "ThemeTitle", string.Empty,
+            30f, PopupBody, TextAlignmentOptions.Center,
+            new Vector2(0.36f, 0.28f), new Vector2(0.94f, 0.73f));
+        _themeUnlockPopupTitle.fontStyle = FontStyles.Bold;
+
+        var okGo = Rect(panel.transform, "OkayButton",
+            new Vector2(0.59f, 0.08f), new Vector2(0.78f, 0.20f));
+        var okBg = okGo.AddComponent<Image>();
+        okBg.color = new Color32(0xc9, 0x9b, 0x65, 0xFF);
+        var okButton = okGo.AddComponent<Button>();
+        okButton.targetGraphic = okBg;
+        okButton.onClick.AddListener(DismissThemeUnlockPopup);
+        var okText = Tmp(okGo.transform, "Text", "OK",
+            27f, JournalHdr, TextAlignmentOptions.Center,
+            Vector2.zero, Vector2.one);
+        okText.fontStyle = FontStyles.Bold;
+
+        _themeUnlockPopupGo.SetActive(false);
+    }
+
+    private void ShowNextThemeUnlockPopup()
+    {
+        if (_themeUnlockPopupVisible || _themeUnlockQueue.Count == 0)
+            return;
+
+        int index = _themeUnlockQueue.Dequeue();
+        var theme = _themeData[index];
+        _themeUnlockPopupTitle.text = theme != null ? theme.title : string.Empty;
+        _themeUnlockPopupVisible = true;
+        _themeUnlockPopupGo.SetActive(true);
+        RefreshJournalEntryVisibility(SceneManager.GetActiveScene().name);
+    }
+
+    private void DismissThemeUnlockPopup()
+    {
+        _themeUnlockPopupVisible = false;
+        _themeUnlockPopupGo.SetActive(false);
+        RefreshJournalEntryVisibility(SceneManager.GetActiveScene().name);
+        ShowNextThemeUnlockPopup();
+    }
+
+    private static Sprite LoadFirstSprite(string resourcePath)
+    {
+        var sprites = Resources.LoadAll<Sprite>(resourcePath);
+        if (sprites.Length > 0) return sprites[0];
+
+        var texture = Resources.Load<Texture2D>(resourcePath);
+        return texture != null
+            ? Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f))
             : null;
     }
 
@@ -1179,7 +1300,6 @@ public class InspirationManager : MonoBehaviour
 
         int count = _themeData.Length;
         _themeEntryTitles   = new TMP_Text[count];
-        _themeEntryDescriptions = new TMP_Text[count];
         _themeEntryBgs      = new Image[count];
 
         int perPage = Mathf.CeilToInt(count / 2f);
@@ -1201,26 +1321,11 @@ public class InspirationManager : MonoBehaviour
             themeBg.color     = done ? ThemeHaveBg : ThemeLackBg;
             _themeEntryBgs[i] = themeBg;
 
-            bool hasDesc = theme != null && !string.IsNullOrEmpty(theme.description);
-            float titleYMin = done && hasDesc ? 0.55f : 0.15f;
-
             _themeEntryTitles[i] = Tmp(themeGo.transform, "Title",
                 done && theme != null ? theme.title : "???",
-                done ? 28f : 32f, done ? UnlockedFg : LockedFg, TextAlignmentOptions.Left,
-                new Vector2(0.04f, titleYMin), new Vector2(0.96f, 0.95f));
+                done ? 30f : 32f, done ? UnlockedFg : LockedFg, TextAlignmentOptions.Center,
+                new Vector2(0.04f, 0.14f), new Vector2(0.96f, 0.86f));
             _themeEntryTitles[i].fontStyle = done ? FontStyles.Normal : FontStyles.Italic;
-
-            if (hasDesc)
-            {
-                _themeEntryDescriptions[i] = Tmp(themeGo.transform, "Desc",
-                    done ? theme.description : "???",
-                    22f,
-                    done ? UnlockedFg : LockedFg,
-                    TextAlignmentOptions.Left,
-                    new Vector2(0.04f, 0.08f), new Vector2(0.96f, 0.51f));
-                _themeEntryDescriptions[i].fontStyle = done ? FontStyles.Normal : FontStyles.Italic;
-                _themeEntryDescriptions[i].gameObject.SetActive(done);
-            }
         }
     }
 

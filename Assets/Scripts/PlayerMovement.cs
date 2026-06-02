@@ -51,7 +51,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (_movementLocked || _externalMovementLocked)
+        if (_movementLocked || _externalMovementLocked || InspirationManager.IsJournalOpen)
         {
             StopImmediately();
             return;

@@ -24,6 +24,7 @@ public static class Day2MapPrototypeBuilder
         var scene = EditorSceneManager.OpenScene(Day2ScenePath, OpenSceneMode.Single);
         RemoveDay1Components();
         ConfigureMapCharacters();
+        ConfigureStation();
         ConfigureFlowController();
         EnsureBuildSettings();
         EditorSceneManager.MarkSceneDirty(scene);
@@ -147,6 +148,28 @@ public static class Day2MapPrototypeBuilder
 
         if (flowObject.GetComponent<Day2MapFlowController>() == null)
             flowObject.AddComponent<Day2MapFlowController>();
+    }
+
+    private static void ConfigureStation()
+    {
+        var station = FindSceneObject("Train Station");
+        if (station == null)
+        {
+            Debug.LogError("[Day2MapPrototypeBuilder] Could not find 'Train Station' in Day2World.");
+            return;
+        }
+
+        var collider = station.GetComponent<BoxCollider2D>();
+        if (collider == null)
+            collider = station.AddComponent<BoxCollider2D>();
+
+        collider.isTrigger = true;
+        collider.offset = new Vector2(-7f, -15f);
+        collider.size = new Vector2(10f, 8f);
+        EditorUtility.SetDirty(collider);
+
+        if (station.GetComponent<Day2StationInquiryController>() == null)
+            station.AddComponent<Day2StationInquiryController>();
     }
 
     private static void EnsureBuildSettings()

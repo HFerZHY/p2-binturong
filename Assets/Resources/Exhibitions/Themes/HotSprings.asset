@@ -19,7 +19,7 @@ MonoBehaviour:
   day: 3
   requiredInspirations: 4
   selectionMode: 0
-  validInspirationIds: 04000000060000000d0000000e0000000f000000
+  validInspirationIds: 04000000060000000d0000000e000000
   missingIdeaHints: []
   fallbackMissingHint: 'Rin: (I am missing one of the ideas that really belongs to
     this exhibition.)'
