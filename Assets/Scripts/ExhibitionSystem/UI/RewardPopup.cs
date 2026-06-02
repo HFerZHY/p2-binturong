@@ -24,7 +24,7 @@ namespace ExhibitionSystem.UI
         private const string SummerFestivalRewardText =
             "The Otowa Summer Festival is not only a reverence for the ancient bird deity, but also a ceremony of \"homecoming.\" When the fireworks light up all of Otowa, even the migratory birds that flew the furthest will follow the railway tracks back to their original nest on this day.";
         private const string ChefJiroRewardText =
-            "He is an artisan devoted to tradition, who revived the century-old recipe for shichimi pepper. He is also a clumsy father, who could only watch his son's retreating figure carried away by the current of time. Mr. Jiro, surely you know it too: the only thing that endures across the years, ever renewed, is that quiet, unspoken love.";
+            "He is an artisan devoted to tradition, who revived the century-old recipe for shichimi pepper.\nHe is also a clumsy father, who could only watch his son's retreating figure carried away by the current of time.\nMr. Jiro, surely you know it too: the only thing that endures across the years, ever renewed, is that quiet, unspoken love.";
         private const string HotSpringsRewardText =
             "Hot spring in the mountains:\n" +
             "high above the naked bathers\n" +
@@ -67,6 +67,7 @@ namespace ExhibitionSystem.UI
             if (_confirmButton != null)
                 _confirmButton.onClick.AddListener(HandleConfirmClicked);
 
+            ConfigureLayout();
             Hide();
         }
 
@@ -87,6 +88,8 @@ namespace ExhibitionSystem.UI
 
         private void Show(ExhibitionTheme theme)
         {
+            ConfigureLayout();
+
             if (_headlineText != null)
                 _headlineText.text = SuccessHeadline;
 
@@ -96,8 +99,8 @@ namespace ExhibitionSystem.UI
             if (_bodyText != null)
             {
                 _bodyText.enableAutoSizing = true;
-                _bodyText.fontSizeMin = 18f;
-                _bodyText.fontSizeMax = 24f;
+                _bodyText.fontSizeMin = 20f;
+                _bodyText.fontSizeMax = 27f;
                 _bodyText.text = GetRewardText(theme);
             }
 
@@ -123,6 +126,28 @@ namespace ExhibitionSystem.UI
 
             if (_panel != null && _panel != gameObject)
                 _panel.SetActive(false);
+        }
+
+        private void ConfigureLayout()
+        {
+            if (_themeTitleText != null)
+            {
+                _themeTitleText.textWrappingMode = TextWrappingModes.NoWrap;
+                _themeTitleText.overflowMode = TextOverflowModes.Ellipsis;
+
+                if (_themeTitleText.transform.parent is RectTransform windowRect)
+                    windowRect.sizeDelta = new Vector2(980f, 520f);
+
+                if (_themeTitleText.transform is RectTransform titleRect)
+                    titleRect.sizeDelta = new Vector2(-96f, 52f);
+            }
+
+            if (_bodyText != null)
+            {
+                _bodyText.enableAutoSizing = true;
+                _bodyText.fontSizeMin = 20f;
+                _bodyText.fontSizeMax = 27f;
+            }
         }
 
         private static string GetRewardText(ExhibitionTheme theme)
@@ -169,7 +194,7 @@ namespace ExhibitionSystem.UI
             windowRt.anchorMin = new Vector2(0.5f, 0.5f);
             windowRt.anchorMax = new Vector2(0.5f, 0.5f);
             windowRt.pivot = new Vector2(0.5f, 0.5f);
-            windowRt.sizeDelta = new Vector2(760f, 500f);
+            windowRt.sizeDelta = new Vector2(980f, 520f);
             windowRt.anchoredPosition = Vector2.zero;
 
             var headline = CreateRuntimeText(windowObj.transform, "Headline", SuccessHeadline, 38f, FontStyles.Bold, TextAlignmentOptions.Center);
@@ -183,15 +208,16 @@ namespace ExhibitionSystem.UI
 
             var themeTitle = CreateRuntimeText(windowObj.transform, "ThemeTitle", "Theme Title", 26f, FontStyles.Bold, TextAlignmentOptions.Center);
             themeTitle.color = new Color(0.48f, 0.23f, 0.08f, 1f);
-            themeTitle.textWrappingMode = TextWrappingModes.Normal;
+            themeTitle.textWrappingMode = TextWrappingModes.NoWrap;
+            themeTitle.overflowMode = TextOverflowModes.Ellipsis;
             var themeRt = themeTitle.GetComponent<RectTransform>();
             themeRt.anchorMin = new Vector2(0f, 1f);
             themeRt.anchorMax = new Vector2(1f, 1f);
             themeRt.pivot = new Vector2(0.5f, 1f);
             themeRt.anchoredPosition = new Vector2(0f, -92f);
-            themeRt.sizeDelta = new Vector2(-96f, 68f);
+            themeRt.sizeDelta = new Vector2(-96f, 52f);
 
-            var body = CreateRuntimeText(windowObj.transform, "Body", string.Empty, 24f, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+            var body = CreateRuntimeText(windowObj.transform, "Body", string.Empty, 27f, FontStyles.Normal, TextAlignmentOptions.TopLeft);
             body.color = new Color(0.24f, 0.13f, 0.06f, 1f);
             body.textWrappingMode = TextWrappingModes.Normal;
             var bodyRt = body.GetComponent<RectTransform>();

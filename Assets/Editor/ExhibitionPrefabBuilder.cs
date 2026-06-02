@@ -204,8 +204,8 @@ public static class ExhibitionPrefabBuilder
         matchBadgeIcon.preserveAspect = true;
         matchBadgeIcon.raycastTarget = false;
         var matchBadgeLayout = matchBadgeObj.AddComponent<LayoutElement>();
-        matchBadgeLayout.preferredWidth = 34;
-        matchBadgeLayout.preferredHeight = 34;
+        matchBadgeLayout.preferredWidth = 50;
+        matchBadgeLayout.preferredHeight = 50;
         matchBadgeLayout.flexibleWidth = 0;
         matchBadgeObj.SetActive(false);
 

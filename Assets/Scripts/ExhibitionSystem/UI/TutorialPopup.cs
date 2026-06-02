@@ -1,19 +1,13 @@
-using System;
-using System.Collections.Generic;
 using ExhibitionSystem.Core;
 using ExhibitionSystem.Data;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace ExhibitionSystem.UI
 {
     public class TutorialPopup : MonoBehaviour
     {
-        public static event Action OnPlayerHintDismissed;
-        public static bool IsShowingPlayerHint { get; private set; }
-
         private const string RIN_SPRITE_RESOURCE = "Characters/WorldSprite/rin";
         private const string RIN_HEAD_SPRITE_NAME = "spritesheet_template_0";
 
@@ -33,8 +27,10 @@ namespace ExhibitionSystem.UI
             "I came up with a few exhibition themes yesterday. For now, I should choose one first.";
         [SerializeField] private string _chooseInspirationsMessage =
             "I should click the label above the exhibit and choose a matching inspiration.";
+        [SerializeField] private string _matchedItemMessage =
+            "This item has already been matched with an inspiration. I don't need to match it again. I should try another one.";
         [SerializeField] private string _arrangeItemsMessage =
-            "Next, I should drag items into the empty display slots.";
+            "Next, I should choose items that fit this theme and drag them into the empty display slots.";
         [SerializeField] private string _startExhibitionMessage =
             "Great! Now I can let the passengers visit the exhibition!";
         [SerializeField] private string _tryAnotherThemeMessage =
@@ -47,9 +43,6 @@ namespace ExhibitionSystem.UI
         private bool _startHintShown;
         private bool _tryAnotherThemeHintShown;
         private bool _tryAnotherThemeHintDismissed;
-        private bool _dismissOnNextPointerPress;
-        private int _dismissibleShownFrame;
-
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         internal static void EnsureTutorialPopupExists()
         {
@@ -78,7 +71,6 @@ namespace ExhibitionSystem.UI
             ExhibitionManager.OnItemsSwapped += HandleItemsSwapped;
             ExhibitionManager.OnExhibitionStarted += HandleExhibitionStarted;
             ExhibitionManager.OnCurationCleared += HandleCurationCleared;
-            ExhibitionManager.OnPlayerHint += HandlePlayerHint;
             RewardPopup.OnRewardConfirmed += HandleRewardConfirmed;
         }
 
@@ -94,7 +86,6 @@ namespace ExhibitionSystem.UI
             ExhibitionManager.OnItemsSwapped -= HandleItemsSwapped;
             ExhibitionManager.OnExhibitionStarted -= HandleExhibitionStarted;
             ExhibitionManager.OnCurationCleared -= HandleCurationCleared;
-            ExhibitionManager.OnPlayerHint -= HandlePlayerHint;
             RewardPopup.OnRewardConfirmed -= HandleRewardConfirmed;
         }
 
@@ -107,19 +98,6 @@ namespace ExhibitionSystem.UI
                 Show(_selectThemeMessage);
             else
                 Hide();
-        }
-
-        private void Update()
-        {
-            if (!_dismissOnNextPointerPress || Time.frameCount <= _dismissibleShownFrame)
-                return;
-
-            bool mousePressed = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
-            bool touchPressed = Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame;
-            if (!mousePressed && !touchPressed)
-                return;
-
-            DismissPlayerHint();
         }
 
         private void HandleSelectThemeClicked()
@@ -175,14 +153,20 @@ namespace ExhibitionSystem.UI
             }
 
             if (!_inspirationHintDismissed)
-                Show(_chooseInspirationsMessage);
+            {
+                var manager = ExhibitionManager.Instance;
+                bool isFixedMatch = manager != null && manager.IsSlotInspirationFixed(slotIndex);
+                Show(isFixedMatch ? _matchedItemMessage : _chooseInspirationsMessage);
+            }
 
             TryShowStartHint();
         }
 
         private void HandleSlotInspirationChanged(int slotIndex, InspirationData inspiration)
         {
-            if (inspiration != null)
+            var manager = ExhibitionManager.Instance;
+            bool isFixedMatch = manager != null && manager.IsSlotInspirationFixed(slotIndex);
+            if (inspiration != null && !isFixedMatch)
                 DismissInspirationHint();
 
             TryShowStartHint();
@@ -219,15 +203,6 @@ namespace ExhibitionSystem.UI
 
             _tryAnotherThemeHintShown = true;
             Show(_tryAnotherThemeMessage);
-        }
-
-        private void HandlePlayerHint(string hint)
-        {
-            if (!string.IsNullOrWhiteSpace(hint))
-            {
-                IsShowingPlayerHint = true;
-                Show(NormalizeHint(hint), true);
-            }
         }
 
         private static bool AreAllThemesCompleted()
@@ -274,14 +249,7 @@ namespace ExhibitionSystem.UI
 
         private void Show(string message)
         {
-            Show(message, false);
-        }
-
-        private void Show(string message, bool dismissOnNextPointerPress)
-        {
             ConfigurePortrait();
-            _dismissOnNextPointerPress = dismissOnNextPointerPress;
-            _dismissibleShownFrame = Time.frameCount;
 
             if (_speakerText != null)
                 _speakerText.text = _speakerName;
@@ -302,34 +270,11 @@ namespace ExhibitionSystem.UI
 
         private void Hide()
         {
-            _dismissOnNextPointerPress = false;
-            IsShowingPlayerHint = false;
-
             if (_canvasGroup != null)
                 _canvasGroup.alpha = 0f;
 
             if (_panel != null && _panel != gameObject)
                 _panel.SetActive(false);
-        }
-
-        private void DismissPlayerHint()
-        {
-            bool notify = IsShowingPlayerHint;
-            Hide();
-            if (notify)
-                OnPlayerHintDismissed?.Invoke();
-        }
-
-        private static string NormalizeHint(string hint)
-        {
-            string normalized = hint.Trim();
-            if (normalized.StartsWith("Rin:", StringComparison.OrdinalIgnoreCase))
-                normalized = normalized.Substring(4).Trim();
-
-            if (normalized.Length >= 2 && normalized[0] == '(' && normalized[^1] == ')')
-                normalized = normalized.Substring(1, normalized.Length - 2).Trim();
-
-            return normalized;
         }
 
         private void ConfigurePortrait()

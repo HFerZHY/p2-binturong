@@ -720,6 +720,18 @@ public static class ExhibitionSceneBuilder
         themeLabel.overflowMode = TextOverflowModes.Ellipsis;
         themeLabel.color = new Color(0.95f, 0.86f, 0.66f, 1f);
 
+        var targetItemIconObj = CreateChild(windowObj.transform, "TargetItemIcon");
+        var targetItemIcon = targetItemIconObj.AddComponent<Image>();
+        targetItemIcon.preserveAspect = true;
+        targetItemIcon.raycastTarget = false;
+        var targetItemIconRt = targetItemIconObj.GetComponent<RectTransform>();
+        targetItemIconRt.anchorMin = new Vector2(0.5f, 1);
+        targetItemIconRt.anchorMax = new Vector2(0.5f, 1);
+        targetItemIconRt.pivot = new Vector2(0.5f, 1);
+        targetItemIconRt.anchoredPosition = new Vector2(0, -112);
+        targetItemIconRt.sizeDelta = new Vector2(56, 56);
+        targetItemIconObj.SetActive(false);
+
         var libraryPanel = CreateColumnPanel(
             windowObj.transform,
             "LibraryColumn",
@@ -738,6 +750,7 @@ public static class ExhibitionSceneBuilder
         SetPrivateField(popup, "_panel", panelObj);
         SetPrivateField(popup, "_titleText", title);
         SetPrivateField(popup, "_themeText", themeLabel);
+        SetPrivateField(popup, "_targetItemIcon", targetItemIcon);
         SetPrivateField(popup, "_libraryContainer", listObj.transform);
         SetPrivateField(popup, "_listContainer", listObj.transform);
         SetPrivateField(popup, "_confirmButton", confirmBtn.GetComponent<Button>());
@@ -935,7 +948,7 @@ public static class ExhibitionSceneBuilder
         windowRt.anchorMin = new Vector2(0.5f, 0.5f);
         windowRt.anchorMax = new Vector2(0.5f, 0.5f);
         windowRt.pivot = new Vector2(0.5f, 0.5f);
-        windowRt.sizeDelta = new Vector2(760f, 500f);
+        windowRt.sizeDelta = new Vector2(980f, 520f);
         windowRt.anchoredPosition = Vector2.zero;
 
         var headline = CreateText(windowObj.transform, "Headline", "Exhibition Success", 38, FontStyles.Bold, TextAlignmentOptions.Center);
@@ -949,15 +962,16 @@ public static class ExhibitionSceneBuilder
 
         var themeTitle = CreateText(windowObj.transform, "ThemeTitle", "Theme Title", 26, FontStyles.Bold, TextAlignmentOptions.Center);
         themeTitle.color = new Color(0.48f, 0.23f, 0.08f, 1f);
-        themeTitle.textWrappingMode = TextWrappingModes.Normal;
+        themeTitle.textWrappingMode = TextWrappingModes.NoWrap;
+        themeTitle.overflowMode = TextOverflowModes.Ellipsis;
         var themeRt = themeTitle.GetComponent<RectTransform>();
         themeRt.anchorMin = new Vector2(0, 1);
         themeRt.anchorMax = new Vector2(1, 1);
         themeRt.pivot = new Vector2(0.5f, 1);
         themeRt.anchoredPosition = new Vector2(0, -92);
-        themeRt.sizeDelta = new Vector2(-96, 68);
+        themeRt.sizeDelta = new Vector2(-96, 52);
 
-        var body = CreateText(windowObj.transform, "Body", "", 24, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        var body = CreateText(windowObj.transform, "Body", "", 27, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         body.color = new Color(0.24f, 0.13f, 0.06f, 1f);
         body.textWrappingMode = TextWrappingModes.Normal;
         var bodyRt = body.GetComponent<RectTransform>();

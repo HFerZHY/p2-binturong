@@ -69,13 +69,7 @@ namespace ExhibitionSystem.UI
 
         private void OnSelectClicked()
         {
-            if (IsThemeLocked())
-                return;
-
             OnSelectThemeClicked?.Invoke();
-
-            var manager = ExhibitionManager.Instance;
-            manager?.ClearCompletedCurationForThemeSelection();
 
             if (_popup != null)
                 _popup.Show();
@@ -94,7 +88,7 @@ namespace ExhibitionSystem.UI
 
         private void HandleThemeSelected(ExhibitionTheme theme)
         {
-            _canRetry = false;
+            _canRetry = ExhibitionManager.Instance?.HasValidationFeedback ?? false;
             UpdateUI();
         }
 
@@ -106,16 +100,19 @@ namespace ExhibitionSystem.UI
 
         private void HandleItemChanged(int slotIndex, ExhibitItemData item)
         {
+            _canRetry = false;
             UpdateUI();
         }
 
         private void HandleItemRemoved(int slotIndex)
         {
+            _canRetry = false;
             UpdateUI();
         }
 
         private void HandleItemsSwapped(int slotA, int slotB)
         {
+            _canRetry = false;
             UpdateUI();
         }
 
@@ -146,7 +143,6 @@ namespace ExhibitionSystem.UI
             bool hasTheme = theme != null;
             bool allLabelsFilled = manager != null && manager.HasAllLabelsFilled;
             bool canStart = hasTheme && !isRunning && manager.AreAllSlotsReady();
-            bool themeLocked = IsThemeLocked();
 
             if (_titleText != null)
             {
@@ -157,15 +153,15 @@ namespace ExhibitionSystem.UI
             }
 
             if (_selectButton != null)
-                _selectButton.interactable = !themeLocked && !isRunning;
+                _selectButton.interactable = !isRunning;
 
             if (_selectButtonText != null)
-                _selectButtonText.text = themeLocked ? _themeSelectedText : _selectText;
+                _selectButtonText.text = _selectText;
 
             if (_selectButtonPopup != null)
             {
                 _selectButtonPopup.SetMessage(_themeLockedTooltipText);
-                _selectButtonPopup.SetPopupEnabled(themeLocked);
+                _selectButtonPopup.SetPopupEnabled(false);
             }
 
             if (_startButton != null)
@@ -182,13 +178,6 @@ namespace ExhibitionSystem.UI
                 else
                     _startButtonText.text = _startText;
             }
-        }
-
-        private static bool IsThemeLocked()
-        {
-            var manager = ExhibitionManager.Instance;
-            var theme = manager?.CurrentTheme;
-            return theme != null && manager.HasCurationProgress && !theme.isCompleted;
         }
 
         private void EnsureSelectButtonReferences()

@@ -148,11 +148,14 @@ namespace ExhibitionSystem.UI
             if (theme == null) return;
 
             Initialize(theme.requiredInspirations, theme.SuccessThreshold);
+            SetValueImmediate(ExhibitionManager.Instance?.Satisfaction ?? 0);
+            UpdateColor();
         }
 
         private void HandleExhibitionStarted()
         {
-            Reset();
+            SetValueImmediate(ExhibitionManager.Instance?.Satisfaction ?? 0);
+            UpdateColor();
         }
 
         private void HandleVisitorReacted(

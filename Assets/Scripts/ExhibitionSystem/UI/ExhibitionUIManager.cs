@@ -1,3 +1,4 @@
+using System.Collections;
 using ExhibitionSystem.Data;
 using UnityEngine;
 
@@ -29,6 +30,8 @@ namespace ExhibitionSystem.UI
         [Header("Shared")]
         [SerializeField] private ItemTooltip _tooltip;
         [SerializeField] private Canvas _rootCanvas;
+
+        private Coroutine _showInspirationPopupCoroutine;
 
         // ── Public Properties ───────────────────────────────────────────────────
 
@@ -118,14 +121,33 @@ namespace ExhibitionSystem.UI
 
         public void ShowInspirationPopupForSlot(int slotIndex)
         {
-            if (_inspirationPopup != null)
-                _inspirationPopup.ShowForSlot(slotIndex);
+            if (_inspirationPopup == null)
+                return;
+
+            if (_showInspirationPopupCoroutine != null)
+                StopCoroutine(_showInspirationPopupCoroutine);
+
+            _showInspirationPopupCoroutine = StartCoroutine(ShowInspirationPopupForSlotNextFrame(slotIndex));
         }
 
         public void HideInspirationPopup()
         {
+            if (_showInspirationPopupCoroutine != null)
+            {
+                StopCoroutine(_showInspirationPopupCoroutine);
+                _showInspirationPopupCoroutine = null;
+            }
+
             if (_inspirationPopup != null)
                 _inspirationPopup.Hide();
+        }
+
+        private IEnumerator ShowInspirationPopupForSlotNextFrame(int slotIndex)
+        {
+            yield return null;
+
+            _showInspirationPopupCoroutine = null;
+            _inspirationPopup?.ShowForSlot(slotIndex);
         }
     }
 }

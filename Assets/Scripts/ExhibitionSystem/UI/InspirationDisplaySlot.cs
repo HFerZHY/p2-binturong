@@ -48,10 +48,8 @@ namespace ExhibitionSystem.UI
             if (_displaySlot != null)
             {
                 _displaySlot.SetSlotIndex(slotIndex);
-                _displaySlot.SetLocked(false);
             }
 
-            ClearFeedback();
         }
 
         public void SetInspiration(InspirationData inspiration)
@@ -126,8 +124,13 @@ namespace ExhibitionSystem.UI
         private void HandleLabelClicked()
         {
             var manager = ExhibitionManager.Instance;
-            if (manager == null || manager.IsRunning || _item == null)
+            if (manager == null ||
+                manager.IsRunning ||
+                manager.IsSlotInspirationFixed(_slotIndex) ||
+                _item == null)
+            {
                 return;
+            }
 
             ExhibitionUIManager.Instance?.ShowInspirationPopupForSlot(_slotIndex);
         }
@@ -156,7 +159,12 @@ namespace ExhibitionSystem.UI
         {
             EnsureLabelReferences();
             if (_labelButton != null)
-                _labelButton.interactable = _item != null && !(ExhibitionManager.Instance?.IsRunning ?? false);
+            {
+                var manager = ExhibitionManager.Instance;
+                _labelButton.interactable = _item != null &&
+                                             !(manager?.IsRunning ?? false) &&
+                                             !(manager?.IsSlotInspirationFixed(_slotIndex) ?? false);
+            }
         }
 
         private void SetLabelColor(Color color)

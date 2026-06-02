@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using ExhibitionSystem.Core;
 using ExhibitionSystem.Data;
 using TMPro;
@@ -19,9 +18,6 @@ namespace ExhibitionSystem.UI
         [SerializeField] private GameObject _panel;
         [SerializeField] private TMP_Text _bodyText;
         [SerializeField] private CanvasGroup _canvasGroup;
-
-        private string _pendingHint;
-        private Coroutine _showPendingCoroutine;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         internal static void EnsureErrorHintBarExists()
@@ -45,7 +41,8 @@ namespace ExhibitionSystem.UI
             ExhibitionManager.OnExhibitionStarted += Clear;
             ExhibitionManager.OnThemeSelected += HandleThemeSelected;
             ExhibitionManager.OnCurationCleared += Clear;
-            TutorialPopup.OnPlayerHintDismissed += HandleTutorialHintDismissed;
+            DraggableItem.OnDragStarted += Clear;
+            InspirationSelectionPopup.OnPopupOpened += Clear;
         }
 
         private void OnDisable()
@@ -54,7 +51,8 @@ namespace ExhibitionSystem.UI
             ExhibitionManager.OnExhibitionStarted -= Clear;
             ExhibitionManager.OnThemeSelected -= HandleThemeSelected;
             ExhibitionManager.OnCurationCleared -= Clear;
-            TutorialPopup.OnPlayerHintDismissed -= HandleTutorialHintDismissed;
+            DraggableItem.OnDragStarted -= Clear;
+            InspirationSelectionPopup.OnPopupOpened -= Clear;
         }
 
         private void Start()
@@ -67,25 +65,7 @@ namespace ExhibitionSystem.UI
             if (string.IsNullOrWhiteSpace(hint))
                 return;
 
-            _pendingHint = NormalizeHint(hint);
-            if (_showPendingCoroutine != null)
-                StopCoroutine(_showPendingCoroutine);
-
-            _showPendingCoroutine = StartCoroutine(ShowPendingAfterTutorialIfReady());
-        }
-
-        private IEnumerator ShowPendingAfterTutorialIfReady()
-        {
-            yield return null;
-            _showPendingCoroutine = null;
-
-            if (!TutorialPopup.IsShowingPlayerHint)
-                ShowPendingHint();
-        }
-
-        private void HandleTutorialHintDismissed()
-        {
-            ShowPendingHint();
+            ShowHint(NormalizeHint(hint));
         }
 
         private void HandleThemeSelected(ExhibitionTheme theme)
@@ -93,15 +73,13 @@ namespace ExhibitionSystem.UI
             Clear();
         }
 
-        private void ShowPendingHint()
+        private void ShowHint(string hint)
         {
-            if (string.IsNullOrWhiteSpace(_pendingHint))
+            if (string.IsNullOrWhiteSpace(hint))
                 return;
 
             if (_bodyText != null)
-                _bodyText.text = _pendingHint;
-
-            _pendingHint = null;
+                _bodyText.text = hint;
 
             if (_panel != null)
                 _panel.SetActive(true);
@@ -112,7 +90,6 @@ namespace ExhibitionSystem.UI
 
         private void Clear()
         {
-            _pendingHint = null;
             Hide();
         }
 

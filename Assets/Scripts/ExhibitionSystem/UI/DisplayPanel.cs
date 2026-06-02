@@ -72,6 +72,8 @@ namespace ExhibitionSystem.UI
                     ? manager.DisplaySlots[i]
                     : null;
                 slot.SetData(i, inspiration, item);
+                if (manager != null && manager.TryGetSlotValidation(i, out var validation))
+                    slot.ShowFeedback(validation);
                 _slots.Add(slot);
             }
         }
@@ -97,12 +99,14 @@ namespace ExhibitionSystem.UI
         {
             if (slotIndex < 0 || slotIndex >= _slots.Count) return;
             _slots[slotIndex].SetInspiration(inspiration);
+            _slots[slotIndex].ClearFeedback();
         }
 
         private void HandleItemPlaced(int slotIndex, ExhibitItemData item)
         {
             if (slotIndex < 0 || slotIndex >= _slots.Count) return;
             _slots[slotIndex].SetItem(item);
+            _slots[slotIndex].ClearFeedback();
         }
 
         private void HandleItemRemoved(int slotIndex)
@@ -117,7 +121,10 @@ namespace ExhibitionSystem.UI
             if (manager == null) return;
 
             for (int i = 0; i < _slots.Count && i < manager.DisplaySlots.Count; i++)
+            {
                 _slots[i].SetItem(manager.DisplaySlots[i]);
+                _slots[i].ClearFeedback();
+            }
         }
 
         private void HandleExhibitionStarted()

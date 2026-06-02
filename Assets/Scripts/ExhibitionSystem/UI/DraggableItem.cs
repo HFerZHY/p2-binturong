@@ -23,6 +23,8 @@ namespace ExhibitionSystem.UI
         /// <summary>The source DraggableItem being dragged.</summary>
         public static DraggableItem CurrentDragSource { get; internal set; }
 
+        public static event System.Action OnDragStarted;
+
         private static GameObject _dragGhost;
 
         // ── Serialized Fields ───────────────────────────────────────────────────
@@ -103,6 +105,7 @@ namespace ExhibitionSystem.UI
             _isDragging = true;
             CurrentlyDragging = _itemData;
             CurrentDragSource = this;
+            NotifyDragStarted();
 
             // Hide icon at source, keep slot visible for highlight
             if (_icon != null)
@@ -193,6 +196,11 @@ namespace ExhibitionSystem.UI
         public static float GetIconScale(ExhibitItemData item)
         {
             return item != null ? Mathf.Clamp(item.iconScale, 0.5f, 1.5f) : 1f;
+        }
+
+        internal static void NotifyDragStarted()
+        {
+            OnDragStarted?.Invoke();
         }
 
         private void MoveGhostToPointer(PointerEventData eventData)

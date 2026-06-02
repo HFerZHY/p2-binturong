@@ -188,14 +188,13 @@ public static class ExhibitionTestDataBuilder
                 3,
                 3,
                 InspirationSelectionMode.AnyFromPool,
-                new[] {1, 2, 3, 7},
+                new[] {1, 2, 3},
                 "An exhibition about birds, watchers, and local belief.",
                 new (int, string)[]
                 {
                     (1, "Professor Rintaro was after some rare bird. What color was it again...?"),
                     (2, "You absolutely can't go birdwatching without one of these..."),
-                    (3, "From geology professor to birdwatching devotee... let's put that turning point into the exhibition!"),
-                    (7, "Junko seemed to mention that the origin of the Summer Festival is related to birds.")
+                    (3, "From geology professor to birdwatching devotee... let's put that turning point into the exhibition!")
                 }),
             CreateTheme(
                 "ChefJiro",

@@ -37,14 +37,12 @@ namespace ExhibitionSystem.UI
         private CanvasGroup _canvasGroup;
         private Canvas _rootCanvas;
         private bool _isDragging;
-        private bool _isLocked;
         private static GameObject _dragGhost;
 
         // ── Public Properties ───────────────────────────────────────────────────
 
         public ExhibitItemData PlacedItem => _placedItem;
         public bool HasItem => _placedItem != null;
-        public bool IsLocked => _isLocked;
 
         // ── Unity Lifecycle ─────────────────────────────────────────────────────
 
@@ -100,17 +98,6 @@ namespace ExhibitionSystem.UI
             // Hide status badge when setting item (only show during validation)
             if (_statusBadge != null)
                 _statusBadge.enabled = false;
-        }
-
-        public void SetLocked(bool locked)
-        {
-            _isLocked = locked;
-
-            if (_canvasGroup != null)
-            {
-                _canvasGroup.alpha = locked ? 0.75f : 1f;
-                _canvasGroup.blocksRaycasts = !locked;
-            }
         }
 
         /// <summary>
@@ -178,7 +165,6 @@ namespace ExhibitionSystem.UI
         protected override bool CanAcceptDrop(ExhibitItemData item)
         {
             if (item == null) return false;
-            if (_isLocked) return false;
 
             var manager = ExhibitionManager.Instance;
             if (manager == null) return false;
@@ -210,12 +196,6 @@ namespace ExhibitionSystem.UI
                 return;
             }
 
-            if (_isLocked)
-            {
-                eventData.pointerDrag = null;
-                return;
-            }
-
             var manager = ExhibitionManager.Instance;
             if (manager != null && manager.IsRunning)
             {
@@ -224,6 +204,7 @@ namespace ExhibitionSystem.UI
             }
 
             _isDragging = true;
+            DraggableItem.NotifyDragStarted();
 
             // Set static drag state so drop targets know what's being dragged
             DraggableItem.CurrentlyDragging = _placedItem;
@@ -268,8 +249,8 @@ namespace ExhibitionSystem.UI
             // Restore slot
             if (_canvasGroup != null)
             {
-                _canvasGroup.alpha = _isLocked ? 0.75f : 1f;
-                _canvasGroup.blocksRaycasts = !_isLocked;
+                _canvasGroup.alpha = 1f;
+                _canvasGroup.blocksRaycasts = true;
             }
 
             // Destroy ghost
@@ -298,8 +279,14 @@ namespace ExhibitionSystem.UI
         public void OnPointerClick(PointerEventData eventData)
         {
             var manager = ExhibitionManager.Instance;
-            if (_placedItem == null || _isDragging || manager == null || manager.IsRunning)
+            if (_placedItem == null ||
+                _isDragging ||
+                manager == null ||
+                manager.IsRunning ||
+                manager.IsSlotInspirationFixed(_slotIndex))
+            {
                 return;
+            }
 
             ExhibitionUIManager.Instance?.ShowInspirationPopupForSlot(_slotIndex);
         }

@@ -250,8 +250,8 @@ MonoBehaviour:
   m_IgnoreLayout: 0
   m_MinWidth: -1
   m_MinHeight: -1
-  m_PreferredWidth: 34
-  m_PreferredHeight: 34
+  m_PreferredWidth: 50
+  m_PreferredHeight: 50
   m_FlexibleWidth: 0
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
@@ -441,7 +441,7 @@ MonoBehaviour:
   _normalColor: {r: 0.74, g: 0.63, b: 0.48, a: 0.98}
   _selectedColor: {r: 0.92, g: 0.76, b: 0.42, a: 1}
   _invalidColor: {r: 0.72, g: 0.18, b: 0.14, a: 1}
-  _matchedLockedColor: {r: 0.88, g: 0.43, b: 0.16, a: 1}
+  _fixedMatchColor: {r: 0.88, g: 0.43, b: 0.16, a: 1}
 --- !u!1 &8731914713004030600
 GameObject:
   m_ObjectHideFlags: 0

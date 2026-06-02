@@ -13,9 +13,6 @@ namespace ExhibitionSystem.UI
     {
         // ── Serialized Fields ───────────────────────────────────────────────────
 
-        [Header("Shelf Slot")]
-        [SerializeField] private float _lockedAlpha = 0.5f;
-
         // ── Runtime State ───────────────────────────────────────────────────────
 
         private bool _isPlacedInDisplay;
@@ -59,6 +56,8 @@ namespace ExhibitionSystem.UI
                 _icon.preserveAspect = true;
                 _icon.raycastTarget = true;
             }
+
+            UpdateVisualState();
         }
 
         /// <summary>
@@ -121,7 +120,7 @@ namespace ExhibitionSystem.UI
             }
             else if (!_itemData.isUnlocked)
             {
-                _canvasGroup.alpha = _lockedAlpha;
+                _canvasGroup.alpha = 0f;
             }
             else
             {
@@ -129,7 +128,7 @@ namespace ExhibitionSystem.UI
             }
 
             if (_icon != null)
-                _icon.enabled = _itemData != null && _itemData.icon != null && !_isPlacedInDisplay;
+                _icon.enabled = _itemData != null && _itemData.isUnlocked && _itemData.icon != null && !_isPlacedInDisplay;
         }
 
         private void ConfigureRootImage()

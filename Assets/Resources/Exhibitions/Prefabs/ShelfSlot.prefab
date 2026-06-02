@@ -105,4 +105,3 @@ MonoBehaviour:
   _ghostSize: {x: 80, y: 80}
   _highlightColor: {r: 1, g: 0.9, b: 0.5, a: 1}
   _highlightWidth: 4
-  _lockedAlpha: 0.5

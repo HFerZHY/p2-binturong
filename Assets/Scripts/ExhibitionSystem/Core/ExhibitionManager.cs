@@ -45,10 +45,27 @@ namespace ExhibitionSystem.Core
 
         private static readonly HashSet<int> KnownInspirationMatchIds = new();
 
+        private sealed class ThemeCurationState
+        {
+            public readonly List<InspirationData> SlotInspirations = new();
+            public readonly List<ExhibitItemData> DisplaySlots = new();
+            public readonly List<ExhibitionSlotValidation?> SlotValidationResults = new();
+        }
+
+        private sealed class InspirationItemBinding
+        {
+            public ExhibitionTheme Theme;
+            public int SlotIndex;
+            public ExhibitItemData Item;
+        }
+
         private ExhibitionTheme _currentTheme;
         private readonly List<InspirationData> _slotInspirations = new();
         private readonly List<ExhibitItemData> _displaySlots = new();
         private readonly List<ExhibitionSlotValidation> _validationResults = new();
+        private readonly List<ExhibitionSlotValidation?> _slotValidationResults = new();
+        private readonly Dictionary<ExhibitionTheme, ThemeCurationState> _themeCurationStates = new();
+        private readonly Dictionary<InspirationData, InspirationItemBinding> _inspirationItemBindings = new();
         private int _satisfaction;
         private int _visitorIndex;
         private bool _isRunning;
@@ -65,6 +82,7 @@ namespace ExhibitionSystem.Core
         public bool IsRunning => _isRunning;
         public int SlotCount => _displaySlots.Count;
         public ExhibitionState State => _state;
+        public bool HasValidationFeedback => _slotValidationResults.Any(result => result.HasValue);
         public bool HasConfirmedInspirations => HasAllLabelsFilled;
         public bool HasAllLabelsFilled => _slotInspirations.Count > 0 &&
                                          _slotInspirations.All(inspiration => inspiration != null);
@@ -89,6 +107,12 @@ namespace ExhibitionSystem.Core
             base.Awake();
             LoadResourcesIfEmpty();
             SetState(ExhibitionState.ThemeSelection);
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetRuntimeMatchKnowledge()
+        {
+            KnownInspirationMatchIds.Clear();
         }
 
         private void LoadResourcesIfEmpty()
@@ -129,10 +153,20 @@ namespace ExhibitionSystem.Core
                 return;
             }
 
+            if (_currentTheme == theme)
+                return;
+
+            if (_currentTheme != null && _currentTheme != theme)
+                SaveCurrentThemeState();
+
             _currentTheme = theme;
-            InitializeDisplaySlots(theme.RequiredSlots);
+            if (!TryRestoreThemeState(theme))
+                InitializeDisplaySlots(theme.RequiredSlots);
+
+            AutoAssignKnownInspirationsInCurrentTheme();
             _satisfaction = 0;
             _visitorIndex = 0;
+            _validationResults.Clear();
 
             SetState(ExhibitionState.DisplayArrangement);
             OnThemeSelected?.Invoke(theme);
@@ -141,17 +175,22 @@ namespace ExhibitionSystem.Core
 
         public void AssignInspiration(int slotIndex, InspirationData inspiration)
         {
-            if (!ValidateSlotIndex(slotIndex) || inspiration == null || _isRunning)
-                return;
-
-            int existingIndex = _slotInspirations.IndexOf(inspiration);
-            if (existingIndex >= 0 && existingIndex != slotIndex)
+            if (!ValidateSlotIndex(slotIndex) ||
+                inspiration == null ||
+                _isRunning ||
+                IsSlotInspirationFixed(slotIndex) ||
+                IsInspirationMatchKnown(inspiration))
             {
-                _slotInspirations[existingIndex] = null;
-                OnSlotInspirationChanged?.Invoke(existingIndex, null);
+                return;
             }
 
+            if (!ClearInspirationFromOtherSlots(inspiration, slotIndex))
+                return;
+
+            ClearBindingIfOwned(_slotInspirations[slotIndex], _currentTheme, slotIndex);
             _slotInspirations[slotIndex] = inspiration;
+            ClearSlotValidation(slotIndex);
+            RefreshBindingForCurrentSlot(slotIndex);
             OnSlotInspirationChanged?.Invoke(slotIndex, inspiration);
         }
 
@@ -162,22 +201,34 @@ namespace ExhibitionSystem.Core
 
             var previousItem = _displaySlots[slotIndex];
             if (previousItem == item)
+            {
+                AutoAssignKnownInspiration(slotIndex, item);
                 return previousItem;
+            }
 
             int existingIndex = _displaySlots.IndexOf(item);
             if (existingIndex >= 0 && existingIndex != slotIndex)
             {
+                ClearFixedInspirationForItem(existingIndex, item);
+                ClearBindingIfOwned(_slotInspirations[existingIndex], _currentTheme, existingIndex);
                 _displaySlots[existingIndex] = null;
+                ClearSlotValidation(existingIndex);
                 OnItemRemoved?.Invoke(existingIndex);
             }
 
             if (previousItem != null)
             {
+                ClearFixedInspirationForItem(slotIndex, previousItem);
+                ClearBindingIfOwned(_slotInspirations[slotIndex], _currentTheme, slotIndex);
                 _displaySlots[slotIndex] = null;
+                ClearSlotValidation(slotIndex);
                 OnItemRemoved?.Invoke(slotIndex);
             }
 
             _displaySlots[slotIndex] = item;
+            ClearMismatchedKnownInspiration(slotIndex, item);
+            ClearSlotValidation(slotIndex);
+            RefreshBindingForCurrentSlot(slotIndex);
             OnItemPlaced?.Invoke(slotIndex, item);
             AutoAssignKnownInspiration(slotIndex, item);
             return previousItem;
@@ -188,7 +239,10 @@ namespace ExhibitionSystem.Core
             if (!ValidateSlotIndex(slotIndex) || _isRunning) return null;
 
             var removed = _displaySlots[slotIndex];
+            ClearFixedInspirationForItem(slotIndex, removed);
+            ClearBindingIfOwned(_slotInspirations[slotIndex], _currentTheme, slotIndex);
             _displaySlots[slotIndex] = null;
+            ClearSlotValidation(slotIndex);
             if (removed != null)
                 OnItemRemoved?.Invoke(slotIndex);
 
@@ -200,7 +254,15 @@ namespace ExhibitionSystem.Core
             if (!ValidateSlotIndex(slotA) || !ValidateSlotIndex(slotB)) return;
             if (_isRunning || slotA == slotB) return;
 
+            ClearFixedInspirationForItem(slotA, _displaySlots[slotA]);
+            ClearFixedInspirationForItem(slotB, _displaySlots[slotB]);
             (_displaySlots[slotA], _displaySlots[slotB]) = (_displaySlots[slotB], _displaySlots[slotA]);
+            ClearSlotValidation(slotA);
+            ClearSlotValidation(slotB);
+            RefreshBindingForCurrentSlot(slotA);
+            RefreshBindingForCurrentSlot(slotB);
+            AutoAssignKnownInspiration(slotA, _displaySlots[slotA]);
+            AutoAssignKnownInspiration(slotB, _displaySlots[slotB]);
             OnItemsSwapped?.Invoke(slotA, slotB);
         }
 
@@ -227,6 +289,7 @@ namespace ExhibitionSystem.Core
             _satisfaction = 0;
             _visitorIndex = 0;
             _validationResults.Clear();
+            ClearSlotValidations();
             _isRunning = true;
             SetState(ExhibitionState.ExhibitionRunning);
             OnExhibitionStarted?.Invoke();
@@ -249,6 +312,7 @@ namespace ExhibitionSystem.Core
             _slotInspirations.Clear();
             _displaySlots.Clear();
             _validationResults.Clear();
+            _slotValidationResults.Clear();
             _satisfaction = 0;
             _visitorIndex = 0;
 
@@ -262,8 +326,22 @@ namespace ExhibitionSystem.Core
             return item != null && _displaySlots.Contains(item);
         }
 
-        public bool IsSlotLocked(int index)
+        public bool IsSlotInspirationFixed(int index)
         {
+            return index >= 0 &&
+                   index < _displaySlots.Count &&
+                   GetKnownInspirationForItem(_displaySlots[index]) != null;
+        }
+
+        public bool TryGetSlotValidation(int index, out ExhibitionSlotValidation validation)
+        {
+            if (index >= 0 && index < _slotValidationResults.Count && _slotValidationResults[index].HasValue)
+            {
+                validation = _slotValidationResults[index].Value;
+                return true;
+            }
+
+            validation = default;
             return false;
         }
 
@@ -277,16 +355,27 @@ namespace ExhibitionSystem.Core
             KnownInspirationMatchIds.Clear();
         }
 
+        public static void SeedKnownInspirationMatches(IEnumerable<int> inspirationIds)
+        {
+            if (inspirationIds == null)
+                return;
+
+            foreach (int id in inspirationIds)
+                KnownInspirationMatchIds.Add(id);
+        }
+
         public ExhibitItemData GetHintItemForInspiration(InspirationData inspiration)
         {
             if (inspiration == null)
                 return null;
 
-            int slotIndex = _slotInspirations.IndexOf(inspiration);
-            if (slotIndex >= 0 && slotIndex < _displaySlots.Count && _displaySlots[slotIndex] != null)
-                return _displaySlots[slotIndex];
+            if (IsInspirationMatchKnown(inspiration))
+                return inspiration.mappedItem;
 
-            return IsInspirationMatchKnown(inspiration) ? inspiration.mappedItem : null;
+            if (_inspirationItemBindings.TryGetValue(inspiration, out var binding) && binding.Item != null)
+                return binding.Item;
+
+            return null;
         }
 
         public IEnumerable<InspirationData> GetKnownInspirationsForItem(ExhibitItemData item)
@@ -302,6 +391,18 @@ namespace ExhibitionSystem.Core
                     yield return inspiration;
                 }
             }
+        }
+
+        public InspirationData GetKnownInspirationForItem(ExhibitItemData item)
+        {
+            if (item == null)
+                return null;
+
+            Day3ExhibitionInitializer.EnsureKnownInspirationMatchesIfLoaded();
+            return _allInspirations.FirstOrDefault(inspiration =>
+                inspiration != null &&
+                inspiration.mappedItem == item &&
+                IsInspirationMatchKnown(inspiration));
         }
 
         public IEnumerable<ExhibitItemData> GetAvailableItems()
@@ -329,27 +430,235 @@ namespace ExhibitionSystem.Core
             _displaySlots.Clear();
             _slotInspirations.Clear();
             _validationResults.Clear();
+            _slotValidationResults.Clear();
 
             for (int i = 0; i < slotCount; i++)
             {
                 _displaySlots.Add(null);
                 _slotInspirations.Add(null);
+                _slotValidationResults.Add(null);
             }
+        }
+
+        private void SaveCurrentThemeState()
+        {
+            if (_currentTheme == null)
+                return;
+
+            var state = new ThemeCurationState();
+            state.DisplaySlots.AddRange(_displaySlots);
+            state.SlotInspirations.AddRange(_slotInspirations);
+            state.SlotValidationResults.AddRange(_slotValidationResults);
+            _themeCurationStates[_currentTheme] = state;
+        }
+
+        private bool TryRestoreThemeState(ExhibitionTheme theme)
+        {
+            if (theme == null || !_themeCurationStates.TryGetValue(theme, out var state))
+                return false;
+
+            _displaySlots.Clear();
+            _displaySlots.AddRange(state.DisplaySlots);
+            _slotInspirations.Clear();
+            _slotInspirations.AddRange(state.SlotInspirations);
+            _slotValidationResults.Clear();
+            _slotValidationResults.AddRange(state.SlotValidationResults);
+            return true;
+        }
+
+        private void ClearSlotValidation(int slotIndex)
+        {
+            if (slotIndex >= 0 && slotIndex < _slotValidationResults.Count)
+                _slotValidationResults[slotIndex] = null;
+        }
+
+        private void ClearSlotValidations()
+        {
+            for (int i = 0; i < _slotValidationResults.Count; i++)
+                _slotValidationResults[i] = null;
+        }
+
+        private void RememberVerifiedMatch(int slotIndex, InspirationData inspiration, ExhibitItemData item)
+        {
+            if (!ValidateSlotIndex(slotIndex) || inspiration == null || item == null)
+                return;
+
+            bool newlyKnown = KnownInspirationMatchIds.Add(inspiration.id);
+            RemoveTransientUsesOfKnownInspiration(inspiration, slotIndex);
+            RefreshBindingForCurrentSlot(slotIndex);
+            item.RecordUsage(_currentTheme.title);
+
+            if (newlyKnown)
+                OnSlotInspirationChanged?.Invoke(slotIndex, inspiration);
+        }
+
+        private void RemoveTransientUsesOfKnownInspiration(InspirationData inspiration, int fixedSlotIndex)
+        {
+            for (int i = 0; i < _slotInspirations.Count; i++)
+            {
+                if (i == fixedSlotIndex ||
+                    _slotInspirations[i] != inspiration ||
+                    _displaySlots[i] == inspiration.mappedItem)
+                {
+                    continue;
+                }
+
+                _slotInspirations[i] = null;
+                ClearSlotValidation(i);
+                OnSlotInspirationChanged?.Invoke(i, null);
+            }
+
+            foreach (var state in _themeCurationStates.Values)
+            {
+                for (int i = 0; i < state.SlotInspirations.Count; i++)
+                {
+                    if (state.SlotInspirations[i] != inspiration ||
+                        (i < state.DisplaySlots.Count && state.DisplaySlots[i] == inspiration.mappedItem))
+                    {
+                        continue;
+                    }
+
+                    state.SlotInspirations[i] = null;
+                    if (i < state.SlotValidationResults.Count)
+                        state.SlotValidationResults[i] = null;
+                }
+            }
+        }
+
+        private bool ClearInspirationFromOtherSlots(InspirationData inspiration, int targetSlotIndex)
+        {
+            if (inspiration == null)
+                return true;
+
+            for (int i = 0; i < _slotInspirations.Count; i++)
+            {
+                if (i == targetSlotIndex || _slotInspirations[i] != inspiration)
+                    continue;
+
+                _slotInspirations[i] = null;
+                ClearSlotValidation(i);
+                OnSlotInspirationChanged?.Invoke(i, null);
+            }
+
+            foreach (var pair in _themeCurationStates)
+            {
+                if (pair.Key == _currentTheme)
+                    continue;
+
+                var state = pair.Value;
+                for (int i = 0; i < state.SlotInspirations.Count; i++)
+                {
+                    if (state.SlotInspirations[i] != inspiration)
+                        continue;
+
+                    state.SlotInspirations[i] = null;
+                    if (i < state.SlotValidationResults.Count)
+                        state.SlotValidationResults[i] = null;
+                }
+            }
+
+            _inspirationItemBindings.Remove(inspiration);
+            return true;
+        }
+
+        private void RefreshBindingForCurrentSlot(int slotIndex)
+        {
+            if (!ValidateSlotIndex(slotIndex))
+                return;
+
+            var inspiration = _slotInspirations[slotIndex];
+            var item = _displaySlots[slotIndex];
+            if (inspiration == null)
+                return;
+
+            if (item == null)
+            {
+                ClearBindingIfOwned(inspiration, _currentTheme, slotIndex);
+                return;
+            }
+
+            _inspirationItemBindings[inspiration] = new InspirationItemBinding
+            {
+                Theme = _currentTheme,
+                SlotIndex = slotIndex,
+                Item = item
+            };
+        }
+
+        private void ClearBindingIfOwned(InspirationData inspiration, ExhibitionTheme theme, int slotIndex)
+        {
+            if (inspiration == null ||
+                !_inspirationItemBindings.TryGetValue(inspiration, out var binding) ||
+                binding.Theme != theme ||
+                binding.SlotIndex != slotIndex)
+            {
+                return;
+            }
+
+            _inspirationItemBindings.Remove(inspiration);
         }
 
         private void AutoAssignKnownInspiration(int slotIndex, ExhibitItemData item)
         {
-            if (item == null || _currentTheme == null || _slotInspirations[slotIndex] != null)
+            if (!ValidateSlotIndex(slotIndex) || item == null)
                 return;
 
-            var knownInspiration = _allInspirations.FirstOrDefault(inspiration =>
-                inspiration != null &&
-                inspiration.mappedItem == item &&
-                _currentTheme.IsInspirationValid(inspiration.id) &&
-                IsInspirationMatchKnown(inspiration));
+            var knownInspiration = GetKnownInspirationForItem(item);
+            if (knownInspiration == null)
+                return;
 
-            if (knownInspiration != null)
-                AssignInspiration(slotIndex, knownInspiration);
+            RemoveTransientUsesOfKnownInspiration(knownInspiration, slotIndex);
+            if (_slotInspirations[slotIndex] == knownInspiration)
+            {
+                RefreshBindingForCurrentSlot(slotIndex);
+                return;
+            }
+
+            ClearBindingIfOwned(_slotInspirations[slotIndex], _currentTheme, slotIndex);
+            _slotInspirations[slotIndex] = knownInspiration;
+            ClearSlotValidation(slotIndex);
+            RefreshBindingForCurrentSlot(slotIndex);
+            OnSlotInspirationChanged?.Invoke(slotIndex, knownInspiration);
+        }
+
+        private void AutoAssignKnownInspirationsInCurrentTheme()
+        {
+            for (int i = 0; i < _displaySlots.Count; i++)
+                AutoAssignKnownInspiration(i, _displaySlots[i]);
+        }
+
+        private void ClearFixedInspirationForItem(int slotIndex, ExhibitItemData item)
+        {
+            if (!ValidateSlotIndex(slotIndex) || item == null)
+                return;
+
+            var knownInspiration = GetKnownInspirationForItem(item);
+            if (knownInspiration == null || _slotInspirations[slotIndex] != knownInspiration)
+                return;
+
+            ClearBindingIfOwned(knownInspiration, _currentTheme, slotIndex);
+            _slotInspirations[slotIndex] = null;
+            ClearSlotValidation(slotIndex);
+            OnSlotInspirationChanged?.Invoke(slotIndex, null);
+        }
+
+        private void ClearMismatchedKnownInspiration(int slotIndex, ExhibitItemData item)
+        {
+            if (!ValidateSlotIndex(slotIndex))
+                return;
+
+            var inspiration = _slotInspirations[slotIndex];
+            if (inspiration == null ||
+                !IsInspirationMatchKnown(inspiration) ||
+                inspiration.mappedItem == item)
+            {
+                return;
+            }
+
+            ClearBindingIfOwned(inspiration, _currentTheme, slotIndex);
+            _slotInspirations[slotIndex] = null;
+            ClearSlotValidation(slotIndex);
+            OnSlotInspirationChanged?.Invoke(slotIndex, null);
         }
 
         private bool ValidateSlotIndex(int index)
@@ -387,11 +696,11 @@ namespace ExhibitionSystem.Core
             var validation = new ExhibitionSlotValidation(itemCorrect, inspirationCorrect);
 
             _validationResults.Add(validation);
+            _slotValidationResults[_visitorIndex] = validation;
             if (validation.IsCorrect)
             {
                 _satisfaction++;
-                KnownInspirationMatchIds.Add(inspiration.id);
-                item.RecordUsage(_currentTheme.title);
+                RememberVerifiedMatch(_visitorIndex, inspiration, item);
             }
 
             OnVisitorReacted?.Invoke(_visitorIndex, inspiration, item, validation, _satisfaction);

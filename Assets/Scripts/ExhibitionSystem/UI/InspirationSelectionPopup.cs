@@ -21,6 +21,7 @@ namespace ExhibitionSystem.UI
         [SerializeField] private GameObject _panel;
         [SerializeField] private TMP_Text _titleText;
         [SerializeField] private TMP_Text _themeText;
+        [SerializeField] private Image _targetItemIcon;
         [SerializeField] private TMP_Text _progressText;
         [SerializeField] private TMP_Text _hintText;
         [SerializeField] private Image _hintBackground;
@@ -44,8 +45,6 @@ namespace ExhibitionSystem.UI
 
             if (_closeButton != null)
                 _closeButton.onClick.AddListener(Hide);
-
-            HideImmediate();
         }
 
         public void ShowForSlot(int slotIndex)
@@ -53,8 +52,10 @@ namespace ExhibitionSystem.UI
             var manager = ExhibitionManager.Instance;
             if (manager == null ||
                 manager.CurrentTheme == null ||
-                slotIndex < 0 ||
-                slotIndex >= manager.SlotCount)
+                 slotIndex < 0 ||
+                 slotIndex >= manager.SlotCount ||
+                 manager.IsSlotInspirationFixed(slotIndex) ||
+                 manager.DisplaySlots[slotIndex] == null)
             {
                 return;
             }
@@ -83,6 +84,7 @@ namespace ExhibitionSystem.UI
                 _themeText.text = $"Theme: <b><color=#FFD96A>{manager.CurrentTheme.title}</color></b>";
             }
 
+            UpdateTargetItemIcon(manager.DisplaySlots[slotIndex]);
             PopulateList();
             UpdateConfirmButton();
         }
@@ -131,35 +133,17 @@ namespace ExhibitionSystem.UI
             if (manager == null || _itemPrefab == null || container == null)
                 return;
 
-            var targetItem = _targetSlotIndex >= 0 && _targetSlotIndex < manager.DisplaySlots.Count
-                ? manager.DisplaySlots[_targetSlotIndex]
-                : null;
-            var assignedToTarget = _targetSlotIndex >= 0 && _targetSlotIndex < manager.SlotInspirations.Count
-                ? manager.SlotInspirations[_targetSlotIndex]
-                : null;
-
             foreach (var inspiration in manager.AllInspirations
                          .Where(inspiration => inspiration.isUnlocked)
                          .OrderBy(inspiration => manager.IsInspirationMatchKnown(inspiration) ? 1 : 0)
                          .ThenBy(inspiration => inspiration.id))
             {
-                bool knownMatch = manager.IsInspirationMatchKnown(inspiration);
-                var hintItem = inspiration == _pendingInspiration
-                    ? targetItem
-                    : inspiration == assignedToTarget && assignedToTarget != _pendingInspiration
-                        ? null
-                    : manager.GetHintItemForInspiration(inspiration);
                 var item = Instantiate(_itemPrefab, container);
-                item.SetData(
-                    inspiration,
-                    inspiration == _pendingInspiration,
-                    HandleInspirationSelected,
-                    false,
-                    false,
-                    hintItem,
-                    !knownMatch);
+                item.SetData(inspiration, false, HandleInspirationSelected);
                 _libraryItems.Add(item);
             }
+
+            RefreshListItems();
         }
 
         private void HandleInspirationSelected(InspirationData inspiration)
@@ -175,14 +159,17 @@ namespace ExhibitionSystem.UI
 
             OnInspirationClicked?.Invoke();
             _pendingInspiration = inspiration;
-            PopulateList();
+            RefreshListItems();
             UpdateConfirmButton();
         }
 
         private void ConfirmSelection()
         {
             var manager = ExhibitionManager.Instance;
-            if (manager == null || _pendingInspiration == null || _targetSlotIndex < 0)
+            if (manager == null ||
+                 _pendingInspiration == null ||
+                 _targetSlotIndex < 0 ||
+                 manager.IsSlotInspirationFixed(_targetSlotIndex))
                 return;
 
             manager.AssignInspiration(_targetSlotIndex, _pendingInspiration);
@@ -231,6 +218,93 @@ namespace ExhibitionSystem.UI
         {
             if (_confirmButton != null)
                 _confirmButton.interactable = _pendingInspiration != null;
+        }
+
+        private void RefreshListItems()
+        {
+            var manager = ExhibitionManager.Instance;
+            if (manager == null)
+                return;
+
+            var targetItem = _targetSlotIndex >= 0 && _targetSlotIndex < manager.DisplaySlots.Count
+                ? manager.DisplaySlots[_targetSlotIndex]
+                : null;
+            var assignedToTarget = _targetSlotIndex >= 0 && _targetSlotIndex < manager.SlotInspirations.Count
+                ? manager.SlotInspirations[_targetSlotIndex]
+                : null;
+
+            foreach (var item in _libraryItems)
+            {
+                var inspiration = item != null ? item.Inspiration : null;
+                if (item == null || inspiration == null)
+                    continue;
+
+                UpdateListItem(item, inspiration, manager, targetItem, assignedToTarget);
+            }
+        }
+
+        private void UpdateListItem(
+            InspirationListItem item,
+            InspirationData inspiration,
+            ExhibitionManager manager,
+            ExhibitItemData targetItem,
+            InspirationData assignedToTarget)
+        {
+            bool knownMatch = manager.IsInspirationMatchKnown(inspiration);
+            var hintItem = inspiration == _pendingInspiration
+                ? targetItem
+                : inspiration == assignedToTarget && assignedToTarget != _pendingInspiration
+                    ? null
+                    : manager.GetHintItemForInspiration(inspiration);
+            item.SetData(
+                inspiration,
+                inspiration == _pendingInspiration,
+                HandleInspirationSelected,
+                false,
+                false,
+                hintItem,
+                !knownMatch);
+        }
+
+        private void UpdateTargetItemIcon(ExhibitItemData item)
+        {
+            EnsureTargetItemIcon();
+            if (_targetItemIcon == null)
+                return;
+
+            _targetItemIcon.sprite = item != null ? item.icon : null;
+            _targetItemIcon.enabled = _targetItemIcon.sprite != null;
+            _targetItemIcon.gameObject.SetActive(_targetItemIcon.enabled);
+        }
+
+        private void EnsureTargetItemIcon()
+        {
+            if (_targetItemIcon != null || _themeText == null || _themeText.transform.parent == null)
+                return;
+
+            var parent = _themeText.transform.parent;
+            var existing = parent.Find("TargetItemIcon");
+            if (existing != null)
+            {
+                _targetItemIcon = existing.GetComponent<Image>();
+                if (_targetItemIcon != null)
+                    return;
+            }
+
+            var iconObject = new GameObject("TargetItemIcon", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            iconObject.transform.SetParent(parent, false);
+            iconObject.transform.SetSiblingIndex(_themeText.transform.GetSiblingIndex() + 1);
+
+            var iconRect = iconObject.GetComponent<RectTransform>();
+            iconRect.anchorMin = new Vector2(0.5f, 1f);
+            iconRect.anchorMax = new Vector2(0.5f, 1f);
+            iconRect.pivot = new Vector2(0.5f, 1f);
+            iconRect.anchoredPosition = new Vector2(0f, -112f);
+            iconRect.sizeDelta = new Vector2(56f, 56f);
+
+            _targetItemIcon = iconObject.GetComponent<Image>();
+            _targetItemIcon.preserveAspect = true;
+            _targetItemIcon.raycastTarget = false;
         }
 
         private static GameObject GetColumnPanel(Transform listContainer)

@@ -19,13 +19,15 @@ namespace ExhibitionSystem.UI
         [SerializeField] private Color _normalColor = new(0.74f, 0.63f, 0.48f, 0.98f);
         [SerializeField] private Color _selectedColor = new(0.92f, 0.76f, 0.42f, 1f);
         [SerializeField] private Color _invalidColor = new(0.72f, 0.18f, 0.14f, 1f);
-        [SerializeField] private Color _matchedLockedColor = new(0.88f, 0.43f, 0.16f, 1f);
+        [SerializeField] private Color _fixedMatchColor = new(0.88f, 0.43f, 0.16f, 1f);
 
         private InspirationData _inspiration;
         private Action<InspirationData> _onClick;
         private bool _selected;
         private bool _invalid;
         private bool _interactable;
+
+        public InspirationData Inspiration => _inspiration;
 
         private void Awake()
         {
@@ -90,7 +92,7 @@ namespace ExhibitionSystem.UI
             if (_selectionImage != null)
             {
                 _selectionImage.color = !_interactable
-                    ? _matchedLockedColor
+                    ? _fixedMatchColor
                     : _invalid
                         ? _invalidColor
                         : _selected

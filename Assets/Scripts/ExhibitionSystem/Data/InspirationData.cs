@@ -25,8 +25,5 @@ namespace ExhibitionSystem.Data
         [Tooltip("Fallback hint if this idea is missing from a theme selection.")]
         public string fallbackHint = "This idea might matter here.";
 
-        [Tooltip("Editor reset value only. Runtime match memory is stored in ExhibitionManager for the current Play Session.")]
-        [HideInInspector]
-        public bool isItemMatchKnownByDefault;
     }
 }
