@@ -61790,9 +61790,9 @@ MonoBehaviour:
   worldMin: {x: -22, y: -18}
   worldMax: {x: 22, y: 14}
   panelSize: {x: 820, y: 600}
-  iconSize: {x: 40, y: 40}
-  locationSize: {x: 32, y: 32}
-  panelAlpha: 0.7
+  iconSize: {x: 100, y: 100}
+  locationSize: {x: 80, y: 80}
+  panelAlpha: 0.75
   mapBackground: {fileID: 3211415059234917704, guid: 5e100fcc4705fde40ada5946d09fa965, type: 3}
   mapIconSprite: {fileID: 7906180512882132660, guid: e7d73b00a72250d4c836bed24c496f2a, type: 3}
 --- !u!4 &1421616562
