@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 using TMPro;
 using ExhibitionSystem.Data;
 using Otowa.IndoorDialogue;
@@ -38,24 +39,33 @@ namespace Otowa.Intro
 
         [Header("Audio")]
         [SerializeField] private AudioClip ambientClip;
+        [SerializeField] private AudioClip doorOpenClip;
+        [SerializeField] private AudioClip pageTurnClip;
         [SerializeField] [Range(0f, 1f)] private float musicVolume = 0.3f;
 
         // ── Beat data ─────────────────────────────────────────────────────────
 
         private enum BeatKind { Narration, Letter, Inventory, Dialogue }
 
+        private struct BChoice { public string Label; public string TargetId; }
+
         private struct Beat
         {
             public BeatKind Kind;
-            public string   Speaker;        // Dialogue only
+            public string   Speaker;
             public string   Text;
-            public bool     IsThought;      // italic + dim for inner thoughts
-            public int      LetterPage;     // 1–5
-            public bool     HidesRightChar; // fade out right character after this beat
+            public bool     IsThought;
+            public int      LetterPage;
+            public bool     HidesRightChar;
+            public string   Id;
+            public string   JumpToId;
+            public BChoice[] Choices;
         }
 
         private List<Beat> _beats;
-        private int _current = -1;
+        private Dictionary<string, int> _beatIndex;
+        private int  _current       = -1;
+        private bool _choosingBranch;
 
         // ── State ─────────────────────────────────────────────────────────────
 
@@ -85,8 +95,10 @@ namespace Otowa.Intro
         private TMP_Text   _speakerTmp;
         private TMP_Text   _bodyTmp;
 
-        private TMP_Text   _promptTmp;
+        private TMP_Text    _promptTmp;
+        private GameObject  _choicePanel;
         private AudioSource _audioSource;
+        private AudioSource _sfxSource;
 
         // ── Colours ───────────────────────────────────────────────────────────
 
@@ -113,6 +125,10 @@ namespace Otowa.Intro
         {
             Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
             BuildBeats();
+            _beatIndex = new Dictionary<string, int>();
+            for (int i = 0; i < _beats.Count; i++)
+                if (!string.IsNullOrEmpty(_beats[i].Id))
+                    _beatIndex[_beats[i].Id] = i;
             LoadSprites();
             BuildUI();
             _textPlayer = gameObject.AddComponent<IndoorDialogueTextPlayer>();
@@ -144,6 +160,7 @@ namespace Otowa.Intro
                         || (kb    != null && kb.enterKey.wasPressedThisFrame);
 
             if (!clicked) return;
+            if (_choosingBranch) return;
             if (_textPlayer.IsTyping) { _textPlayer.Skip(); return; }
             AdvanceBeat();
         }
@@ -152,13 +169,81 @@ namespace Otowa.Intro
 
         private void AdvanceBeat()
         {
-            int next = _current + 1;
-            if (next >= _beats.Count) { StartCoroutine(FadeAndLoad()); return; }
-
             if (_current >= 0 && _beats[_current].HidesRightChar)
                 StartCoroutine(FadeOutRightChar());
 
+            if (_current >= 0 && !string.IsNullOrEmpty(_beats[_current].JumpToId))
+            {
+                if (_beatIndex.TryGetValue(_beats[_current].JumpToId, out int jumpIdx))
+                { ShowBeat(jumpIdx); return; }
+            }
+
+            int next = _current + 1;
+            if (next >= _beats.Count) { StartCoroutine(FadeAndLoad()); return; }
             ShowBeat(next);
+        }
+
+        private void JumpToBeat(string targetId)
+        {
+            if (!_beatIndex.TryGetValue(targetId, out int idx))
+            {
+                Debug.LogWarning($"[StationController] Branch target '{targetId}' not found.");
+                int fallback = _current + 1;
+                if (fallback < _beats.Count) ShowBeat(fallback);
+                return;
+            }
+            _choosingBranch = false;
+            _choicePanel.SetActive(false);
+            _dlgPanel.SetActive(true);
+            ShowBeat(idx);
+        }
+
+        private void ShowChoices(Beat b)
+        {
+            _choosingBranch = true;
+            _dlgPanel.SetActive(false);
+            _choicePanel.SetActive(true);
+
+            foreach (Transform child in _choicePanel.transform)
+                Destroy(child.gameObject);
+
+            float btnH = 0.16f;
+            float gap   = 0.03f;
+            int   count = b.Choices.Length;
+            float totalH = count * btnH + (count - 1) * gap;
+            float startY = 0.5f + totalH * 0.5f - btnH * 0.5f;
+
+            for (int i = 0; i < count; i++)
+            {
+                var choice = b.Choices[i];
+                float yMax = startY - i * (btnH + gap);
+                float yMin = yMax - btnH;
+
+                var btnGo = new GameObject($"Choice{i}", typeof(RectTransform));
+                btnGo.transform.SetParent(_choicePanel.transform, false);
+                var brt = (RectTransform)btnGo.transform;
+                brt.anchorMin = new Vector2(0.15f, yMin);
+                brt.anchorMax = new Vector2(0.85f, yMax);
+                brt.offsetMin = brt.offsetMax = Vector2.zero;
+
+                btnGo.AddComponent<Image>().color = new Color32(0x10, 0x28, 0x10, 0xDD);
+                var btn = btnGo.AddComponent<Button>();
+                string targetId = choice.TargetId;
+                btn.onClick.AddListener(() => JumpToBeat(targetId));
+
+                var lbl = new GameObject("Label", typeof(RectTransform));
+                lbl.transform.SetParent(btnGo.transform, false);
+                var lrt = (RectTransform)lbl.transform;
+                lrt.anchorMin = Vector2.zero; lrt.anchorMax = Vector2.one;
+                lrt.offsetMin = lrt.offsetMax = Vector2.zero;
+                var tmp = lbl.AddComponent<TextMeshProUGUI>();
+                tmp.text      = choice.Label;
+                tmp.fontSize  = 26f;
+                tmp.color     = new Color32(0xc8, 0xd4, 0xc8, 0xFF);
+                tmp.alignment = TextAlignmentOptions.Center;
+                tmp.richText  = true;
+                if (serifFont != null) tmp.font = serifFont;
+            }
         }
 
         private IEnumerator FadeOutRightChar()
@@ -180,10 +265,17 @@ namespace Otowa.Intro
             _current = index;
             var b = _beats[index];
 
+            if (b.Choices != null && b.Choices.Length > 0)
+            {
+                ShowChoices(b);
+                return;
+            }
+
             _narPanel.SetActive(false);
             _letterPanel.SetActive(false);
             _invPanel.SetActive(false);
             _dlgPanel.SetActive(false);
+            _choicePanel.SetActive(false);
             SetPrompt(false);
 
             switch (b.Kind)
@@ -212,9 +304,11 @@ namespace Otowa.Intro
         {
             _bgImage.color  = LetterBg;
             _letterPanel.SetActive(true);
-            _ltTitle.text   = "[ A Letter from Hikaru ]";
+            _ltTitle.text   = "A Letter from Hikaru";
             _ltBody.text    = b.Text;
             _ltPageNum.text = $"{b.LetterPage}  /  5";
+            if (b.LetterPage > 1 && pageTurnClip != null && _sfxSource != null)
+            { _sfxSource.Stop(); _sfxSource.clip = pageTurnClip; _sfxSource.Play(); }
             SetPrompt(true);
         }
 
@@ -326,8 +420,20 @@ namespace Otowa.Intro
 
         // ── UI construction ───────────────────────────────────────────────────
 
+        private static void EnsureEventSystem()
+        {
+            if (FindObjectOfType<EventSystem>() != null) return;
+            var go = new GameObject("EventSystem");
+            go.AddComponent<EventSystem>();
+            var iiType = System.Type.GetType(
+                "UnityEngine.InputSystem.UI.InputSystemUIInputModule, Unity.InputSystem");
+            if (iiType != null) go.AddComponent(iiType);
+            else                go.AddComponent<StandaloneInputModule>();
+        }
+
         private void BuildUI()
         {
+            EnsureEventSystem();
             var cvGo = new GameObject("StationCanvas",
                 typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             cvGo.transform.SetParent(transform, false);
@@ -351,6 +457,7 @@ namespace Otowa.Intro
             BuildLetterPanel(cvGo.transform);
             BuildInventoryPanel(cvGo.transform);
             BuildDialoguePanel(cvGo.transform);
+            BuildChoicePanel(cvGo.transform);
 
             _promptTmp = MakeTMP(cvGo.transform, "Prompt", "Click to continue  ▼",
                 22f, PromptC, TextAlignmentOptions.Right,
@@ -366,7 +473,7 @@ namespace Otowa.Intro
             _narPanel = MakeRect(cv, "NarPanel", Vector2.zero, Vector2.one);
 
             _narText = MakeTMP(_narPanel.transform, "NarText", "",
-                32f, ThoughtC, TextAlignmentOptions.Center,
+                36f, ThoughtC, TextAlignmentOptions.Center,
                 new Vector2(0.18f, 0.32f), new Vector2(0.82f, 0.68f));
             _narText.lineSpacing = 8f;
             _narText.fontStyle   = FontStyles.Italic;
@@ -384,30 +491,31 @@ namespace Otowa.Intro
 
             // Parchment card
             var paper = MakeRect(_letterPanel.transform, "Paper",
-                new Vector2(0.18f, 0.08f), new Vector2(0.82f, 0.92f));
+                new Vector2(0.12f, 0.05f), new Vector2(0.88f, 0.95f));
             paper.AddComponent<Image>().color = Parchment;
 
             var pt = paper.transform;
 
-            _ltTitle = MakeTMP(pt, "LtTitle", "[ A Letter from Hikaru ]",
-                20f, LetterHdr, TextAlignmentOptions.Center,
-                new Vector2(0.04f, 0.90f), new Vector2(0.96f, 0.98f));
-            UseFont(_ltTitle, serifFont);
+            _ltTitle = MakeTMP(pt, "LtTitle", "A Letter from Hikaru",
+                54f, LetterHdr, TextAlignmentOptions.Center,
+                new Vector2(0.04f, 0.84f), new Vector2(0.96f, 0.98f));
+            _ltTitle.fontStyle = FontStyles.Bold | FontStyles.Italic;
+            UseFont(_ltTitle, handwrittenFont);
 
             // Thin separator line
             var sep = MakeRect(pt, "Sep",
-                new Vector2(0.04f, 0.87f), new Vector2(0.96f, 0.880f));
+                new Vector2(0.04f, 0.825f), new Vector2(0.96f, 0.835f));
             sep.AddComponent<Image>().color = new Color32(0x9a, 0x90, 0x80, 0xFF);
 
             _ltBody = MakeTMP(pt, "LtBody", "",
-                26f, LetterTxt, TextAlignmentOptions.Left,
-                new Vector2(0.06f, 0.12f), new Vector2(0.94f, 0.86f));
+                30f, LetterTxt, TextAlignmentOptions.Left,
+                new Vector2(0.06f, 0.10f), new Vector2(0.94f, 0.82f));
             _ltBody.lineSpacing = 6f;
             UseFont(_ltBody, handwrittenFont);
 
             _ltPageNum = MakeTMP(pt, "LtPage", "1  /  5",
                 17f, LetterHdr, TextAlignmentOptions.Center,
-                new Vector2(0.04f, 0.03f), new Vector2(0.96f, 0.11f));
+                new Vector2(0.04f, 0.02f), new Vector2(0.96f, 0.09f));
             UseFont(_ltPageNum, serifFont);
 
             _letterPanel.SetActive(false);
@@ -421,17 +529,18 @@ namespace Otowa.Intro
             _invPanel.AddComponent<Image>().color = new Color(0, 0, 0, 0.85f);
 
             var card = MakeRect(_invPanel.transform, "Card",
-                new Vector2(0.26f, 0.12f), new Vector2(0.74f, 0.88f));
+                new Vector2(0.02f, 0.02f), new Vector2(0.98f, 0.98f));
             card.AddComponent<Image>().color = new Color32(0x0a, 0x14, 0x0a, 0xFF);
             var ct = card.transform;
 
             var titleTmp = MakeTMP(ct, "InvTitle", "INVENTORY",
-                30f, RinGreen, TextAlignmentOptions.Center,
+                42f, RinGreen, TextAlignmentOptions.Center,
                 new Vector2(0.04f, 0.89f), new Vector2(0.96f, 0.98f));
+            titleTmp.fontStyle = FontStyles.Bold;
             UseFont(titleTmp, serifFont);
 
             var subTmp = MakeTMP(ct, "InvSub", "Items found in the stationmaster's office",
-                18f, BodyC, TextAlignmentOptions.Center,
+                24f, BodyC, TextAlignmentOptions.Center,
                 new Vector2(0.04f, 0.82f), new Vector2(0.96f, 0.90f));
             UseFont(subTmp, serifFont);
 
@@ -440,18 +549,19 @@ namespace Otowa.Intro
             System.Array.Sort(rawItems, (a, b) => a.sortOrder.CompareTo(b.sortOrder));
 
             var gridGo = MakeRect(ct, "Grid",
-                new Vector2(0.04f, 0.08f), new Vector2(0.96f, 0.80f));
+                new Vector2(0.01f, 0.06f), new Vector2(0.99f, 0.82f));
             var grid = gridGo.AddComponent<GridLayoutGroup>();
             grid.constraint      = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = 4;
-            grid.cellSize        = new Vector2(145f, 110f);
-            grid.spacing         = new Vector2(10f, 10f);
+            grid.cellSize        = new Vector2(200f, 150f);
+            grid.spacing         = new Vector2(16f, 16f);
             grid.childAlignment  = TextAnchor.MiddleCenter;
-            grid.padding         = new RectOffset(5, 5, 5, 5);
+            grid.padding         = new RectOffset(8, 8, 8, 8);
 
             for (int i = 0; i < 16; i++)
             {
                 var itemData = (i < rawItems.Length) ? rawItems[i] : null;
+                bool isLocked = itemData != null && i >= rawItems.Length - 2;
 
                 var slot = new GameObject($"Slot{i}", typeof(RectTransform));
                 slot.transform.SetParent(gridGo.transform, false);
@@ -459,7 +569,9 @@ namespace Otowa.Intro
                 rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
                 rt.pivot     = new Vector2(0.5f, 0.5f);
 
-                slot.AddComponent<Image>().color = new Color32(0x1a, 0x3a, 0x1a, 0xFF);
+                slot.AddComponent<Image>().color = isLocked
+                    ? new Color32(0x28, 0x28, 0x2a, 0xFF)
+                    : new Color32(0x1a, 0x3a, 0x1a, 0xFF);
 
                 if (itemData != null && itemData.icon != null)
                 {
@@ -469,9 +581,11 @@ namespace Otowa.Intro
                     iconImg.sprite         = itemData.icon;
                     iconImg.preserveAspect = true;
                     iconImg.raycastTarget  = false;
+                    if (isLocked) iconImg.color = new Color(1f, 1f, 1f, 0.35f);
 
                     var nameTmp = MakeTMP(slot.transform, "Name", itemData.itemName,
-                        11f, new Color32(0xaa, 0xcc, 0xaa, 0xFF), TextAlignmentOptions.Center,
+                        14f, isLocked ? new Color32(0x88, 0x88, 0x88, 0xFF) : new Color32(0xaa, 0xcc, 0xaa, 0xFF),
+                        TextAlignmentOptions.Center,
                         new Vector2(0.02f, 0.02f), new Vector2(0.98f, 0.24f));
                     UseFont(nameTmp, serifFont);
                 }
@@ -479,8 +593,8 @@ namespace Otowa.Intro
                 {
                     var lbl = MakeTMP(slot.transform, "Lbl",
                         itemData != null ? itemData.itemName : "?",
-                        itemData != null ? 16f : 34f,
-                        new Color32(0x4a, 0x7a, 0x4a, 0xFF),
+                        itemData != null ? 18f : 34f,
+                        isLocked ? new Color32(0x88, 0x88, 0x88, 0xFF) : new Color32(0x4a, 0x7a, 0x4a, 0xFF),
                         TextAlignmentOptions.Center,
                         Vector2.zero, Vector2.one);
                     UseFont(lbl, serifFont);
@@ -528,6 +642,15 @@ namespace Otowa.Intro
             _inspOverlayCG.gameObject.SetActive(false);
         }
 
+        // ── Choice panel ──────────────────────────────────────────────────────
+
+        private void BuildChoicePanel(Transform cv)
+        {
+            _choicePanel = MakeRect(cv, "ChoicePanel", new Vector2(0f, 0.28f), new Vector2(1f, 0.72f));
+            _choicePanel.AddComponent<Image>().color = new Color(0, 0, 0, 0);
+            _choicePanel.SetActive(false);
+        }
+
         // ── Dialogue panel ────────────────────────────────────────────────────
 
         private void BuildDialoguePanel(Transform cv)
@@ -563,13 +686,13 @@ namespace Otowa.Intro
             var pt = panel.transform;
 
             _speakerTmp = MakeTMP(pt, "Speaker", "",
-                28f, RinGreen, TextAlignmentOptions.Left,
+                36f, RinGreen, TextAlignmentOptions.Left,
                 new Vector2(0.04f, 0.68f), new Vector2(0.96f, 0.96f));
             _speakerTmp.fontStyle = FontStyles.Bold;
             UseFont(_speakerTmp, serifFont);
 
             _bodyTmp = MakeTMP(pt, "Body", "",
-                27f, BodyC, TextAlignmentOptions.Left,
+                31f, BodyC, TextAlignmentOptions.Left,
                 new Vector2(0.04f, 0.04f), new Vector2(0.96f, 0.65f));
             _bodyTmp.lineSpacing = 6f;
             UseFont(_bodyTmp, serifFont);
@@ -637,18 +760,30 @@ namespace Otowa.Intro
             _audioSource.loop        = true;
             _audioSource.playOnAwake = false;
             if (ambientClip != null) _audioSource.Play();
+
+            _sfxSource             = gameObject.AddComponent<AudioSource>();
+            _sfxSource.playOnAwake = false;
+            if (doorOpenClip != null) _sfxSource.PlayOneShot(doorOpenClip);
         }
 
         // ── Beat helpers ──────────────────────────────────────────────────────
 
-        private static Beat N(bool thought, string text) => new()
-            { Kind = BeatKind.Narration, Text = text, IsThought = thought };
+        private static Beat N(bool thought, string text, string id = null, string jump = null) => new()
+            { Kind = BeatKind.Narration, Text = text, IsThought = thought, Id = id, JumpToId = jump };
 
         private static Beat L(int page, string text) => new()
             { Kind = BeatKind.Letter, LetterPage = page, Text = text };
 
-        private static Beat D(string speaker, bool thought, string text) => new()
-            { Kind = BeatKind.Dialogue, Speaker = speaker, IsThought = thought, Text = text };
+        private static Beat D(string speaker, bool thought, string text,
+                               string id = null, string jump = null) => new()
+            { Kind = BeatKind.Dialogue, Speaker = speaker, IsThought = thought, Text = text,
+              Id = id, JumpToId = jump };
+
+        private static Beat B(string id, params BChoice[] choices) => new()
+            { Kind = BeatKind.Dialogue, Id = id, Choices = choices };
+
+        private static BChoice C(string label, string target) =>
+            new() { Label = label, TargetId = target };
 
         // ── Beat list ─────────────────────────────────────────────────────────
 
@@ -660,9 +795,8 @@ namespace Otowa.Intro
                 N(true, "(Is this the stationmaster's office... It's way too messy.)"),
                 N(true, "(Wooden boards, boxes, and this pile of weird stuff...)"),
                 N(true, "(Binoculars... stones... why is there even a jug of liquor?)"),
-                N(true, "(Rather than a stationmaster's office, this place is more like a junk warehouse.)"),
-                N(true, "(However, the desk has been wiped quite clean, and there's a letter on it.)"),
-                N(true, "(\"To Rin,\" looks like it's for me.)"),
+                N(true, "(There's a letter??)"),
+                N(true, "(\"Hi Rin,\" looks like it's for me.)"),
 
                 // ── Phase 2: Hikaru's letter (5 pages) ───────────────────────
                 L(1,
@@ -698,12 +832,9 @@ namespace Otowa.Intro
                     "— Full of anticipation,\n   Hikaru."),
 
                 // ── Phase 3: post-letter thoughts ─────────────────────────────
-                N(true, "(...A \"brilliant idea,\" huh.)"),
                 N(true, "(Piling all these things haphazardly on the floor is called hoarding, not curating, Stationmaster Hikaru.)"),
                 N(true, "(So the so-called \"challenge\" is just cleaning up this stationmaster's mess.)"),
                 N(true, "(Still, making a country station a little more interesting... sounds a lot easier than writing code in an office building.)"),
-                N(true, "(Since I have nothing else to do right now anyway, I might as well treat this as my first pastime after escaping the city.)"),
-                N(true, "(At the welcome banquet tonight, I'll ask the village chief what exactly the deal is with these \"treasures.\")"),
 
                 // ── Phase 4: inventory reveal ─────────────────────────────────
                 new Beat { Kind = BeatKind.Inventory },
@@ -715,26 +846,37 @@ namespace Otowa.Intro
                 D("Rin",       false, "Ah, hello!"),
                 D("???",       false, "Are you an employee here? Where is Stationmaster Hikaru?"),
                 D("Rin",       false, "I'm the newly arrived acting stationmaster, Rin. Mr. Hikaru has temporarily left, so I am in charge for the next few days."),
-                D("???",       false, "Acting? The railway company hasn't received any notification of such a personnel change."),
-                D("???",       false, "Never mind. It doesn't matter."),
-                D("???",       false, "It has been some time since the last evaluation feedback was issued. I am here for a follow-up review."),
-                D("Inspector", false, "Have there been any substantive changes in the village? For example, a commercial plan to drive passenger traffic, or new development projects."),
-                D("Rin",       false, "Uh, well about that..."),
-                D("Rin",       true,  "(I haven't even been off the train for an hour, how would I know?)"),
+                D("???",       false, "Acting? The railway company hasn't received any notification of such a personnel change. Whatever, I am here for a follow-up review."),
+                D("Inspector", false, "Have there been any substantive changes in the village? A commercial plan, or new development projects."),
+                D("Rin",       true,  "(I haven't even been off the train for an hour. How would I know?)"),
                 D("Rin",       false, "Mr. Hikaru is planning to transform this place into a museum to showcase Otowa's unique features. Look at these…"),
                 D("Inspector", false, "A museum?"),
                 D("Inspector", false, "I only see a floor full of garbage and extremely poor work efficiency."),
-                D("Rin",       false, "These actually haven't been set up yet. With just a little bit of planning..."),
-                D("Inspector", false, "I do not need to hear any unrealistic plans, Stationmaster Rin. The railway company only looks at data and results."),
+
+                // ── Branch: Rin's response to the inspector's dismissal ───────
+                B("branch_insp",
+                    C("Y-Yes, sir. I understand your concerns completely.", "kiss_01"),
+                    C("These haven't been set up yet. With a little planning—", "direct_01")
+                ),
+
+                // Kiss-up path
+                D("Rin",       false, "Y-You're absolutely right, sir. The current state is... not ideal. We take your evaluation very seriously.",          id: "kiss_01"),
+                D("Rin",       true,  "(That was painful to say. But maybe it helps.)"),
+                D("Inspector", false, "...At least you have the sense to acknowledge it. Most stations in this condition try to make excuses.",              jump: "merge_insp"),
+
+                // Direct / confrontational path
+                D("Rin",       false, "These haven't been set up yet. With just a little bit of planning...",                                               id: "direct_01"),
+                D("Inspector", false, "I do not need to hear unrealistic plans, Stationmaster Rin. The railway company only looks at data and results."),
                 D("Inspector", false, "It seems this place is just as worthless as it was during the last evaluation."),
                 D("Rin",       false, "You've already reached a conclusion?"),
-                D("Inspector", false, "I will take a walk around the village. Though I don't hold out much hope."),
-                D("Inspector", false, "Let's hope that before I finish writing my report, you can present something a bit more convincing."),
+                D("Inspector", false, "I reach conclusions based on evidence. I suggest you spend less time arguing and more time preparing something presentable."),
+
+                // ── All paths converge ────────────────────────────────────────
+                D("Inspector", false, "Let's hope that before I finish writing my report, you can present something a bit more convincing.", id: "merge_insp"),
                 new Beat { Kind = BeatKind.Dialogue, Speaker = "Inspector", Text = "Goodbye.", HidesRightChar = true },
                 D("Rin",       true,  "(He really just left...)"),
-                D("Rin",       true,  "(Wait, did he say evaluation report just now? What happens if we fail?)"),
+                D("Rin",       true,  "(Wait — evaluation report. What happens if we fail?)"),
                 D("Rin",       true,  "(Hikaru, just how big of a mess have you dumped on me?)"),
-                D("Rin",       true,  "(It's getting dark. Anyway, let's clock out for the day.)"),
             };
         }
     }

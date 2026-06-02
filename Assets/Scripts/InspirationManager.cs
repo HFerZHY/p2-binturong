@@ -44,8 +44,13 @@ public class InspirationManager : MonoBehaviour
         get
         {
             if (_instance != null) return _instance;
-            var go = new GameObject("InspirationManager");
-            _instance = go.AddComponent<InspirationManager>();
+            // Load from prefab first — lets Inspector fields (e.g. audio clips) be pre-assigned.
+            // Create the prefab via Tools → Otowa → Audio → Wire InspirationManager Audio.
+            var prefab = Resources.Load<GameObject>("InspirationManager");
+            if (prefab != null)
+                Object.Instantiate(prefab).name = "InspirationManager";
+            else
+                new GameObject("InspirationManager").AddComponent<InspirationManager>();
             return _instance;
         }
     }
@@ -138,6 +143,10 @@ public class InspirationManager : MonoBehaviour
 
     private TMP_FontAsset _font;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip inspirationUnlockedClip;
+    private AudioSource _sfxSource;
+
     // ── Journal tab refs ──────────────────────────────────────────────────────
 
     private int         _activeTab = 1; // 0=Items, 1=Inspirations, 2=Themes
@@ -201,6 +210,8 @@ public class InspirationManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         LoadGameData();
         BuildUI();
+        _sfxSource = gameObject.AddComponent<AudioSource>();
+        _sfxSource.playOnAwake = false;
     }
 
     private void OnEnable()
@@ -281,6 +292,7 @@ public class InspirationManager : MonoBehaviour
         _unlocked[id] = true;
         RefreshEntry(id);
         _openInspirationsOnNextJournalOpen = true;
+        if (inspirationUnlockedClip != null) _sfxSource?.PlayOneShot(inspirationUnlockedClip);
 
         bool firstEver = !_introduced;
         _introduced = true;
@@ -528,6 +540,7 @@ public class InspirationManager : MonoBehaviour
         bool showsJournalEntry = sceneName == "WorldScene"
                                  || sceneName == "Day1World"
                                  || sceneName == "HotSpring"
+                                 || sceneName == "TutorialToRyotei"
                                  || sceneName == "Day2World"
                                  || sceneName == "Day2Ryotei"
                                  || sceneName == "Day2HotSpring";
