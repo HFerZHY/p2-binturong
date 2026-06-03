@@ -12,6 +12,7 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.Tables;
 using UnityEngine.Serialization;
 using Otowa.IndoorDialogue;
+using Otowa.UI;
 
 namespace DialogueSystem.UI
 {
@@ -75,6 +76,10 @@ namespace DialogueSystem.UI
 
         private const int MAX_LINES_PER_PAGE = 3;
         private const float PAGINATION_WIDTH_EPSILON = 0.5f;
+        private const float MAP_SPEAKER_FONT_SIZE = 38f;
+        private const float MAP_BODY_FONT_SIZE = 34f;
+        private const float MAP_INTERACT_PROMPT_FONT_SIZE = 34f;
+        private const float MAP_CHOICE_FONT_SIZE = 36f;
 
         private static readonly Color PanelBg    = new Color32(0x06, 0x0e, 0x06, 0xE8);
         private static readonly Color BodyFg     = new Color32(0xc8, 0xd4, 0xc8, 0xFF);
@@ -88,7 +93,10 @@ namespace DialogueSystem.UI
 
         private void Awake()
         {
+            dialogueFont = RuntimeFontLibrary.BreeSerifRegularOr(dialogueFont);
+            ConfigureDialogueCanvasScaler();
             ApplyMapStyle();
+            HideUnwiredContinueIndicators();
             dialoguePanel.SetActive(false);
             if (continueIndicator) continueIndicator.gameObject.SetActive(false);
             if (interactPromptRoot) interactPromptRoot.SetActive(false);
@@ -352,7 +360,7 @@ namespace DialogueSystem.UI
             if (dialoguePanel != null)
             {
                 SetRect(dialoguePanel.transform as RectTransform,
-                    new Vector2(0.25f, 0.035f), new Vector2(0.75f, 0.29f));
+                    new Vector2(0.20f, 0.035f), new Vector2(0.80f, 0.341f));
 
                 var panelImage = dialoguePanel.GetComponent<Image>();
                 if (panelImage != null)
@@ -365,18 +373,18 @@ namespace DialogueSystem.UI
                 portraitImage.gameObject.SetActive(false);
             }
 
-            ConfigureText(speakerNameText, 28f, FontStyles.Bold,
+            ConfigureText(speakerNameText, MAP_SPEAKER_FONT_SIZE, FontStyles.Bold,
                 TextAlignmentOptions.Left,
-                new Vector2(0.055f, 0.70f), new Vector2(0.945f, 0.93f));
+                new Vector2(0.055f, 0.68f), new Vector2(0.945f, 0.94f));
 
-            ConfigureText(dialogueBodyText, 24f, FontStyles.Normal,
+            ConfigureText(dialogueBodyText, MAP_BODY_FONT_SIZE, FontStyles.Normal,
                 TextAlignmentOptions.Left,
-                new Vector2(0.055f, 0.12f), new Vector2(0.945f, 0.69f));
+                new Vector2(0.055f, 0.10f), new Vector2(0.945f, 0.66f));
 
             if (dialogueBodyText != null)
             {
                 dialogueBodyText.color = BodyFg;
-                dialogueBodyText.lineSpacing = 3f;
+                dialogueBodyText.lineSpacing = 6f;
                 dialogueBodyText.textWrappingMode = TextWrappingModes.Normal;
                 dialogueBodyText.overflowMode = TextOverflowModes.Truncate;
                 dialogueBodyText.maxVisibleLines = MAX_LINES_PER_PAGE;
@@ -385,13 +393,13 @@ namespace DialogueSystem.UI
             if (interactPromptRoot != null)
             {
                 SetRect(interactPromptRoot.transform as RectTransform,
-                    new Vector2(0.34f, 0.72f), new Vector2(0.66f, 0.82f));
+                    new Vector2(0.22f, 0.66f), new Vector2(0.78f, 0.84f));
             }
 
             if (interactPromptText != null)
             {
                 if (dialogueFont != null) interactPromptText.font = dialogueFont;
-                interactPromptText.fontSize = 26f;
+                interactPromptText.fontSize = MAP_INTERACT_PROMPT_FONT_SIZE;
                 interactPromptText.color = Color.white;
                 interactPromptText.fontStyle = FontStyles.Bold;
                 interactPromptText.alignment = TextAlignmentOptions.Center;
@@ -402,12 +410,54 @@ namespace DialogueSystem.UI
 
             if (dialoguePanel != null && dialoguePanel.transform.parent != null)
                 choicesContainer.SetParent(dialoguePanel.transform.parent, false);
-            SetRect(choicesContainer as RectTransform,
-                new Vector2(0.25f, 0.32f), new Vector2(0.75f, 0.72f));
 
             IndoorDialogueChoiceStyle.ConfigureContainer(choicesContainer.gameObject);
+            SetRect(choicesContainer as RectTransform,
+                new Vector2(0.20f, 0.30f), new Vector2(0.80f, 0.76f));
+
+            var layout = choicesContainer.GetComponent<VerticalLayoutGroup>();
+            if (layout != null)
+                layout.spacing = 18f;
 
             choicesContainer.gameObject.SetActive(false);
+        }
+
+        private void ConfigureDialogueCanvasScaler()
+        {
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas == null)
+                return;
+
+            var scaler = canvas.GetComponent<CanvasScaler>();
+            if (scaler == null)
+                scaler = canvas.gameObject.AddComponent<CanvasScaler>();
+
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+            scaler.matchWidthOrHeight = 0.5f;
+        }
+
+        private void HideUnwiredContinueIndicators()
+        {
+            if (continueIndicator != null || dialoguePanel == null)
+                return;
+
+            var buttons = dialoguePanel.GetComponentsInChildren<Button>(true);
+            foreach (var button in buttons)
+            {
+                if (button == null)
+                    continue;
+
+                var buttonName = button.gameObject.name;
+                var label = button.GetComponentInChildren<TMP_Text>(true);
+                var labelText = label != null ? label.text : string.Empty;
+                if (buttonName.IndexOf("ContinueIndicat", StringComparison.OrdinalIgnoreCase) >= 0
+                    || string.Equals(labelText, "Continue", StringComparison.OrdinalIgnoreCase))
+                {
+                    button.gameObject.SetActive(false);
+                }
+            }
         }
 
         private void ApplyChoiceStyle(Button button)
@@ -415,6 +465,21 @@ namespace DialogueSystem.UI
             if (button == null) return;
 
             IndoorDialogueChoiceStyle.ApplyButton(button, dialogueFont);
+
+            var layout = button.GetComponent<LayoutElement>();
+            if (layout != null)
+            {
+                layout.minHeight = 88f;
+                layout.preferredHeight = 98f;
+            }
+
+            var label = button.GetComponentInChildren<TMP_Text>();
+            if (label != null)
+            {
+                label.fontSize = MAP_CHOICE_FONT_SIZE;
+                label.fontStyle = FontStyles.Normal;
+                label.margin = new Vector4(28f, 10f, 28f, 10f);
+            }
         }
 
         private void ConfigureText(TMP_Text text, float fontSize, FontStyles style,
@@ -463,7 +528,7 @@ namespace DialogueSystem.UI
                 return "???";
 
             var localization = GetLocalizationManager();
-            return localization != null && localization.characterNameTable != null
+            return localization != null && localization.HasCharacterNameTable
                 ? localization.GetCharacterName(speaker.characterName)
                 : speaker.characterName;
         }
@@ -474,7 +539,7 @@ namespace DialogueSystem.UI
                 return node.literalText;
 
             var localization = GetLocalizationManager();
-            return localization != null && localization.dialogueTextTable != null
+            return localization != null && localization.HasDialogueTextTable
                 ? localization.GetDialogueText(node.textKey)
                 : node.textKey ?? string.Empty;
         }
@@ -482,7 +547,7 @@ namespace DialogueSystem.UI
         private string ResolveDialogueChoice(string labelKey)
         {
             var localization = GetLocalizationManager();
-            return localization != null && localization.dialogueChoiceLabelTable != null
+            return localization != null && localization.HasDialogueChoiceLabelTable
                 ? localization.GetDialogueChoice(labelKey)
                 : labelKey ?? string.Empty;
         }

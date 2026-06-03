@@ -1,5 +1,6 @@
 using TMPro;
 using Otowa.IndoorDialogue;
+using Otowa.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,6 +17,16 @@ namespace Otowa.Day3
 
     public class CinematicStripDialoguePlayer : MonoBehaviour
     {
+        private const float SUBTITLE_TOP = 0.23f;
+        private const float SUBTITLE_SEAM_OVERLAP = 0.006f;
+        private const float SUBTITLE_PORTRAIT_COVER = 0.065f;
+        private const float PRIMARY_PORTRAIT_Y_MIN = 0f;
+        private const float PRIMARY_PORTRAIT_Y_MAX = 1.01f;
+        private const float SECONDARY_PORTRAIT_Y_MIN = -0.05f;
+        private const float SECONDARY_PORTRAIT_Y_MAX = 0.96f;
+        private const float CENTERED_PORTRAIT_Y_MIN = -0.19f;
+        private const float CENTERED_PORTRAIT_Y_MAX = 1.07f;
+
         private GameObject _root;
         private Transform _stripTransform;
         private Image _stripBackground;
@@ -33,23 +44,30 @@ namespace Otowa.Day3
             if (_root != null)
                 return;
 
+            font = RuntimeFontLibrary.BreeSerifRegularOr(font);
+
             _root = CreateRect("CinematicStrip", canvasRoot, Vector2.zero, Vector2.one);
             var blackBackground = _root.AddComponent<Image>();
             blackBackground.color = Color.black;
 
-            var strip = CreateRect("PassengerStrip", _root.transform, new Vector2(0f, 0.23f), new Vector2(1f, 0.81f));
+            var strip = CreateRect("PassengerStrip", _root.transform, new Vector2(0f, SUBTITLE_TOP), new Vector2(1f, 0.81f));
             _stripTransform = strip.transform;
             _stripBackground = strip.AddComponent<Image>();
             _stripBackground.color = Color.white;
             _stripBackground.raycastTarget = false;
 
-            _rightPortrait = CreatePortrait("RightPortrait", strip.transform, new Vector2(0.34f, -0.03f), new Vector2(0.66f, 0.98f));
-            _secondaryRightPortrait = CreatePortrait("SecondaryRightPortrait", strip.transform, new Vector2(0.52f, -0.08f), new Vector2(0.78f, 0.93f));
+            _rightPortrait = CreatePortrait("RightPortrait", strip.transform, new Vector2(0.34f, PRIMARY_PORTRAIT_Y_MIN), new Vector2(0.66f, PRIMARY_PORTRAIT_Y_MAX));
+            _secondaryRightPortrait = CreatePortrait("SecondaryRightPortrait", strip.transform, new Vector2(0.52f, SECONDARY_PORTRAIT_Y_MIN), new Vector2(0.78f, SECONDARY_PORTRAIT_Y_MAX));
             _secondaryRightPortrait.enabled = false;
 
-            var subtitleBar = CreateRect("SubtitleBar", _root.transform, new Vector2(0f, 0f), new Vector2(1f, 0.23f));
+            var subtitleCover = CreateRect("SubtitlePortraitCover", _root.transform, new Vector2(0f, SUBTITLE_TOP), new Vector2(1f, SUBTITLE_TOP + SUBTITLE_PORTRAIT_COVER));
+            var subtitleCoverImage = subtitleCover.AddComponent<Image>();
+            subtitleCoverImage.color = Color.black;
+            subtitleCoverImage.raycastTarget = false;
+
+            var subtitleBar = CreateRect("SubtitleBar", _root.transform, new Vector2(0f, 0f), new Vector2(1f, SUBTITLE_TOP + SUBTITLE_SEAM_OVERLAP));
             var subtitleImage = subtitleBar.AddComponent<Image>();
-            subtitleImage.color = new Color(0f, 0f, 0f, 0.97f);
+            subtitleImage.color = Color.black;
 
             _speakerText = CreateText("Speaker", subtitleBar.transform, font, new Vector2(0.08f, 0.57f), new Vector2(0.80f, 0.91f));
             _speakerText.fontSize = 34f;
@@ -136,8 +154,8 @@ namespace Otowa.Day3
             SetPortrait(_secondaryRightPortrait, null);
 
             var rect = (RectTransform)_rightPortrait.transform;
-            rect.anchorMin = new Vector2(0.34f, -0.24f);
-            rect.anchorMax = new Vector2(0.66f, 1.02f);
+            rect.anchorMin = new Vector2(0.34f, CENTERED_PORTRAIT_Y_MIN);
+            rect.anchorMax = new Vector2(0.66f, CENTERED_PORTRAIT_Y_MAX);
         }
 
         public void PlayLine(string speaker, string text, CinematicStripPortraitFocus focus)
@@ -187,8 +205,12 @@ namespace Otowa.Day3
         private void SetPassengerLayout(bool paired)
         {
             var primaryRect = (RectTransform)_rightPortrait.transform;
-            primaryRect.anchorMin = paired ? new Vector2(0.22f, -0.03f) : new Vector2(0.34f, -0.03f);
-            primaryRect.anchorMax = paired ? new Vector2(0.52f, 0.98f) : new Vector2(0.66f, 0.98f);
+            primaryRect.anchorMin = paired ? new Vector2(0.22f, PRIMARY_PORTRAIT_Y_MIN) : new Vector2(0.34f, PRIMARY_PORTRAIT_Y_MIN);
+            primaryRect.anchorMax = paired ? new Vector2(0.52f, PRIMARY_PORTRAIT_Y_MAX) : new Vector2(0.66f, PRIMARY_PORTRAIT_Y_MAX);
+
+            var secondaryRect = (RectTransform)_secondaryRightPortrait.transform;
+            secondaryRect.anchorMin = new Vector2(0.52f, SECONDARY_PORTRAIT_Y_MIN);
+            secondaryRect.anchorMax = new Vector2(0.78f, SECONDARY_PORTRAIT_Y_MAX);
         }
 
         private static GameObject CreateRect(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax)

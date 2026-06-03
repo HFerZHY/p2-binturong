@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: JunkoPath
   m_EditorClassIdentifier: Assembly-CSharp::NPCPath
   waypoints:
-  - position: {x: -8.700955, y: -25.148973}
+  - position: {x: -9.013467, y: -19.074072}
     stopDuration: 2.2
-  - position: {x: -8.449466, y: -21.836397}
+  - position: {x: -9.158333, y: -14.519072}
     stopDuration: 1.94
-  - position: {x: -3.7764242, y: -24.024315}
+  - position: {x: -5.3542213, y: -16.844194}
     stopDuration: 0
   loop: 1

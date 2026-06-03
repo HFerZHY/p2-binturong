@@ -5,7 +5,9 @@ using Otowa.Audio;
 using Otowa.IndoorDialogue;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 namespace Otowa.Day3
@@ -35,6 +37,9 @@ namespace Otowa.Day3
         [SerializeField] private float _charactersPerSecond = 38f;
         [SerializeField] private float _fadeDuration = 0.65f;
 
+        private const string AdvancePrompt = "Click to continue  >";
+        private const string QuitButtonLabel = "thanks for playing";
+
         private static readonly Color SkyBg = new Color(0.025f, 0.08f, 0.22f, 1f);
         private static readonly Color SkyText = new Color(0.92f, 0.95f, 1f, 1f);
         private static readonly Color PromptText = new Color(0.62f, 0.76f, 0.95f, 0.90f);
@@ -55,13 +60,14 @@ namespace Otowa.Day3
             Silhouettes("And the revival of a village that had nearly been forgotten."),
             Silhouettes("All of it lives here."),
             Silhouettes("Here, in this one song. Otowa Blues."),
-            Credits("Thanks for playing!\n\nCS247G\nTeam Binturong\n\nOtowa Blues"),
+            Credits("CS247G\nTeam Binturong\n\nOtowa Blues"),
         };
 
         private CanvasGroup _fade;
         private Image _background;
         private TMP_Text _body;
         private TMP_Text _prompt;
+        private Button _quitButton;
         private RectTransform _fireworkLayer;
         private GameObject _silhouetteGrid;
         private IndoorDialogueTextPlayer _textPlayer;
@@ -94,15 +100,16 @@ namespace Otowa.Day3
             if (_inputLock || _finished || !WasAdvancePressed())
                 return;
 
-            if (Beats[_beatIndex].Phase == BeatPhase.Credits)
-            {
-                QuitGame();
-                return;
-            }
-
             if (_textPlayer.IsTyping)
             {
                 _textPlayer.Skip();
+                return;
+            }
+
+            if (Beats[_beatIndex].Phase == BeatPhase.Credits)
+            {
+                if (WasKeyboardConfirmPressed() && _quitButton != null && _quitButton.gameObject.activeSelf)
+                    QuitGame();
                 return;
             }
 
@@ -123,6 +130,8 @@ namespace Otowa.Day3
         {
             _finished = true;
             _prompt.gameObject.SetActive(false);
+            if (_quitButton != null)
+                _quitButton.gameObject.SetActive(false);
             GameAudioManager.Instance.StopSfxLoop(AudioId.Fireworks);
             GameAudioManager.Instance.StopBgm();
 
@@ -140,10 +149,23 @@ namespace Otowa.Day3
             var showSilhouettes = phase == BeatPhase.Silhouettes;
             _background.color = phase == BeatPhase.Sky ? SkyBg : Color.black;
             _silhouetteGrid.SetActive(showSilhouettes);
+            _prompt.text = phase == BeatPhase.Credits ? string.Empty : AdvancePrompt;
+            _prompt.gameObject.SetActive(false);
+            if (_quitButton != null)
+                _quitButton.gameObject.SetActive(false);
             _body.fontSize = phase == BeatPhase.Credits ? 62f : 37f;
             _body.lineSpacing = phase == BeatPhase.Credits ? 24f : 14f;
             _body.fontStyle = phase == BeatPhase.Credits ? FontStyles.Bold : FontStyles.Normal;
-            _textPlayer.Play(_body, Beats[index].Text);
+            _textPlayer.Play(_body, Beats[index].Text,
+                phase == BeatPhase.Credits ? ShowQuitButton : null);
+        }
+
+        private void ShowQuitButton()
+        {
+            _prompt.gameObject.SetActive(false);
+            _quitButton.gameObject.SetActive(true);
+            if (EventSystem.current != null)
+                EventSystem.current.SetSelectedGameObject(_quitButton.gameObject);
         }
 
         private IEnumerator CrossFadeTo(int next)
@@ -178,6 +200,8 @@ namespace Otowa.Day3
 
         private void BuildUi()
         {
+            EnsureEventSystem();
+
             var canvasObject = new GameObject("Day3FinaleCreditsCanvas",
                 typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(CanvasGroup));
             canvasObject.transform.SetParent(transform, false);
@@ -204,11 +228,16 @@ namespace Otowa.Day3
                 new Vector2(0.15f, 0.19f), new Vector2(0.85f, 0.81f));
             _body.lineSpacing = 14f;
 
-            _prompt = MakeText(canvasObject.transform, "Prompt", "Click to continue  >",
+            _prompt = MakeText(canvasObject.transform, "Prompt", AdvancePrompt,
                 22f, PromptText, TextAlignmentOptions.Center,
                 new Vector2(0.30f, 0.035f), new Vector2(0.70f, 0.095f));
             _prompt.characterSpacing = 4f;
             _prompt.gameObject.SetActive(false);
+
+            _quitButton = MakeButton(canvasObject.transform, "QuitButton", QuitButtonLabel,
+                new Vector2(0.39f, 0.035f), new Vector2(0.61f, 0.105f));
+            _quitButton.onClick.AddListener(QuitGame);
+            _quitButton.gameObject.SetActive(false);
         }
 
         private void BuildSilhouettes(Transform canvasRoot)
@@ -333,6 +362,37 @@ namespace Otowa.Day3
             return text;
         }
 
+        private Button MakeButton(Transform parent, string name, string label,
+                                  Vector2 anchorMin, Vector2 anchorMax)
+        {
+            var gameObject = MakeRect(parent, name, anchorMin, anchorMax);
+            var image = gameObject.AddComponent<Image>();
+            image.color = new Color(0.78f, 0.86f, 1f, 0.16f);
+            image.raycastTarget = true;
+
+            var button = gameObject.AddComponent<Button>();
+            button.targetGraphic = image;
+            button.transition = Selectable.Transition.ColorTint;
+            button.colors = new ColorBlock
+            {
+                normalColor = new Color(0.78f, 0.86f, 1f, 0.16f),
+                highlightedColor = new Color(0.78f, 0.86f, 1f, 0.28f),
+                pressedColor = new Color(0.78f, 0.86f, 1f, 0.42f),
+                selectedColor = new Color(0.78f, 0.86f, 1f, 0.30f),
+                disabledColor = new Color(0.78f, 0.86f, 1f, 0.07f),
+                colorMultiplier = 1f,
+                fadeDuration = 0.12f
+            };
+
+            var labelText = MakeText(gameObject.transform, "Label", label, 25f,
+                SkyText, TextAlignmentOptions.Center, Vector2.zero, Vector2.one);
+            labelText.fontStyle = FontStyles.Bold;
+            labelText.characterSpacing = 2f;
+            labelText.textWrappingMode = TextWrappingModes.NoWrap;
+
+            return button;
+        }
+
         private static Image MakeImage(Transform parent, string name, Color color,
                                        Vector2 anchorMin, Vector2 anchorMax)
         {
@@ -354,6 +414,19 @@ namespace Otowa.Day3
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
             return gameObject;
+        }
+
+        private static void EnsureEventSystem()
+        {
+            var eventSystem = EventSystem.current;
+            if (eventSystem == null)
+            {
+                new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+                return;
+            }
+
+            if (eventSystem.GetComponent<InputSystemUIInputModule>() == null)
+                eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
         }
 
         private static Sprite CreateGlowSprite(int radius)
@@ -386,6 +459,14 @@ namespace Otowa.Day3
                                   && (keyboard.spaceKey.wasPressedThisFrame
                                       || keyboard.enterKey.wasPressedThisFrame);
             return mouseClicked || keyboardPressed;
+        }
+
+        private static bool WasKeyboardConfirmPressed()
+        {
+            var keyboard = Keyboard.current;
+            return keyboard != null
+                   && (keyboard.spaceKey.wasPressedThisFrame
+                       || keyboard.enterKey.wasPressedThisFrame);
         }
 
         private static Beat Sky(string text) => new Beat(BeatPhase.Sky, text);

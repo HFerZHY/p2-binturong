@@ -1,4 +1,5 @@
 using System;
+using Otowa.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -43,6 +44,7 @@ namespace Otowa.IndoorDialogue
         public static Button AddButton(Transform parent, string name, string label,
                                        TMP_FontAsset font, Action action)
         {
+            font = RuntimeFontLibrary.BreeSerifRegularOr(font);
             var buttonObject = new GameObject(name, typeof(RectTransform));
             buttonObject.transform.SetParent(parent, false);
             var rect = (RectTransform)buttonObject.transform;
@@ -73,6 +75,7 @@ namespace Otowa.IndoorDialogue
         public static void ApplyButton(Button button, TMP_FontAsset font)
         {
             if (button == null) return;
+            font = RuntimeFontLibrary.BreeSerifRegularOr(font);
 
             var image = button.GetComponent<Image>();
             if (image != null)

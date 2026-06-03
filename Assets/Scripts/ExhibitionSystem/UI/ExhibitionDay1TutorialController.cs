@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Otowa.Audio;
+using Otowa.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -229,6 +230,7 @@ namespace ExhibitionSystem.UI
             label.color = Color.white;
             label.enableWordWrapping = true;
             label.raycastTarget = false;
+            RuntimeFontLibrary.ApplyBreeSerif(label);
             return label;
         }
 

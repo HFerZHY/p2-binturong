@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Otowa.Audio;
 using Otowa.IndoorDialogue;
+using Otowa.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -73,6 +74,8 @@ namespace Otowa.Day3
 
         private void Awake()
         {
+            _font = RuntimeFontLibrary.BreeSerifRegularOr(_font);
+            _centeredFont = RuntimeFontLibrary.BreeSerifRegularOr(_centeredFont);
             BuildBeats();
             LoadResources();
             BuildInterface();

@@ -1,6 +1,7 @@
 using System.Collections;
 using Otowa.Audio;
 using Otowa.IndoorDialogue;
+using Otowa.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -66,6 +67,7 @@ namespace Otowa.Day3
         [SerializeField] private float _nightStationTransitionDuration = 1.1f;
         [SerializeField] private float _runLeadInDuration = 3f;
         [SerializeField] private float _arrivalLeadInDuration = 3f;
+        [SerializeField] private float _whiteLightFadeDuration = 2f;
 
         private static readonly Beat[] Beats =
         {
@@ -111,11 +113,12 @@ namespace Otowa.Day3
         private Sprite _inspectorPortrait;
         private Sprite[] _passengerPortraits;
         private int _beatIndex = -1;
-        private bool _inputLock;
+        private bool _inputLock = true;
         private bool _loadingScene;
 
         private void Awake()
         {
+            _font = RuntimeFontLibrary.BreeSerifRegularOr(_font);
             LoadResources();
             BuildInterface();
             StartCoroutine(BeginSequence());
@@ -137,6 +140,7 @@ namespace Otowa.Day3
 
         private IEnumerator BeginSequence()
         {
+            _inputLock = true;
             _fade.alpha = 0f;
             _background.color = Color.black;
             GameAudioManager.Instance.StopSfxLoop(AudioId.Wind, 0.35f);
@@ -145,8 +149,9 @@ namespace Otowa.Day3
             GameAudioManager.Instance.PlaySfxOnce(AudioId.WhistleIn);
             yield return new WaitForSeconds(_arrivalLeadInDuration);
             yield return FadeCanvas(0f, 1f, 0.40f);
-            yield return FadeBackground(Color.black, Color.white, 0.55f);
+            yield return FadeBackground(Color.black, Color.white, _whiteLightFadeDuration);
             AdvanceBeat();
+            _inputLock = false;
         }
 
         private void AdvanceBeat()
@@ -324,6 +329,7 @@ namespace Otowa.Day3
             prompt.alignment = TextAlignmentOptions.Center;
             prompt.color = new Color(0.27f, 0.34f, 0.44f, 0.90f);
             UseFont(prompt, _centeredFont);
+            prompt.gameObject.SetActive(false);
 
             _whiteNarrationPlayer = gameObject.AddComponent<IndoorDialogueTextPlayer>();
             _whiteNarrationPlayer.Initialize(prompt, _charactersPerSecond);
@@ -373,7 +379,8 @@ namespace Otowa.Day3
         {
             var gameObject = MakeRect(name, parent, anchorMin, anchorMax);
             var text = gameObject.AddComponent<TextMeshProUGUI>();
-            text.font = _font;
+            if (_centeredFont != null)
+                text.font = _centeredFont;
             text.textWrappingMode = TextWrappingModes.Normal;
             text.raycastTarget = false;
             return text;

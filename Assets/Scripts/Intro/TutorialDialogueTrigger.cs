@@ -23,7 +23,7 @@ namespace Otowa.Intro
         private static readonly string[] GuideMessages =
         {
             "Move with <b>WASD</b>.\n\nClick dialogue boxes to continue.",
-            "Stand near a person or object.\n\nPress <b>Space</b> to interact.",
+            "Stand near a building entrance.\n\nPress <b>Space</b> to interact.",
             "Open the map with <b>Tab</b>.\n\nYou can also click the map button in the top-left corner.",
         };
 

@@ -8,6 +8,7 @@ using TMPro;
 using ExhibitionSystem.Data;
 using Otowa.Inquiry;
 using Otowa.Audio;
+using Otowa.UI;
 
 /// <summary>
 /// Persistent singleton — survives scene loads via DontDestroyOnLoad.
@@ -138,6 +139,7 @@ public class InspirationManager : MonoBehaviour
     private GameObject _journalGuideGo;
     private bool _journalGuidePending;
     private bool _journalGuideShown;
+    private bool _journalEntryPulseOnly;
 
     private readonly Queue<ToastRequest> _toastQueue = new();
     private readonly Queue<int> _themeUnlockQueue = new();
@@ -209,6 +211,7 @@ public class InspirationManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         LoadGameData();
         BuildUI();
+        ApplySceneJournalFont(SceneManager.GetActiveScene().name);
     }
 
     private void OnEnable()
@@ -489,6 +492,27 @@ public class InspirationManager : MonoBehaviour
         _font = font;
         foreach (var tmp in GetComponentsInChildren<TMP_Text>(true))
             tmp.font = font;
+        ApplyInspirationToastFont();
+    }
+
+    private void ApplySceneJournalFont(string sceneName)
+    {
+        if (!UsesBreeSerifJournalFont(sceneName))
+            return;
+
+        SetFont(RuntimeFontLibrary.BreeSerifRegular);
+    }
+
+    private static bool UsesBreeSerifJournalFont(string sceneName)
+    {
+        return sceneName == "Day1World"
+               || sceneName == "Day2World";
+    }
+
+    private void ApplyInspirationToastFont()
+    {
+        RuntimeFontLibrary.ApplyBreeSerif(_popupTitle);
+        RuntimeFontLibrary.ApplyBreeSerif(_popupBody);
     }
 
     public void SetExternalToggleLocked(bool locked)
@@ -528,10 +552,37 @@ public class InspirationManager : MonoBehaviour
             return;
 
         _journalGuidePending = true;
+        _journalEntryPulseOnly = false;
         StartCoroutine(RunToast(_hintGo, _hintCG, 0.25f, 3.00f, 0.40f));
         if (_journalOpen)
         {
             ShowJournalGuideIfPending();
+            return;
+        }
+
+        _journalEntryPulse = StartCoroutine(PulseJournalEntry());
+    }
+
+    /// <summary>
+    /// Pulse the Journal entry until it is opened, without showing the E-key hint
+    /// or the inquiry guide overlay.
+    /// </summary>
+    public void BeginJournalEntryPulseOnly(bool restart = false)
+    {
+        if (restart)
+            StopJournalEntryPulse();
+
+        if (_journalGuidePending)
+            return;
+
+        _journalEntryPulseOnly = true;
+        _journalGuidePending = true;
+        if (_journalGuideGo != null)
+            _journalGuideGo.SetActive(false);
+
+        if (_journalOpen)
+        {
+            StopJournalEntryPulse();
             return;
         }
 
@@ -620,6 +671,7 @@ public class InspirationManager : MonoBehaviour
     {
         if (_journalOpen)
             SetJournalOpen(false);
+        ApplySceneJournalFont(scene.name);
         RefreshAllItemSlots();
         RefreshJournalEntryVisibility(scene.name);
     }
@@ -669,6 +721,7 @@ public class InspirationManager : MonoBehaviour
     private void StopJournalEntryPulse()
     {
         _journalGuidePending = false;
+        _journalEntryPulseOnly = false;
         if (_journalEntryPulse != null)
         {
             StopCoroutine(_journalEntryPulse);
@@ -690,7 +743,16 @@ public class InspirationManager : MonoBehaviour
 
     private void ShowJournalGuideIfPending()
     {
-        if (!_journalGuidePending || _journalGuideShown)
+        if (!_journalGuidePending)
+            return;
+
+        if (_journalEntryPulseOnly)
+        {
+            StopJournalEntryPulse();
+            return;
+        }
+
+        if (_journalGuideShown)
             return;
 
         StopJournalEntryPulse();
@@ -740,6 +802,7 @@ public class InspirationManager : MonoBehaviour
         while (_toastQueue.Count > 0)
         {
             var request = _toastQueue.Dequeue();
+            ApplyInspirationToastFont();
             _popupTitle.text = "INSPIRATION UNLOCKED";
             _popupBody.text  = request.Body;
             yield return StartCoroutine(RunInspirationToast(request.HoldDuration));
@@ -988,6 +1051,7 @@ public class InspirationManager : MonoBehaviour
             25f, PopupBody, TextAlignmentOptions.Center,
             new Vector2(0.03f, 0.05f), new Vector2(0.97f, 0.63f));
         _popupBody.lineSpacing = 4f;
+        ApplyInspirationToastFont();
 
         _popupGo.SetActive(false);
     }
@@ -1106,7 +1170,14 @@ public class InspirationManager : MonoBehaviour
         _themeUnlockPopupTitle.text = theme != null ? theme.title : string.Empty;
         _themeUnlockPopupVisible = true;
         _themeUnlockPopupGo.SetActive(true);
+        PlayThemeUnlockPopupSfx(SceneManager.GetActiveScene().name);
         RefreshJournalEntryVisibility(SceneManager.GetActiveScene().name);
+    }
+
+    private static void PlayThemeUnlockPopupSfx(string sceneName)
+    {
+        if (sceneName == "Day1World" || sceneName == "Day2World")
+            GameAudioManager.Instance.PlaySfxOnce(AudioId.Jingle);
     }
 
     private void DismissThemeUnlockPopup()

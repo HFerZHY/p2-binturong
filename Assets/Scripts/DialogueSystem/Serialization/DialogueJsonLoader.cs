@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using DialogueSystem.Data;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine.Serialization;
 
 namespace DialogueSystem.Serialization
@@ -13,6 +15,7 @@ namespace DialogueSystem.Serialization
     /// </summary>
     public static class DialogueJsonLoader
     {
+#if UNITY_EDITOR
         [MenuItem("Tools/DialogueGraph/Create From JSON")]
         public static void CreateFromJson()
         {
@@ -46,6 +49,7 @@ namespace DialogueSystem.Serialization
                 AssetDatabase.Refresh();
             }
         }
+#endif
         
         // ── Load from Resources ───────────────────────────────────────────────
 

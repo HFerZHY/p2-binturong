@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Otowa.Audio;
 using Otowa.IndoorDialogue;
+using Otowa.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -77,6 +78,7 @@ namespace Otowa.Inquiry
         private void Awake()
         {
             Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
+            serifFont = RuntimeFontLibrary.BreeSerifRegularOr(serifFont);
             BuildUI();
             _textPlayer = gameObject.AddComponent<IndoorDialogueTextPlayer>();
             _textPlayer.Initialize(_promptText, typewriterSpeed);

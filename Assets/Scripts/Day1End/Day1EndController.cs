@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Otowa.Audio;
 using Otowa.IndoorDialogue;
+using Otowa.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -17,6 +18,7 @@ namespace Otowa.Day1End
         [SerializeField] private string nextSceneName = "ExhibitionDay2Scene";
         [SerializeField] private float typewriterSpeed = 38f;
         [SerializeField] private float fadeDuration = 0.45f;
+        [SerializeField] private float titleClickHoldDuration = 2f;
 
         [Header("Font")]
         [SerializeField] private TMP_FontAsset serifFont;
@@ -29,6 +31,10 @@ namespace Otowa.Day1End
         private static readonly Color WakeText = new(0.20f, 0.18f, 0.15f, 1f);
         private static readonly Color RinText = new(0.30f, 0.43f, 0.48f, 1f);
         private static readonly Color PromptText = new(0.40f, 0.54f, 0.58f, 0.92f);
+        private static readonly Color CinematicSpeakerText = new(0.97f, 0.79f, 0.47f, 1f);
+        private static readonly Color CinematicPromptText = new(1f, 1f, 1f, 0.66f);
+
+        private const string CinematicBackgroundResource = "Exhibitions/Icons/passenger-background";
 
         private static readonly Beat[] Beats =
         {
@@ -109,6 +115,10 @@ namespace Otowa.Day1End
                 if (_dreamBrightenCoroutine == null)
                     _dreamBrightenCoroutine = StartCoroutine(BrightenDreamThenShowWhistle());
             }
+            else if (Beats[_beatIndex].Phase == BeatPhase.Title && Beats[next].Phase == BeatPhase.Wake)
+            {
+                StartCoroutine(TransitionFromTitleToWake(next));
+            }
             else
                 ShowBeat(next);
         }
@@ -120,10 +130,11 @@ namespace Otowa.Day1End
             var beat = Beats[index];
             bool isDream = beat.Phase == BeatPhase.Dream;
             bool isTitle = beat.Phase == BeatPhase.Title;
-            _background.color = isDream ? DreamBg : isTitle ? TitleBg : WakeBg;
+            _background.color = isDream ? DreamBg : isTitle ? TitleBg : Color.black;
             _dreamPanel.SetActive(isDream);
             _titlePanel.SetActive(isTitle);
             _wakePanel.SetActive(!isDream && !isTitle);
+            ConfigurePromptForCinematic(!isDream && !isTitle);
 
             if (isDream)
             {
@@ -178,6 +189,19 @@ namespace Otowa.Day1End
             _background.color = BrightDreamBg;
             ShowBeat(3);
             _dreamBrightenCoroutine = null;
+            _inputLock = false;
+        }
+
+        private IEnumerator TransitionFromTitleToWake(int nextBeatIndex)
+        {
+            _inputLock = true;
+            _textPlayer.SetPromptVisible(false);
+
+            yield return new WaitForSeconds(titleClickHoldDuration);
+            yield return FadeTo(0f);
+            ShowBeat(nextBeatIndex);
+            yield return FadeTo(1f);
+
             _inputLock = false;
         }
 
@@ -245,13 +269,22 @@ namespace Otowa.Day1End
             _titlePanel.SetActive(false);
 
             _wakePanel = MakeRect(canvasObject.transform, "WakePanel", Vector2.zero, Vector2.one);
-            MakeText(_wakePanel.transform, "Speaker", "Rin",
-                42f, RinText, TextAlignmentOptions.Left,
-                new Vector2(0.19f, 0.66f), new Vector2(0.81f, 0.78f));
-            _wakeBody = MakeText(_wakePanel.transform, "WakeBody", string.Empty,
-                36f, WakeText, TextAlignmentOptions.Left,
-                new Vector2(0.19f, 0.30f), new Vector2(0.81f, 0.65f));
+            var wakeStrip = MakeImage(_wakePanel.transform, "WakeBackground",
+                Color.white, new Vector2(0f, 0.23f), new Vector2(1f, 0.81f));
+            wakeStrip.sprite = LoadSprite(CinematicBackgroundResource);
+
+            var wakeSubtitleBar = MakeRect(_wakePanel.transform, "WakeSubtitleBar",
+                Vector2.zero, new Vector2(1f, 0.236f));
+            MakeImage(wakeSubtitleBar.transform, "Background", Color.black, Vector2.zero, Vector2.one);
+            var wakeSpeaker = MakeText(wakeSubtitleBar.transform, "Speaker", "Rin",
+                34f, CinematicSpeakerText, TextAlignmentOptions.Left,
+                new Vector2(0.08f, 0.57f), new Vector2(0.80f, 0.91f));
+            _wakeBody = MakeText(wakeSubtitleBar.transform, "WakeBody", string.Empty,
+                31f, Color.white, TextAlignmentOptions.Left,
+                new Vector2(0.08f, 0.15f), new Vector2(0.80f, 0.63f));
             _wakeBody.lineSpacing = 14f;
+            RuntimeFontLibrary.ApplyBreeSerif(wakeSpeaker, serifFont);
+            RuntimeFontLibrary.ApplyBreeSerif(_wakeBody, serifFont);
             _wakePanel.SetActive(false);
 
             _prompt = MakeText(canvasObject.transform, "Prompt", "Click to continue  >",
@@ -259,6 +292,37 @@ namespace Otowa.Day1End
                 new Vector2(0.30f, 0.035f), new Vector2(0.70f, 0.095f));
             _prompt.characterSpacing = 4f;
             _prompt.gameObject.SetActive(false);
+        }
+
+        private void ConfigurePromptForCinematic(bool cinematic)
+        {
+            var rect = (RectTransform)_prompt.transform;
+            if (cinematic)
+            {
+                rect.anchorMin = new Vector2(0.78f, 0.009f);
+                rect.anchorMax = new Vector2(0.97f, 0.052f);
+                _prompt.fontSize = 18f;
+                _prompt.fontStyle = FontStyles.Italic;
+                _prompt.alignment = TextAlignmentOptions.BottomRight;
+                _prompt.color = CinematicPromptText;
+                _prompt.characterSpacing = 0f;
+                RuntimeFontLibrary.ApplyBreeSerif(_prompt, serifFont);
+            }
+            else
+            {
+                rect.anchorMin = new Vector2(0.30f, 0.035f);
+                rect.anchorMax = new Vector2(0.70f, 0.095f);
+                _prompt.fontSize = 22f;
+                _prompt.fontStyle = FontStyles.Normal;
+                _prompt.alignment = TextAlignmentOptions.Center;
+                _prompt.color = PromptText;
+                _prompt.characterSpacing = 4f;
+                if (serifFont != null)
+                    _prompt.font = serifFont;
+            }
+
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
         }
 
         private void StartDreamParticles()
@@ -412,6 +476,26 @@ namespace Otowa.Day1End
             texture.SetPixels32(pixels);
             texture.Apply();
             return Sprite.Create(texture, new Rect(0f, 0f, size, size), new Vector2(0.5f, 0.5f), size);
+        }
+
+        private static Sprite LoadSprite(string resourcePath)
+        {
+            var sprites = Resources.LoadAll<Sprite>(resourcePath);
+            if (sprites.Length > 0)
+                return sprites[0];
+
+            var texture = Resources.Load<Texture2D>(resourcePath);
+            if (texture == null)
+            {
+                Debug.LogWarning($"[Day1EndController] Missing sprite resource: {resourcePath}");
+                return null;
+            }
+
+            return Sprite.Create(
+                texture,
+                new Rect(0f, 0f, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f),
+                100f);
         }
 
         private static Beat Dream(string text) => new(true, text);

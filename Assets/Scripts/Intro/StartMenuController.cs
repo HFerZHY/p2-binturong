@@ -1,5 +1,6 @@
 using System.Collections;
 using TMPro;
+using Otowa.Audio;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
@@ -15,10 +16,11 @@ namespace Otowa.Intro
         [SerializeField] private float _fadeDuration = 0.65f;
 
         private static readonly Color Background = new Color32(0x05, 0x18, 0x20, 0xFF);
-        private static readonly Color Panel = new Color32(0x07, 0x23, 0x2c, 0xE8);
-        private static readonly Color PanelHover = new Color32(0x0d, 0x39, 0x45, 0xFF);
+        private static readonly Color Panel = new Color32(0x21, 0x9b, 0xd8, 0xF2);
+        private static readonly Color PanelHover = new Color32(0x46, 0xc7, 0xff, 0xFF);
+        private static readonly Color PanelPressed = new Color32(0x12, 0x69, 0xa4, 0xFF);
         private static readonly Color Title = new Color32(0xc8, 0xdc, 0xda, 0xFF);
-        private static readonly Color Accent = new Color32(0x78, 0xb5, 0xb2, 0xFF);
+        private static readonly Color ButtonText = new Color32(0xf0, 0xfb, 0xff, 0xFF);
 
         private CanvasGroup _fade;
         private Button _startButton;
@@ -34,6 +36,7 @@ namespace Otowa.Intro
         private void Start()
         {
             _fade.alpha = 0f;
+            GameAudioManager.Instance.PlayBgm(AudioId.OtowaBlues, fadeIn: 0.45f);
             StartCoroutine(FadeTo(1f));
         }
 
@@ -49,6 +52,7 @@ namespace Otowa.Intro
 
         private IEnumerator FadeAndLoad()
         {
+            GameAudioManager.Instance.StopBgm(0.35f);
             yield return FadeTo(0f);
             SceneManager.LoadScene(_nextSceneName);
         }
@@ -99,13 +103,8 @@ namespace Otowa.Intro
             title.fontStyle = FontStyles.Bold;
             title.characterSpacing = 17f;
 
-            var subtitle = MakeText(canvasObject.transform, "Subtitle", "A tale of the village",
-                24f, Accent, TextAlignmentOptions.Center,
-                new Vector2(0.20f, 0.57f), new Vector2(0.80f, 0.65f));
-            subtitle.characterSpacing = 7f;
-
             var buttonObject = MakeRect(canvasObject.transform, "StartButton",
-                new Vector2(0.39f, 0.22f), new Vector2(0.61f, 0.31f));
+                new Vector2(0.38f, 0.075f), new Vector2(0.62f, 0.185f));
             var buttonImage = buttonObject.AddComponent<Image>();
             buttonImage.color = Panel;
 
@@ -115,7 +114,7 @@ namespace Otowa.Intro
             {
                 normalColor = Color.white,
                 highlightedColor = PanelHover,
-                pressedColor = new Color(0.62f, 0.83f, 0.84f, 1f),
+                pressedColor = PanelPressed,
                 selectedColor = Color.white,
                 disabledColor = new Color(0.5f, 0.5f, 0.5f, 0.6f),
                 colorMultiplier = 1f,
@@ -124,7 +123,7 @@ namespace Otowa.Intro
             _startButton.onClick.AddListener(StartGame);
 
             var label = MakeText(buttonObject.transform, "Label", "START GAME",
-                30f, Title, TextAlignmentOptions.Center, Vector2.zero, Vector2.one);
+                34f, ButtonText, TextAlignmentOptions.Center, Vector2.zero, Vector2.one);
             label.fontStyle = FontStyles.Bold;
             label.characterSpacing = 6f;
         }

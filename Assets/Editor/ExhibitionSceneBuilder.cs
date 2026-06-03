@@ -1003,67 +1003,8 @@ public static class ExhibitionSceneBuilder
 
     private static Day2CompletionPopup CreateDay2CompletionPopup(Transform parent)
     {
-        var panelObj = CreateChild(parent, "Day2CompletionPopup");
-        Stretch(panelObj.GetComponent<RectTransform>(), 0);
-
-        var overlay = panelObj.AddComponent<Image>();
-        overlay.color = new Color(0f, 0f, 0f, 0.62f);
-        overlay.raycastTarget = true;
-
-        var cg = panelObj.AddComponent<CanvasGroup>();
-        cg.alpha = 0f;
-        cg.blocksRaycasts = false;
-        cg.interactable = false;
-
-        var windowObj = CreateChild(panelObj.transform, "Window");
-        var windowBg = windowObj.AddComponent<Image>();
-        windowBg.color = new Color(0.91f, 0.80f, 0.58f, 0.98f);
-        windowBg.raycastTarget = true;
-        var windowRt = windowObj.GetComponent<RectTransform>();
-        windowRt.anchorMin = new Vector2(0.5f, 0.5f);
-        windowRt.anchorMax = new Vector2(0.5f, 0.5f);
-        windowRt.pivot = new Vector2(0.5f, 0.5f);
-        windowRt.sizeDelta = new Vector2(620f, 330f);
-        windowRt.anchoredPosition = Vector2.zero;
-
-        var headline = CreateText(windowObj.transform, "Headline", "Exhibition Success", 40, FontStyles.Bold, TextAlignmentOptions.Center);
-        headline.color = new Color(0.25f, 0.13f, 0.06f, 1f);
-        var headlineRt = headline.GetComponent<RectTransform>();
-        headlineRt.anchorMin = new Vector2(0, 1);
-        headlineRt.anchorMax = new Vector2(1, 1);
-        headlineRt.pivot = new Vector2(0.5f, 1);
-        headlineRt.anchoredPosition = new Vector2(0, -54);
-        headlineRt.sizeDelta = new Vector2(-80, 58);
-
-        var body = CreateText(windowObj.transform, "Body", "Today's work is done.", 31, FontStyles.Bold, TextAlignmentOptions.Center);
-        body.color = new Color(0.31f, 0.16f, 0.06f, 1f);
-        body.textWrappingMode = TextWrappingModes.Normal;
-        var bodyRt = body.GetComponent<RectTransform>();
-        bodyRt.anchorMin = new Vector2(0, 1);
-        bodyRt.anchorMax = new Vector2(1, 1);
-        bodyRt.pivot = new Vector2(0.5f, 1);
-        bodyRt.anchoredPosition = new Vector2(0, -136);
-        bodyRt.sizeDelta = new Vector2(-92, 78);
-
-        var confirmObj = CreateButton(windowObj.transform, "ConfirmButton", "OK", 180);
-        var confirmRt = confirmObj.GetComponent<RectTransform>();
-        var confirmLayout = confirmObj.GetComponent<LayoutElement>();
-        if (confirmLayout != null)
-            Object.DestroyImmediate(confirmLayout);
-        confirmRt.anchorMin = new Vector2(0.5f, 0);
-        confirmRt.anchorMax = new Vector2(0.5f, 0);
-        confirmRt.pivot = new Vector2(0.5f, 0);
-        confirmRt.anchoredPosition = new Vector2(0, 38);
-        confirmRt.sizeDelta = new Vector2(180, 56);
-
-        var popup = panelObj.AddComponent<Day2CompletionPopup>();
-        SetPrivateField(popup, "_panel", panelObj);
-        SetPrivateField(popup, "_headlineText", headline);
-        SetPrivateField(popup, "_bodyText", body);
-        SetPrivateField(popup, "_confirmButton", confirmObj.GetComponent<Button>());
-        SetPrivateField(popup, "_canvasGroup", cg);
-
-        return popup;
+        var panelObj = new GameObject("Day2CompletionPopup");
+        return panelObj.AddComponent<Day2CompletionPopup>();
     }
 
     private static (ExhibitionManager, ExhibitionUIManager) CreateManagers(

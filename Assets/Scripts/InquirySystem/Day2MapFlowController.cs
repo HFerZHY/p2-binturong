@@ -252,6 +252,7 @@ namespace Otowa.Inquiry
             _playerMovement?.SetExternalMovementLocked(false);
             Day2InquiryProgress.Instance.UnlockFreeExploration();
             SetExplorationUiLocked(false);
+            InspirationManager.Instance.BeginJournalEntryPulseOnly();
             GameAudioManager.Instance.StopSfxLoop(AudioId.ForestAtmosphere, 0.3f);
             GameAudioManager.Instance.PlayBgm(AudioId.DayWalk, fadeIn: 0.45f);
             QueueAllInquiryThoughtIfReady();

@@ -9,6 +9,7 @@ using UnityEngine.EventSystems;
 using TMPro;
 using Otowa.Audio;
 using Otowa.IndoorDialogue;
+using Otowa.UI;
 
 namespace Otowa.Intro
 {
@@ -123,6 +124,7 @@ namespace Otowa.Intro
         private void Awake()
         {
             Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
+            serifFont = RuntimeFontLibrary.BreeSerifRegularOr(serifFont);
             BuildBeats();
             _beatIndex = new Dictionary<string, int>();
             for (int i = 0; i < _beats.Count; i++)
@@ -858,8 +860,10 @@ namespace Otowa.Intro
                 D("Rin",   false, "Haha... you two really are complete opposites.", id: "sake_merge"),
 
                 // ── Shared flavor revelation ──────────────────────────────────
-                D("Rin",   false, "But it's a bit strange. Whether it was the food or the sake just now, I tasted a very similar flavor in both."),
-                D("Rin",   true,  $"(Mr. Jiro's shichimi powder, Mr. Yuji's gold medal sake, and that specialty {ItemWord("herb")}...)", itemIconKeys: new[] { "herb" }),
+                D("Rin",   false, "However, it's a bit strange. Whether it was the food or the sake just now, I tasted a very similar flavor in both."),
+                D("Yuji",  false, "Oh? You've got a sharp palate."),
+                D("Yuji",  false, $"Whether it's my sake or his shichimi powder, we both added a kind of {ItemWord("herb")} unique to these mountains. Yep... this is the flavor of Otowa!", itemIconKeys: new[] { "herb" }),
+                D("Rin",   true,  "(Mr. Jiro's shichimi powder, Mr. Yuji's gold medal sake, and the specialty herb...)"),
                 D("Rin",   true,  "(I saw those things in the stationmaster's office. I thought they were junk. I never expected them to have stories like this.)"),
                 D("Rin",   true,  "(Well, I guess that sparked some <b>inspiration</b>...", unlocks: new[] { 10, 11, 12 }, id: "inspire_moment"),
 

@@ -1,6 +1,7 @@
 using System.Collections;
 using Otowa.Audio;
 using Otowa.IndoorDialogue;
+using Otowa.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -30,6 +31,10 @@ namespace Otowa.Day2End
         private static readonly Color MorningText = new(0.20f, 0.18f, 0.15f, 1f);
         private static readonly Color RinText = new(0.30f, 0.43f, 0.48f, 1f);
         private static readonly Color PromptText = new(0.62f, 0.72f, 0.82f, 0.92f);
+        private static readonly Color CinematicSpeakerText = new(0.97f, 0.79f, 0.47f, 1f);
+        private static readonly Color CinematicPromptText = new(1f, 1f, 1f, 0.66f);
+
+        private const string CinematicBackgroundResource = "Exhibitions/Icons/passenger-background";
 
         private static readonly Beat[] Beats =
         {
@@ -129,7 +134,7 @@ namespace Otowa.Day2End
             _narrationPanel.SetActive(!isMorning && !isTitle);
             _titlePanel.SetActive(isTitle);
             _morningPanel.SetActive(isMorning);
-            _prompt.color = isMorning ? RinText : PromptText;
+            ConfigurePromptForCinematic(isMorning);
 
             if (isTitle)
             {
@@ -244,13 +249,22 @@ namespace Otowa.Day2End
 
             _morningPanel = MakeRect(
                 canvasObject.transform, "MorningPanel", Vector2.zero, Vector2.one);
-            MakeText(_morningPanel.transform, "Speaker", "Rin",
-                42f, RinText, TextAlignmentOptions.Left,
-                new Vector2(0.19f, 0.66f), new Vector2(0.81f, 0.78f));
-            _morningBody = MakeText(_morningPanel.transform, "MorningBody", string.Empty,
-                36f, MorningText, TextAlignmentOptions.Left,
-                new Vector2(0.19f, 0.30f), new Vector2(0.81f, 0.65f));
+            var morningStrip = MakeImage(_morningPanel.transform, "MorningBackground",
+                Color.white, new Vector2(0f, 0.23f), new Vector2(1f, 0.81f));
+            morningStrip.sprite = LoadSprite(CinematicBackgroundResource);
+
+            var morningSubtitleBar = MakeRect(_morningPanel.transform, "MorningSubtitleBar",
+                Vector2.zero, new Vector2(1f, 0.236f));
+            MakeImage(morningSubtitleBar.transform, "Background", Color.black, Vector2.zero, Vector2.one);
+            var morningSpeaker = MakeText(morningSubtitleBar.transform, "Speaker", "Rin",
+                34f, CinematicSpeakerText, TextAlignmentOptions.Left,
+                new Vector2(0.08f, 0.57f), new Vector2(0.80f, 0.91f));
+            _morningBody = MakeText(morningSubtitleBar.transform, "MorningBody", string.Empty,
+                31f, Color.white, TextAlignmentOptions.Left,
+                new Vector2(0.08f, 0.15f), new Vector2(0.80f, 0.63f));
             _morningBody.lineSpacing = 14f;
+            RuntimeFontLibrary.ApplyBreeSerif(morningSpeaker, serifFont);
+            RuntimeFontLibrary.ApplyBreeSerif(_morningBody, serifFont);
             _morningPanel.SetActive(false);
 
             _prompt = MakeText(canvasObject.transform, "Prompt", "Click to continue  >",
@@ -258,6 +272,37 @@ namespace Otowa.Day2End
                 new Vector2(0.30f, 0.035f), new Vector2(0.70f, 0.095f));
             _prompt.characterSpacing = 4f;
             _prompt.gameObject.SetActive(false);
+        }
+
+        private void ConfigurePromptForCinematic(bool cinematic)
+        {
+            var rect = (RectTransform)_prompt.transform;
+            if (cinematic)
+            {
+                rect.anchorMin = new Vector2(0.78f, 0.009f);
+                rect.anchorMax = new Vector2(0.97f, 0.052f);
+                _prompt.fontSize = 18f;
+                _prompt.fontStyle = FontStyles.Italic;
+                _prompt.alignment = TextAlignmentOptions.BottomRight;
+                _prompt.color = CinematicPromptText;
+                _prompt.characterSpacing = 0f;
+                RuntimeFontLibrary.ApplyBreeSerif(_prompt, serifFont);
+            }
+            else
+            {
+                rect.anchorMin = new Vector2(0.30f, 0.035f);
+                rect.anchorMax = new Vector2(0.70f, 0.095f);
+                _prompt.fontSize = 22f;
+                _prompt.fontStyle = FontStyles.Normal;
+                _prompt.alignment = TextAlignmentOptions.Center;
+                _prompt.color = PromptText;
+                _prompt.characterSpacing = 4f;
+                if (serifFont != null)
+                    _prompt.font = serifFont;
+            }
+
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
         }
 
         private static Color BackgroundFor(BeatPhase phase)
@@ -268,7 +313,7 @@ namespace Otowa.Day2End
                 BeatPhase.Dark => DarkBg,
                 BeatPhase.Sleep => SleepBg,
                 BeatPhase.Title => SleepBg,
-                BeatPhase.Morning => MorningBg,
+                BeatPhase.Morning => Color.black,
                 _ => SleepBg,
             };
         }
@@ -317,6 +362,26 @@ namespace Otowa.Day2End
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
             return gameObject;
+        }
+
+        private static Sprite LoadSprite(string resourcePath)
+        {
+            var sprites = Resources.LoadAll<Sprite>(resourcePath);
+            if (sprites.Length > 0)
+                return sprites[0];
+
+            var texture = Resources.Load<Texture2D>(resourcePath);
+            if (texture == null)
+            {
+                Debug.LogWarning($"[Day2EndController] Missing sprite resource: {resourcePath}");
+                return null;
+            }
+
+            return Sprite.Create(
+                texture,
+                new Rect(0f, 0f, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f),
+                100f);
         }
 
         private static Beat Dusk(string text) => new(BeatPhase.Dusk, text);
