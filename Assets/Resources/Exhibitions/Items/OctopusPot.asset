@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59bba459f8de3b548a786ad00daa5442, type: 3}
   m_Name: OctopusPot
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
-  itemName: Octopus Pot
+  itemName: Pot
   nameKey: item_octopus_pot
   icon: {fileID: -4566218714791175793, guid: 22240dc1405325b4289aa3eb55ca5e1a, type: 3}
   iconScale: 0.85
   sortOrder: 13
-  description: A takotsubo octopus trap carrying a memory of summer dreams.
+  description: Still smells of the sea.
   descriptionKey: desc_octopus_pot
   isUnlocked: 1
   tags:

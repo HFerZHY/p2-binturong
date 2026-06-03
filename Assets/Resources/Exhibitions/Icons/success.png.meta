@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 93c3cc606b3d8454cbfbe4f52363b9de
+guid: b63fa10559e489748a86b2f096192602
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1980771383947531119
-    second: sake-7_0
+      213: -7217490356221040218
+    second: success_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -100,44 +100,44 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: sake-7_0
+      name: success_0
       rect:
         serializedVersion: 2
-        x: 88
-        y: 1
-        width: 329
-        height: 489
+        x: 28
+        y: 37
+        width: 522
+        height: 376
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
+      customData:
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 19c6c8ebbe2e284e0800000000000000
-      internalID: -1980771383947531119
+      spriteID: 6a923abc2c256db90800000000000000
+      internalID: -7217490356221040218
       vertices: []
-      indices: 
+      indices:
       edges: []
       weights: []
     outline: []
-    customData: 
+    customData:
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID:
     internalID: 0
     vertices: []
-    indices: 
+    indices:
     edges: []
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      sake-7_0: -1980771383947531119
-  mipmapLimitGroupName: 
+      success_0: -7217490356221040218
+  mipmapLimitGroupName:
   pSDRemoveMatte: 0
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+  userData:
+  assetBundleName:
+  assetBundleVariant:

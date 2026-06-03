@@ -4815,6 +4815,8 @@ MonoBehaviour:
   _runningText: In Progress...
   _retryText: Retry
   _lockedText: Start Exhibition
+  _missingItemsText: Place Items
+  _missingLabelsText: Choose Labels
 --- !u!224 &1522602807
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5153,6 +5155,7 @@ MonoBehaviour:
   _panel: {fileID: 1671752048}
   _titleText: {fileID: 583841598}
   _themeText: {fileID: 1719873040}
+  _targetItemIcon: {fileID: 0}
   _progressText: {fileID: 0}
   _hintText: {fileID: 1063602803}
   _hintBackground: {fileID: 0}
@@ -5164,8 +5167,6 @@ MonoBehaviour:
   _confirmButton: {fileID: 1766670925}
   _closeButton: {fileID: 1440128623}
   _canvasGroup: {fileID: 1671752050}
-  _hintNormalColor: {r: 0.12, g: 0.08, b: 0.05, a: 0.92}
-  _hintInvalidColor: {r: 0.72, g: 0.18, b: 0.14, a: 1}
 --- !u!225 &1671752050
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -5474,7 +5475,7 @@ RectTransform:
   m_GameObject: {fileID: 1735028368}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9497793, y: 0.9497793, z: 1}
+  m_LocalScale: {x: 0.9508611, y: 0.9508611, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 710883969433077921}
@@ -5682,6 +5683,10 @@ MonoBehaviour:
   - I'm not sure this belongs here.
   - This seems out of place.
   - Interesting, but not what I expected.
+  _labelNegativeComments:
+  - The exhibit belongs here, but this label seems off.
+  - I think this piece needs a different explanation.
+  - This exhibit fits the theme, but the label does not.
   _emptySlotComments:
   - There's nothing here to see...
   - This display case is empty.
@@ -7529,7 +7534,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -455.43, y: 136.1}
+  m_AnchoredPosition: {x: -461.4, y: 126.3}
   m_SizeDelta: {x: 145, y: 165}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2877843038805575757
@@ -7868,7 +7873,6 @@ MonoBehaviour:
   _ghostSize: {x: 80, y: 80}
   _highlightColor: {r: 1, g: 0.9, b: 0.5, a: 1}
   _highlightWidth: 4
-  _lockedAlpha: 0.5
 --- !u!114 &3544625596088433491
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7885,7 +7889,6 @@ MonoBehaviour:
   _ghostSize: {x: 80, y: 80}
   _highlightColor: {r: 1, g: 0.9, b: 0.5, a: 1}
   _highlightWidth: 4
-  _lockedAlpha: 0.5
 --- !u!114 &3544625596283793487
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7902,7 +7905,6 @@ MonoBehaviour:
   _ghostSize: {x: 80, y: 80}
   _highlightColor: {r: 1, g: 0.9, b: 0.5, a: 1}
   _highlightWidth: 4
-  _lockedAlpha: 0.5
 --- !u!114 &3544625596296903036
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7919,7 +7921,6 @@ MonoBehaviour:
   _ghostSize: {x: 80, y: 80}
   _highlightColor: {r: 1, g: 0.9, b: 0.5, a: 1}
   _highlightWidth: 4
-  _lockedAlpha: 0.5
 --- !u!114 &3544625596330217889
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7936,7 +7937,6 @@ MonoBehaviour:
   _ghostSize: {x: 80, y: 80}
   _highlightColor: {r: 1, g: 0.9, b: 0.5, a: 1}
   _highlightWidth: 4
-  _lockedAlpha: 0.5
 --- !u!114 &3544625596703168833
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7953,7 +7953,6 @@ MonoBehaviour:
   _ghostSize: {x: 80, y: 80}
   _highlightColor: {r: 1, g: 0.9, b: 0.5, a: 1}
   _highlightWidth: 4
-  _lockedAlpha: 0.5
 --- !u!114 &3544625597215209828
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7970,7 +7969,6 @@ MonoBehaviour:
   _ghostSize: {x: 80, y: 80}
   _highlightColor: {r: 1, g: 0.9, b: 0.5, a: 1}
   _highlightWidth: 4
-  _lockedAlpha: 0.5
 --- !u!114 &3544625597285959123
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7987,7 +7985,6 @@ MonoBehaviour:
   _ghostSize: {x: 80, y: 80}
   _highlightColor: {r: 1, g: 0.9, b: 0.5, a: 1}
   _highlightWidth: 4
-  _lockedAlpha: 0.5
 --- !u!114 &3544625597396652239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8004,7 +8001,6 @@ MonoBehaviour:
   _ghostSize: {x: 80, y: 80}
   _highlightColor: {r: 1, g: 0.9, b: 0.5, a: 1}
   _highlightWidth: 4
-  _lockedAlpha: 0.5
 --- !u!114 &3544625597417838069
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8021,7 +8017,6 @@ MonoBehaviour:
   _ghostSize: {x: 80, y: 80}
   _highlightColor: {r: 1, g: 0.9, b: 0.5, a: 1}
   _highlightWidth: 4
-  _lockedAlpha: 0.5
 --- !u!114 &3544625597433395101
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8038,7 +8033,6 @@ MonoBehaviour:
   _ghostSize: {x: 80, y: 80}
   _highlightColor: {r: 1, g: 0.9, b: 0.5, a: 1}
   _highlightWidth: 4
-  _lockedAlpha: 0.5
 --- !u!114 &3544625597576938871
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8055,7 +8049,6 @@ MonoBehaviour:
   _ghostSize: {x: 80, y: 80}
   _highlightColor: {r: 1, g: 0.9, b: 0.5, a: 1}
   _highlightWidth: 4
-  _lockedAlpha: 0.5
 --- !u!114 &3544625597636111429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8072,7 +8065,6 @@ MonoBehaviour:
   _ghostSize: {x: 80, y: 80}
   _highlightColor: {r: 1, g: 0.9, b: 0.5, a: 1}
   _highlightWidth: 4
-  _lockedAlpha: 0.5
 --- !u!114 &3544625597729590401
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8089,7 +8081,6 @@ MonoBehaviour:
   _ghostSize: {x: 80, y: 80}
   _highlightColor: {r: 1, g: 0.9, b: 0.5, a: 1}
   _highlightWidth: 4
-  _lockedAlpha: 0.5
 --- !u!114 &3544625597748865868
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8106,7 +8097,6 @@ MonoBehaviour:
   _ghostSize: {x: 80, y: 80}
   _highlightColor: {r: 1, g: 0.9, b: 0.5, a: 1}
   _highlightWidth: 4
-  _lockedAlpha: 0.5
 --- !u!114 &3544625597861460515
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8123,7 +8113,6 @@ MonoBehaviour:
   _ghostSize: {x: 80, y: 80}
   _highlightColor: {r: 1, g: 0.9, b: 0.5, a: 1}
   _highlightWidth: 4
-  _lockedAlpha: 0.5
 --- !u!222 &5343604196570191065
 CanvasRenderer:
   m_ObjectHideFlags: 0

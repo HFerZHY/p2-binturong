@@ -264,10 +264,7 @@ namespace ExhibitionSystem.UI
         public override void OnPointerEnter(PointerEventData eventData)
         {
             base.OnPointerEnter(eventData);
-
-            // Show tooltip for placed item
-            if (_placedItem != null && DraggableItem.CurrentlyDragging == null)
-                ItemTooltip.Instance?.Show(_placedItem, transform.position);
+            ItemTooltip.Instance?.Hide();
         }
 
         public override void OnPointerExit(PointerEventData eventData)
@@ -279,10 +276,10 @@ namespace ExhibitionSystem.UI
         public void OnPointerClick(PointerEventData eventData)
         {
             var manager = ExhibitionManager.Instance;
-            if (_placedItem == null ||
-                _isDragging ||
+            if (_isDragging ||
                 manager == null ||
                 manager.IsRunning ||
+                TutorialPopup.IsInspirationEditingBlocked ||
                 manager.IsSlotLocked(_slotIndex) ||
                 manager.IsSlotInspirationFixed(_slotIndex))
             {

@@ -17,7 +17,7 @@ MonoBehaviour:
   icon: {fileID: -7756818922074667314, guid: 8a614ac922fe3674ca416cee181fa63a, type: 3}
   iconScale: 1
   sortOrder: 1
-  description: A soft blue feather from a rare bird in the Otowa forest.
+  description: From the rare bird Rintaro longs to find.
   descriptionKey: desc_blue_feather
   isUnlocked: 1
   tags:

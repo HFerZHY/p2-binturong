@@ -17,7 +17,7 @@ MonoBehaviour:
   icon: {fileID: -4972458134454809669, guid: 805816f8b6afe8e4b8e6855774a70eca, type: 3}
   iconScale: 1
   sortOrder: 2
-  description: A trusty pair of binoculars often seen with Rintaro.
+  description: For birdwatching.
   descriptionKey: desc_binoculars
   isUnlocked: 1
   tags:

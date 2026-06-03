@@ -399,6 +399,8 @@ public class InspirationManager : MonoBehaviour
     /// Restore the Journal state established by the completed Day 1 route.
     /// This is intentionally silent: Day 2 should inherit known entries without
     /// replaying Day 1 unlock toasts when entered directly during development.
+    /// The first Day 2 Journal open must land on Items and skip the automatic
+    /// guide overlay; the '?' guide button remains available.
     /// </summary>
     public void SeedDay2JournalBaseline()
     {
@@ -418,6 +420,9 @@ public class InspirationManager : MonoBehaviour
             CompleteTheme(themeTitle, showPopup: false);
 
         _introduced = true;
+        _openInspirationsOnNextJournalOpen = false;
+        _forceItemsOnNextJournalOpen = true;
+        SuppressAutomaticJournalGuide();
     }
 
     private void SetInspirationUnlockedSilently(int id, bool unlocked)
@@ -591,13 +596,17 @@ public class InspirationManager : MonoBehaviour
         _journalGo.SetActive(_journalOpen);
         if (open)
         {
-            int tab = _forceItemsOnNextJournalOpen
+            bool forceItems = _forceItemsOnNextJournalOpen;
+            int tab = forceItems
                 ? 0
                 : requestedTab ?? (_openInspirationsOnNextJournalOpen ? 1 : 0);
             _forceItemsOnNextJournalOpen = false;
-            SwitchTab(tab);
-            if (consumePendingInspirationTab && tab == 1)
+            if (forceItems)
                 _openInspirationsOnNextJournalOpen = false;
+            else if (consumePendingInspirationTab && tab == 1)
+                _openInspirationsOnNextJournalOpen = false;
+
+            SwitchTab(tab);
             ShowJournalGuideIfPending();
         }
         else if (_journalGuideGo != null)
@@ -692,6 +701,14 @@ public class InspirationManager : MonoBehaviour
 
     private void DismissJournalGuide()
     {
+        if (_journalGuideGo != null)
+            _journalGuideGo.SetActive(false);
+    }
+
+    private void SuppressAutomaticJournalGuide()
+    {
+        StopJournalEntryPulse();
+        _journalGuideShown = true;
         if (_journalGuideGo != null)
             _journalGuideGo.SetActive(false);
     }

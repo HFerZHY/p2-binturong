@@ -18,7 +18,7 @@ public static class ItemIconUpdater
             ("amulet-4.png", "Amulet.asset", 1f),
             ("dango-5.png", "ThreeColorDango.asset", 1f),
             ("shichimi-6.png", "Shichimi.asset", 0.85f),
-            ("sake-7.png", "Sake.asset", 1.15f),
+            ("sake-7.png", "Sake.asset", 1f),
             ("herb-8.png", "Herbs.asset", 1f),
             ("fan-9.png", "BirdMask.asset", 1f),
             ("firework-10.png", "Fireworks.asset", 0.65f),

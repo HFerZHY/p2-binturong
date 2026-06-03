@@ -101,8 +101,21 @@ namespace DialogueSystem.Player
             // Otherwise, interact with the closest valid target
             if (_closestInteractable != null && _closestInteractable.CanInteract)
             {
+                TurnPlayerTowardNpc(_closestInteractable);
                 _closestInteractable.Interact(gameObject);
             }
+        }
+
+        private void TurnPlayerTowardNpc(IInteractable interactable)
+        {
+            if (interactable is not Component targetComponent)
+                return;
+
+            if (targetComponent.GetComponent<NPCMovement>() == null)
+                return;
+
+            var movement = GetComponent<PlayerMovement>();
+            movement?.TurnToward(targetComponent.transform.position);
         }
 
         // ── Proximity scan ────────────────────────────────────────────────────

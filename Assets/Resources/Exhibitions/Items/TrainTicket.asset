@@ -17,7 +17,7 @@ MonoBehaviour:
   icon: {fileID: 5995773944292865986, guid: 7c6e1bd6f055d6f4597cc3af7b8d39fe, type: 3}
   iconScale: 1
   sortOrder: 11
-  description: A ticket home to Otowa for wandering youths.
+  description: Marked "Otowa Station."
   descriptionKey: desc_train_ticket
   isUnlocked: 1
   tags:

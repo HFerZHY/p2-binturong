@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59bba459f8de3b548a786ad00daa5442, type: 3}
   m_Name: Shichimi
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
-  itemName: Seven-flavor Chili
+  itemName: Shichimi
   nameKey: item_shichimi
   icon: {fileID: 1437279031372453770, guid: 075fea012ca0b9b49bd8db04287b01b7, type: 3}
   iconScale: 0.85
   sortOrder: 6
-  description: A spice blend that gives old recipes their signature bite.
+  description: The secret to Jiro's cooking.
   descriptionKey: desc_shichimi
   isUnlocked: 1
   tags:

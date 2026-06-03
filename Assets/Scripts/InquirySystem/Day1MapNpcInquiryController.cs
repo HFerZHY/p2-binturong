@@ -231,6 +231,13 @@ namespace Otowa.Inquiry
             var graph = CreateGraph(graphName);
             AppendLines(graph, lines, "line", "menu");
 
+            graph.nodes.Add(CreateBranch("menu", CreateMenuChoices(), onMenuEntered));
+            graph.nodes.Add(CreateTerminal("leave"));
+            return FinishGraph(graph, lines.Count > 0 ? "line_01" : "menu");
+        }
+
+        private List<DialogueChoice> CreateMenuChoices()
+        {
             var choices = new List<DialogueChoice>();
             if (Day1InquiryProgress.Instance.HasPendingInquiry(npc))
             {
@@ -247,9 +254,7 @@ namespace Otowa.Inquiry
                 targetNodeId = "leave",
             });
 
-            graph.nodes.Add(CreateBranch("menu", choices, onMenuEntered));
-            graph.nodes.Add(CreateTerminal("leave"));
-            return FinishGraph(graph, lines.Count > 0 ? "line_01" : "menu");
+            return choices;
         }
 
         private DialogueGraph BuildInquiryStoryGraph(int sortOrder)
@@ -260,7 +265,7 @@ namespace Otowa.Inquiry
                 {
                     Speaker("You're asking about my sake? Oh, I could go on for hours. The one that won me the award was called \"Thousand Cranes.\""),
                     Speaker("Eh, I just got lucky back then - happened to draw a judge who loved his drink. If it'd come down to pure craft, honestly, old Jiro's still got the edge on me."),
-                }),
+                }, returnToMenuIfAvailable: true),
                 8 => BuildSimpleStory("Day1YujiHerbs", new[]
                 {
                     Rin("In the stationmaster's office, I saw some air-dried herbs. These must be one of Otowa's local specialties."),
@@ -269,7 +274,7 @@ namespace Otowa.Inquiry
                     Speaker("Hahaha, bitter, really? Don't tell me my taste buds are on the fritz?"),
                     Speaker("Tell you what - next time I brew a batch, maybe I'll toss in some honey."),
                     Rin("(I'd really rather he didn't...)"),
-                }),
+                }, returnToMenuIfAvailable: true),
                 10 => BuildSimpleStory("Day1YujiFireworks", new[]
                 {
                     Rin("Mr. Yuji, is that a firework tube next to you? I saw one in the stationmaster's office, too."),
@@ -278,14 +283,14 @@ namespace Otowa.Inquiry
                     Speaker("Hah, mixing drinks and mixing fireworks are pretty much the same. Both are about precisely blending different ingredients together, and then - \"Boom!\" - they bloom in your mouth or up in the sky!"),
                     Speaker("Truth is, my real trade is fireworks artisan. Running the pub and mixing drinks is purely a personal hobby."),
                     Rin("So you had this hidden talent all along, Mr. Yuji. You've made me see you in a whole new light."),
-                }, new[] { 8 }, () => InspirationManager.Instance.CompleteTheme(YujiTheme)),
+                }, new[] { 8 }, () => InspirationManager.Instance.CompleteTheme(YujiTheme), returnToMenuIfAvailable: true),
                 11 => BuildSimpleStory("Day1JunkoTrainTicket", new[]
                 {
                     Rin("Chief, since this railway is so important, I'd like to add a train ticket to the exhibition."),
                     Speaker("Mm, that would indeed be a fitting exhibit."),
                     Speaker("Many villagers are waiting for the Summer Festival too, hoping the people they long to see will come back. Take Jiro, for instance - he hasn't seen his son in a very long time."),
                     Rin("So Jiro's son has left Otowa..."),
-                }, new[] { 16 }, AddJunkoClosingIfComplete, appendJunkoClosing: true),
+                }, new[] { 16 }, AddJunkoClosingIfComplete, returnToMenuIfAvailable: true, appendJunkoClosing: true),
                 9 => BuildSimpleStory("Day1JunkoFan", new[]
                 {
                     Rin("Chief, I saw a fan in the stationmaster's office with a bird painted on it. I'm guessing... it might have something to do with the Summer Festival?"),
@@ -295,7 +300,7 @@ namespace Otowa.Inquiry
                     Speaker("Tomorrow, during the day, do go and take a look at the forest on the edge of the village."),
                     Speaker("Every summer, many migratory birds travel from afar to return to this forest - some of them quite rare."),
                     Speaker("Just like the children who've left home: no matter how far they fly, when summer comes, they always ride the wind back."),
-                }, new[] { 7 }, AddJunkoClosingIfComplete, appendJunkoClosing: true),
+                }, new[] { 7 }, AddJunkoClosingIfComplete, returnToMenuIfAvailable: true, appendJunkoClosing: true),
                 _ => null,
             };
         }
@@ -305,11 +310,19 @@ namespace Otowa.Inquiry
             IReadOnlyList<Line> lines,
             IReadOnlyList<int> inspirationUnlockIds = null,
             Action onComplete = null,
+            bool returnToMenuIfAvailable = false,
             bool appendJunkoClosing = false)
         {
             var graph = CreateGraph(graphName);
             string terminalId = "end";
-            AppendLines(graph, lines, "line", terminalId, inspirationUnlockIds);
+            bool shouldReturnToMenu = returnToMenuIfAvailable
+                                      && Day1InquiryProgress.Instance.HasPendingInquiry(npc);
+            AppendLines(
+                graph,
+                lines,
+                "line",
+                shouldReturnToMenu ? "menu" : terminalId,
+                inspirationUnlockIds);
 
             if (appendJunkoClosing
                 && !Day1InquiryProgress.Instance.HasPendingInquiry(Day1InquiryNpc.Junko))
@@ -325,10 +338,19 @@ namespace Otowa.Inquiry
                 }, "closing", terminalId);
             }
 
-            var terminal = CreateTerminal(terminalId);
-            if (onComplete != null)
-                terminal.onEnter.AddListener(() => onComplete());
-            graph.nodes.Add(terminal);
+            if (shouldReturnToMenu)
+            {
+                graph.nodes.Add(CreateBranch("menu", CreateMenuChoices(), onComplete));
+                graph.nodes.Add(CreateTerminal("leave"));
+            }
+            else
+            {
+                var terminal = CreateTerminal(terminalId);
+                if (onComplete != null)
+                    terminal.onEnter.AddListener(() => onComplete());
+                graph.nodes.Add(terminal);
+            }
+
             return FinishGraph(graph, "line_01");
         }
 

@@ -296,48 +296,43 @@ public static class ExhibitionPrefabBuilder
 
     private static void CreateItemTooltipPrefab()
     {
-        var root = CreateUIObject("ItemTooltip", new Vector2(320, 190));
+        var root = CreateUIObject("ItemTooltip", new Vector2(372, 104));
         var panel = root.AddComponent<Image>();
-        panel.color = new Color(0.15f, 0.12f, 0.1f, 0.95f);
+        panel.color = new Color(0.88f, 0.78f, 0.58f, 0.98f);
+        panel.raycastTarget = false;
         var cg = root.AddComponent<CanvasGroup>();
         cg.alpha = 0f;
         cg.blocksRaycasts = false;
         cg.interactable = false;
 
         var layout = root.AddComponent<VerticalLayoutGroup>();
-        layout.padding = new RectOffset(18, 18, 18, 18);
-        layout.spacing = 8;
+        layout.padding = new RectOffset(14, 14, 12, 12);
+        layout.spacing = 4;
+        layout.childAlignment = TextAnchor.MiddleCenter;
         layout.childControlWidth = true;
-        layout.childControlHeight = false;
+        layout.childControlHeight = true;
+        layout.childForceExpandWidth = true;
+        layout.childForceExpandHeight = false;
         root.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-        var nameText = CreateText(root.transform, "NameText", "Item Name", 24, FontStyles.Bold, TextAlignmentOptions.Left);
-        var separatorObj = CreateChild(root.transform, "Separator");
-        var separator = separatorObj.AddComponent<Image>();
-        separator.color = new Color(0.5f, 0.45f, 0.4f, 0.5f);
-        separatorObj.AddComponent<LayoutElement>().preferredHeight = 1;
-        var descText = CreateText(root.transform, "DescriptionText", "Item description.", 18, FontStyles.Normal, TextAlignmentOptions.Left);
+        var nameText = CreateText(root.transform, "NameText", "Item Name", 22, FontStyles.Bold, TextAlignmentOptions.Center);
+        nameText.color = new Color(0.22f, 0.13f, 0.07f, 1f);
+        nameText.textWrappingMode = TextWrappingModes.NoWrap;
+        nameText.overflowMode = TextOverflowModes.Ellipsis;
+        nameText.raycastTarget = false;
+
+        var descText = CreateText(root.transform, "DescriptionText", "Item description.", 22, FontStyles.Normal, TextAlignmentOptions.Center);
+        descText.color = new Color(0.22f, 0.13f, 0.07f, 1f);
         descText.textWrappingMode = TextWrappingModes.Normal;
-
-        var historyObj = CreateChild(root.transform, "HistoryContainer");
-        var historyLayout = historyObj.AddComponent<VerticalLayoutGroup>();
-        historyLayout.spacing = 3;
-        historyLayout.childControlWidth = true;
-        historyLayout.childControlHeight = false;
-
-        var historyEntryObj = CreateChild(historyObj.transform, "HistoryEntry");
-        var historyEntryText = CreateText(historyEntryObj.transform, "Text", "Matched idea", 15, FontStyles.Normal, TextAlignmentOptions.Left);
-        historyEntryText.color = new Color(0.55f, 0.9f, 0.55f, 1f);
-        Stretch(historyEntryText.GetComponent<RectTransform>(), 0);
-        historyEntryObj.SetActive(false);
+        descText.overflowMode = TextOverflowModes.Ellipsis;
+        descText.maxVisibleLines = 2;
+        descText.raycastTarget = false;
 
         var tooltip = root.AddComponent<ItemTooltip>();
         SetPrivateField(tooltip, "_canvasGroup", cg);
         SetPrivateField(tooltip, "_panel", root.GetComponent<RectTransform>());
         SetPrivateField(tooltip, "_nameText", nameText);
         SetPrivateField(tooltip, "_descriptionText", descText);
-        SetPrivateField(tooltip, "_historyContainer", historyObj.transform);
-        SetPrivateField(tooltip, "_historyEntryPrefab", historyEntryObj);
 
         SaveAndDestroy(root, "ItemTooltip");
     }

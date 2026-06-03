@@ -54,8 +54,8 @@ namespace ExhibitionSystem.UI
                 manager.CurrentTheme == null ||
                  slotIndex < 0 ||
                  slotIndex >= manager.SlotCount ||
-                 manager.IsSlotInspirationFixed(slotIndex) ||
-                 manager.DisplaySlots[slotIndex] == null)
+                 TutorialPopup.IsInspirationEditingBlocked ||
+                 manager.IsSlotInspirationFixed(slotIndex))
             {
                 return;
             }

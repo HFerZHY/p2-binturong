@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 using Otowa.Audio;
@@ -58,6 +59,7 @@ namespace Otowa.Intro
             public string   Id;          // optional: target ID for branch jumps
             public string   JumpToId;   // if set, advance jumps to this ID instead of next sequential beat
             public BChoice[] Choices;    // if set, show choice buttons instead of auto-advancing
+            public string[] ItemIconKeys;
         }
 
         private struct BChoice
@@ -93,6 +95,9 @@ namespace Otowa.Intro
         private TMP_Text   _speakerTmp;
         private TMP_Text   _bodyTmp;
         private TMP_Text   _promptTmp;
+        private RectTransform _itemIconRoot;
+        private readonly List<Image> _itemIconImages = new();
+        private readonly Dictionary<string, Sprite> _itemIconCache = new();
 
         // ── Colours ───────────────────────────────────────────────────────────
 
@@ -108,6 +113,10 @@ namespace Otowa.Intro
 
         private const float ActiveAlpha   = 1.00f;
         private const float InactiveAlpha = 0.30f;
+        private const string ItemHighlightColor = "#8B5A2B";
+        private const float ItemIconBaseSize = 72f;
+        private const float DefaultItemIconScale = 1.8f;
+        private const float SakeItemIconScale = 2.5f;
 
         // ─────────────────────────────────────────────────────────────────────
 
@@ -220,6 +229,7 @@ namespace Otowa.Intro
             _choosingBranch = true;
             _dlgPanel.SetActive(false);
             _choicePanel.SetActive(true);
+            SetItemIcons(null);
 
             // Clear old buttons
             foreach (Transform child in _choicePanel.transform)
@@ -272,9 +282,8 @@ namespace Otowa.Intro
                 "Inspector" => InspC,
                 _           => BodyC,
             };
-            _speakerTmp.alignment = b.Speaker == "Rin"
-                ? TextAlignmentOptions.Left
-                : TextAlignmentOptions.Right;
+            _speakerTmp.alignment = TextAlignmentOptions.Left;
+            SetItemIcons(b.ItemIconKeys);
 
             // Highlight active speaker, dim others
             SetAlpha(_rinImg,   b.Speaker == "Rin"   ? ActiveAlpha : InactiveAlpha);
@@ -471,10 +480,7 @@ namespace Otowa.Intro
             if (FindObjectOfType<EventSystem>() != null) return;
             var go = new GameObject("EventSystem");
             go.AddComponent<EventSystem>();
-            var iiType = System.Type.GetType(
-                "UnityEngine.InputSystem.UI.InputSystemUIInputModule, Unity.InputSystem");
-            if (iiType != null) go.AddComponent(iiType);
-            else                go.AddComponent<StandaloneInputModule>();
+            go.AddComponent<InputSystemUIInputModule>();
         }
 
         private void BuildUI()
@@ -554,10 +560,26 @@ namespace Otowa.Intro
             _speakerTmp.fontStyle = FontStyles.Bold;
             UseFont(_speakerTmp);
 
+            _itemIconRoot = MakeRect(pt, "ItemIcons",
+                new Vector2(0.11f, 0.36f), new Vector2(0.56f, 0.98f))
+                .GetComponent<RectTransform>();
+            _itemIconRoot.offsetMin = new Vector2(0f, 4f);
+            _itemIconRoot.offsetMax = new Vector2(0f, -4f);
+
+            var iconLayout = _itemIconRoot.gameObject.AddComponent<HorizontalLayoutGroup>();
+            iconLayout.childAlignment = TextAnchor.MiddleLeft;
+            iconLayout.childControlWidth = false;
+            iconLayout.childControlHeight = false;
+            iconLayout.childForceExpandWidth = false;
+            iconLayout.childForceExpandHeight = false;
+            iconLayout.spacing = 8f;
+            _itemIconRoot.gameObject.SetActive(false);
+
             _bodyTmp = MakeTMP(pt, "Body", "",
                 34f, BodyC, TextAlignmentOptions.Left,
                 new Vector2(0.04f, 0.04f), new Vector2(0.96f, 0.65f));
             _bodyTmp.lineSpacing = 6f;
+            _bodyTmp.raycastTarget = false;
             UseFont(_bodyTmp);
 
             _dlgPanel.SetActive(false);
@@ -628,7 +650,8 @@ namespace Otowa.Intro
         // ── Beat helpers ──────────────────────────────────────────────────────
 
         private static Beat D(string speaker, bool thought, string text,
-                               int[] unlocks = null, string id = null, string jump = null) => new()
+                               int[] unlocks = null, string id = null, string jump = null,
+                               string[] itemIconKeys = null) => new()
         {
             Speaker              = speaker,
             IsThought            = thought,
@@ -636,6 +659,7 @@ namespace Otowa.Intro
             UnlocksInspirations  = unlocks,
             Id                   = id,
             JumpToId             = jump,
+            ItemIconKeys         = itemIconKeys,
         };
 
         private static Beat Br(string id, params BChoice[] choices) => new()
@@ -646,6 +670,115 @@ namespace Otowa.Intro
 
         private static BChoice Ch(string label, string target) =>
             new() { Label = label, TargetId = target };
+
+        private static string ItemWord(string word) =>
+            $"<color={ItemHighlightColor}><u>{word}</u></color>";
+
+        private void SetItemIcons(string[] iconKeys)
+        {
+            if (_itemIconRoot == null)
+                return;
+
+            int count = iconKeys?.Length ?? 0;
+            _itemIconRoot.gameObject.SetActive(count > 0);
+            SetBodyIconLayout(count > 0);
+
+            for (int i = 0; i < count; i++)
+            {
+                Image iconImage = GetItemIconImage(i);
+                iconImage.sprite = LoadItemIcon(iconKeys[i]);
+                SetItemIconSize(iconImage, iconKeys[i]);
+                iconImage.gameObject.SetActive(iconImage.sprite != null);
+            }
+
+            for (int i = count; i < _itemIconImages.Count; i++)
+                _itemIconImages[i].gameObject.SetActive(false);
+        }
+
+        private void SetBodyIconLayout(bool hasIcons)
+        {
+            var bodyRect = _bodyTmp != null ? _bodyTmp.transform as RectTransform : null;
+            if (bodyRect == null)
+                return;
+
+            bodyRect.anchorMax = hasIcons ? new Vector2(0.96f, 0.42f) : new Vector2(0.96f, 0.65f);
+        }
+
+        private Image GetItemIconImage(int index)
+        {
+            while (_itemIconImages.Count <= index)
+            {
+                var iconObject = new GameObject($"ItemIcon{_itemIconImages.Count + 1}",
+                    typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                iconObject.transform.SetParent(_itemIconRoot, false);
+
+                var iconRect = iconObject.GetComponent<RectTransform>();
+                iconRect.sizeDelta = Vector2.one * ItemIconBaseSize;
+
+                var iconImage = iconObject.GetComponent<Image>();
+                iconImage.preserveAspect = true;
+                iconImage.raycastTarget = false;
+                _itemIconImages.Add(iconImage);
+            }
+
+            return _itemIconImages[index];
+        }
+
+        private static void SetItemIconSize(Image iconImage, string iconKey)
+        {
+            var iconRect = iconImage != null ? iconImage.transform as RectTransform : null;
+            if (iconRect == null)
+                return;
+
+            float scale = IsSakeIcon(iconKey) ? SakeItemIconScale : DefaultItemIconScale;
+            iconRect.sizeDelta = Vector2.one * (ItemIconBaseSize * scale);
+        }
+
+        private Sprite LoadItemIcon(string iconKey)
+        {
+            if (string.IsNullOrWhiteSpace(iconKey))
+                return null;
+
+            if (_itemIconCache.TryGetValue(iconKey, out Sprite cached))
+                return cached;
+
+            Sprite sprite = Resources.Load<Sprite>($"Exhibitions/Icons/{iconKey}");
+            if (sprite == null)
+                sprite = FindItemIconByName(iconKey);
+
+            _itemIconCache[iconKey] = sprite;
+            return sprite;
+        }
+
+        private static Sprite FindItemIconByName(string iconKey)
+        {
+            string normalizedKey = NormalizeIconName(iconKey);
+            Sprite[] icons = Resources.LoadAll<Sprite>("Exhibitions/Icons");
+            for (int i = 0; i < icons.Length; i++)
+            {
+                Sprite icon = icons[i];
+                if (icon == null)
+                    continue;
+
+                string normalizedName = NormalizeIconName(icon.name);
+                if (normalizedName == normalizedKey || normalizedName.StartsWith(normalizedKey))
+                    return icon;
+            }
+
+            return null;
+        }
+
+        private static string NormalizeIconName(string value)
+        {
+            return string.IsNullOrEmpty(value)
+                ? string.Empty
+                : value.Replace(" ", string.Empty).ToLowerInvariant();
+        }
+
+        private static bool IsSakeIcon(string iconKey)
+        {
+            return NormalizeIconName(iconKey).StartsWith("sake");
+        }
 
         // ── Beat list ─────────────────────────────────────────────────────────
 
@@ -693,12 +826,12 @@ namespace Otowa.Intro
                 D("Jiro",  false, "Hmph. At least you're not pretending to rave about it. I'll give you that much.", jump: "food_merge"),
 
                 // ── All food paths converge ───────────────────────────────────
-                D("Jiro",  false, "The soul of this dish is the shichimi powder I hand-grind and blend myself. It's a recreation of a recipe from hundreds of years ago.", id: "food_merge"),
+                D("Jiro",  false, $"The soul of this dish is the {ItemWord("shichimi")} powder I hand-grind and blend myself. It's a recreation of a recipe from hundreds of years ago.", id: "food_merge", itemIconKeys: new[] { "Shichimi" }),
                 D("Rin",   false, "A centuries-old recipe? No wonder the flavor has so much depth."),
 
                 // ── Sake ─────────────────────────────────────────────────────
                 D("Yuji",  false, "How can you have good food without good booze! Come on, Rin, try my pride and joy.", id: "offer_sake"),
-                D("Rin",   false, "Is this... sake?"),
+                D("Rin",   false, $"Is this... {ItemWord("sake")}?", itemIconKeys: new[] { "sake" }),
                 D("Yuji",  false, "This isn't just any ordinary sake. Look at that old newspaper on the wall — my sake won a prize at the local specialty competition over a decade ago!"),
                 D("Yuji",  false, "I tweaked the recipe to make the mouthfeel softer. A lot of young people really love this flavor."),
 
@@ -726,7 +859,7 @@ namespace Otowa.Intro
 
                 // ── Shared flavor revelation ──────────────────────────────────
                 D("Rin",   false, "But it's a bit strange. Whether it was the food or the sake just now, I tasted a very similar flavor in both."),
-                D("Rin",   true,  "(Mr. Jiro's shichimi powder, Mr. Yuji's gold medal sake, and that specialty herb...)"),
+                D("Rin",   true,  $"(Mr. Jiro's shichimi powder, Mr. Yuji's gold medal sake, and that specialty {ItemWord("herb")}...)", itemIconKeys: new[] { "herb" }),
                 D("Rin",   true,  "(I saw those things in the stationmaster's office. I thought they were junk. I never expected them to have stories like this.)"),
                 D("Rin",   true,  "(Well, I guess that sparked some <b>inspiration</b>...", unlocks: new[] { 10, 11, 12 }, id: "inspire_moment"),
 

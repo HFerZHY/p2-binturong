@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59bba459f8de3b548a786ad00daa5442, type: 3}
   m_Name: MineralOre
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
-  itemName: Mineral Ore
+  itemName: Ores
   nameKey: item_mineral_ore
   icon: {fileID: -7070888505351443188, guid: 7f5707efdb7de4744972bc48b6180aa8, type: 3}
   iconScale: 1
   sortOrder: 3
-  description: A mineral ore shaped by Otowa's unusual hot spring geology.
+  description: Good for the body.
   descriptionKey: desc_mineral_ore
   isUnlocked: 1
   tags:

@@ -157,7 +157,7 @@ namespace ExhibitionSystem.UI
             if (_isDragging || CurrentlyDragging != null) return;
             if (_itemData == null) return;
 
-            ItemTooltip.Instance?.Show(_itemData, transform.position);
+            ItemTooltip.Instance?.Show(_itemData, transform as RectTransform);
         }
 
         public void OnPointerExit(PointerEventData eventData)

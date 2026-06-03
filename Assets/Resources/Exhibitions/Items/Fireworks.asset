@@ -17,7 +17,7 @@ MonoBehaviour:
   icon: {fileID: 1287510331322305969, guid: 0fcb304ca0eccc145bba23b2f2beb2c4, type: 3}
   iconScale: 0.65
   sortOrder: 10
-  description: Yuji's crowd-pleasing summer specialty.
+  description: Made by a brewing hobbyist.
   descriptionKey: desc_fireworks
   isUnlocked: 1
   tags:

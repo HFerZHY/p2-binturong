@@ -15,9 +15,9 @@ MonoBehaviour:
   itemName: Sake
   nameKey: item_sake
   icon: {fileID: -1980771383947531119, guid: 93c3cc606b3d8454cbfbe4f52363b9de, type: 3}
-  iconScale: 1.15
+  iconScale: 1
   sortOrder: 7
-  description: Otowa sake, once awarded in a local specialty competition.
+  description: Bitter and sweet, the taste of innovation.
   descriptionKey: desc_sake
   isUnlocked: 1
   tags:

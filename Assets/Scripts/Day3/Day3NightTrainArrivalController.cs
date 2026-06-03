@@ -331,17 +331,6 @@ namespace Otowa.Day3
             _stripPlayer = gameObject.AddComponent<CinematicStripDialoguePlayer>();
             _stripPlayer.Initialize(canvasObject.transform, _font, _charactersPerSecond);
             _stripPlayer.SetStripBackground(LoadSprite("Exhibitions/Icons/passenger-night"));
-            _stripPlayer.SetDecorativeItemSilhouettes(new[]
-            {
-                LoadSprite("Exhibitions/Icons/guitar-14"),
-                LoadSprite("Exhibitions/Icons/sake-7"),
-                LoadSprite("Exhibitions/Icons/fan-9"),
-                LoadSprite("Exhibitions/Icons/dango-5"),
-                LoadSprite("Exhibitions/Icons/firework-10"),
-                LoadSprite("Exhibitions/Icons/painting-15"),
-                LoadSprite("Exhibitions/Icons/pot-13"),
-                LoadSprite("Exhibitions/Icons/book-12"),
-            });
             _stripPlayer.SetPortraits(_rinPortrait, null);
             _stripPlayer.SetVisible(false);
         }

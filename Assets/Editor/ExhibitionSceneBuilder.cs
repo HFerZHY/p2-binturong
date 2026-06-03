@@ -771,7 +771,6 @@ public static class ExhibitionSceneBuilder
 
         var tooltipObj = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
         tooltipObj.name = "ItemTooltip";
-        tooltipObj.SetActive(false);
         return tooltipObj.GetComponent<ItemTooltip>();
     }
 

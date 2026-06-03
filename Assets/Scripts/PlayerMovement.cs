@@ -90,6 +90,18 @@ public class PlayerMovement : MonoBehaviour
             StopImmediately();
     }
 
+    public void TurnToward(Vector3 worldPosition)
+    {
+        float deltaX = worldPosition.x - transform.position.x;
+        if (Mathf.Abs(deltaX) <= 0.001f)
+            return;
+
+        FacingRight = deltaX > 0f;
+        Vector3 localScale = transform.localScale;
+        localScale.x = FacingRight ? 1f : -1f;
+        transform.localScale = localScale;
+    }
+
     private void StopImmediately()
     {
         _currentVelocity = Vector2.zero;

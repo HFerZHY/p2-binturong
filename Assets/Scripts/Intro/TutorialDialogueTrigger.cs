@@ -22,9 +22,9 @@ namespace Otowa.Intro
 
         private static readonly string[] GuideMessages =
         {
-            "Use <b>WASD</b> to walk around the village. Press <b>Space</b> or click to advance dialogue like this.",
-            "Walk up to characters or objects and press <b>SPACE</b> to interact with them.",
-            "Press <b>TAB</b> or click the map button in the top-left corner to open the map.",
+            "Move with <b>WASD</b>.\n\nClick dialogue boxes to continue.",
+            "Stand near a person or object.\n\nPress <b>Space</b> to interact.",
+            "Open the map with <b>Tab</b>.\n\nYou can also click the map button in the top-left corner.",
         };
 
         private Character _rin;
@@ -172,11 +172,11 @@ namespace Otowa.Intro
             var panel = MakeRect(
                 _guideRoot.transform,
                 "Panel",
-                new Vector2(0.25f, 0.35f),
-                new Vector2(0.75f, 0.65f));
+                new Vector2(0.24f, 0.31f),
+                new Vector2(0.76f, 0.69f));
             panel.AddComponent<Image>().color = new Color32(0x4b, 0x2f, 0x20, 0xF2);
 
-            MakeRect(panel.transform, "Line", new Vector2(0.04f, 0.84f), new Vector2(0.96f, 0.865f))
+            MakeRect(panel.transform, "Line", new Vector2(0.04f, 0.91f), new Vector2(0.96f, 0.935f))
                 .AddComponent<Image>().color = new Color32(0xc9, 0x9b, 0x65, 0xFF);
 
             var title = MakeText(
@@ -186,7 +186,7 @@ namespace Otowa.Intro
                 28f,
                 new Color32(0xf0, 0xd7, 0xa5, 0xFF),
                 TextAlignmentOptions.Center,
-                new Vector2(0.06f, 0.68f),
+                new Vector2(0.06f, 0.73f),
                 new Vector2(0.94f, 0.91f));
             title.fontStyle = FontStyles.Bold;
 
@@ -194,11 +194,12 @@ namespace Otowa.Intro
                 panel.transform,
                 "Body",
                 string.Empty,
-                23f,
+                21f,
                 new Color32(0xf7, 0xea, 0xc9, 0xFF),
                 TextAlignmentOptions.Center,
-                new Vector2(0.08f, 0.29f),
-                new Vector2(0.92f, 0.67f));
+                new Vector2(0.10f, 0.30f),
+                new Vector2(0.90f, 0.70f));
+            _guideBody.lineSpacing = 10f;
 
             var okayObject = MakeRect(
                 panel.transform,

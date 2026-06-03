@@ -11,6 +11,7 @@ namespace ExhibitionSystem.UI
     {
         private const string RIN_SPRITE_RESOURCE = "Characters/WorldSprite/rin";
         private const string RIN_HEAD_SPRITE_NAME = "spritesheet_template_0";
+        private const string DAY2_EXHIBITION_SCENE = "ExhibitionDay2Scene";
         private const string DAY3_EXHIBITION_SCENE = "ExhibitionDay3Scene";
 
         [Header("UI References")]
@@ -29,6 +30,8 @@ namespace ExhibitionSystem.UI
             "I came up with a few exhibition themes yesterday. For now, I should choose one first.";
         [SerializeField] private string _chooseInspirationsMessage =
             "I should click the label above the exhibit and choose a matching inspiration.";
+        [SerializeField] private string _inspirationFirstMessage =
+            "I can also choose inspirations first, then drag items in afterward.";
         [SerializeField] private string _matchedItemMessage =
             "This item has already been matched with an inspiration. I don't need to match it again. I should try another one.";
         [SerializeField] private string _arrangeItemsMessage =
@@ -37,14 +40,45 @@ namespace ExhibitionSystem.UI
             "Great! Now I can let the passengers visit the exhibition!";
         [SerializeField] private string _tryAnotherThemeMessage =
             "Great job! To finish today's work, try another theme.";
+        [SerializeField] private GameObject _clickDismissOverlay;
+
+        [Header("Button Highlights")]
+        [SerializeField] private Color _buttonHighlightColor = new(1f, 0.86f, 0.18f, 1f);
+        [SerializeField] private Color _buttonHighlightFillColor = new(1f, 0.80f, 0.20f, 0.38f);
+        [SerializeField] private Vector2 _buttonHighlightWidth = new(12f, 12f);
 
         private bool _selectThemeDismissed;
         private bool _inspirationHintDismissed;
+        private bool _inspirationFirstHintShown;
+        private bool _inspirationFirstHintActive;
         private bool _arrangementHintDismissed;
         private bool _startHintDismissed;
         private bool _startHintShown;
         private bool _tryAnotherThemeHintShown;
         private bool _tryAnotherThemeHintDismissed;
+        private Button _clickDismissButton;
+        private ButtonHighlightState _activeButtonHighlight;
+
+        public static bool IsInspirationEditingBlocked { get; private set; }
+        public static event System.Action<bool> OnInspirationEditingBlockChanged;
+
+        private enum ButtonHighlightTarget
+        {
+            None,
+            SelectTheme,
+            StartExhibition
+        }
+
+        private sealed class ButtonHighlightState
+        {
+            public Outline Outline;
+            public bool AddedOutline;
+            public bool WasEnabled;
+            public Color PreviousColor;
+            public Vector2 PreviousDistance;
+            public Image FillImage;
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         internal static void EnsureTutorialPopupExists()
         {
@@ -92,6 +126,14 @@ namespace ExhibitionSystem.UI
             ExhibitionManager.OnExhibitionStarted -= HandleExhibitionStarted;
             ExhibitionManager.OnCurationCleared -= HandleCurationCleared;
             RewardPopup.OnRewardConfirmed -= HandleRewardConfirmed;
+            SetInspirationEditingBlocked(false);
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticState()
+        {
+            IsInspirationEditingBlocked = false;
+            OnInspirationEditingBlockChanged = null;
         }
 
         private void Start()
@@ -100,7 +142,7 @@ namespace ExhibitionSystem.UI
 
             var manager = ExhibitionManager.Instance;
             if (!_selectThemeDismissed && (manager == null || manager.CurrentTheme == null))
-                Show(_selectThemeMessage);
+                Show(_selectThemeMessage, ButtonHighlightTarget.SelectTheme);
             else
                 Hide();
         }
@@ -127,6 +169,7 @@ namespace ExhibitionSystem.UI
             if (theme == null || _arrangementHintDismissed)
                 return;
 
+            SetInspirationEditingBlocked(SceneManager.GetActiveScene().name == DAY2_EXHIBITION_SCENE);
             Show(_arrangeItemsMessage);
         }
 
@@ -154,6 +197,7 @@ namespace ExhibitionSystem.UI
             if (!_arrangementHintDismissed)
             {
                 _arrangementHintDismissed = true;
+                SetInspirationEditingBlocked(false);
                 Hide();
             }
 
@@ -172,7 +216,11 @@ namespace ExhibitionSystem.UI
             var manager = ExhibitionManager.Instance;
             bool isFixedMatch = manager != null && manager.IsSlotInspirationFixed(slotIndex);
             if (inspiration != null && !isFixedMatch)
+            {
                 DismissInspirationHint();
+                if (TryShowInspirationFirstHint())
+                    return;
+            }
 
             TryShowStartHint();
         }
@@ -193,11 +241,15 @@ namespace ExhibitionSystem.UI
                 return;
 
             _startHintDismissed = true;
+            SetInspirationEditingBlocked(false);
             Hide();
         }
 
         private void HandleCurationCleared()
         {
+            _inspirationFirstHintActive = false;
+            SetInspirationEditingBlocked(false);
+            SetClickDismissOverlayActive(false);
             Hide();
         }
 
@@ -227,6 +279,9 @@ namespace ExhibitionSystem.UI
 
         private void TryShowStartHint()
         {
+            if (_inspirationFirstHintActive)
+                return;
+
             if (_startHintDismissed)
                 return;
 
@@ -249,12 +304,39 @@ namespace ExhibitionSystem.UI
                 return;
 
             _startHintShown = true;
-            Show(_startExhibitionMessage);
+            Show(_startExhibitionMessage, ButtonHighlightTarget.StartExhibition);
         }
 
-        private void Show(string message)
+        private bool TryShowInspirationFirstHint()
+        {
+            if (_inspirationFirstHintShown ||
+                SceneManager.GetActiveScene().name != DAY2_EXHIBITION_SCENE)
+            {
+                return false;
+            }
+
+            _inspirationFirstHintShown = true;
+            _inspirationFirstHintActive = true;
+            Show(_inspirationFirstMessage);
+            SetClickDismissOverlayActive(true);
+            return true;
+        }
+
+        private void HandleClickDismissOverlayClicked()
+        {
+            if (!_inspirationFirstHintActive)
+                return;
+
+            _inspirationFirstHintActive = false;
+            SetClickDismissOverlayActive(false);
+            Hide();
+            TryShowStartHint();
+        }
+
+        private void Show(string message, ButtonHighlightTarget highlightTarget = ButtonHighlightTarget.None)
         {
             ConfigurePortrait();
+            SetButtonHighlight(highlightTarget);
 
             if (_speakerText != null)
                 _speakerText.text = _speakerName;
@@ -275,11 +357,148 @@ namespace ExhibitionSystem.UI
 
         private void Hide()
         {
+            _inspirationFirstHintActive = false;
+            SetClickDismissOverlayActive(false);
+            ClearButtonHighlight();
+
             if (_canvasGroup != null)
                 _canvasGroup.alpha = 0f;
 
             if (_panel != null && _panel != gameObject)
                 _panel.SetActive(false);
+        }
+
+        private void SetButtonHighlight(ButtonHighlightTarget target)
+        {
+            ClearButtonHighlight();
+
+            if (target == ButtonHighlightTarget.None ||
+                SceneManager.GetActiveScene().name != DAY2_EXHIBITION_SCENE)
+            {
+                return;
+            }
+
+            var selector = FindFirstObjectByType<ThemeSelector>(FindObjectsInactive.Include);
+            var button = target == ButtonHighlightTarget.SelectTheme
+                ? selector?.SelectButton
+                : selector?.StartButton;
+            if (button == null)
+                return;
+
+            var outline = button.GetComponent<Outline>();
+            bool addedOutline = outline == null;
+            if (addedOutline)
+                outline = button.gameObject.AddComponent<Outline>();
+
+            _activeButtonHighlight = new ButtonHighlightState
+            {
+                Outline = outline,
+                AddedOutline = addedOutline,
+                WasEnabled = outline.enabled,
+                PreviousColor = outline.effectColor,
+                PreviousDistance = outline.effectDistance,
+                FillImage = CreateButtonHighlightFill(button)
+            };
+
+            outline.effectColor = _buttonHighlightColor;
+            outline.effectDistance = _buttonHighlightWidth;
+            outline.enabled = true;
+        }
+
+        private void ClearButtonHighlight()
+        {
+            if (_activeButtonHighlight == null)
+                return;
+
+            var outline = _activeButtonHighlight.Outline;
+            if (outline != null)
+            {
+                if (_activeButtonHighlight.AddedOutline)
+                {
+                    outline.enabled = false;
+                }
+                else
+                {
+                    outline.effectColor = _activeButtonHighlight.PreviousColor;
+                    outline.effectDistance = _activeButtonHighlight.PreviousDistance;
+                    outline.enabled = _activeButtonHighlight.WasEnabled;
+                }
+            }
+
+            if (_activeButtonHighlight.FillImage != null)
+                Destroy(_activeButtonHighlight.FillImage.gameObject);
+
+            _activeButtonHighlight = null;
+        }
+
+        private Image CreateButtonHighlightFill(Button button)
+        {
+            if (button == null)
+                return null;
+
+            var fillObject = new GameObject("TutorialButtonHighlightFill", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            fillObject.transform.SetParent(button.transform, false);
+            fillObject.transform.SetAsFirstSibling();
+
+            var fillRect = fillObject.GetComponent<RectTransform>();
+            fillRect.anchorMin = Vector2.zero;
+            fillRect.anchorMax = Vector2.one;
+            fillRect.offsetMin = new Vector2(-10f, -10f);
+            fillRect.offsetMax = new Vector2(10f, 10f);
+
+            var fillImage = fillObject.GetComponent<Image>();
+            fillImage.color = _buttonHighlightFillColor;
+            fillImage.raycastTarget = false;
+            return fillImage;
+        }
+
+        private static void SetInspirationEditingBlocked(bool blocked)
+        {
+            if (IsInspirationEditingBlocked == blocked)
+                return;
+
+            IsInspirationEditingBlocked = blocked;
+            OnInspirationEditingBlockChanged?.Invoke(blocked);
+        }
+
+        private void SetClickDismissOverlayActive(bool active)
+        {
+            EnsureClickDismissOverlay();
+
+            if (_clickDismissOverlay != null)
+                _clickDismissOverlay.SetActive(active);
+        }
+
+        private void EnsureClickDismissOverlay()
+        {
+            if (_clickDismissOverlay != null)
+            {
+                if (_clickDismissButton == null)
+                    _clickDismissButton = _clickDismissOverlay.GetComponent<Button>();
+
+                if (_clickDismissButton != null)
+                {
+                    _clickDismissButton.onClick.RemoveListener(HandleClickDismissOverlayClicked);
+                    _clickDismissButton.onClick.AddListener(HandleClickDismissOverlayClicked);
+                }
+
+                return;
+            }
+
+            var parent = _panel != null ? _panel.transform.parent : transform.parent;
+            if (parent == null)
+                return;
+
+            _clickDismissOverlay = CreateClickDismissOverlay(parent);
+            _clickDismissButton = _clickDismissOverlay.GetComponent<Button>();
+            if (_clickDismissButton != null)
+                _clickDismissButton.onClick.AddListener(HandleClickDismissOverlayClicked);
+
+            if (_panel != null)
+            {
+                _clickDismissOverlay.transform.SetSiblingIndex(_panel.transform.GetSiblingIndex());
+                _panel.transform.SetAsLastSibling();
+            }
         }
 
         private void ConfigurePortrait()
@@ -309,6 +528,8 @@ namespace ExhibitionSystem.UI
 
         private static void CreateRuntimePopup(Transform parent)
         {
+            var clickDismissOverlay = CreateClickDismissOverlay(parent);
+
             var panelObj = CreateRuntimeVisual(
                 parent,
                 out var portrait,
@@ -323,6 +544,10 @@ namespace ExhibitionSystem.UI
             popup._bodyText = bodyText;
             popup._canvasGroup = cg;
             popup._rinHeadSprite = portrait.sprite;
+            popup._clickDismissOverlay = clickDismissOverlay;
+            popup._clickDismissButton = clickDismissOverlay.GetComponent<Button>();
+            if (popup._clickDismissButton != null)
+                popup._clickDismissButton.onClick.AddListener(popup.HandleClickDismissOverlayClicked);
         }
 
         internal static GameObject CreateRuntimeVisual(
@@ -394,6 +619,23 @@ namespace ExhibitionSystem.UI
             return panelObj;
         }
 
+        private static GameObject CreateClickDismissOverlay(Transform parent)
+        {
+            var overlayObject = CreateRuntimeChild(parent, "TutorialClickDismissOverlay");
+            StretchRuntime(overlayObject.GetComponent<RectTransform>(), 0f);
+
+            var image = overlayObject.AddComponent<Image>();
+            image.color = new Color(0f, 0f, 0f, 0f);
+            image.raycastTarget = true;
+
+            var button = overlayObject.AddComponent<Button>();
+            button.transition = Selectable.Transition.None;
+            button.targetGraphic = image;
+
+            overlayObject.SetActive(false);
+            return overlayObject;
+        }
+
         private static Sprite LoadRinHeadSprite()
         {
             Sprite fallback = null;
@@ -434,6 +676,7 @@ namespace ExhibitionSystem.UI
             tmp.fontStyle = style;
             tmp.alignment = alignment;
             tmp.color = Color.white;
+            tmp.raycastTarget = false;
             return tmp;
         }
 

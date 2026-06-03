@@ -26,9 +26,14 @@ namespace ExhibitionSystem.UI
         [SerializeField] private string _runningText = "In Progress...";
         [SerializeField] private string _retryText = "Retry";
         [SerializeField] private string _lockedText = "Start Exhibition";
+        [SerializeField] private string _missingItemsText = "Place Items";
+        [SerializeField] private string _missingLabelsText = "Choose Labels";
 
         private bool _canRetry;
         private HoverTextPopup _selectButtonPopup;
+
+        public Button SelectButton => _selectButton;
+        public Button StartButton => _startButton;
 
         private void OnEnable()
         {
@@ -142,6 +147,7 @@ namespace ExhibitionSystem.UI
             bool isRunning = manager != null && manager.IsRunning;
             bool hasTheme = theme != null;
             bool allLabelsFilled = manager != null && manager.HasAllLabelsFilled;
+            bool allSlotsFilled = manager != null && manager.AreAllSlotsFilled();
             bool canStart = hasTheme && !isRunning && manager.AreAllSlotsReady();
 
             if (_titleText != null)
@@ -173,8 +179,14 @@ namespace ExhibitionSystem.UI
                     _startButtonText.text = _runningText;
                 else if (_canRetry)
                     _startButtonText.text = _retryText;
-                else if (!allLabelsFilled)
+                else if (!hasTheme)
                     _startButtonText.text = _lockedText;
+                else if (!allSlotsFilled)
+                    _startButtonText.text = _missingItemsText;
+                else if (!allLabelsFilled)
+                    _startButtonText.text = string.IsNullOrWhiteSpace(_missingLabelsText)
+                        ? _lockedText
+                        : _missingLabelsText;
                 else
                     _startButtonText.text = _startText;
             }

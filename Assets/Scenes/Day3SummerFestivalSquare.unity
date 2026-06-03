@@ -164,7 +164,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -337,7 +337,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -462,7 +462,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b152cdadb37e7464081d2bb9b6e8bc65, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: skner.DualGrid::skner.DualGrid.DualGridTilemapModule
   _renderTile: {fileID: 11400000, guid: 9ebaf2b0d7c349a4e8acbd975b7593cf, type: 2}
   _enableTilemapCollider: 0
@@ -3054,7 +3054,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b152cdadb37e7464081d2bb9b6e8bc65, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: skner.DualGrid::skner.DualGrid.DualGridTilemapModule
   _renderTile: {fileID: 11400000, guid: b8dbd5fd4acbb1443bfee6d4886bc834, type: 2}
   _enableTilemapCollider: 0
@@ -4326,7 +4326,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -4470,7 +4470,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -4611,7 +4611,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -4750,7 +4750,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -4837,7 +4837,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -4888,7 +4888,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -5123,7 +5123,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerBehind
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -5294,7 +5294,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -5393,6 +5393,52 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 1
+--- !u!1 &165966333
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 165966334}
+  - component: {fileID: 165966335}
+  m_Layer: 0
+  m_Name: SortingPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &165966334
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165966333}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.8, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1750248250}
+  m_Father: {fileID: 1400429727}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!210 &165966335
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165966333}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_SortAtRoot: 0
+  m_Sort3DAs2D: 0
 --- !u!1 &166838574
 GameObject:
   m_ObjectHideFlags: 0
@@ -5513,7 +5559,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -5564,7 +5610,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -5663,6 +5709,52 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 1
+--- !u!1 &198957917
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 198957918}
+  - component: {fileID: 198957919}
+  m_Layer: 0
+  m_Name: SortingPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &198957918
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 198957917}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.8, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1232198179}
+  m_Father: {fileID: 725900503}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!210 &198957919
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 198957917}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_SortAtRoot: 0
+  m_Sort3DAs2D: 0
 --- !u!1 &248602767
 GameObject:
   m_ObjectHideFlags: 0
@@ -5689,14 +5781,14 @@ Transform:
   m_GameObject: {fileID: 248602767}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.8, z: 0}
   m_LocalScale: {x: 0.19999999, y: 0.19999999, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1394164142}
   - {fileID: 718036212}
   - {fileID: 58692697}
-  m_Father: {fileID: 419220492}
+  m_Father: {fileID: 1166935343}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &248602769
 Animator:
@@ -5715,7 +5807,7 @@ Animator:
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
-  m_WarningMessage: 
+  m_WarningMessage:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
@@ -5765,7 +5857,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerBehind
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -6044,7 +6136,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6eb2e3765b89a964d91e4eb0d2237047, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Otowa.Day3.Day3FestivalFlowController
   _nextSceneName: Day3NightTrainArrival
   _centeredFont: {fileID: 11400000, guid: 54036173aebd7d44fb3a89ffdef22447, type: 2}
@@ -6106,7 +6198,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -6157,7 +6249,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerBehind
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -6328,7 +6420,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerBehind
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -6545,6 +6637,52 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &332550381
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 332550382}
+  - component: {fileID: 332550383}
+  m_Layer: 0
+  m_Name: SortingPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &332550382
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332550381}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.8, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1323903760}
+  m_Father: {fileID: 549510958}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!210 &332550383
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332550381}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_SortAtRoot: 0
+  m_Sort3DAs2D: 0
 --- !u!1 &335827479
 GameObject:
   m_ObjectHideFlags: 0
@@ -6668,7 +6806,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1109240155}
+  - {fileID: 494678957}
   m_Father: {fileID: 1225368451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!70 &372313859
@@ -6705,8 +6843,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.5, y: 1}
+  m_Offset: {x: 0, y: -0.6}
+  m_Size: {x: 0.5, y: 0.5}
   m_Direction: 0
 --- !u!50 &372313860
 Rigidbody2D:
@@ -6745,7 +6883,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e56ed70538e15b4cb6211121dae4ec8, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Otowa.Day3.Day3FestivalNpcController
   _npc: 4
   _movement: {fileID: 0}
@@ -6795,7 +6933,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -6939,7 +7077,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -7082,7 +7220,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b152cdadb37e7464081d2bb9b6e8bc65, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: skner.DualGrid::skner.DualGrid.DualGridTilemapModule
   _renderTile: {fileID: 11400000, guid: d2c370706d2f7454b81dd04bf6b4b1bc, type: 2}
   _enableTilemapCollider: 0
@@ -8326,7 +8464,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e48d48e6b305a5449ba02be326e66a65, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSystem.NPC.NPCDialogueController
   dialogueGraph: {fileID: 11400000, guid: a288b1c5f159c2b48a692c8cbc34ad18, type: 2}
   interactPrompt: '[Space] Talk'
@@ -8380,7 +8518,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -8551,7 +8689,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -8709,7 +8847,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c855e7c8f536b0f4da64e44c51d9568c, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   moveSpeed: 5
   inertia: 0.1
@@ -8815,7 +8953,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 248602768}
+  - {fileID: 1166935343}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!70 &419220493
@@ -8852,8 +8990,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 1, y: 2}
+  m_Offset: {x: 0, y: -0.6}
+  m_Size: {x: 0.5, y: 0.5}
   m_Direction: 0
 --- !u!114 &419220494
 MonoBehaviour:
@@ -8865,7 +9003,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a696cea41b9fb045ac0057df8d5007a, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSystem.Player.PlayerInteractor
   interactRadius: 2.5
   interactableLayerMask:
@@ -8883,7 +9021,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 457e5bc6e2c2e7b43a626b20bf52cc3a, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Otowa.Minimap.MinimapIcon
   portrait: {fileID: -6861016282177217685, guid: a9ebed865be1ceb4db74f4cf28c853fa, type: 3}
   iconColor: {r: 0.56, g: 0.74, b: 0.56, a: 1}
@@ -8933,7 +9071,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -9077,7 +9215,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerBehind
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -9339,7 +9477,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -9510,7 +9648,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -9873,7 +10011,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -9938,7 +10076,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -10114,12 +10252,58 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
   lightColor: {r: 1, g: 1, b: 1, a: 1}
   intensity: 1
+--- !u!1 &494678956
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 494678957}
+  - component: {fileID: 494678958}
+  m_Layer: 0
+  m_Name: SortingPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &494678957
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 494678956}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.8, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1109240155}
+  m_Father: {fileID: 372313856}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!210 &494678958
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 494678956}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_SortAtRoot: 0
+  m_Sort3DAs2D: 0
 --- !u!1 &499076577
 GameObject:
   m_ObjectHideFlags: 0
@@ -10200,7 +10384,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -10382,8 +10566,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   m_RenderShadows: 1
   m_RequiresDepthTextureOption: 2
   m_RequiresOpaqueTextureOption: 2
@@ -10492,7 +10676,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 24116c109491e29418bf851ca294a2c8, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::NightViewController
   nightColor: {r: 0.18884134, g: 0.23377237, b: 0.5707547, a: 1}
   nightAlpha: 1
@@ -10544,7 +10728,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -10779,7 +10963,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -10910,7 +11094,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1323903760}
+  - {fileID: 332550382}
   m_Father: {fileID: 1225368451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &549510959
@@ -10923,7 +11107,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e48d48e6b305a5449ba02be326e66a65, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSystem.NPC.NPCDialogueController
   dialogueGraph: {fileID: 11400000, guid: a288b1c5f159c2b48a692c8cbc34ad18, type: 2}
   interactPrompt: '[Space] Talk'
@@ -10966,8 +11150,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.5, y: 1}
+  m_Offset: {x: 0, y: -0.6}
+  m_Size: {x: 0.5, y: 0.5}
   m_Direction: 0
 --- !u!50 &549510962
 Rigidbody2D:
@@ -11038,7 +11222,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2.62
   coreRadius: 0.105
@@ -11089,7 +11273,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -11240,7 +11424,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.392}
@@ -11300,7 +11484,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1561937667}
+  - {fileID: 1183214164}
   m_Father: {fileID: 1225368451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!70 &583554406
@@ -11337,8 +11521,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.5, y: 1}
+  m_Offset: {x: 0, y: -0.6}
+  m_Size: {x: 0.5, y: 0.5}
   m_Direction: 0
 --- !u!50 &583554407
 Rigidbody2D:
@@ -11377,7 +11561,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e56ed70538e15b4cb6211121dae4ec8, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Otowa.Day3.Day3FestivalNpcController
   _npc: 2
   _movement: {fileID: 0}
@@ -11426,7 +11610,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b152cdadb37e7464081d2bb9b6e8bc65, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: skner.DualGrid::skner.DualGrid.DualGridTilemapModule
   _renderTile: {fileID: 11400000, guid: b7a7c9fd14c2c724c95d50b7e8019bcc, type: 2}
   _enableTilemapCollider: 0
@@ -18300,8 +18484,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   m_ComponentVersion: 2
   m_LightType: 4
   m_BlendStyleIndex: 0
@@ -18616,7 +18800,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -18802,7 +18986,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -18944,7 +19128,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -19088,7 +19272,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -19333,7 +19517,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.UI.InputSystemUIInputModule
   m_SendPointerHoverToParent: 1
   m_MoveRepeatDelay: 0.5
@@ -19364,7 +19548,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.EventSystem
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
@@ -19426,7 +19610,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -19459,7 +19643,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ff2ca2c24579fed4389ccd78194f645d, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSystem.Core.DialogueManager
   dialogueUIController: {fileID: 1345075390}
 --- !u!4 &678025396
@@ -19519,7 +19703,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -19570,7 +19754,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerBehind
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -19738,7 +19922,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -19958,7 +20142,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -20139,7 +20323,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -20266,7 +20450,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -20570,7 +20754,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -20621,7 +20805,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -20752,7 +20936,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1232198179}
+  - {fileID: 198957918}
   m_Father: {fileID: 1225368451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!70 &725900506
@@ -20789,8 +20973,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.5, y: 1}
+  m_Offset: {x: 0, y: -0.6}
+  m_Size: {x: 0.5, y: 0.5}
   m_Direction: 0
 --- !u!50 &725900507
 Rigidbody2D:
@@ -20829,7 +21013,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e56ed70538e15b4cb6211121dae4ec8, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Otowa.Day3.Day3FestivalNpcController
   _npc: 3
   _movement: {fileID: 0}
@@ -20992,7 +21176,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -21032,7 +21216,7 @@ Animator:
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
-  m_WarningMessage: 
+  m_WarningMessage:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
@@ -21046,14 +21230,14 @@ Transform:
   m_GameObject: {fileID: 742978745}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.1, z: 0}
+  m_LocalPosition: {x: 0, y: 0.7, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1364981066}
   - {fileID: 1158070893}
   - {fileID: 278522730}
-  m_Father: {fileID: 1249090599}
+  m_Father: {fileID: 957587700}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &760349130
 GameObject:
@@ -21100,7 +21284,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -21271,7 +21455,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -76182,7 +76366,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -79668,7 +79852,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -81793,7 +81977,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -81844,7 +82028,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerBehind
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -82106,7 +82290,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -82419,7 +82603,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -82587,7 +82771,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -82762,6 +82946,52 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 4.6, y: 4.58}
   m_EdgeRadius: 0
+--- !u!1 &957587699
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 957587700}
+  - component: {fileID: 957587701}
+  m_Layer: 0
+  m_Name: SortingPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &957587700
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 957587699}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.7, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 742978747}
+  m_Father: {fileID: 1249090599}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!210 &957587701
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 957587699}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_SortAtRoot: 0
+  m_Sort3DAs2D: 0
 --- !u!1 &958280346
 GameObject:
   m_ObjectHideFlags: 0
@@ -82807,7 +83037,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -84629,7 +84859,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2.62
   coreRadius: 0.105
@@ -84680,7 +84910,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -84808,7 +85038,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -84977,7 +85207,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -85145,7 +85375,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -85287,7 +85517,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -85440,7 +85670,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8409b8f6957569144bc698b268d844e8, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Otowa.Minimap.MinimapController
   worldMin: {x: -44.5, y: -27.5}
   worldMax: {x: 39.5, y: 37.5}
@@ -85510,7 +85740,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -85651,7 +85881,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -85702,7 +85932,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -85830,7 +86060,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -86001,7 +86231,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -86136,7 +86366,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerBehind
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -86382,7 +86612,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -86551,7 +86781,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -86695,7 +86925,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -86927,7 +87157,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -87004,14 +87234,14 @@ Transform:
   m_GameObject: {fileID: 1109240154}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.8, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 282238865}
   - {fileID: 703440560}
   - {fileID: 1314532033}
-  m_Father: {fileID: 372313856}
+  m_Father: {fileID: 494678957}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &1109240156
 Animator:
@@ -87030,7 +87260,7 @@ Animator:
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
-  m_WarningMessage: 
+  m_WarningMessage:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
@@ -87077,7 +87307,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -87128,7 +87358,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -87310,7 +87540,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 41ccfe539bae77046b9f82fd999c9ad6, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::InventorySystem.UI.InventoryUIManager
   _inventoryManager: {fileID: 1868214904}
   _inventoryRoot: {fileID: 2130285188}
@@ -87381,7 +87611,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -87613,12 +87843,58 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
   lightColor: {r: 1, g: 1, b: 1, a: 1}
   intensity: 1
+--- !u!1 &1166935342
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1166935343}
+  - component: {fileID: 1166935344}
+  m_Layer: 0
+  m_Name: SortingPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1166935343
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1166935342}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.8, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 248602768}
+  m_Father: {fileID: 419220492}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!210 &1166935344
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1166935342}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_SortAtRoot: 0
+  m_Sort3DAs2D: 0
 --- !u!1 &1172667437
 GameObject:
   m_ObjectHideFlags: 0
@@ -87664,7 +87940,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -97517,7 +97793,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b152cdadb37e7464081d2bb9b6e8bc65, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: skner.DualGrid::skner.DualGrid.DualGridTilemapModule
   _renderTile: {fileID: 11400000, guid: d1ca76e0c4e86354e9e7b55ba4b01506, type: 2}
   _enableTilemapCollider: 0
@@ -100474,6 +100750,52 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1 &1183214163
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1183214164}
+  - component: {fileID: 1183214165}
+  m_Layer: 0
+  m_Name: SortingPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1183214164
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1183214163}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.8, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1561937667}
+  m_Father: {fileID: 583554403}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!210 &1183214165
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1183214163}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_SortAtRoot: 0
+  m_Sort3DAs2D: 0
 --- !u!1 &1196184007
 GameObject:
   m_ObjectHideFlags: 0
@@ -100518,7 +100840,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b152cdadb37e7464081d2bb9b6e8bc65, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: skner.DualGrid::skner.DualGrid.DualGridTilemapModule
   _renderTile: {fileID: 11400000, guid: 004a59f44999f22439340216e97f0264, type: 2}
   _enableTilemapCollider: 0
@@ -107597,7 +107919,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -107632,7 +107954,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -107883,7 +108205,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -108035,14 +108357,14 @@ Transform:
   m_GameObject: {fileID: 1232198178}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.8, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1934096229}
   - {fileID: 673352156}
   - {fileID: 1371951182}
-  m_Father: {fileID: 725900503}
+  m_Father: {fileID: 198957918}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &1232198180
 Animator:
@@ -108061,7 +108383,7 @@ Animator:
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
-  m_WarningMessage: 
+  m_WarningMessage:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
@@ -108108,7 +108430,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -108126,6 +108448,7 @@ GameObject:
   - component: {fileID: 1249090598}
   - component: {fileID: 1249090597}
   - component: {fileID: 1249090600}
+  - component: {fileID: 1249090601}
   m_Layer: 0
   m_Name: Junko
   m_TagString: Untagged
@@ -108167,8 +108490,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.5, y: 1}
+  m_Offset: {x: 0, y: -0.5}
+  m_Size: {x: 0.5, y: 0.5}
   m_Direction: 0
 --- !u!50 &1249090598
 Rigidbody2D:
@@ -108210,7 +108533,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 742978747}
+  - {fileID: 957587700}
   m_Father: {fileID: 1225368451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1249090600
@@ -108223,11 +108546,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e56ed70538e15b4cb6211121dae4ec8, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Otowa.Day3.Day3FestivalNpcController
   _npc: 1
   _movement: {fileID: 0}
   _interactPrompt: '[Space] Talk'
+--- !u!114 &1249090601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249090594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 457e5bc6e2c2e7b43a626b20bf52cc3a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Otowa.Minimap.MinimapIcon
+  portrait: {fileID: -5979425423447815568, guid: d2cb6335438500142ba87b57557e27b4, type: 3}
+  iconColor: {r: 0.83, g: 0.63, b: 0.38, a: 1}
+  displayName: Junko
 --- !u!1 &1255599964
 GameObject:
   m_ObjectHideFlags: 0
@@ -108335,7 +108673,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
   m_IgnoreReversedGraphics: 1
   m_BlockingObjects: 0
@@ -108352,7 +108690,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
   m_UiScaleMode: 0
   m_ReferencePixelsPerUnit: 100
@@ -108528,7 +108866,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -108670,7 +109008,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -108841,7 +109179,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerBehind
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -109170,7 +109508,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -109223,7 +109561,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
   m_Padding:
     m_Left: 0
@@ -109249,7 +109587,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1394a975c0f2c848ac8e592b6df423d, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::TabGroup
   buttonPrefab: {fileID: 0}
   requireSelection: 0
@@ -109279,14 +109617,14 @@ Transform:
   m_GameObject: {fileID: 1323903759}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.8, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1657831260}
   - {fileID: 621447128}
   - {fileID: 434222051}
-  m_Father: {fileID: 549510958}
+  m_Father: {fileID: 332550382}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &1323903761
 Animator:
@@ -109305,7 +109643,7 @@ Animator:
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
-  m_WarningMessage: 
+  m_WarningMessage:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
@@ -109397,7 +109735,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -109433,7 +109771,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 805f36467983b6642a759f3b97d1a551, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSystem.UI.DialogueUIController
   dialoguePanel: {fileID: 579701195}
   portraitImage: {fileID: 468853654}
@@ -109456,7 +109794,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
   m_IgnoreReversedGraphics: 1
   m_BlockingObjects: 0
@@ -109473,7 +109811,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
   m_UiScaleMode: 0
   m_ReferencePixelsPerUnit: 100
@@ -109575,7 +109913,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerBehind
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -109743,7 +110081,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -109791,7 +110129,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -109842,7 +110180,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -110010,7 +110348,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -110184,7 +110522,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -110235,7 +110573,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -110470,7 +110808,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -110614,7 +110952,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -110846,7 +111184,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -111044,7 +111382,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1750248250}
+  - {fileID: 165966334}
   m_Father: {fileID: 1225368451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!70 &1400429730
@@ -111081,8 +111419,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.5, y: 1}
+  m_Offset: {x: 0, y: -0.6}
+  m_Size: {x: 0.5, y: 0.5}
   m_Direction: 0
 --- !u!50 &1400429731
 Rigidbody2D:
@@ -111121,7 +111459,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e56ed70538e15b4cb6211121dae4ec8, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Otowa.Day3.Day3FestivalNpcController
   _npc: 5
   _movement: {fileID: 0}
@@ -111171,7 +111509,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -111406,7 +111744,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -111550,7 +111888,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -111691,7 +112029,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -111817,7 +112155,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -116522,7 +116860,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -116573,7 +116911,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -116727,7 +117065,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -116989,7 +117327,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -117040,7 +117378,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -117184,7 +117522,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -117352,7 +117690,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -117494,7 +117832,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -117619,14 +117957,14 @@ Transform:
   m_GameObject: {fileID: 1561937666}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.8, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 487860330}
   - {fileID: 1650649662}
   - {fileID: 1716049788}
-  m_Father: {fileID: 583554403}
+  m_Father: {fileID: 1183214164}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &1561937668
 Animator:
@@ -117645,7 +117983,7 @@ Animator:
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
-  m_WarningMessage: 
+  m_WarningMessage:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
@@ -117692,7 +118030,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -117742,7 +118080,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b152cdadb37e7464081d2bb9b6e8bc65, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: skner.DualGrid::skner.DualGrid.DualGridTilemapModule
   _renderTile: {fileID: 11400000, guid: 106c90fae7ee3f44c856fa840ce0a8c4, type: 2}
   _enableTilemapCollider: 0
@@ -179454,7 +179792,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerBehind
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -179687,7 +180025,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -179858,7 +180196,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -180028,7 +180366,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b152cdadb37e7464081d2bb9b6e8bc65, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: skner.DualGrid::skner.DualGrid.DualGridTilemapModule
   _renderTile: {fileID: 11400000, guid: 75b45435bb241bf4fbf30c96509d4353, type: 2}
   _enableTilemapCollider: 0
@@ -183540,7 +183878,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -183684,7 +184022,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerBehind
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -183839,7 +184177,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -184008,7 +184346,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -184240,7 +184578,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2.62
   coreRadius: 0.105
@@ -184366,7 +184704,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -184573,7 +184911,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -184717,7 +185055,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -184861,7 +185199,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerBehind
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -185120,7 +185458,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -185168,7 +185506,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2.62
   coreRadius: 0.105
@@ -185219,7 +185557,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -189585,7 +189923,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -189681,7 +190019,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -189806,14 +190144,14 @@ Transform:
   m_GameObject: {fileID: 1750248249}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.8, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 499076578}
   - {fileID: 943477037}
   - {fileID: 1946973215}
-  m_Father: {fileID: 1400429727}
+  m_Father: {fileID: 165966334}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &1750248251
 Animator:
@@ -189832,7 +190170,7 @@ Animator:
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
-  m_WarningMessage: 
+  m_WarningMessage:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
@@ -189879,7 +190217,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -189932,7 +190270,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -190067,7 +190405,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -190361,7 +190699,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -190493,7 +190831,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -190528,7 +190866,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -190697,7 +191035,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -190841,7 +191179,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -191017,7 +191355,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.392}
@@ -191100,7 +191438,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -191209,7 +191547,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 24c0ec9f475cb6d4a8ddb3d061aeb5ca, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::InventorySystem.InventoryManager
 --- !u!4 &1868214905
 Transform:
@@ -191272,7 +191610,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.VerticalLayoutGroup
   m_Padding:
     m_Left: 0
@@ -191333,7 +191671,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -191488,7 +191826,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -191654,7 +191992,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -191705,7 +192043,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -191873,7 +192211,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -191921,7 +192259,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -191972,7 +192310,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -192160,7 +192498,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7dc35a0730eec214e85a03ae8b61d0e4, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSystem.DialogueGameBootstrapper
   questFlagProviderBehaviour: {fileID: 0}
   inventoryProviderBehaviour: {fileID: 0}
@@ -192316,7 +192654,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -192560,7 +192898,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2e90dac4a01a3c4f8c51e687e0b2e0d, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::MapBoundary2D
   _visualMin: {x: -44.5, y: -27.5}
   _visualMax: {x: 39.5, y: 37.5}
@@ -192625,7 +192963,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -192767,7 +193105,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -192908,7 +193246,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2.62
   coreRadius: 0.105
@@ -193050,7 +193388,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -193225,7 +193563,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
   m_Navigation:
     m_Mode: 3
@@ -193281,7 +193619,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -193442,7 +193780,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -193493,7 +193831,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -193661,7 +193999,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4
@@ -193712,7 +194050,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerBehind
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -193883,7 +194221,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -194077,7 +194415,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb0133c351f43c48068243071f92403, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FadeWhenPlayerInsideSpriteBounds
   fadedAlpha: 0.5
   fadeSpeed: 4
@@ -194245,7 +194583,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 3
   coreRadius: 0.4
@@ -194384,7 +194722,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80928347c5164984ea0ff0072eb00dd9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::LightSource2D
   radius: 2
   coreRadius: 0.4

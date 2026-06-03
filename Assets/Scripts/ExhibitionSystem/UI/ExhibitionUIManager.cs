@@ -67,6 +67,8 @@ namespace ExhibitionSystem.UI
                     _rootCanvas = parent != null ? parent.GetComponentInParent<Canvas>() : null;
                 }
             }
+
+            EnsureTooltipReady();
         }
 
         private void OnDestroy()
@@ -148,6 +150,20 @@ namespace ExhibitionSystem.UI
 
             _showInspirationPopupCoroutine = null;
             _inspirationPopup?.ShowForSlot(slotIndex);
+        }
+
+        private void EnsureTooltipReady()
+        {
+            if (_tooltip == null)
+                _tooltip = FindFirstObjectByType<ItemTooltip>(FindObjectsInactive.Include);
+
+            if (_tooltip == null)
+                return;
+
+            if (!_tooltip.gameObject.activeSelf)
+                _tooltip.gameObject.SetActive(true);
+
+            _tooltip.Hide();
         }
     }
 }

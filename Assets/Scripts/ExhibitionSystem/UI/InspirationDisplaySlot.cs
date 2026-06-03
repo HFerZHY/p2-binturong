@@ -36,6 +36,17 @@ namespace ExhibitionSystem.UI
                 _labelButton.onClick.AddListener(HandleLabelClicked);
         }
 
+        private void OnEnable()
+        {
+            TutorialPopup.OnInspirationEditingBlockChanged += HandleInspirationEditingBlockChanged;
+            UpdateLabelInteractable();
+        }
+
+        private void OnDisable()
+        {
+            TutorialPopup.OnInspirationEditingBlockChanged -= HandleInspirationEditingBlockChanged;
+        }
+
         public void SetData(int slotIndex, InspirationData inspiration, ExhibitItemData item)
         {
             _slotIndex = slotIndex;
@@ -126,13 +137,18 @@ namespace ExhibitionSystem.UI
             var manager = ExhibitionManager.Instance;
             if (manager == null ||
                 manager.IsRunning ||
-                manager.IsSlotInspirationFixed(_slotIndex) ||
-                _item == null)
+                TutorialPopup.IsInspirationEditingBlocked ||
+                manager.IsSlotInspirationFixed(_slotIndex))
             {
                 return;
             }
 
             ExhibitionUIManager.Instance?.ShowInspirationPopupForSlot(_slotIndex);
+        }
+
+        private void HandleInspirationEditingBlockChanged(bool blocked)
+        {
+            UpdateLabelInteractable();
         }
 
         private void EnsureLabelReferences()
@@ -161,8 +177,8 @@ namespace ExhibitionSystem.UI
             if (_labelButton != null)
             {
                 var manager = ExhibitionManager.Instance;
-                _labelButton.interactable = _item != null &&
-                                             !(manager?.IsRunning ?? false) &&
+                _labelButton.interactable = !(manager?.IsRunning ?? false) &&
+                                             !TutorialPopup.IsInspirationEditingBlocked &&
                                              !(manager?.IsSlotInspirationFixed(_slotIndex) ?? false);
             }
         }

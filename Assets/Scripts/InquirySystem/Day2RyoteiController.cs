@@ -183,7 +183,7 @@ namespace Otowa.Inquiry
             bool isRin = beat.Speaker == "Rin";
             _speakerText.text = beat.Speaker;
             _speakerText.color = isRin ? RinColor : JiroColor;
-            _speakerText.alignment = isRin ? TextAlignmentOptions.Left : TextAlignmentOptions.Right;
+            _speakerText.alignment = TextAlignmentOptions.Left;
             SetAlpha(_rinImage, isRin ? ActiveAlpha : InactiveAlpha);
             SetAlpha(_jiroImage, isRin ? InactiveAlpha : ActiveAlpha);
             _textPlayer.Play(_bodyText, beat.Text);
@@ -423,7 +423,7 @@ namespace Otowa.Inquiry
             panel.raycastTarget = false;
 
             _speakerText = MakeText(panelObject.transform, "Speaker", string.Empty,
-                38f, JiroColor, TextAlignmentOptions.Right,
+                38f, JiroColor, TextAlignmentOptions.Left,
                 new Vector2(0.04f, 0.68f), new Vector2(0.96f, 0.96f));
             _speakerText.fontStyle = FontStyles.Bold;
 

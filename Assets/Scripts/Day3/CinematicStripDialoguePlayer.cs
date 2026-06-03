@@ -51,14 +51,12 @@ namespace Otowa.Day3
             var subtitleImage = subtitleBar.AddComponent<Image>();
             subtitleImage.color = new Color(0f, 0f, 0f, 0.97f);
 
-            _leftPortrait = CreatePortrait("LeftPortrait", subtitleBar.transform, new Vector2(0.03f, 0.08f), new Vector2(0.17f, 0.94f));
-
-            _speakerText = CreateText("Speaker", subtitleBar.transform, font, new Vector2(0.20f, 0.57f), new Vector2(0.80f, 0.91f));
+            _speakerText = CreateText("Speaker", subtitleBar.transform, font, new Vector2(0.08f, 0.57f), new Vector2(0.80f, 0.91f));
             _speakerText.fontSize = 34f;
             _speakerText.fontStyle = FontStyles.Bold;
             _speakerText.color = new Color(0.97f, 0.79f, 0.47f);
 
-            _bodyText = CreateText("Dialogue", subtitleBar.transform, font, new Vector2(0.20f, 0.15f), new Vector2(0.80f, 0.63f));
+            _bodyText = CreateText("Dialogue", subtitleBar.transform, font, new Vector2(0.08f, 0.15f), new Vector2(0.80f, 0.63f));
             _bodyText.fontSize = 31f;
             _bodyText.color = Color.white;
 
@@ -121,7 +119,7 @@ namespace Otowa.Day3
 
         public void SetPortraits(Sprite left, Sprite right)
         {
-            SetPortrait(_leftPortrait, left);
+            SetPortrait(_leftPortrait, null);
             SetPassengerPortraits(right);
         }
 
@@ -168,12 +166,18 @@ namespace Otowa.Day3
 
         private static void SetPortrait(Image image, Sprite sprite)
         {
+            if (image == null)
+                return;
+
             image.sprite = sprite;
             image.enabled = sprite != null;
         }
 
         private static void SetPortraitAlpha(Image image, bool active)
         {
+            if (image == null)
+                return;
+
             if (!image.enabled)
                 return;
 

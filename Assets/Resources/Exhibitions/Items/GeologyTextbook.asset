@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59bba459f8de3b548a786ad00daa5442, type: 3}
   m_Name: GeologyTextbook
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionSystem.Data.ExhibitItemData
-  itemName: Geology Textbook
+  itemName: Textbook
   nameKey: item_geology_textbook
   icon: {fileID: 6195574146547527048, guid: b6fafdcb5f4d4ef4293e4442ae28b830, type: 3}
   iconScale: 1
   sortOrder: 12
-  description: A professor's old geology textbook filled with marginal notes.
+  description: On geology, written by Rintaro.
   descriptionKey: desc_geology_textbook
   isUnlocked: 1
   tags:

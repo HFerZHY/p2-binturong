@@ -83,7 +83,7 @@ namespace Otowa.Day3
             Black("Night falls, and still the Inspector never comes to deliver his final verdict.", cue: AudioCue.LowerBgmAgain),
             Black("No miracle came.", cue: AudioCue.StopBgm),
             Black("So this really is a lonely Summer Festival. This really is Otowa Station's last night."),
-            Black("Hikaru has fallen asleep at the desk, and you watch two trails of tears slide down his round face.", cue: AudioCue.StartSnoring),
+            Black("Hikaru has fallen asleep at the desk, and you watch two trails of tears slide down his face.", cue: AudioCue.StartSnoring),
             Black("But what can you do?", pauseBefore: true),
             Black("It is, after all, the night of the Summer Festival. You can go and see the villagers."),
             Black("You needn't tell them the bad news. You only need to comfort them."),

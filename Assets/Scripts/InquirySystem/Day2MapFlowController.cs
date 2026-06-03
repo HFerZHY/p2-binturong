@@ -254,7 +254,6 @@ namespace Otowa.Inquiry
             SetExplorationUiLocked(false);
             GameAudioManager.Instance.StopSfxLoop(AudioId.ForestAtmosphere, 0.3f);
             GameAudioManager.Instance.PlayBgm(AudioId.DayWalk, fadeIn: 0.45f);
-            InspirationManager.Instance.BeginJournalGuide(restart: true);
             QueueAllInquiryThoughtIfReady();
         }
 

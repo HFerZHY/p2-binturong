@@ -17,7 +17,7 @@ MonoBehaviour:
   icon: {fileID: 8643187537677252515, guid: ae46c1cdee2eb6f4c9e47bfa16cce76f, type: 3}
   iconScale: 1
   sortOrder: 15
-  description: A painting that gathers the colors of Otowa.
+  description: Mizuki's dream.
   descriptionKey: desc_painting
   isUnlocked: 1
   tags: []

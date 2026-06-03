@@ -267,6 +267,13 @@ namespace Otowa.Inquiry
             var graph = CreateGraph(graphName);
             AppendLines(graph, lines, "line", "menu");
 
+            graph.nodes.Add(CreateBranch("menu", CreateMenuChoices()));
+            graph.nodes.Add(CreateTerminal("leave"));
+            return FinishGraph(graph, lines.Count > 0 ? "line_01" : "menu");
+        }
+
+        private List<DialogueChoice> CreateMenuChoices()
+        {
             var progress = Day2InquiryProgress.Instance;
             var choices = new List<DialogueChoice>();
             if (npc == Day2InquiryNpc.Yuji && !progress.IsYujiFestivalTopicComplete)
@@ -277,9 +284,7 @@ namespace Otowa.Inquiry
                 choices.Add(ActionChoice("Inquire about an item's story", InquiryActionKey));
 
             choices.Add(TargetChoice("Leave", "leave"));
-            graph.nodes.Add(CreateBranch("menu", choices));
-            graph.nodes.Add(CreateTerminal("leave"));
-            return FinishGraph(graph, lines.Count > 0 ? "line_01" : "menu");
+            return choices;
         }
 
         private DialogueGraph BuildFestivalTopicGraph()
@@ -320,7 +325,7 @@ namespace Otowa.Inquiry
             {
                 14 => BuildSimpleStory("Day2YujiGuitar", new[]
                 {
-                    Rin("Oh, right, Mr. Yuji, I saw a beat-up guitar in the stationmaster's office. I know you love music; is it yours?"),
+                    Rin("Oh, right, Mr. Yuji, I saw a broken guitar in the stationmaster's office. I know you love music; is it yours?"),
                     Speaker("Ah, the guitar... that'd be that kid Hachi's, I think."),
                     Rin("Hachi?"),
                     Speaker("Yeah, the son of that old stick-in-the-mud, Jiro."),
@@ -333,21 +338,21 @@ namespace Otowa.Inquiry
                     Speaker("Then one day, Jiro and Hachi had a huge blowout, and the kid stormed off without looking back. Never came home again."),
                     Rin("Mr. Jiro must regret it."),
                     Speaker("Bet he does. But he'd never say so. Jiro's the type who would rather bite his tongue clean off than say a kind word."),
-                }, new[] { 5 }, () => InspirationManager.Instance.CompleteTheme(YujiTheme)),
+                }, new[] { 5 }, () => InspirationManager.Instance.CompleteTheme(YujiTheme), returnToMenuIfAvailable: true),
                 2 => BuildSimpleStory("Day2RintaroBinoculars", new[]
                 {
                     Rin("Excuse me, what's that hanging around your neck...?"),
                     Speaker("Huh? Are you an idiot?"),
                     Speaker("These are obviously binoculars for birdwatching! 8x42, the gold standard, with ED glass, no less!"),
                     Speaker("Move, move, you're blocking my view."),
-                }, new[] { 2 }, CompleteRintaroThemeIfReady),
+                }, new[] { 2 }, CompleteRintaroThemeIfReady, returnToMenuIfAvailable: true),
                 1 => BuildSimpleStory("Day2RintaroFeather", new[]
                 {
                     Rin("Chief Junko said this forest is home to many kinds of birds. Are you here looking for some rare species?"),
                     Speaker("Ho, you know a thing or two. Have you ever heard of a migratory bird with pure blue feathers?"),
                     Speaker("That little fellow is exceedingly rare, it only returns to Otowa's forest during these few days around the Summer Festival."),
                     Speaker("Last year my luck was rotten and I never spotted one. This year, I won't miss the chance for anything."),
-                }, new[] { 1 }, CompleteRintaroThemeIfReady),
+                }, new[] { 1 }, CompleteRintaroThemeIfReady, returnToMenuIfAvailable: true),
                 12 => BuildSimpleStory("Day2RintaroGeologyBook", new[]
                 {
                     Rin("Actually, I found a thick book in the stationmaster's office with a mountain drawn on it, looks like a geology textbook."),
@@ -360,11 +365,11 @@ namespace Otowa.Inquiry
                     Speaker("Then, halfway through the survey, it hit me, compared to those stones that just sit there, the birds in this forest are far more interesting!"),
                     Speaker("So the moment I retired, I packed my bags and moved here. Watching these birds in the forest beats scheming against people in the city, that's what real life is."),
                     Rin("Thank you, Professor Rintaro. Enjoy your birdwatching."),
-                }, new[] { 3 }, CompleteRintaroThemeIfReady),
+                }, new[] { 3 }, CompleteRintaroThemeIfReady, returnToMenuIfAvailable: true),
                 4 => BuildSimpleStory("Day2JunkoCharm", new[]
                 {
-                    Rin("Oh, Chief, I saw this charm in the stationmaster's office. Mizuki gave me one too. Does it carry some kind of meaning?"),
-                    Speaker("Oh, this charm stands for health and safety. See? I carry one with me as well, Mizuki even painted the pattern on it."),
+                    Rin("Oh, Chief, I saw this amulet in the stationmaster's office. Mizuki gave me one too. Does it carry some kind of meaning?"),
+                    Speaker("Oh, this amulet stands for health and safety. See? I carry one with me as well, Mizuki even painted the pattern on it."),
                     Rin("Come to think of it, Chief, may I ask you about Mizuki? When all the young people leave, why has she stayed in the village all this time?"),
                     Speaker("...Mizuki is a child who tugs at your heart."),
                     Speaker("Her parents died in a shipwreck when she was very young. Ever since, the whole village has looked after her as if she were their own, watching over her with the greatest care."),
@@ -375,7 +380,7 @@ namespace Otowa.Inquiry
                     Speaker("...I think she believes that since the villagers helped her, she ought to stay and repay them."),
                     Speaker("As chief, I know her devotion is crucial to the village. But I truly don't want her bound to a place that's slowly growing old."),
                     Rin("(A dream she's holding back, huh... Maybe I should go and ask Mizuki herself.)"),
-                }),
+                }, returnToMenuIfAvailable: true),
                 _ => null,
             };
         }
@@ -390,14 +395,31 @@ namespace Otowa.Inquiry
             string graphName,
             IReadOnlyList<Line> lines,
             IReadOnlyList<int> inspirationUnlockIds = null,
-            Action onComplete = null)
+            Action onComplete = null,
+            bool returnToMenuIfAvailable = false)
         {
             var graph = CreateGraph(graphName);
-            AppendLines(graph, lines, "line", "end", inspirationUnlockIds);
-            var terminal = CreateTerminal("end");
-            if (onComplete != null)
-                terminal.onEnter.AddListener(() => onComplete());
-            graph.nodes.Add(terminal);
+            bool shouldReturnToMenu = returnToMenuIfAvailable && HasPendingConversation();
+            AppendLines(
+                graph,
+                lines,
+                "line",
+                shouldReturnToMenu ? "menu" : "end",
+                inspirationUnlockIds);
+
+            if (shouldReturnToMenu)
+            {
+                graph.nodes.Add(CreateBranch("menu", CreateMenuChoices(), onComplete));
+                graph.nodes.Add(CreateTerminal("leave"));
+            }
+            else
+            {
+                var terminal = CreateTerminal("end");
+                if (onComplete != null)
+                    terminal.onEnter.AddListener(() => onComplete());
+                graph.nodes.Add(terminal);
+            }
+
             return FinishGraph(graph, "line_01");
         }
 
@@ -463,9 +485,9 @@ namespace Otowa.Inquiry
             };
         }
 
-        private static DialogueNode CreateBranch(string id, List<DialogueChoice> choices)
+        private static DialogueNode CreateBranch(string id, List<DialogueChoice> choices, Action onEntered = null)
         {
-            return new DialogueNode
+            var node = new DialogueNode
             {
                 id = id,
                 nodeType = NodeType.Branch,
@@ -473,6 +495,11 @@ namespace Otowa.Inquiry
                 onEnter = new UnityEvent(),
                 onExit = new UnityEvent(),
             };
+
+            if (onEntered != null)
+                node.onEnter.AddListener(() => onEntered());
+
+            return node;
         }
 
         private static DialogueNode CreateTerminal(string id)

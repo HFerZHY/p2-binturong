@@ -17,7 +17,7 @@ MonoBehaviour:
   icon: {fileID: -2087527056206974065, guid: 82f9ae07c0d214c46b4d0f987bfc5255, type: 3}
   iconScale: 1
   sortOrder: 8
-  description: Fragrant herbs that shape Otowa's signature flavor.
+  description: Tastes like mint, and like yuzu.
   descriptionKey: desc_herbs
   isUnlocked: 1
   tags:

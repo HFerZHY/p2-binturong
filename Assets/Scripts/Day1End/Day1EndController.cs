@@ -104,6 +104,11 @@ namespace Otowa.Day1End
             int next = _beatIndex + 1;
             if (next >= Beats.Length)
                 StartCoroutine(FadeAndLoad());
+            else if (_beatIndex == 2 && next == 3)
+            {
+                if (_dreamBrightenCoroutine == null)
+                    _dreamBrightenCoroutine = StartCoroutine(BrightenDreamThenShowWhistle());
+            }
             else
                 ShowBeat(next);
         }
@@ -125,10 +130,7 @@ namespace Otowa.Day1End
                 bool isBrightDream = index == 3;
                 _background.color = isBrightDream ? BrightDreamBg : DreamBg;
                 _dreamBody.color = isBrightDream ? WakeText : DreamText;
-                _textPlayer.Play(
-                    _dreamBody,
-                    beat.Text,
-                    index == 2 ? HandleDreamFireworksCompleted : null);
+                _textPlayer.Play(_dreamBody, beat.Text);
                 return;
             }
 
@@ -155,14 +157,6 @@ namespace Otowa.Day1End
                     audio.PlaySfxLoop(AudioId.ForestAtmosphere, fadeIn: 0.25f);
                     break;
             }
-        }
-
-        private void HandleDreamFireworksCompleted()
-        {
-            if (_beatIndex != 2 || _dreamBrightenCoroutine != null)
-                return;
-
-            _dreamBrightenCoroutine = StartCoroutine(BrightenDreamThenShowWhistle());
         }
 
         private IEnumerator BrightenDreamThenShowWhistle()
