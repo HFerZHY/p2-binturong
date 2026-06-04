@@ -1,6 +1,7 @@
 using System.Collections;
 using Otowa.Audio;
 using Otowa.IndoorDialogue;
+using Otowa.SaveSystem;
 using Otowa.UI;
 using TMPro;
 using UnityEngine;
@@ -21,7 +22,6 @@ namespace Otowa.Day3
         private enum AudioCue
         {
             None,
-            StartEnding,
             StopEnding
         }
 
@@ -69,6 +69,9 @@ namespace Otowa.Day3
         [SerializeField] private float _arrivalLeadInDuration = 3f;
         [SerializeField] private float _whiteLightFadeDuration = 2f;
 
+        private static readonly Color SoftWhiteBackground = new(0.93f, 0.92f, 0.86f, 1f);
+        private static readonly Color WhiteNarrationText = new(0.10f, 0.12f, 0.16f, 1f);
+
         private static readonly Beat[] Beats =
         {
             White("Through a burst of brilliant white light, you see a train drawing near."),
@@ -76,7 +79,7 @@ namespace Otowa.Day3
             White("It slows to a gentle stop right in front of Otowa Station."),
             White("You see young people stepping off the train one after another..."),
             Passenger("Passenger", "It's been forever since I've been back to Otowa! I had no idea there'd be a night train today.", 0),
-            Passenger("Passenger", "Look, look! This exhibition is so cool!", 1, AudioCue.StartEnding),
+            Passenger("Passenger", "Look, look! This exhibition is so cool!", 1),
             Passenger("Passenger", "It's Mr. Yuji's sake! Man, I've missed this taste.", 2),
             Passenger("Passenger", "Tomorrow I am soaking in that hot spring till I melt!", 3),
             Passenger("Passenger", "Hey there, Stationmaster! Sorry we're rolling in so late. Happy Summer Festival!", 4),
@@ -99,6 +102,15 @@ namespace Otowa.Day3
             Pair("Rin", "(They all came back... Mizuki's friend, Mr. Jiro's son. Every person the villagers longed to see, home again as if by some miracle.)", CinematicStripPortraitFocus.Left),
             InspectorReveal("Inspector", "...", AudioCue.StopEnding),
             Keep("Rin", "Huh?!", CinematicStripPortraitFocus.Left),
+        };
+
+        private static readonly Color[] PassengerSpeakerColors =
+        {
+            new Color32(0xc8, 0x6a, 0x66, 0xff),
+            new Color32(0x8d, 0x96, 0xd0, 0xff),
+            new Color32(0xd0, 0x98, 0x58, 0xff),
+            new Color32(0xba, 0x6a, 0x62, 0xff),
+            new Color32(0x70, 0xa8, 0xb4, 0xff),
         };
 
         private CanvasGroup _fade;
@@ -149,7 +161,7 @@ namespace Otowa.Day3
             GameAudioManager.Instance.PlaySfxOnce(AudioId.WhistleIn);
             yield return new WaitForSeconds(_arrivalLeadInDuration);
             yield return FadeCanvas(0f, 1f, 0.40f);
-            yield return FadeBackground(Color.black, Color.white, _whiteLightFadeDuration);
+            yield return FadeBackground(Color.black, SoftWhiteBackground, _whiteLightFadeDuration);
             AdvanceBeat();
             _inputLock = false;
         }
@@ -195,7 +207,11 @@ namespace Otowa.Day3
             else if (beat.ShowNamedPair)
                 _stripPlayer.SetPassengerPortraits(_misakiPortrait, _hachiPortrait);
             else if (beat.PassengerIndex >= 0 && beat.PassengerIndex < _passengerPortraits.Length)
+            {
                 _stripPlayer.SetPassengerPortraits(_passengerPortraits[beat.PassengerIndex]);
+                if (beat.PassengerIndex < PassengerSpeakerColors.Length)
+                    _stripPlayer.SetSpeakerColorOverride(PassengerSpeakerColors[beat.PassengerIndex]);
+            }
 
             _stripPlayer.PlayLine(beat.Speaker, beat.Text, beat.Focus);
         }
@@ -204,9 +220,6 @@ namespace Otowa.Day3
         {
             switch (cue)
             {
-                case AudioCue.StartEnding:
-                    GameAudioManager.Instance.PlayBgm(AudioId.Ending, fadeIn: 0.75f);
-                    break;
                 case AudioCue.StopEnding:
                     GameAudioManager.Instance.StopBgm(0.35f);
                     break;
@@ -216,6 +229,7 @@ namespace Otowa.Day3
         private IEnumerator TransitionToNightStation(int nextBeatIndex)
         {
             _inputLock = true;
+            GameAudioManager.Instance.PlayBgm(AudioId.Ending, fadeIn: 0.75f);
             yield return FadeCanvas(1f, 0f, _nightStationTransitionDuration);
             ShowBeat(nextBeatIndex);
             yield return FadeCanvas(0f, 1f, _nightStationTransitionDuration);
@@ -318,8 +332,9 @@ namespace Otowa.Day3
             _whiteNarrationBody = MakeText("Body", _whiteNarrationRoot.transform,
                 new Vector2(0.17f, 0.28f), new Vector2(0.83f, 0.72f));
             _whiteNarrationBody.fontSize = 39f;
+            _whiteNarrationBody.fontStyle = FontStyles.Bold;
             _whiteNarrationBody.alignment = TextAlignmentOptions.Center;
-            _whiteNarrationBody.color = new Color(0.14f, 0.17f, 0.22f, 1f);
+            _whiteNarrationBody.color = WhiteNarrationText;
             UseFont(_whiteNarrationBody, _centeredFont);
 
             var prompt = MakeText("Prompt", _whiteNarrationRoot.transform,
@@ -406,6 +421,9 @@ namespace Otowa.Day3
 
         private static bool WasAdvancePressed()
         {
+            if (PauseMenuController.ShouldSuppressWorldAdvance)
+                return false;
+
             var mouseClicked = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
             var keyboard = Keyboard.current;
             var keyboardPressed = keyboard != null

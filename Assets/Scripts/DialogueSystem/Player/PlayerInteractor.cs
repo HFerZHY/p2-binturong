@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using DialogueSystem.Core;
 using DialogueSystem.Interfaces;
 using DialogueSystem.UI;
+using Otowa.SaveSystem;
 using UnityEngine.Serialization;
 
 namespace DialogueSystem.Player
@@ -86,6 +87,9 @@ namespace DialogueSystem.Player
 
         private void OnInteractPerformed(InputAction.CallbackContext ctx)
         {
+            if (PauseMenuController.ShouldSuppressWorldAdvance)
+                return;
+
             if (_externalInteractionLocked)
                 return;
 

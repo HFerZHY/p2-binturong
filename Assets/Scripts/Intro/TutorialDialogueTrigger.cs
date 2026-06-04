@@ -4,6 +4,7 @@ using DialogueSystem.Data;
 using DialogueSystem.Player;
 using Otowa.Audio;
 using Otowa.Minimap;
+using Otowa.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -183,7 +184,7 @@ namespace Otowa.Intro
                 panel.transform,
                 "Title",
                 "Village guide",
-                28f,
+                34f,
                 new Color32(0xf0, 0xd7, 0xa5, 0xFF),
                 TextAlignmentOptions.Center,
                 new Vector2(0.06f, 0.73f),
@@ -194,7 +195,7 @@ namespace Otowa.Intro
                 panel.transform,
                 "Body",
                 string.Empty,
-                21f,
+                28f,
                 new Color32(0xf7, 0xea, 0xc9, 0xFF),
                 TextAlignmentOptions.Center,
                 new Vector2(0.10f, 0.30f),
@@ -217,7 +218,7 @@ namespace Otowa.Intro
                 okayObject.transform,
                 "Text",
                 "Got it",
-                20f,
+                24f,
                 new Color32(0x52, 0x36, 0x25, 0xFF),
                 TextAlignmentOptions.Center,
                 Vector2.zero,
@@ -247,6 +248,7 @@ namespace Otowa.Intro
             var textObject = MakeRect(parent, name, anchorMin, anchorMax);
             var text = textObject.AddComponent<TextMeshProUGUI>();
             text.text = value;
+            RuntimeFontLibrary.ApplyBreeSerif(text);
             text.fontSize = size;
             text.color = color;
             text.alignment = alignment;

@@ -301,10 +301,13 @@ namespace Otowa.Intro
             graph.nodes       = new List<DialogueNode>
             {
                 // ── Opening exchange ──────────────────────────────────────────
-                Line("line_01", "Junko", "You must be tired from your journey. You are Rin, right? I am Junko, the chief of Otowa village.", "line_02"),
-                Line("line_02", "Rin",   "Hello, it's nice to meet you. The air here is so nice, completely different from the city.", "line_03"),
-                Line("line_03", "Junko", "I am relieved to hear you say that. Welcome to Otowa.", "line_04"),
-                Line("line_04", "Rin",   "Thank you. Excuse me, is Mr. Hikaru here? We agreed on the phone to hand over the work today.", "line_05"),
+                Line("line_01", "Junko", "You must be tired from your journey.", "intro_junko_name"),
+                Line("intro_junko_name", "Junko", "You are Rin, right? I am Junko, the chief of Otowa village.", "line_02"),
+                Line("line_02", "Rin",   "Hello, it's nice to meet you.", "intro_rin_air"),
+                Line("intro_rin_air", "Rin", "The air here is so nice, completely different from the city.", "line_03"),
+                Line("line_03", "Junko", "I am relieved to hear you say that. Welcome to Otowa. Please, make yourself at home here.", "intro_rin_hometown"),
+                Line("intro_rin_hometown", "Rin", "(My hometown… I hope the air there is this fresh, too.)", "line_04"),
+                Line("line_04", "Rin",   "Thank you, chief. And.. by the way, is Mr. Hikaru here? We agreed on the phone to hand over the work today.", "line_05"),
                 Line("line_05", "Junko", "Ah... regarding that...", "line_06"),
                 Line("line_06", "Junko", "Yesterday afternoon, he suddenly packed a bag and left. He said there was something extremely important he had to go take care of immediately.", "line_07"),
                 Line("line_07", "Junko", "So, for the next few days until Hikaru returns, I'm afraid we will have to impose on you to temporarily act as the acting stationmaster here.", "branch_reaction"),

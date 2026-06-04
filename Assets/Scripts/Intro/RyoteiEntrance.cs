@@ -12,7 +12,8 @@ namespace Otowa.Intro
     /// </summary>
     public class RyoteiEntrance : MonoBehaviour, IInteractable
     {
-        private const string DEFAULT_INTERACT_PROMPT = "Space to interact";
+        private const string DEFAULT_INTERACT_PROMPT = "[Space] Enter ryotei";
+        private const string LEGACY_INTERACT_PROMPT = "Space to interact";
 
         [SerializeField] private string nextSceneName = "Intro-5";
         [SerializeField] private string interactPrompt = DEFAULT_INTERACT_PROMPT;
@@ -21,7 +22,9 @@ namespace Otowa.Intro
 
         public bool CanInteract => !_loading && !InspirationManager.IsJournalOpen;
         public string InteractPrompt =>
-            string.IsNullOrWhiteSpace(interactPrompt) || interactPrompt == "[Space] Enter Ryotei"
+            string.IsNullOrWhiteSpace(interactPrompt)
+            || interactPrompt == LEGACY_INTERACT_PROMPT
+            || interactPrompt == "[Space] Enter Ryotei"
                 ? DEFAULT_INTERACT_PROMPT
                 : interactPrompt;
 

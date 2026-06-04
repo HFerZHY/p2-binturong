@@ -1,5 +1,6 @@
 using ExhibitionSystem.Core;
 using ExhibitionSystem.Data;
+using Otowa.SaveSystem;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -32,8 +33,10 @@ namespace ExhibitionSystem.UI
             "I should click the label above the exhibit and choose a matching inspiration.";
         [SerializeField] private string _inspirationFirstMessage =
             "I can also choose inspirations first, then drag items in afterward.";
-        [SerializeField] private string _matchedItemMessage =
-            "This item has already been matched with an inspiration. I don't need to match it again. I should try another one.";
+        [SerializeField] private string _reuseItemsMessage =
+            "Any item can be displayed as long as it fits the theme, even if I've used it in a past theme.";
+        [SerializeField] private string _verifiedLabelMessage =
+            "This item's label has been verified, so I don't need to edit it again.";
         [SerializeField] private string _arrangeItemsMessage =
             "Next, I should choose items that fit this theme and drag them into the empty display slots.";
         [SerializeField] private string _startExhibitionMessage =
@@ -48,14 +51,23 @@ namespace ExhibitionSystem.UI
         [SerializeField] private Vector2 _buttonHighlightWidth = new(12f, 12f);
 
         private bool _selectThemeDismissed;
+        private bool _selectThemeHintShown;
         private bool _inspirationHintDismissed;
+        private bool _inspirationHintShown;
         private bool _inspirationFirstHintShown;
         private bool _inspirationFirstHintActive;
         private bool _arrangementHintDismissed;
+        private bool _arrangementHintShown;
         private bool _startHintDismissed;
         private bool _startHintShown;
+        private bool _startHintActive;
         private bool _tryAnotherThemeHintShown;
         private bool _tryAnotherThemeHintDismissed;
+        private bool _tryAnotherThemeHintActive;
+        private bool _reuseItemsHintShown;
+        private bool _reuseItemsHintActive;
+        private bool _verifiedLabelHintShown;
+        private bool _verifiedLabelHintActive;
         private Button _clickDismissButton;
         private ButtonHighlightState _activeButtonHighlight;
 
@@ -136,24 +148,77 @@ namespace ExhibitionSystem.UI
             OnInspirationEditingBlockChanged = null;
         }
 
+        public TutorialPopupSaveData CaptureSaveData()
+        {
+            return new TutorialPopupSaveData
+            {
+                selectThemeHintShown = _selectThemeHintShown,
+                selectThemeDismissed = _selectThemeDismissed,
+                arrangementHintShown = _arrangementHintShown,
+                arrangementHintDismissed = _arrangementHintDismissed,
+                inspirationHintShown = _inspirationHintShown,
+                inspirationHintDismissed = _inspirationHintDismissed,
+                inspirationFirstHintShown = _inspirationFirstHintShown,
+                startHintShown = _startHintShown,
+                startHintDismissed = _startHintDismissed,
+                tryAnotherThemeHintShown = _tryAnotherThemeHintShown,
+                tryAnotherThemeHintDismissed = _tryAnotherThemeHintDismissed,
+                reuseItemsHintShown = _reuseItemsHintShown,
+                verifiedLabelHintShown = _verifiedLabelHintShown,
+            };
+        }
+
+        public void ApplySaveData(TutorialPopupSaveData data)
+        {
+            if (data == null)
+                return;
+
+            _selectThemeHintShown = data.selectThemeHintShown;
+            _selectThemeDismissed = data.selectThemeDismissed;
+            _arrangementHintShown = data.arrangementHintShown;
+            _arrangementHintDismissed = data.arrangementHintDismissed;
+            _inspirationHintShown = data.inspirationHintShown;
+            _inspirationHintDismissed = data.inspirationHintDismissed;
+            _inspirationFirstHintShown = data.inspirationFirstHintShown;
+            _inspirationFirstHintActive = false;
+            _startHintShown = data.startHintShown;
+            _startHintDismissed = data.startHintDismissed;
+            _startHintActive = false;
+            _tryAnotherThemeHintShown = data.tryAnotherThemeHintShown;
+            _tryAnotherThemeHintDismissed = data.tryAnotherThemeHintDismissed;
+            _tryAnotherThemeHintActive = false;
+            _reuseItemsHintShown = data.reuseItemsHintShown;
+            _reuseItemsHintActive = false;
+            _verifiedLabelHintShown = data.verifiedLabelHintShown;
+            _verifiedLabelHintActive = false;
+
+            SetInspirationEditingBlocked(false);
+            Hide();
+        }
+
         private void Start()
         {
             ConfigurePortrait();
 
             var manager = ExhibitionManager.Instance;
-            if (!_selectThemeDismissed && (manager == null || manager.CurrentTheme == null))
+            if (!_selectThemeHintShown && !_selectThemeDismissed && (manager == null || manager.CurrentTheme == null))
+            {
+                _selectThemeHintShown = true;
                 Show(_selectThemeMessage, ButtonHighlightTarget.SelectTheme);
+                SaveTutorialProgress();
+            }
             else
                 Hide();
         }
 
         private void HandleSelectThemeClicked()
         {
-            if (_tryAnotherThemeHintShown)
+            if (_tryAnotherThemeHintActive && !_tryAnotherThemeHintDismissed)
             {
-                _tryAnotherThemeHintShown = false;
+                _tryAnotherThemeHintActive = false;
                 _tryAnotherThemeHintDismissed = true;
                 Hide();
+                SaveTutorialProgress();
                 return;
             }
 
@@ -162,15 +227,21 @@ namespace ExhibitionSystem.UI
 
             _selectThemeDismissed = true;
             Hide();
+            SaveTutorialProgress();
         }
 
         private void HandleThemeSelected(ExhibitionTheme theme)
         {
-            if (theme == null || _arrangementHintDismissed)
+            if (TryShowReuseItemsHint(theme))
                 return;
 
+            if (theme == null || _arrangementHintShown || _arrangementHintDismissed)
+                return;
+
+            _arrangementHintShown = true;
             SetInspirationEditingBlocked(SceneManager.GetActiveScene().name == DAY2_EXHIBITION_SCENE);
             Show(_arrangeItemsMessage);
+            SaveTutorialProgress();
         }
 
         private void HandleInspirationClicked()
@@ -190,22 +261,31 @@ namespace ExhibitionSystem.UI
 
             _inspirationHintDismissed = true;
             Hide();
+            SaveTutorialProgress();
         }
 
         private void HandleItemPlaced(int slotIndex, ExhibitItemData item)
         {
+            var manager = ExhibitionManager.Instance;
             if (!_arrangementHintDismissed)
             {
                 _arrangementHintDismissed = true;
                 SetInspirationEditingBlocked(false);
                 Hide();
+                SaveTutorialProgress();
             }
 
-            if (!_inspirationHintDismissed)
+            if (TryShowVerifiedLabelHint(item, manager))
+                return;
+
+            if (!_inspirationHintShown && !_inspirationHintDismissed)
             {
-                var manager = ExhibitionManager.Instance;
-                bool isFixedMatch = manager != null && manager.IsSlotInspirationFixed(slotIndex);
-                Show(isFixedMatch ? _matchedItemMessage : _chooseInspirationsMessage);
+                if (!HasVerifiedLabel(item, manager))
+                {
+                    _inspirationHintShown = true;
+                    Show(_chooseInspirationsMessage);
+                    SaveTutorialProgress();
+                }
             }
 
             TryShowStartHint();
@@ -243,11 +323,14 @@ namespace ExhibitionSystem.UI
             _startHintDismissed = true;
             SetInspirationEditingBlocked(false);
             Hide();
+            SaveTutorialProgress();
         }
 
         private void HandleCurationCleared()
         {
             _inspirationFirstHintActive = false;
+            _reuseItemsHintActive = false;
+            _verifiedLabelHintActive = false;
             SetInspirationEditingBlocked(false);
             SetClickDismissOverlayActive(false);
             Hide();
@@ -255,11 +338,13 @@ namespace ExhibitionSystem.UI
 
         private void HandleRewardConfirmed()
         {
-            if (_tryAnotherThemeHintDismissed || AreAllThemesCompleted())
+            if (_tryAnotherThemeHintShown || _tryAnotherThemeHintDismissed || AreAllThemesCompleted())
                 return;
 
             _tryAnotherThemeHintShown = true;
+            _tryAnotherThemeHintActive = true;
             Show(_tryAnotherThemeMessage);
+            SaveTutorialProgress();
         }
 
         private static bool AreAllThemesCompleted()
@@ -279,7 +364,7 @@ namespace ExhibitionSystem.UI
 
         private void TryShowStartHint()
         {
-            if (_inspirationFirstHintActive)
+            if (_inspirationFirstHintActive || _verifiedLabelHintActive || _reuseItemsHintActive)
                 return;
 
             if (_startHintDismissed)
@@ -292,11 +377,9 @@ namespace ExhibitionSystem.UI
 
             if (!canStart)
             {
-                if (_startHintShown)
-                {
-                    _startHintShown = false;
+                if (_startHintActive)
                     Hide();
-                }
+
                 return;
             }
 
@@ -304,7 +387,9 @@ namespace ExhibitionSystem.UI
                 return;
 
             _startHintShown = true;
+            _startHintActive = true;
             Show(_startExhibitionMessage, ButtonHighlightTarget.StartExhibition);
+            SaveTutorialProgress();
         }
 
         private bool TryShowInspirationFirstHint()
@@ -319,23 +404,79 @@ namespace ExhibitionSystem.UI
             _inspirationFirstHintActive = true;
             Show(_inspirationFirstMessage);
             SetClickDismissOverlayActive(true);
+            SaveTutorialProgress();
+            return true;
+        }
+
+        private bool TryShowReuseItemsHint(ExhibitionTheme theme)
+        {
+            if (_reuseItemsHintShown ||
+                theme == null ||
+                theme.isCompleted ||
+                SceneManager.GetActiveScene().name != DAY2_EXHIBITION_SCENE ||
+                !HasCompletedTheme())
+            {
+                return false;
+            }
+
+            _reuseItemsHintShown = true;
+            _reuseItemsHintActive = true;
+            Show(_reuseItemsMessage);
+            SetClickDismissOverlayActive(true);
+            SaveTutorialProgress();
+            return true;
+        }
+
+        private bool TryShowVerifiedLabelHint(ExhibitItemData item, ExhibitionManager manager)
+        {
+            if (_verifiedLabelHintShown ||
+                SceneManager.GetActiveScene().name != DAY2_EXHIBITION_SCENE ||
+                manager == null ||
+                !HasVerifiedLabel(item, manager))
+            {
+                return false;
+            }
+
+            _verifiedLabelHintShown = true;
+            _verifiedLabelHintActive = true;
+            Show(_verifiedLabelMessage);
+            SetClickDismissOverlayActive(true);
+            SaveTutorialProgress();
             return true;
         }
 
         private void HandleClickDismissOverlayClicked()
         {
-            if (!_inspirationFirstHintActive)
+            if (_inspirationFirstHintActive)
+            {
+                _inspirationFirstHintActive = false;
+                SetClickDismissOverlayActive(false);
+                Hide();
+                TryShowStartHint();
                 return;
+            }
 
-            _inspirationFirstHintActive = false;
-            SetClickDismissOverlayActive(false);
-            Hide();
-            TryShowStartHint();
+            if (_reuseItemsHintActive)
+            {
+                _reuseItemsHintActive = false;
+                SetClickDismissOverlayActive(false);
+                Hide();
+                return;
+            }
+
+            if (_verifiedLabelHintActive)
+            {
+                _verifiedLabelHintActive = false;
+                SetClickDismissOverlayActive(false);
+                Hide();
+                TryShowStartHint();
+            }
         }
 
         private void Show(string message, ButtonHighlightTarget highlightTarget = ButtonHighlightTarget.None)
         {
             ConfigurePortrait();
+            _startHintActive = highlightTarget == ButtonHighlightTarget.StartExhibition;
             SetButtonHighlight(highlightTarget);
 
             if (_speakerText != null)
@@ -358,6 +499,10 @@ namespace ExhibitionSystem.UI
         private void Hide()
         {
             _inspirationFirstHintActive = false;
+            _startHintActive = false;
+            _tryAnotherThemeHintActive = false;
+            _reuseItemsHintActive = false;
+            _verifiedLabelHintActive = false;
             SetClickDismissOverlayActive(false);
             ClearButtonHighlight();
 
@@ -459,6 +604,33 @@ namespace ExhibitionSystem.UI
 
             IsInspirationEditingBlocked = blocked;
             OnInspirationEditingBlockChanged?.Invoke(blocked);
+        }
+
+        private static void SaveTutorialProgress()
+        {
+            GameSaveManager.Instance.SaveCurrent();
+        }
+
+        private static bool HasCompletedTheme()
+        {
+            var manager = ExhibitionManager.Instance;
+            if (manager == null || manager.AllThemes == null)
+                return false;
+
+            foreach (var theme in manager.AllThemes)
+            {
+                if (theme != null && theme.isCompleted)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool HasVerifiedLabel(ExhibitItemData item, ExhibitionManager manager)
+        {
+            return item != null &&
+                   manager != null &&
+                   manager.GetKnownInspirationForItem(item) != null;
         }
 
         private void SetClickDismissOverlayActive(bool active)

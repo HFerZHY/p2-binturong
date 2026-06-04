@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Otowa.Audio;
 using Otowa.IndoorDialogue;
+using Otowa.SaveSystem;
 using Otowa.UI;
 using TMPro;
 using UnityEngine;
@@ -37,19 +38,22 @@ namespace Otowa.Day3
             public string Text;
             public CinematicStripPortraitFocus Focus;
             public AudioCue Cue;
+            public bool FadeInPortrait;
 
             public Beat(
                 BeatKind kind,
                 string speaker,
                 string text,
                 CinematicStripPortraitFocus focus = CinematicStripPortraitFocus.None,
-                AudioCue cue = AudioCue.None)
+                AudioCue cue = AudioCue.None,
+                bool fadeInPortrait = false)
             {
                 Kind = kind;
                 Speaker = speaker;
                 Text = text;
                 Focus = focus;
                 Cue = cue;
+                FadeInPortrait = fadeInPortrait;
             }
         }
 
@@ -111,12 +115,12 @@ namespace Otowa.Day3
 
         private void BuildBeats()
         {
-            _beats.Add(new Beat(BeatKind.BlackLine, "Rin", "(...Done.)"));
-            _beats.Add(new Beat(BeatKind.BlackLine, "Rin", "(That's enough for today. About time to clock out...)"));
-            _beats.Add(new Beat(BeatKind.BlackLine, "Rin", "(Huh? A passenger, at this hour?)",
+            _beats.Add(new Beat(BeatKind.StripLine, "Rin", "(...Done.)"));
+            _beats.Add(new Beat(BeatKind.StripLine, "Rin", "(That's enough for today. About time to clock out...)"));
+            _beats.Add(new Beat(BeatKind.StripLine, "Rin", "(Huh? A passenger, at this hour?)",
                 cue: AudioCue.Footsteps));
 
-            _beats.Add(new Beat(BeatKind.StripLine, "???", "Hello there.", CinematicStripPortraitFocus.Right));
+            _beats.Add(new Beat(BeatKind.StripLine, "???", "Hello there.", CinematicStripPortraitFocus.Right, fadeInPortrait: true));
             _beats.Add(new Beat(BeatKind.StripLine, "???", "Hmm... let me guess. You must be Rin?", CinematicStripPortraitFocus.Right));
             _beats.Add(new Beat(BeatKind.StripLine, "Rin", "Huh? And you are...", CinematicStripPortraitFocus.Left));
             _beats.Add(new Beat(BeatKind.StripLine, "???", "Ah, sorry. I forgot to introduce myself.", CinematicStripPortraitFocus.Right));
@@ -130,8 +134,9 @@ namespace Otowa.Day3
             _beats.Add(new Beat(BeatKind.StripLine, "Hikaru", "...It's real.", CinematicStripPortraitFocus.Right));
             _beats.Add(new Beat(BeatKind.StripLine, "Hikaru", "This is exactly how I always dreamed it would look.", CinematicStripPortraitFocus.Right));
             _beats.Add(new Beat(BeatKind.StripLine, "Hikaru", "Thank you, Rin.", CinematicStripPortraitFocus.Right));
-            _beats.Add(new Beat(BeatKind.StripLine, "Rin", "Honestly, when I first took this job, the whole thing made no sense to me.", CinematicStripPortraitFocus.Left));
-            _beats.Add(new Beat(BeatKind.StripLine, "Rin", "But somewhere along the way... learning the stories behind these things, it started to mean something to me, too.", CinematicStripPortraitFocus.Left));
+            _beats.Add(new Beat(BeatKind.StripLine, "Rin", "Honestly, at first I wasn't even sure this museum made any sense.", CinematicStripPortraitFocus.Left));
+            _beats.Add(new Beat(BeatKind.StripLine, "Rin", "But after learning the stories behind these items, I gradually started to form an idea of how to tell a story about Otowa with them.", CinematicStripPortraitFocus.Left));
+            _beats.Add(new Beat(BeatKind.StripLine, "Rin", "It's a strange, wonderful feeling. Thank you, Hikaru.", CinematicStripPortraitFocus.Left));
             _beats.Add(new Beat(BeatKind.StripLine, "Rin", "Oh, right. Mr. Hikaru. Where did you run off to all these days, anyway?", CinematicStripPortraitFocus.Left));
             _beats.Add(new Beat(BeatKind.StripLine, "Hikaru", "Ah, that...", CinematicStripPortraitFocus.Right));
             _beats.Add(new Beat(BeatKind.StripLine, "Hikaru", "Right around the time you were due to arrive in Otowa, it hit me. There was one exhibit this collection absolutely couldn't do without.", CinematicStripPortraitFocus.Right));
@@ -203,7 +208,7 @@ namespace Otowa.Day3
             _stripPlayer = gameObject.AddComponent<CinematicStripDialoguePlayer>();
             _stripPlayer.Initialize(canvasObject.transform, _font, _charactersPerSecond);
             _stripPlayer.SetStripBackground(LoadSprite("Exhibitions/Icons/passenger-background"));
-            _stripPlayer.SetPortraits(_rinPortrait, _hikaruPortrait);
+            _stripPlayer.SetPortraits(_rinPortrait, null);
 
             BuildRecordPopup(canvasObject.transform);
         }
@@ -279,8 +284,10 @@ namespace Otowa.Day3
                     break;
 
                 case BeatKind.StripLine:
+                    if (beat.FadeInPortrait)
+                        _stripPlayer.SetPassengerPortraits(_hikaruPortrait);
                     _stripPlayer.SetVisible(true);
-                    _stripPlayer.PlayLine(beat.Speaker, beat.Text, beat.Focus);
+                    _stripPlayer.PlayLine(beat.Speaker, beat.Text, beat.Focus, beat.FadeInPortrait);
                     break;
 
                 case BeatKind.RecordPopup:
@@ -375,6 +382,9 @@ namespace Otowa.Day3
 
         private static bool WasAdvancePressed()
         {
+            if (PauseMenuController.ShouldSuppressWorldAdvance)
+                return false;
+
             var mouseClicked = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
             var keyboard = Keyboard.current;
             var keyboardPressed = keyboard != null &&
@@ -419,11 +429,12 @@ namespace Otowa.Day3
 
         private static void EnsureEventSystem()
         {
-            if (FindFirstObjectByType<EventSystem>() != null)
-                return;
+            var eventSystem = FindFirstObjectByType<EventSystem>();
+            if (eventSystem == null)
+                eventSystem = new GameObject("EventSystem").AddComponent<EventSystem>();
 
-            var eventSystem = new GameObject("EventSystem", typeof(EventSystem));
-            eventSystem.AddComponent<InputSystemUIInputModule>();
+            if (eventSystem.GetComponent<InputSystemUIInputModule>() == null)
+                eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
         }
 
         private TextMeshProUGUI CreateText(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax)

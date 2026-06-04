@@ -8,6 +8,7 @@ using TMPro;
 using ExhibitionSystem.Data;
 using Otowa.Inquiry;
 using Otowa.Audio;
+using Otowa.SaveSystem;
 using Otowa.UI;
 
 /// <summary>
@@ -290,6 +291,134 @@ public class InspirationManager : MonoBehaviour
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
+
+    public InspirationSaveData CaptureSaveData()
+    {
+        if (_themeData == null || _themesCompleted == null)
+            LoadGameData();
+
+        var data = new InspirationSaveData
+        {
+            introduced = _introduced,
+        };
+
+        for (int id = 1; id <= 16; id++)
+        {
+            if (_unlocked[id])
+                data.unlockedInspirationIds.Add(id);
+            if (_itemsCollected[id])
+                data.collectedItemSortOrders.Add(id);
+        }
+
+        if (_themeData != null && _themesCompleted != null)
+        {
+            for (int i = 0; i < _themeData.Length && i < _themesCompleted.Length; i++)
+            {
+                if (_themesCompleted[i] && _themeData[i] != null)
+                    data.completedThemeTitles.Add(_themeData[i].title);
+            }
+        }
+
+        return data;
+    }
+
+    public void ApplySaveData(InspirationSaveData data)
+    {
+        if (_themeData == null || _themesCompleted == null)
+            LoadGameData();
+
+        ResetProgress(refreshUi: false);
+        if (data == null)
+        {
+            RefreshAllSaveRestoredUi();
+            return;
+        }
+
+        _introduced = data.introduced;
+
+        if (data.unlockedInspirationIds != null)
+        {
+            foreach (int id in data.unlockedInspirationIds)
+            {
+                if (id >= 1 && id <= 16)
+                    _unlocked[id] = true;
+            }
+        }
+
+        if (data.collectedItemSortOrders != null)
+        {
+            foreach (int sortOrder in data.collectedItemSortOrders)
+            {
+                if (sortOrder >= 1 && sortOrder <= 16)
+                    _itemsCollected[sortOrder] = true;
+            }
+        }
+
+        if (data.completedThemeTitles != null && _themeData != null)
+        {
+            for (int i = 0; i < _themeData.Length && i < _themesCompleted.Length; i++)
+            {
+                var theme = _themeData[i];
+                _themesCompleted[i] = theme != null && data.completedThemeTitles.Contains(theme.title);
+            }
+        }
+
+        RefreshAllSaveRestoredUi();
+    }
+
+    public void ResetProgress()
+    {
+        ResetProgress(refreshUi: true);
+    }
+
+    private void ResetProgress(bool refreshUi)
+    {
+        for (int id = 1; id <= 16; id++)
+        {
+            _unlocked[id] = false;
+            _itemsCollected[id] = false;
+        }
+
+        if (_themesCompleted != null)
+        {
+            for (int i = 0; i < _themesCompleted.Length; i++)
+                _themesCompleted[i] = false;
+        }
+
+        _journalOpen = false;
+        _introduced = false;
+        _openInspirationsOnNextJournalOpen = false;
+        _forceItemsOnNextJournalOpen = false;
+        _externalToggleLocked = false;
+        _themeUnlockPopupVisible = false;
+        _toastQueue.Clear();
+        _themeUnlockQueue.Clear();
+
+        if (refreshUi)
+            RefreshAllSaveRestoredUi();
+    }
+
+    private void RefreshAllSaveRestoredUi()
+    {
+        for (int id = 1; id <= 16; id++)
+            RefreshEntry(id);
+
+        if (_themesCompleted != null)
+        {
+            for (int i = 0; i < _themesCompleted.Length; i++)
+                RefreshThemeEntry(i);
+        }
+
+        if (_journalGo != null)
+            _journalGo.SetActive(false);
+        if (_themeUnlockPopupGo != null)
+            _themeUnlockPopupGo.SetActive(false);
+        if (_journalGuideGo != null)
+            _journalGuideGo.SetActive(false);
+
+        RefreshAllItemSlots();
+        RefreshJournalEntryVisibility(SceneManager.GetActiveScene().name);
+    }
 
     /// <summary>
     /// Unlock inspiration id (1–16).
@@ -945,15 +1074,18 @@ public class InspirationManager : MonoBehaviour
 
     private void HandleItemSlotClicked(int sortOrder)
     {
+        bool canAsk;
         if (UsesDay2Inquiry())
         {
-            if (!Day2InquiryProgress.Instance.TryMarkAsked(_activeDay2InquiryNpc, sortOrder))
-                return;
+            canAsk = Day2InquiryProgress.Instance.CanAsk(_activeDay2InquiryNpc, sortOrder);
         }
-        else if (!Day1InquiryProgress.Instance.TryMarkAsked(_activeInquiryNpc, sortOrder))
+        else
         {
-            return;
+            canAsk = Day1InquiryProgress.Instance.CanAsk(_activeInquiryNpc, sortOrder);
         }
+
+        if (!canAsk)
+            return;
 
         var callback = _onInquiryItemSelected;
         ClearInquiryMode(invokeCancelled: false);

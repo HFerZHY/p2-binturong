@@ -10,6 +10,7 @@ using TMPro;
 using ExhibitionSystem.Data;
 using Otowa.Audio;
 using Otowa.IndoorDialogue;
+using Otowa.SaveSystem;
 
 namespace Otowa.Intro
 {
@@ -81,6 +82,8 @@ namespace Otowa.Intro
         private TMP_Text   _ltTitle;
         private TMP_Text   _ltBody;
         private TMP_Text   _ltPageNum;
+        private TMP_Text   _ltPrevArrow;
+        private TMP_Text   _ltNextArrow;
 
         private GameObject _invPanel;
 
@@ -101,6 +104,8 @@ namespace Otowa.Intro
         private static readonly Color Parchment = new Color32(0xc4, 0xb8, 0xa0, 0xFF);
         private static readonly Color LetterTxt = new Color32(0x3a, 0x35, 0x2e, 0xFF);
         private static readonly Color LetterHdr = new Color32(0x5a, 0x52, 0x48, 0xFF);
+        private static readonly Color LetterArrowC = new Color32(0x5a, 0x52, 0x48, 0xFF);
+        private static readonly Color LetterArrowDisabledC = new Color32(0x5a, 0x52, 0x48, 0x70);
         private static readonly Color RinGreen  = new Color32(0x78, 0xb5, 0xb2, 0xFF);
         private static readonly Color InspBlue  = new Color32(0xa0, 0xa8, 0xc0, 0xFF);
         private static readonly Color UnknownC  = new Color32(0x80, 0x80, 0x80, 0xFF);
@@ -111,6 +116,7 @@ namespace Otowa.Intro
 
         private const float ActiveAlpha   = 1.00f;
         private const float InactiveAlpha = 0.38f;
+        private bool _playLetterPageTurn;
 
         // ─────────────────────────────────────────────────────────────────────
 
@@ -144,7 +150,14 @@ namespace Otowa.Intro
         private void Update()
         {
             if (_inputLock) return;
+            if (PauseMenuController.ShouldSuppressWorldAdvance) return;
             if (InspirationManager.IsJournalOpen) return;
+
+            if (IsShowingLetter())
+            {
+                HandleLetterNavigationInput();
+                return;
+            }
 
             var mouse = Mouse.current;
             var kb    = Keyboard.current;
@@ -173,6 +186,7 @@ namespace Otowa.Intro
 
             int next = _current + 1;
             if (next >= _beats.Count) { StartCoroutine(FadeAndLoad()); return; }
+            _playLetterPageTurn = IsShowingLetter() && _beats[next].Kind == BeatKind.Letter;
             ShowBeat(next);
         }
 
@@ -277,9 +291,63 @@ namespace Otowa.Intro
             _ltTitle.text   = "A Letter from Hikaru";
             _ltBody.text    = b.Text;
             _ltPageNum.text = $"{b.LetterPage}  /  5";
-            if (b.LetterPage > 1)
+            UpdateLetterArrows(b.LetterPage > 1);
+            if (_playLetterPageTurn)
                 GameAudioManager.Instance.PlaySfxOnce(AudioId.PageTurn);
-            SetPrompt(true);
+            _playLetterPageTurn = false;
+            SetPrompt(false);
+        }
+
+        private bool IsShowingLetter()
+        {
+            return _current >= 0
+                   && _current < _beats.Count
+                   && _beats[_current].Kind == BeatKind.Letter;
+        }
+
+        private void HandleLetterNavigationInput()
+        {
+            var mouse = Mouse.current;
+            if (mouse != null && mouse.leftButton.wasPressedThisFrame)
+            {
+                var position = mouse.position.ReadValue();
+                if (position.x < Screen.width * 0.5f)
+                    ShowPreviousLetterPage();
+                else
+                    AdvanceBeat();
+                return;
+            }
+
+            var keyboard = Keyboard.current;
+            if (keyboard != null
+                && (keyboard.spaceKey.wasPressedThisFrame || keyboard.enterKey.wasPressedThisFrame))
+                AdvanceBeat();
+        }
+
+        private void ShowPreviousLetterPage()
+        {
+            if (!IsShowingLetter())
+                return;
+
+            var currentPage = _beats[_current].LetterPage;
+            if (currentPage <= 1)
+                return;
+
+            var previous = _current - 1;
+            if (previous < 0 || _beats[previous].Kind != BeatKind.Letter)
+                return;
+
+            _playLetterPageTurn = true;
+            ShowBeat(previous);
+        }
+
+        private void UpdateLetterArrows(bool canGoBack)
+        {
+            if (_ltPrevArrow != null)
+                _ltPrevArrow.color = canGoBack ? LetterArrowC : LetterArrowDisabledC;
+
+            if (_ltNextArrow != null)
+                _ltNextArrow.color = LetterArrowC;
         }
 
         // ── Inventory ─────────────────────────────────────────────────────────
@@ -410,10 +478,12 @@ namespace Otowa.Intro
 
         private static void EnsureEventSystem()
         {
-            if (FindObjectOfType<EventSystem>() != null) return;
-            var go = new GameObject("EventSystem");
-            go.AddComponent<EventSystem>();
-            go.AddComponent<InputSystemUIInputModule>();
+            var eventSystem = FindFirstObjectByType<EventSystem>();
+            if (eventSystem == null)
+                eventSystem = new GameObject("EventSystem").AddComponent<EventSystem>();
+
+            if (eventSystem.GetComponent<InputSystemUIInputModule>() == null)
+                eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
         }
 
         private void BuildUI()
@@ -500,11 +570,35 @@ namespace Otowa.Intro
             UseFont(_ltBody, handwrittenFont);
 
             _ltPageNum = MakeTMP(pt, "LtPage", "1  /  5",
-                17f, LetterHdr, TextAlignmentOptions.Center,
+                26f, LetterHdr, TextAlignmentOptions.Center,
                 new Vector2(0.04f, 0.02f), new Vector2(0.96f, 0.09f));
             UseFont(_ltPageNum, serifFont);
 
+            _ltPrevArrow = MakeTMP(_letterPanel.transform, "LetterPrevArrow", "<",
+                82f, LetterArrowDisabledC, TextAlignmentOptions.Center,
+                new Vector2(0.04f, 0.42f), new Vector2(0.12f, 0.58f));
+            _ltPrevArrow.fontStyle = FontStyles.Bold | FontStyles.Italic;
+            _ltPrevArrow.raycastTarget = false;
+            UseFont(_ltPrevArrow, serifFont);
+            AddArrowGlow(_ltPrevArrow);
+
+            _ltNextArrow = MakeTMP(_letterPanel.transform, "LetterNextArrow", ">",
+                82f, LetterArrowC, TextAlignmentOptions.Center,
+                new Vector2(0.88f, 0.42f), new Vector2(0.96f, 0.58f));
+            _ltNextArrow.fontStyle = FontStyles.Bold | FontStyles.Italic;
+            _ltNextArrow.raycastTarget = false;
+            UseFont(_ltNextArrow, serifFont);
+            AddArrowGlow(_ltNextArrow);
+
             _letterPanel.SetActive(false);
+        }
+
+        private static void AddArrowGlow(TMP_Text arrow)
+        {
+            var outline = arrow.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color32(0xff, 0xf1, 0xce, 0x78);
+            outline.effectDistance = new Vector2(2.2f, -2.2f);
+            outline.useGraphicAlpha = true;
         }
 
         // ── Inventory panel ───────────────────────────────────────────────────
@@ -633,7 +727,6 @@ namespace Otowa.Intro
         private void BuildChoicePanel(Transform cv)
         {
             _choicePanel = MakeRect(cv, "ChoicePanel", new Vector2(0.25f, 0.32f), new Vector2(0.75f, 0.72f));
-            _choicePanel.AddComponent<Image>().color = new Color(0, 0, 0, 0);
             IndoorDialogueChoiceStyle.ConfigureContainer(_choicePanel);
             _choicePanel.SetActive(false);
         }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Base;
 using ExhibitionSystem.Data;
+using Otowa.SaveSystem;
 using UnityEngine;
 
 namespace ExhibitionSystem.Core
@@ -35,6 +36,9 @@ namespace ExhibitionSystem.Core
     /// </summary>
     public class ExhibitionManager : MonoSingleton<ExhibitionManager>
     {
+        private const string BIRDWATCHING_THEME_ASSET_NAME = "Birdwatching";
+        private const int BIRD_DEITY_FAN_INSPIRATION_ID = 7;
+
         [Header("Available Content")]
         [SerializeField] private List<ExhibitionTheme> _allThemes = new();
         [SerializeField] private List<InspirationData> _allInspirations = new();
@@ -87,7 +91,7 @@ namespace ExhibitionSystem.Core
         public bool HasAllLabelsFilled => _slotInspirations.Count > 0 &&
                                          _slotInspirations.All(inspiration => inspiration != null);
         public bool HasCurationProgress => _displaySlots.Any(item => item != null) ||
-                                           _slotInspirations.Any(inspiration => inspiration != null);
+                                            _slotInspirations.Any(inspiration => inspiration != null);
 
         public static event Action<ExhibitionState> OnStateChanged;
         public static event Action<ExhibitionTheme> OnThemeSelected;
@@ -107,6 +111,138 @@ namespace ExhibitionSystem.Core
             base.Awake();
             LoadResourcesIfEmpty();
             SetState(ExhibitionState.ThemeSelection);
+        }
+
+        public ExhibitionSaveData CaptureSaveData(string sceneName)
+        {
+            SaveCurrentThemeState();
+
+            var data = new ExhibitionSaveData
+            {
+                sceneName = sceneName,
+                currentThemeTitle = _currentTheme != null ? _currentTheme.title : string.Empty,
+                activeExhibitionTitle = _currentTheme != null ? _currentTheme.title : string.Empty,
+                state = _state.ToString(),
+                satisfaction = _satisfaction,
+                visitorIndex = _visitorIndex,
+                isRunning = _isRunning,
+            };
+
+            data.currentSlots.AddRange(CaptureSlots(_displaySlots, _slotInspirations, _slotValidationResults));
+
+            foreach (int id in KnownInspirationMatchIds)
+                data.knownInspirationIds.Add(id);
+
+            foreach (var theme in _allThemes)
+            {
+                if (theme != null && theme.isCompleted)
+                    data.completedThemeTitles.Add(theme.title);
+            }
+
+            foreach (var item in _allItems)
+            {
+                if (item == null)
+                    continue;
+
+                data.itemStates.Add(new ExhibitionItemStateSaveData
+                {
+                    sortOrder = item.sortOrder,
+                    isUnlocked = item.isUnlocked,
+                    usedInExhibitions = new List<string>(item.usedInExhibitions),
+                });
+            }
+
+            foreach (var inspiration in _allInspirations)
+            {
+                if (inspiration == null)
+                    continue;
+
+                data.inspirationStates.Add(new ExhibitionInspirationStateSaveData
+                {
+                    id = inspiration.id,
+                    isUnlocked = inspiration.isUnlocked,
+                });
+            }
+
+            foreach (var pair in _themeCurationStates)
+            {
+                if (pair.Key == null || pair.Value == null)
+                    continue;
+
+                data.themeStates.Add(new ExhibitionThemeCurationSaveData
+                {
+                    themeTitle = pair.Key.title,
+                    slots = CaptureSlots(
+                        pair.Value.DisplaySlots,
+                        pair.Value.SlotInspirations,
+                        pair.Value.SlotValidationResults),
+                });
+            }
+
+            return data;
+        }
+
+        public void ApplySaveData(ExhibitionSaveData data)
+        {
+            if (data == null || string.IsNullOrWhiteSpace(data.sceneName))
+                return;
+
+            StopAllCoroutines();
+            LoadResourcesIfEmpty();
+            ApplySavedResourceState(data);
+
+            _themeCurationStates.Clear();
+            _inspirationItemBindings.Clear();
+            if (data.themeStates != null)
+            {
+                foreach (var savedTheme in data.themeStates)
+                    RestoreSavedThemeState(savedTheme);
+            }
+
+            string activeExhibitionTitle = !string.IsNullOrWhiteSpace(data.activeExhibitionTitle)
+                ? data.activeExhibitionTitle
+                : data.currentThemeTitle;
+            _currentTheme = FindThemeByTitle(activeExhibitionTitle);
+            RestoreSlots(data.currentSlots, _currentTheme != null ? _currentTheme.RequiredSlots : 0);
+            RebuildInspirationBindings();
+
+            _satisfaction = Mathf.Max(0, data.satisfaction);
+            _visitorIndex = Mathf.Max(0, data.visitorIndex);
+            _validationResults.Clear();
+            foreach (var result in _slotValidationResults)
+            {
+                if (result.HasValue)
+                    _validationResults.Add(result.Value);
+            }
+
+            bool resumeRunning = data.isRunning || data.state == ExhibitionState.ExhibitionRunning.ToString();
+            _isRunning = resumeRunning;
+            if (!Enum.TryParse(data.state, out ExhibitionState restoredState))
+                restoredState = _currentTheme == null
+                    ? ExhibitionState.ThemeSelection
+                    : ExhibitionState.DisplayArrangement;
+
+            SetState(restoredState);
+            OnThemeSelected?.Invoke(_currentTheme);
+            OnDisplaySlotsInitialized?.Invoke(_displaySlots.Count);
+
+            for (int i = 0; i < _displaySlots.Count; i++)
+            {
+                OnSlotInspirationChanged?.Invoke(i, _slotInspirations[i]);
+                if (_displaySlots[i] != null)
+                    OnItemPlaced?.Invoke(i, _displaySlots[i]);
+            }
+
+            if (resumeRunning && _currentTheme != null)
+            {
+                OnExhibitionStarted?.Invoke();
+                StartCoroutine(ProcessVisitorsCoroutine());
+            }
+            else if (restoredState == ExhibitionState.Result && _currentTheme != null)
+            {
+                int threshold = _displaySlots.Count;
+                OnExhibitionEnded?.Invoke(_satisfaction >= threshold, _satisfaction, threshold);
+            }
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -473,6 +609,193 @@ namespace ExhibitionSystem.Core
             return true;
         }
 
+        private List<ExhibitionSlotSaveData> CaptureSlots(
+            IReadOnlyList<ExhibitItemData> items,
+            IReadOnlyList<InspirationData> inspirations,
+            IReadOnlyList<ExhibitionSlotValidation?> validations)
+        {
+            int count = Mathf.Max(items?.Count ?? 0, inspirations?.Count ?? 0);
+            var slots = new List<ExhibitionSlotSaveData>(count);
+            for (int i = 0; i < count; i++)
+            {
+                var item = items != null && i < items.Count ? items[i] : null;
+                var inspiration = inspirations != null && i < inspirations.Count ? inspirations[i] : null;
+                var slot = new ExhibitionSlotSaveData
+                {
+                    itemSortOrder = item != null ? item.sortOrder : 0,
+                    inspirationId = inspiration != null ? inspiration.id : 0,
+                };
+
+                if (validations != null && i < validations.Count && validations[i].HasValue)
+                {
+                    var validation = validations[i].Value;
+                    slot.hasValidation = true;
+                    slot.itemCorrect = validation.ItemCorrect;
+                    slot.hasInspirationCorrect = validation.InspirationCorrect.HasValue;
+                    slot.inspirationCorrect = validation.InspirationCorrect.GetValueOrDefault();
+                }
+
+                slots.Add(slot);
+            }
+
+            return slots;
+        }
+
+        private void ApplySavedResourceState(ExhibitionSaveData data)
+        {
+            KnownInspirationMatchIds.Clear();
+            if (data.knownInspirationIds != null)
+            {
+                foreach (int id in data.knownInspirationIds)
+                    KnownInspirationMatchIds.Add(id);
+            }
+
+            if (data.inspirationStates != null)
+            {
+                foreach (var state in data.inspirationStates)
+                {
+                    var inspiration = FindInspirationById(state.id);
+                    if (inspiration != null)
+                        inspiration.isUnlocked = state.isUnlocked;
+                }
+            }
+
+            if (data.itemStates != null)
+            {
+                foreach (var state in data.itemStates)
+                {
+                    var item = FindItemBySortOrder(state.sortOrder);
+                    if (item == null)
+                        continue;
+
+                    item.isUnlocked = state.isUnlocked;
+                    item.usedInExhibitions.Clear();
+                    if (state.usedInExhibitions == null)
+                        continue;
+
+                    foreach (string themeTitle in state.usedInExhibitions)
+                    {
+                        if (!string.IsNullOrWhiteSpace(themeTitle))
+                            item.usedInExhibitions.Add(themeTitle);
+                    }
+                }
+            }
+
+            foreach (var theme in _allThemes)
+            {
+                if (theme == null)
+                    continue;
+
+                bool completed = data.completedThemeTitles != null
+                                 && data.completedThemeTitles.Contains(theme.title);
+                if (completed)
+                    theme.MarkCompleted();
+                else
+                    theme.ResetCompletion();
+            }
+        }
+
+        private void RestoreSavedThemeState(ExhibitionThemeCurationSaveData savedTheme)
+        {
+            if (savedTheme == null)
+                return;
+
+            var theme = FindThemeByTitle(savedTheme.themeTitle);
+            if (theme == null)
+                return;
+
+            var state = new ThemeCurationState();
+            FillSlotLists(savedTheme.slots, theme.RequiredSlots,
+                state.DisplaySlots,
+                state.SlotInspirations,
+                state.SlotValidationResults);
+            _themeCurationStates[theme] = state;
+        }
+
+        private void RestoreSlots(IReadOnlyList<ExhibitionSlotSaveData> slots, int requiredSlots)
+        {
+            _displaySlots.Clear();
+            _slotInspirations.Clear();
+            _slotValidationResults.Clear();
+
+            FillSlotLists(slots, requiredSlots, _displaySlots, _slotInspirations, _slotValidationResults);
+        }
+
+        private void FillSlotLists(
+            IReadOnlyList<ExhibitionSlotSaveData> slots,
+            int requiredSlots,
+            List<ExhibitItemData> items,
+            List<InspirationData> inspirations,
+            List<ExhibitionSlotValidation?> validations)
+        {
+            int count = Mathf.Max(requiredSlots, slots?.Count ?? 0);
+            for (int i = 0; i < count; i++)
+            {
+                var slot = slots != null && i < slots.Count ? slots[i] : null;
+                items.Add(slot != null ? FindItemBySortOrder(slot.itemSortOrder) : null);
+                inspirations.Add(slot != null ? FindInspirationById(slot.inspirationId) : null);
+                validations.Add(slot != null ? RestoreValidation(slot) : null);
+            }
+        }
+
+        private static ExhibitionSlotValidation? RestoreValidation(ExhibitionSlotSaveData slot)
+        {
+            if (slot == null || !slot.hasValidation)
+                return null;
+
+            bool? inspirationCorrect = slot.hasInspirationCorrect
+                ? slot.inspirationCorrect
+                : null;
+            return new ExhibitionSlotValidation(slot.itemCorrect, inspirationCorrect);
+        }
+
+        private void RebuildInspirationBindings()
+        {
+            for (int i = 0; i < _slotInspirations.Count; i++)
+                RefreshBindingForCurrentSlot(i);
+
+            foreach (var pair in _themeCurationStates)
+            {
+                var theme = pair.Key;
+                var state = pair.Value;
+                if (theme == null || state == null)
+                    continue;
+
+                for (int i = 0; i < state.SlotInspirations.Count && i < state.DisplaySlots.Count; i++)
+                {
+                    var inspiration = state.SlotInspirations[i];
+                    var item = state.DisplaySlots[i];
+                    if (inspiration == null || item == null)
+                        continue;
+
+                    _inspirationItemBindings[inspiration] = new InspirationItemBinding
+                    {
+                        Theme = theme,
+                        SlotIndex = i,
+                        Item = item,
+                    };
+                }
+            }
+        }
+
+        private ExhibitionTheme FindThemeByTitle(string title)
+        {
+            return _allThemes.FirstOrDefault(theme =>
+                theme != null && theme.title == title);
+        }
+
+        private InspirationData FindInspirationById(int id)
+        {
+            return _allInspirations.FirstOrDefault(inspiration =>
+                inspiration != null && inspiration.id == id);
+        }
+
+        private ExhibitItemData FindItemBySortOrder(int sortOrder)
+        {
+            return _allItems.FirstOrDefault(item =>
+                item != null && item.sortOrder == sortOrder);
+        }
+
         private void ClearSlotValidation(int slotIndex)
         {
             if (slotIndex >= 0 && slotIndex < _slotValidationResults.Count)
@@ -799,12 +1122,25 @@ namespace ExhibitionSystem.Core
                 .ToList();
 
             if (missingIds.Count > 0)
+            {
+                if (ShouldPrioritizeBirdwatchingFanHint(missingIds))
+                    return _currentTheme.GetHintForMissingId(BIRD_DEITY_FAN_INSPIRATION_ID);
+
                 return _currentTheme.GetHintForMissingId(missingIds[UnityEngine.Random.Range(0, missingIds.Count)]);
+            }
 
             if (_validationResults.Any(result => !result.ItemCorrect))
                 return "One of the exhibits does not fit. I should replace the item marked in red.";
 
             return "One of the exhibit labels does not fit. I should replace the label marked in red.";
+        }
+
+        private bool ShouldPrioritizeBirdwatchingFanHint(IReadOnlyCollection<int> missingIds)
+        {
+            return _currentTheme != null &&
+                   _currentTheme.name == BIRDWATCHING_THEME_ASSET_NAME &&
+                   missingIds != null &&
+                   missingIds.Contains(BIRD_DEITY_FAN_INSPIRATION_ID);
         }
 
         private void SetState(ExhibitionState state)

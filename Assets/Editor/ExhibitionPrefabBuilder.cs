@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public static class ExhibitionPrefabBuilder
 {
     private const string PREFAB_PATH = "Assets/Resources/Exhibitions/Prefabs";
+    private const int VISITOR_RENDER_TEXTURE_SIZE = 512;
 
     [MenuItem("Tools/Museum/Rebuild Prefabs")]
     public static void RebuildPrefabs()
@@ -341,9 +342,27 @@ public static class ExhibitionPrefabBuilder
     {
         string rtPath = "Assets/Resources/Exhibitions/VisitorRT.asset";
         var existingRT = AssetDatabase.LoadAssetAtPath<RenderTexture>(rtPath);
-        if (existingRT != null) return;
+        if (existingRT != null)
+        {
+            if (existingRT.width != VISITOR_RENDER_TEXTURE_SIZE ||
+                existingRT.height != VISITOR_RENDER_TEXTURE_SIZE)
+            {
+                existingRT.Release();
+                existingRT.width = VISITOR_RENDER_TEXTURE_SIZE;
+                existingRT.height = VISITOR_RENDER_TEXTURE_SIZE;
+                existingRT.filterMode = FilterMode.Bilinear;
+                existingRT.wrapMode = TextureWrapMode.Clamp;
+                EditorUtility.SetDirty(existingRT);
+            }
 
-        var rt = new RenderTexture(256, 256, 0, RenderTextureFormat.ARGB32)
+            return;
+        }
+
+        var rt = new RenderTexture(
+            VISITOR_RENDER_TEXTURE_SIZE,
+            VISITOR_RENDER_TEXTURE_SIZE,
+            0,
+            RenderTextureFormat.ARGB32)
         {
             name = "VisitorRT",
             filterMode = FilterMode.Bilinear,

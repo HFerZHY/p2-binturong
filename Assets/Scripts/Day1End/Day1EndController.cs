@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Otowa.Audio;
 using Otowa.IndoorDialogue;
+using Otowa.SaveSystem;
 using Otowa.UI;
 using TMPro;
 using UnityEngine;
@@ -24,7 +25,7 @@ namespace Otowa.Day1End
         [SerializeField] private TMP_FontAsset serifFont;
 
         private static readonly Color DreamBg = Color.black;
-        private static readonly Color BrightDreamBg = Color.white;
+        private static readonly Color BrightDreamBg = new(0.93f, 0.92f, 0.86f, 1f);
         private static readonly Color DreamText = new(0.92f, 0.96f, 1f, 1f);
         private static readonly Color TitleBg = new(0.97f, 0.96f, 0.92f, 1f);
         private static readonly Color WakeBg = new(0.88f, 0.92f, 0.90f, 1f);
@@ -93,6 +94,9 @@ namespace Otowa.Day1End
             if (_inputLock)
                 return;
 
+            if (PauseMenuController.ShouldSuppressWorldAdvance)
+                return;
+
             var mouse = Mouse.current;
             var keyboard = Keyboard.current;
             bool advance = mouse != null && mouse.leftButton.wasPressedThisFrame
@@ -141,6 +145,7 @@ namespace Otowa.Day1End
                 bool isBrightDream = index == 3;
                 _background.color = isBrightDream ? BrightDreamBg : DreamBg;
                 _dreamBody.color = isBrightDream ? WakeText : DreamText;
+                _dreamBody.fontStyle = isBrightDream ? FontStyles.Bold : FontStyles.Normal;
                 _textPlayer.Play(_dreamBody, beat.Text);
                 return;
             }

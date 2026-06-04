@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using Otowa.Audio;
+using Otowa.SaveSystem;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
@@ -24,6 +25,9 @@ namespace Otowa.Intro
 
         private CanvasGroup _fade;
         private Button _startButton;
+        private Button _continueButton;
+        private GameObject _confirmRoot;
+        private System.Action _loadAfterFade;
         private bool _loading;
 
         private void Awake()
@@ -40,13 +44,43 @@ namespace Otowa.Intro
             StartCoroutine(FadeTo(1f));
         }
 
-        private void StartGame()
+        private void StartNewGame()
+        {
+            if (GameSaveManager.Instance.HasSave)
+            {
+                ShowNewGameConfirm();
+                return;
+            }
+
+            StartNewGameConfirmed();
+        }
+
+        private void StartNewGameConfirmed()
+        {
+            HideNewGameConfirm();
+            GameSaveManager.Instance.DeleteSave();
+            HideContinueButton();
+            BeginLoad(() => GameSaveManager.Instance.StartNewGame(_nextSceneName));
+        }
+
+        private void ContinueGame()
+        {
+            if (!GameSaveManager.Instance.HasSave)
+                return;
+
+            BeginLoad(() => GameSaveManager.Instance.ContinueGame());
+        }
+
+        private void BeginLoad(System.Action loadAction)
         {
             if (_loading)
                 return;
 
             _loading = true;
+            _loadAfterFade = loadAction;
             _startButton.interactable = false;
+            if (_continueButton != null)
+                _continueButton.interactable = false;
             StartCoroutine(FadeAndLoad());
         }
 
@@ -54,7 +88,7 @@ namespace Otowa.Intro
         {
             GameAudioManager.Instance.StopBgm(0.35f);
             yield return FadeTo(0f);
-            SceneManager.LoadScene(_nextSceneName);
+            _loadAfterFade?.Invoke();
         }
 
         private IEnumerator FadeTo(float target)
@@ -103,39 +137,100 @@ namespace Otowa.Intro
             title.fontStyle = FontStyles.Bold;
             title.characterSpacing = 17f;
 
-            var buttonObject = MakeRect(canvasObject.transform, "StartButton",
-                new Vector2(0.38f, 0.075f), new Vector2(0.62f, 0.185f));
+            bool hasSave = GameSaveManager.Instance.HasSave;
+            _startButton = MakeMenuButton(canvasObject.transform, "StartButton", "START NEW GAME",
+                new Vector2(0.37f, 0.13f), new Vector2(0.63f, 0.225f), StartNewGame);
+            _continueButton = MakeMenuButton(canvasObject.transform, "ContinueButton", "CONTINUE",
+                new Vector2(0.37f, 0.035f), new Vector2(0.63f, 0.115f), ContinueGame);
+            _continueButton.gameObject.SetActive(hasSave);
+            _continueButton.interactable = hasSave;
+            BuildNewGameConfirmPopup(canvasObject.transform);
+        }
+
+        private void BuildNewGameConfirmPopup(Transform parent)
+        {
+            _confirmRoot = MakeRect(parent, "NewGameConfirmPopup", Vector2.zero, Vector2.one);
+            MakeImage(_confirmRoot.transform, "Backdrop", new Color(0f, 0f, 0f, 0.68f), Vector2.zero, Vector2.one);
+
+            var panel = MakeImage(_confirmRoot.transform, "Panel", new Color32(0x11, 0x26, 0x30, 0xF8),
+                new Vector2(0.32f, 0.35f), new Vector2(0.68f, 0.64f));
+
+            var message = MakeText(panel.transform, "Message",
+                "Starting a new game will overwrite your save. Continue?",
+                28f, ButtonText, TextAlignmentOptions.Center,
+                new Vector2(0.08f, 0.48f), new Vector2(0.92f, 0.82f));
+            message.textWrappingMode = TextWrappingModes.Normal;
+
+            MakeMenuButton(panel.transform, "CancelButton", "CANCEL",
+                new Vector2(0.10f, 0.16f), new Vector2(0.46f, 0.34f), HideNewGameConfirm);
+            MakeMenuButton(panel.transform, "ConfirmButton", "CONTINUE",
+                new Vector2(0.54f, 0.16f), new Vector2(0.90f, 0.34f), StartNewGameConfirmed);
+
+            _confirmRoot.SetActive(false);
+        }
+
+        private void ShowNewGameConfirm()
+        {
+            if (_confirmRoot != null)
+                _confirmRoot.SetActive(true);
+        }
+
+        private void HideNewGameConfirm()
+        {
+            if (_confirmRoot != null)
+                _confirmRoot.SetActive(false);
+        }
+
+        private void HideContinueButton()
+        {
+            if (_continueButton == null)
+                return;
+
+            _continueButton.interactable = false;
+            _continueButton.gameObject.SetActive(false);
+        }
+
+        private Button MakeMenuButton(
+            Transform parent,
+            string name,
+            string labelText,
+            Vector2 anchorMin,
+            Vector2 anchorMax,
+            UnityEngine.Events.UnityAction action)
+        {
+            var buttonObject = MakeRect(parent, name, anchorMin, anchorMax);
             var buttonImage = buttonObject.AddComponent<Image>();
             buttonImage.color = Panel;
 
-            _startButton = buttonObject.AddComponent<Button>();
-            _startButton.targetGraphic = buttonImage;
-            _startButton.colors = new ColorBlock
+            var button = buttonObject.AddComponent<Button>();
+            button.targetGraphic = buttonImage;
+            button.colors = new ColorBlock
             {
                 normalColor = Color.white,
                 highlightedColor = PanelHover,
                 pressedColor = PanelPressed,
                 selectedColor = Color.white,
-                disabledColor = new Color(0.5f, 0.5f, 0.5f, 0.6f),
+                disabledColor = new Color(0.32f, 0.38f, 0.42f, 0.62f),
                 colorMultiplier = 1f,
                 fadeDuration = 0.12f,
             };
-            _startButton.onClick.AddListener(StartGame);
+            button.onClick.AddListener(action);
 
-            var label = MakeText(buttonObject.transform, "Label", "START GAME",
-                34f, ButtonText, TextAlignmentOptions.Center, Vector2.zero, Vector2.one);
+            var label = MakeText(buttonObject.transform, "Label", labelText,
+                30f, ButtonText, TextAlignmentOptions.Center, Vector2.zero, Vector2.one);
             label.fontStyle = FontStyles.Bold;
-            label.characterSpacing = 6f;
+            label.characterSpacing = 4f;
+            return button;
         }
 
         private static void EnsureEventSystem()
         {
-            if (FindFirstObjectByType<EventSystem>() != null)
-                return;
+            var eventSystem = FindFirstObjectByType<EventSystem>();
+            if (eventSystem == null)
+                eventSystem = new GameObject("EventSystem").AddComponent<EventSystem>();
 
-            var eventSystem = new GameObject("EventSystem");
-            eventSystem.AddComponent<EventSystem>();
-            eventSystem.AddComponent<InputSystemUIInputModule>();
+            if (eventSystem.GetComponent<InputSystemUIInputModule>() == null)
+                eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
         }
 
         private Sprite LoadSprite(string resourcePath)

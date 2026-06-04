@@ -3,6 +3,7 @@ using System.Linq;
 using ExhibitionSystem.Data;
 using Otowa.Audio;
 using Otowa.IndoorDialogue;
+using Otowa.SaveSystem;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -17,6 +18,7 @@ namespace Otowa.Day3
         private enum BeatPhase
         {
             Sky,
+            Black,
             Silhouettes,
             Credits
         }
@@ -47,12 +49,21 @@ namespace Otowa.Day3
         private static readonly Beat[] Beats =
         {
             Sky("Brilliant fireworks bloom across the night sky, and you know this is the moment Mr. Yuji has been waiting for."),
-            Sky("You hear laughter, and the beat of festival drums. Junko waves a fan painted with the bird deity, praying for good fortune in the year to come."),
-            Sky("\"Look, look! The blue bird came back!\" Professor Rintaro's shout carries across the square."),
-            Silhouettes("In the middle of all the merriment, you push open the door to the stationmaster's office."),
-            Silhouettes("You love the bustle and warmth, yet a quiet unease about the future lingers."),
-            Silhouettes("Does the railway company's goodwill come at a price?"),
-            Silhouettes("Faced with the company, with the relentless tide of the times, what can you and Otowa really do?"),
+            Sky("The villagers crowd around you, excited and grateful, calling you the hero of Otowa."),
+            Sky("You hear laughter, and the beat of festival drums."),
+            Sky("Junko waves a fan painted with the bird deity, praying for good fortune in the year to come."),
+            Sky("\"Look, look! The blue bird came back!\" Professor Rintaro raises his binoculars toward the moon."),
+            Sky("You see Hachi perched on a big rock, eating dango, and Mizuki poring over the art book her friend brought her."),
+            Sky("Hikaru comes weaving toward you, rubbing his eyes. It's just like a dream, he says."),
+            Sky("Yes. Just like a dream. And you wish this summer night would never, never end."),
+            Black("The noise of the festival slowly fades behind you, and you push open the door to the stationmaster's office."),
+            Silhouettes("\"You are the hero of Otowa.\" The villagers' words fill you with quiet pride."),
+            Silhouettes("Once, you could not save your own hometown. But this time, you saved Otowa."),
+            Silhouettes("You proved that beyond being replaced, beyond being forgotten, a village can still hold another possibility."),
+            Silhouettes("And yet... a faint unease lingers in your heart."),
+            Silhouettes("What is the price of the railway company's goodwill?"),
+            Silhouettes("Now that the world has seen Otowa, what unforeseeable changes will come to the villagers' lives?"),
+            Silhouettes("Faced with the company, with the relentless tide of the times, what can you and Otowa really change?"),
             Silhouettes("And so, you run your fingers gently over each exhibit."),
             Silhouettes("The stone, the book, the octopus pot..."),
             Silhouettes("The clear touch under your fingertips brings back your three days in Otowa."),
@@ -70,6 +81,7 @@ namespace Otowa.Day3
         private Button _quitButton;
         private RectTransform _fireworkLayer;
         private GameObject _silhouetteGrid;
+        private CanvasGroup _blackOverlay;
         private IndoorDialogueTextPlayer _textPlayer;
         private Sprite _glowSprite;
         private Coroutine _fireworkSpawner;
@@ -171,14 +183,35 @@ namespace Otowa.Day3
         private IEnumerator CrossFadeTo(int next)
         {
             _inputLock = true;
+
+            var currentPhase = Beats[_beatIndex].Phase;
+            var nextPhase = Beats[next].Phase;
+            if (currentPhase == BeatPhase.Sky && nextPhase == BeatPhase.Black)
+            {
+                GameAudioManager.Instance.StopSfxLoop(AudioId.Fireworks, 2f);
+                GameAudioManager.Instance.StopBgm(2f);
+                yield return FadeBlackOverlayTo(1f, 2f);
+                StopFireworks();
+                ShowBeat(next);
+                yield return FadeBlackOverlayTo(0f, 0.65f);
+                _inputLock = false;
+                yield break;
+            }
+
+            if (currentPhase == BeatPhase.Black && nextPhase == BeatPhase.Silhouettes)
+            {
+                GameAudioManager.Instance.PlayBgm(AudioId.OtowaBlues, fadeIn: 1.1f);
+                ShowBeat(next);
+                _inputLock = false;
+                yield break;
+            }
+
             yield return FadeTo(0f);
-            if (Beats[next].Phase != BeatPhase.Sky)
+            if (nextPhase != BeatPhase.Sky)
             {
                 StopFireworks();
                 GameAudioManager.Instance.StopSfxLoop(AudioId.Fireworks, 0.5f);
             }
-            if (Beats[_beatIndex].Phase == BeatPhase.Sky && Beats[next].Phase == BeatPhase.Silhouettes)
-                GameAudioManager.Instance.CrossFadeBgm(AudioId.OtowaBlues, 1.1f);
             ShowBeat(next);
             yield return FadeTo(1f);
             _inputLock = false;
@@ -196,6 +229,23 @@ namespace Otowa.Day3
             }
 
             _fade.alpha = target;
+        }
+
+        private IEnumerator FadeBlackOverlayTo(float target, float duration)
+        {
+            if (_blackOverlay == null)
+                yield break;
+
+            var start = _blackOverlay.alpha;
+            var elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                _blackOverlay.alpha = Mathf.Lerp(start, target, Mathf.Clamp01(elapsed / duration));
+                yield return null;
+            }
+
+            _blackOverlay.alpha = target;
         }
 
         private void BuildUi()
@@ -238,6 +288,13 @@ namespace Otowa.Day3
                 new Vector2(0.39f, 0.035f), new Vector2(0.61f, 0.105f));
             _quitButton.onClick.AddListener(QuitGame);
             _quitButton.gameObject.SetActive(false);
+
+            var blackOverlayObject = MakeRect(canvasObject.transform, "BlackFadeOverlay", Vector2.zero, Vector2.one);
+            var blackOverlayImage = blackOverlayObject.AddComponent<Image>();
+            blackOverlayImage.color = Color.black;
+            blackOverlayImage.raycastTarget = false;
+            _blackOverlay = blackOverlayObject.AddComponent<CanvasGroup>();
+            _blackOverlay.alpha = 0f;
         }
 
         private void BuildSilhouettes(Transform canvasRoot)
@@ -453,6 +510,9 @@ namespace Otowa.Day3
 
         private static bool WasAdvancePressed()
         {
+            if (PauseMenuController.ShouldSuppressWorldAdvance)
+                return false;
+
             var mouseClicked = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
             var keyboard = Keyboard.current;
             var keyboardPressed = keyboard != null
@@ -470,6 +530,7 @@ namespace Otowa.Day3
         }
 
         private static Beat Sky(string text) => new Beat(BeatPhase.Sky, text);
+        private static Beat Black(string text) => new Beat(BeatPhase.Black, text);
         private static Beat Silhouettes(string text) => new Beat(BeatPhase.Silhouettes, text);
         private static Beat Credits(string text) => new Beat(BeatPhase.Credits, text);
     }

@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using TMPro;
 using Otowa.IndoorDialogue;
+using Otowa.SaveSystem;
 
 namespace Otowa.Intro
 {
@@ -110,6 +111,7 @@ namespace Otowa.Intro
         private void Update()
         {
             if (_inputLock) return;
+            if (PauseMenuController.ShouldSuppressWorldAdvance) return;
 
             var mouse = Mouse.current;
             var kb    = Keyboard.current;
@@ -402,10 +404,13 @@ namespace Otowa.Intro
         {
             _lines = new List<Line>
             {
-                new() { Speaker = "Junko", Text = "You must be tired from your journey. You are Rin, right? I am Junko, the chief of Otowa village." },
-                new() { Speaker = "Rin",   Text = "Hello, it's nice to meet you. The air here is so nice, completely different from the city." },
-                new() { Speaker = "Junko", Text = "I am relieved to hear you say that. Welcome to Otowa." },
-                new() { Speaker = "Rin",   Text = "Thank you. Excuse me, is Mr. Hikaru here? We agreed on the phone to hand over the work today." },
+                new() { Speaker = "Junko", Text = "You must be tired from your journey." },
+                new() { Speaker = "Junko", Text = "You are Rin, right? I am Junko, the chief of Otowa village." },
+                new() { Speaker = "Rin",   Text = "Hello, it's nice to meet you." },
+                new() { Speaker = "Rin",   Text = "The air here is so nice, completely different from the city." },
+                new() { Speaker = "Junko", Text = "I am relieved to hear you say that. Welcome to Otowa. Please, make yourself at home here." },
+                new() { Speaker = "Rin",   Text = "(My hometown… I hope the air there is this fresh, too.)" },
+                new() { Speaker = "Rin",   Text = "Thank you, chief. And.. by the way, is Mr. Hikaru here? We agreed on the phone to hand over the work today." },
                 new() { Speaker = "Junko", Text = "Ah... regarding that, I am truly very sorry." },
                 new() { Speaker = "Rin",   Text = "What's wrong? Is he not in the village?" },
                 new() { Speaker = "Junko", Text = "Yesterday afternoon, he suddenly packed a bag and left. He said there was something extremely important he had to go take care of immediately." },

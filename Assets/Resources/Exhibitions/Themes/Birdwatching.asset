@@ -17,9 +17,9 @@ MonoBehaviour:
   description: An exhibition about birds, watchers, and local belief.
   descriptionKey: desc_birdwatching
   day: 3
-  requiredInspirations: 3
+  requiredInspirations: 4
   selectionMode: 0
-  validInspirationIds: 010000000200000003000000
+  validInspirationIds: 01000000020000000300000007000000
   missingIdeaHints:
   - inspirationId: 1
     hintText: Professor Rintaro was after some rare bird. What color was it again...?
@@ -28,6 +28,8 @@ MonoBehaviour:
   - inspirationId: 3
     hintText: From geology professor to birdwatching devotee... let's put that turning
       point into the exhibition!
+  - inspirationId: 7
+    hintText: I can exhibit an item that adds some mythical backstory to birdwatching...
   fallbackMissingHint: I am missing one of the ideas that really belongs to this
     exhibition.
   fallbackInvalidHint: One of these ideas feels out of place for this exhibition.

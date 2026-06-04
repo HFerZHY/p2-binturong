@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 using TMPro;
 using Otowa.Audio;
 using Otowa.IndoorDialogue;
+using Otowa.SaveSystem;
 
 namespace Otowa.Intro
 {
@@ -94,12 +95,12 @@ namespace Otowa.Intro
         private static bool _loadingScene = false;
 
         private static readonly Color CityGray = new Color32(0x30, 0x32, 0x34, 0xFF);
-        private static readonly Color SeasideBlue = new Color32(0x2f, 0x78, 0x98, 0xFF);
+        private static readonly Color SeasideBlue = new Color32(0x24, 0x5f, 0x78, 0xFF);
         private static readonly Color MountainGreen = new Color32(0x0b, 0x32, 0x2f, 0xFF);
         private static readonly Color Black = Color.black;
 
         // Screen index on which "Otowa" should glow.
-        private const int OtowaScreenIndex = 12;
+        private const int OtowaScreenIndex = 14;
 
         // ── UI references (built at runtime) ──────────────────────────────────
 
@@ -150,6 +151,7 @@ namespace Otowa.Intro
         private void Update()
         {
             if (_inputLock) return;
+            if (PauseMenuController.ShouldSuppressWorldAdvance) return;
 
             var mouse    = Mouse.current;
             var keyboard = Keyboard.current;
@@ -752,6 +754,7 @@ namespace Otowa.Intro
             audio.StopBgm();
             audio.StopSfxLoop(AudioId.ForestAtmosphere);
             audio.StopSfxLoop(AudioId.LivelierBirdsong);
+            audio.StopSfxLoop(AudioId.Construction);
             audio.StopSfxLoop(AudioId.Wind);
             audio.PlaySfxLoop(AudioId.OnTheTrain, fadeIn: 0.25f);
         }
@@ -761,11 +764,25 @@ namespace Otowa.Intro
             var audio = GameAudioManager.Instance;
             switch (screenIndex)
             {
-                case 10:
+                case 3:
+                    audio.StopSfxLoop(AudioId.OnTheTrain, 0.25f);
+                    audio.PlaySfxLoop(AudioId.ForestAtmosphere, fadeIn: 0.25f);
+                    break;
+                case 4:
+                    audio.StopSfxLoop(AudioId.ForestAtmosphere, 0.25f);
+                    audio.PlaySfxLoop(AudioId.Construction, fadeIn: 0.25f);
+                    break;
+                case 5:
+                    audio.StopSfxLoop(AudioId.Construction, 0.25f);
+                    break;
+                case 6:
+                    audio.PlaySfxLoop(AudioId.OnTheTrain, fadeIn: 0.25f);
+                    break;
+                case 12:
                     audio.PlaySfxLoop(AudioId.LivelierBirdsong, fadeIn: 0.35f);
                     audio.StopSfxLoop(AudioId.OnTheTrain, 0.25f);
                     break;
-                case 11:
+                case 13:
                     audio.PlaySfxOnce(AudioId.TrainRunning);
                     break;
             }
@@ -776,6 +793,7 @@ namespace Otowa.Intro
             var audio = GameAudioManager.Instance;
             audio.StopSfxLoop(AudioId.OnTheTrain, 0.25f);
             audio.StopSfxLoop(AudioId.LivelierBirdsong, 0.25f);
+            audio.StopSfxLoop(AudioId.Construction, 0.25f);
             audio.PlayBgm(AudioId.DayWalk, fadeIn: 0.35f);
             audio.PlaySfxLoop(AudioId.ForestAtmosphere, fadeIn: 0.3f);
         }
@@ -813,15 +831,25 @@ namespace Otowa.Intro
                     Background = CityGray,
                 },
 
-                // ── Screen 2: Hikaru's job posting ───────────────────────────
+                // ── Screen 2: Hometown, city, and Hikaru's job posting ───────
                 new() {
                     Type = ScreenType.Opening,
-                    Body = $"You wanted to find a quiet place to completely empty your mind. Then, you saw {H("Hikaru's")} job posting.",
+                    Body = "You wanted to go back to your hometown — a faraway little mountain village, where you could always empty your mind.",
+                    Background = MountainGreen,
+                },
+                new() {
+                    Type = ScreenType.Opening,
+                    Body = "But for certain reasons, that had already become a dream you could never reach.",
                     Background = CityGray,
                 },
                 new() {
                     Type = ScreenType.Opening,
-                    Body = $"{H("Position available: Station Attendant.")} In a faraway little mountain village.",
+                    Body = "Thankfully, a job posting gave you a destination once more.",
+                    Background = CityGray,
+                },
+                new() {
+                    Type = ScreenType.Opening,
+                    Body = $"{H("Position available: Station Attendant.")} In a village.",
                     Background = CityGray,
                 },
                 new() {

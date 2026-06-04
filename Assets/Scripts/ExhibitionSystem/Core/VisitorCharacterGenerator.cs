@@ -17,13 +17,11 @@ namespace ExhibitionSystem.Core
         [SerializeField] private RenderTexture _renderTarget;
 
         private const byte VISIBLE_ALPHA_THRESHOLD = 8;
+        private static readonly Color32 SKIN_MASK_COLOR = new(61, 61, 196, 255);
+        private static readonly Color32 HAIR_MASK_COLOR = new(231, 191, 41, 255);
+        private static readonly Color32 CLOTHES_MASK_COLOR = new(212, 58, 58, 255);
         private static readonly Color32 TRANSPARENT = new(0, 0, 0, 0);
         private static readonly Color32 DEFAULT_LINE_COLOR = new(18, 18, 24, 255);
-
-        // ── Runtime State ───────────────────────────────────────────────────────
-
-        private Material _instanceMaterial;
-        private bool _hasLoggedTransparentMaterialWarning;
 
         // ── Public Properties ───────────────────────────────────────────────────
 
@@ -36,18 +34,6 @@ namespace ExhibitionSystem.Core
         /// Whether the generator is properly configured with character bases.
         /// </summary>
         public bool IsConfigured => _characterBases != null && _characterBases.Length > 0;
-
-        // ── Unity Lifecycle ─────────────────────────────────────────────────────
-
-        private void OnDestroy()
-        {
-            // Clean up the material instance
-            if (_instanceMaterial != null)
-            {
-                Destroy(_instanceMaterial);
-                _instanceMaterial = null;
-            }
-        }
 
         // ── Public Methods ──────────────────────────────────────────────────────
 
@@ -76,55 +62,11 @@ namespace ExhibitionSystem.Core
                 return;
             }
 
-            if (charBase.baseMaterial == null)
-            {
-                Debug.LogWarning("[VisitorCharacterGenerator] Character base has no recolor material. Falling back to base texture.");
-                RenderCpuRecoloredFallback(charBase, RandomColor(charBase.skinColors),
-                    RandomColor(charBase.hairColors), RandomColor(charBase.clothesColors));
-                return;
-            }
-
-            // 2. Create or reuse material instance
-            if (_instanceMaterial == null)
-            {
-                _instanceMaterial = new Material(charBase.baseMaterial);
-            }
-            else
-            {
-                _instanceMaterial.CopyPropertiesFromMaterial(charBase.baseMaterial);
-            }
-
-            // 3. Set textures
-            if (charBase.colorTexture != null)
-                _instanceMaterial.SetTexture("_ColorTexture", charBase.colorTexture);
-
-            if (charBase.lineArtTexture != null)
-                _instanceMaterial.SetTexture("_LineTexture", charBase.lineArtTexture);
-
-            // 4. Apply random colors from palettes
             Color skinColor = RandomColor(charBase.skinColors);
             Color hairColor = RandomColor(charBase.hairColors);
             Color clothesColor = RandomColor(charBase.clothesColors);
 
-            _instanceMaterial.SetColor("_SkinColor", skinColor);
-            _instanceMaterial.SetColor("_HairColor", hairColor);
-            _instanceMaterial.SetColor("_ClothesColor", clothesColor);
-
-            _instanceMaterial.SetColor("_LineColor", charBase.lineColor);
-
-            // 5. Blit to RenderTexture
-            Graphics.Blit(charBase.colorTexture, _renderTarget, _instanceMaterial);
-
-            if (!RenderTargetHasVisiblePixels())
-            {
-                if (!_hasLoggedTransparentMaterialWarning)
-                {
-                    Debug.LogWarning("[VisitorCharacterGenerator] Recolor material produced a fully transparent visitor. Falling back to CPU recolor.");
-                    _hasLoggedTransparentMaterialWarning = true;
-                }
-
-                RenderCpuRecoloredFallback(charBase, skinColor, hairColor, clothesColor);
-            }
+            RenderCpuRecoloredFallback(charBase, skinColor, hairColor, clothesColor);
         }
 
         /// <summary>
@@ -148,39 +90,6 @@ namespace ExhibitionSystem.Core
                 return Color.white;
 
             return palette.colors[Random.Range(0, palette.colors.Length)];
-        }
-
-        private bool RenderTargetHasVisiblePixels()
-        {
-            if (_renderTarget == null) return false;
-
-            RenderTexture previous = RenderTexture.active;
-            Texture2D readableTexture = new Texture2D(
-                _renderTarget.width,
-                _renderTarget.height,
-                TextureFormat.RGBA32,
-                false);
-
-            try
-            {
-                RenderTexture.active = _renderTarget;
-                readableTexture.ReadPixels(new Rect(0, 0, _renderTarget.width, _renderTarget.height), 0, 0);
-                readableTexture.Apply(false);
-
-                Color32[] pixels = readableTexture.GetPixels32();
-                for (int i = 0; i < pixels.Length; i++)
-                {
-                    if (pixels[i].a > VISIBLE_ALPHA_THRESHOLD)
-                        return true;
-                }
-
-                return false;
-            }
-            finally
-            {
-                RenderTexture.active = previous;
-                DestroyGeneratedObject(readableTexture);
-            }
         }
 
         private void RenderCpuRecoloredFallback(CharacterBase charBase, Color skinColor, Color hairColor, Color clothesColor)
@@ -216,7 +125,7 @@ namespace ExhibitionSystem.Core
                     Color32 lineSource = linePixels[i];
                     if (lineSource.a <= VISIBLE_ALPHA_THRESHOLD) continue;
 
-                    outputPixels[i] = new Color32(line.r, line.g, line.b, lineSource.a);
+                    outputPixels[i] = CompositeLinePixel(outputPixels[i], line, lineSource.a);
                 }
 
                 output.SetPixels32(outputPixels);
@@ -258,16 +167,39 @@ namespace ExhibitionSystem.Core
 
         private Color32 RecolorMaskPixel(Color32 source, Color32 skin, Color32 hair, Color32 clothes)
         {
-            Color32 targetColor;
-            if (source.b > source.r && source.b > source.g)
-                targetColor = skin;
-            else if (source.r > source.b && source.g > source.b)
-                targetColor = hair;
-            else
-                targetColor = clothes;
+            int skinDistance = ColorDistanceSquared(source, SKIN_MASK_COLOR);
+            int hairDistance = ColorDistanceSquared(source, HAIR_MASK_COLOR);
+            int clothesDistance = ColorDistanceSquared(source, CLOTHES_MASK_COLOR);
+
+            Color32 targetColor = skinDistance <= hairDistance && skinDistance <= clothesDistance
+                ? skin
+                : hairDistance <= clothesDistance
+                    ? hair
+                    : clothes;
 
             targetColor.a = source.a;
             return targetColor;
+        }
+
+        private int ColorDistanceSquared(Color32 a, Color32 b)
+        {
+            int dr = a.r - b.r;
+            int dg = a.g - b.g;
+            int db = a.b - b.b;
+            return dr * dr + dg * dg + db * db;
+        }
+
+        private Color32 CompositeLinePixel(Color32 basePixel, Color32 lineColor, byte lineAlpha)
+        {
+            if (basePixel.a <= VISIBLE_ALPHA_THRESHOLD)
+                return new Color32(lineColor.r, lineColor.g, lineColor.b, lineAlpha);
+
+            float t = lineAlpha / 255f;
+            return new Color32(
+                (byte)Mathf.RoundToInt(Mathf.Lerp(basePixel.r, lineColor.r, t)),
+                (byte)Mathf.RoundToInt(Mathf.Lerp(basePixel.g, lineColor.g, t)),
+                (byte)Mathf.RoundToInt(Mathf.Lerp(basePixel.b, lineColor.b, t)),
+                basePixel.a > lineAlpha ? basePixel.a : lineAlpha);
         }
 
         private Color32 ResolveLineColor(Color lineColor)

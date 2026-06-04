@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Otowa.SaveSystem;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -75,6 +76,101 @@ namespace Otowa.Inquiry
         public bool IsMizukiFestivalTopicComplete => _mizukiFestivalTopicComplete;
         public bool AreJiroTopicsComplete => _jiroStationTopicComplete
                                              && _jiroFestivalTopicComplete;
+
+        public Day2InquirySaveData CaptureSaveData()
+        {
+            var data = new Day2InquirySaveData
+            {
+                day2AfternoonInitialized = _day2AfternoonInitialized,
+                freeExplorationUnlocked = _freeExplorationUnlocked,
+                yujiFestivalTopicComplete = _yujiFestivalTopicComplete,
+                junkoLastTrainTopicComplete = _junkoLastTrainTopicComplete,
+                jiroStationTopicComplete = _jiroStationTopicComplete,
+                jiroFestivalTopicComplete = _jiroFestivalTopicComplete,
+                mizukiFestivalTopicComplete = _mizukiFestivalTopicComplete,
+                dangoAskedByJiro = _dangoAskedByJiro,
+                dangoAskedByMizuki = _dangoAskedByMizuki,
+                paintingInquiryStarted = _paintingInquiryStarted,
+                paintingReceived = _paintingReceived,
+                allInquiryThoughtShown = _allInquiryThoughtShown,
+            };
+
+            foreach (int sortOrder in _askedItemIds)
+                data.askedItemIds.Add(sortOrder);
+
+            foreach (var npc in _introducedNpcs)
+                data.introducedNpcs.Add(npc.ToString());
+
+            return data;
+        }
+
+        public void ApplySaveData(Day2InquirySaveData data)
+        {
+            ResetProgress(invokeChanged: false);
+            if (data == null)
+            {
+                OnProgressChanged?.Invoke();
+                return;
+            }
+
+            _day2AfternoonInitialized = data.day2AfternoonInitialized;
+            _freeExplorationUnlocked = data.freeExplorationUnlocked;
+            _yujiFestivalTopicComplete = data.yujiFestivalTopicComplete;
+            _junkoLastTrainTopicComplete = data.junkoLastTrainTopicComplete;
+            _jiroStationTopicComplete = data.jiroStationTopicComplete;
+            _jiroFestivalTopicComplete = data.jiroFestivalTopicComplete;
+            _mizukiFestivalTopicComplete = data.mizukiFestivalTopicComplete;
+            _dangoAskedByJiro = data.dangoAskedByJiro;
+            _dangoAskedByMizuki = data.dangoAskedByMizuki;
+            _paintingInquiryStarted = data.paintingInquiryStarted;
+            _paintingReceived = data.paintingReceived;
+            _allInquiryThoughtShown = data.allInquiryThoughtShown;
+
+            if (data.askedItemIds != null)
+            {
+                foreach (int sortOrder in data.askedItemIds)
+                    _askedItemIds.Add(sortOrder);
+            }
+
+            if (data.introducedNpcs != null)
+            {
+                foreach (string npcName in data.introducedNpcs)
+                {
+                    if (Enum.TryParse(npcName, out Day2InquiryNpc npc) && npc != Day2InquiryNpc.None)
+                        _introducedNpcs.Add(npc);
+                }
+            }
+
+            OnProgressChanged?.Invoke();
+        }
+
+        public void ResetProgress()
+        {
+            ResetProgress(invokeChanged: true);
+        }
+
+        private void ResetProgress(bool invokeChanged)
+        {
+            _askedItemIds.Clear();
+            _introducedNpcs.Clear();
+            _day2AfternoonInitialized = false;
+            _freeExplorationUnlocked = false;
+            _yujiFestivalTopicComplete = false;
+            _junkoLastTrainTopicComplete = false;
+            _jiroStationTopicComplete = false;
+            _jiroFestivalTopicComplete = false;
+            _mizukiFestivalTopicComplete = false;
+            _dangoAskedByJiro = false;
+            _dangoAskedByMizuki = false;
+            _paintingInquiryStarted = false;
+            _paintingReceived = false;
+            _allInquiryThoughtShown = false;
+            _requestedMapSpawnObjectName = null;
+            _requestedMapSpawnOffset = Vector3.zero;
+
+            if (invokeChanged)
+                OnProgressChanged?.Invoke();
+        }
 
         private void Awake()
         {
@@ -186,6 +282,23 @@ namespace Otowa.Inquiry
 
             for (int sortOrder = 1; sortOrder <= 16; sortOrder++)
             {
+                if (GetInquiryNpc(sortOrder) == npc)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public bool HasPendingInquiryAfterAsking(Day2InquiryNpc npc, int completedSortOrder)
+        {
+            if (!_freeExplorationUnlocked || npc == Day2InquiryNpc.None)
+                return false;
+
+            for (int sortOrder = 1; sortOrder <= 16; sortOrder++)
+            {
+                if (sortOrder == completedSortOrder && GetInquiryNpc(sortOrder) == npc)
+                    continue;
+
                 if (GetInquiryNpc(sortOrder) == npc)
                     return true;
             }

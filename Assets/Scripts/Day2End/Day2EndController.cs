@@ -1,6 +1,7 @@
 using System.Collections;
 using Otowa.Audio;
 using Otowa.IndoorDialogue;
+using Otowa.SaveSystem;
 using Otowa.UI;
 using TMPro;
 using UnityEngine;
@@ -88,6 +89,9 @@ namespace Otowa.Day2End
         private void Update()
         {
             if (_inputLock)
+                return;
+
+            if (PauseMenuController.ShouldSuppressWorldAdvance)
                 return;
 
             var mouse = Mouse.current;

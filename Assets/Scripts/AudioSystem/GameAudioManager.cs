@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Otowa.SaveSystem;
 using UnityEngine;
 
 namespace Otowa.Audio
@@ -312,6 +314,65 @@ namespace Otowa.Audio
             }
         }
 
+        public AudioSaveData CaptureSaveData()
+        {
+            var data = new AudioSaveData
+            {
+                hasSnapshot = true,
+                hasBgm = _currentBgm != null
+                         && _currentBgm.Id != AudioId.None
+                         && _currentBgm.Source.clip != null
+                         && _currentBgm.Source.isPlaying,
+            };
+
+            if (data.hasBgm)
+            {
+                data.bgmId = _currentBgm.Id.ToString();
+                data.bgmTime = _currentBgm.Source.time;
+                data.bgmVolume = _currentBgm.Volume;
+            }
+
+            foreach (var voice in _loopVoicesByHandle.Values)
+            {
+                if (voice.Id == AudioId.None || voice.Source.clip == null || !voice.Source.isPlaying)
+                    continue;
+
+                data.loops.Add(new AudioLoopSaveData
+                {
+                    id = voice.Id.ToString(),
+                    time = voice.Source.time,
+                    volume = voice.Volume,
+                });
+            }
+
+            return data;
+        }
+
+        public void ApplySaveData(AudioSaveData data)
+        {
+            if (data == null || !data.hasSnapshot)
+                return;
+
+            StopBgm();
+            StopAllSfx();
+
+            if (data.hasBgm && TryParseAudioId(data.bgmId, out var bgmId))
+            {
+                PlayBgmAt(bgmId, data.bgmTime, data.bgmVolume);
+            }
+
+            if (data.loops == null)
+                return;
+
+            foreach (var loop in data.loops)
+            {
+                if (loop == null || !TryParseAudioId(loop.id, out var sfxId))
+                    continue;
+
+                PlaySfxLoopAt(sfxId, loop.time, loop.volume);
+            }
+        }
+
         public void SetMasterVolume(float volume, float duration = 0f)
         {
             FadeBusTo(Bus.Master, volume, duration);
@@ -354,6 +415,54 @@ namespace Otowa.Audio
             }
 
             return CreateSource($"SFX {_oneShotVoices.Count + _loopVoicesByHandle.Count + 1}");
+        }
+
+        private void PlayBgmAt(AudioId id, float playbackTime, float volume)
+        {
+            if (!TryResolve(id, volume, out var clip, out var targetVolume))
+                return;
+
+            var previousChannel = _currentBgm;
+            var nextChannel = previousChannel == _bgmA ? _bgmB : _bgmA;
+            StopBgmChannel(nextChannel);
+            nextChannel.Source.clip = clip;
+            nextChannel.Source.loop = true;
+            nextChannel.Source.time = NormalizePlaybackTime(playbackTime, clip.length);
+            nextChannel.Id = id;
+            nextChannel.Volume = targetVolume;
+            nextChannel.Source.Play();
+            _currentBgm = nextChannel;
+
+            if (previousChannel != null && previousChannel.Source.isPlaying)
+                StopBgmChannel(previousChannel);
+        }
+
+        private void PlaySfxLoopAt(AudioId id, float playbackTime, float volume)
+        {
+            if (!TryResolve(id, volume, out var clip, out var targetVolume))
+                return;
+
+            if (_defaultLoopVoicesById.TryGetValue(id, out var existingVoice))
+                ReleaseLoopVoice(existingVoice);
+
+            var source = AcquireSource();
+            source.clip = clip;
+            source.loop = true;
+            source.time = NormalizePlaybackTime(playbackTime, clip.length);
+
+            var voice = new SfxVoice
+            {
+                Source = source,
+                Id = id,
+                Volume = targetVolume,
+                HandleId = _nextLoopHandle++,
+                IsLoop = true,
+                IsDefaultLoop = true,
+            };
+
+            _loopVoicesByHandle.Add(voice.HandleId, voice);
+            _defaultLoopVoicesById[id] = voice;
+            source.Play();
         }
 
         private void ReleaseSource(AudioSource source)
@@ -496,7 +605,23 @@ namespace Otowa.Audio
                 return 0f;
             }
 
-            return Mathf.Repeat(playbackTime, clipLength);
+            return NormalizePlaybackTime(playbackTime, clipLength);
+        }
+
+        private static bool TryParseAudioId(string id, out AudioId audioId)
+        {
+            if (Enum.TryParse(id, out audioId))
+                return audioId != AudioId.None;
+
+            audioId = AudioId.None;
+            return false;
+        }
+
+        private static float NormalizePlaybackTime(float playbackTime, float clipLength)
+        {
+            return clipLength > 0f
+                ? Mathf.Repeat(Mathf.Max(0f, playbackTime), clipLength)
+                : 0f;
         }
 
         private void FadeSfxVoiceTo(SfxVoice voice, float volume, float duration, bool stopAfterFade)

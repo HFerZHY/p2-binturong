@@ -109,6 +109,8 @@ namespace ExhibitionSystem.UI
 
             if (_dialogueText != null)
                 _dialogueText.text = string.Empty;
+
+            RestoreDialogueFromCurrentExhibition();
         }
 
         private void Update()
@@ -253,6 +255,32 @@ namespace ExhibitionSystem.UI
                     StopCoroutine(_characterTransitionCoroutine);
                 _characterTransitionCoroutine = StartCoroutine(FadeOutCharacter());
             }
+        }
+
+        private void RestoreDialogueFromCurrentExhibition()
+        {
+            var manager = ExhibitionManager.Instance;
+            if (manager == null || manager.CurrentTheme == null)
+            {
+                HideDialogue();
+                return;
+            }
+
+            if (manager.State == ExhibitionState.Result)
+            {
+                int threshold = manager.SlotCount;
+                bool success = manager.Satisfaction >= threshold;
+                HandleExhibitionEnded(success, manager.Satisfaction, threshold);
+                return;
+            }
+
+            if (manager.IsRunning || manager.State == ExhibitionState.ExhibitionRunning)
+            {
+                HandleExhibitionStarted();
+                return;
+            }
+
+            HandleThemeSelected(manager.CurrentTheme);
         }
 
         // ── Private Methods ─────────────────────────────────────────────────────

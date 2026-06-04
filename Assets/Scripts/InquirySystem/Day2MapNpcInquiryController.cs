@@ -90,7 +90,6 @@ namespace Otowa.Inquiry
             }
             else
             {
-                progress.MarkNpcIntroduced(npc);
                 graph = BuildIntroductionGraph();
             }
 
@@ -199,7 +198,8 @@ namespace Otowa.Inquiry
                     {
                         Rin("Good afternoon, Mr. Yuji."),
                         Speaker("Oh, it's Rin. Good afternoon."),
-                    }),
+                    },
+                    CompleteIntroduction),
                 Day2InquiryNpc.Junko => BuildDialogueWithMenu(
                     "Day2JunkoIntroduction",
                     new[]
@@ -210,7 +210,8 @@ namespace Otowa.Inquiry
                         Speaker("They didn't just stop to take photos, they got to talking about all sorts of old times, too."),
                         Speaker("You've done wonderfully, Rin. You've breathed new life into this station that's been silent for far too long."),
                         Rin("Thank you. It's thanks to your stories that these objects took on such a wonderful meaning."),
-                    }),
+                    },
+                    CompleteIntroduction),
                 Day2InquiryNpc.Rintaro => BuildDialogueWithMenu(
                     "Day2RintaroIntroduction",
                     new[]
@@ -221,9 +222,15 @@ namespace Otowa.Inquiry
                         Rin("Sorry to bother you. I'm Rin, the new acting stationmaster, I was hoping to ask you about some of Otowa's stories..."),
                         Speaker("Hmph... I'm Rintaro. Out with it, then."),
                         Rin("(So this is Grandpa Rintaro... His temperament's a bit different from how Mizuki described him.)"),
-                    }),
+                    },
+                    CompleteIntroduction),
                 _ => null,
             };
+        }
+
+        private void CompleteIntroduction()
+        {
+            Day2InquiryProgress.Instance.MarkNpcIntroduced(npc);
         }
 
         private DialogueGraph BuildReturnMenuGraph()
@@ -262,12 +269,15 @@ namespace Otowa.Inquiry
             };
         }
 
-        private DialogueGraph BuildDialogueWithMenu(string graphName, IReadOnlyList<Line> lines)
+        private DialogueGraph BuildDialogueWithMenu(
+            string graphName,
+            IReadOnlyList<Line> lines,
+            Action onMenuEntered = null)
         {
             var graph = CreateGraph(graphName);
             AppendLines(graph, lines, "line", "menu");
 
-            graph.nodes.Add(CreateBranch("menu", CreateMenuChoices()));
+            graph.nodes.Add(CreateMenuBranch("menu", onMenuEntered));
             graph.nodes.Add(CreateTerminal("leave"));
             return FinishGraph(graph, lines.Count > 0 ? "line_01" : "menu");
         }
@@ -338,21 +348,24 @@ namespace Otowa.Inquiry
                     Speaker("Then one day, Jiro and Hachi had a huge blowout, and the kid stormed off without looking back. Never came home again."),
                     Rin("Mr. Jiro must regret it."),
                     Speaker("Bet he does. But he'd never say so. Jiro's the type who would rather bite his tongue clean off than say a kind word."),
-                }, new[] { 5 }, () => InspirationManager.Instance.CompleteTheme(YujiTheme), returnToMenuIfAvailable: true),
+                }, new[] { 5 }, () => InspirationManager.Instance.CompleteTheme(YujiTheme),
+                    inquirySortOrder: sortOrder, returnToMenuIfAvailable: true),
                 2 => BuildSimpleStory("Day2RintaroBinoculars", new[]
                 {
                     Rin("Excuse me, what's that hanging around your neck...?"),
                     Speaker("Huh? Are you an idiot?"),
                     Speaker("These are obviously binoculars for birdwatching! 8x42, the gold standard, with ED glass, no less!"),
                     Speaker("Move, move, you're blocking my view."),
-                }, new[] { 2 }, CompleteRintaroThemeIfReady, returnToMenuIfAvailable: true),
+                }, new[] { 2 }, CompleteRintaroThemeIfReady,
+                    inquirySortOrder: sortOrder, returnToMenuIfAvailable: true),
                 1 => BuildSimpleStory("Day2RintaroFeather", new[]
                 {
                     Rin("Chief Junko said this forest is home to many kinds of birds. Are you here looking for some rare species?"),
                     Speaker("Ho, you know a thing or two. Have you ever heard of a migratory bird with pure blue feathers?"),
                     Speaker("That little fellow is exceedingly rare, it only returns to Otowa's forest during these few days around the Summer Festival."),
                     Speaker("Last year my luck was rotten and I never spotted one. This year, I won't miss the chance for anything."),
-                }, new[] { 1 }, CompleteRintaroThemeIfReady, returnToMenuIfAvailable: true),
+                }, new[] { 1 }, CompleteRintaroThemeIfReady,
+                    inquirySortOrder: sortOrder, returnToMenuIfAvailable: true),
                 12 => BuildSimpleStory("Day2RintaroGeologyBook", new[]
                 {
                     Rin("Actually, I found a thick book in the stationmaster's office with a mountain drawn on it, looks like a geology textbook."),
@@ -365,7 +378,8 @@ namespace Otowa.Inquiry
                     Speaker("Then, halfway through the survey, it hit me, compared to those stones that just sit there, the birds in this forest are far more interesting!"),
                     Speaker("So the moment I retired, I packed my bags and moved here. Watching these birds in the forest beats scheming against people in the city, that's what real life is."),
                     Rin("Thank you, Professor Rintaro. Enjoy your birdwatching."),
-                }, new[] { 3 }, CompleteRintaroThemeIfReady, returnToMenuIfAvailable: true),
+                }, new[] { 3 }, CompleteRintaroThemeIfReady,
+                    inquirySortOrder: sortOrder, returnToMenuIfAvailable: true),
                 4 => BuildSimpleStory("Day2JunkoCharm", new[]
                 {
                     Rin("Oh, Chief, I saw this amulet in the stationmaster's office. Mizuki gave me one too. Does it carry some kind of meaning?"),
@@ -380,7 +394,7 @@ namespace Otowa.Inquiry
                     Speaker("...I think she believes that since the villagers helped her, she ought to stay and repay them."),
                     Speaker("As chief, I know her devotion is crucial to the village. But I truly don't want her bound to a place that's slowly growing old."),
                     Rin("(A dream she's holding back, huh... Maybe I should go and ask Mizuki herself.)"),
-                }, returnToMenuIfAvailable: true),
+                }, inquirySortOrder: sortOrder, returnToMenuIfAvailable: true),
                 _ => null,
             };
         }
@@ -396,10 +410,13 @@ namespace Otowa.Inquiry
             IReadOnlyList<Line> lines,
             IReadOnlyList<int> inspirationUnlockIds = null,
             Action onComplete = null,
+            int inquirySortOrder = 0,
             bool returnToMenuIfAvailable = false)
         {
             var graph = CreateGraph(graphName);
-            bool shouldReturnToMenu = returnToMenuIfAvailable && HasPendingConversation();
+            Action completion = BuildInquiryCompletion(inquirySortOrder, onComplete);
+            bool shouldReturnToMenu = returnToMenuIfAvailable
+                                      && HasPendingConversationAfterCompletion(inquirySortOrder);
             AppendLines(
                 graph,
                 lines,
@@ -409,18 +426,42 @@ namespace Otowa.Inquiry
 
             if (shouldReturnToMenu)
             {
-                graph.nodes.Add(CreateBranch("menu", CreateMenuChoices(), onComplete));
+                graph.nodes.Add(CreateMenuBranch("menu", completion));
                 graph.nodes.Add(CreateTerminal("leave"));
             }
             else
             {
                 var terminal = CreateTerminal("end");
-                if (onComplete != null)
-                    terminal.onEnter.AddListener(() => onComplete());
+                if (completion != null)
+                    terminal.onEnter.AddListener(() => completion());
                 graph.nodes.Add(terminal);
             }
 
             return FinishGraph(graph, "line_01");
+        }
+
+        private bool HasPendingConversationAfterCompletion(int inquirySortOrder)
+        {
+            var progress = Day2InquiryProgress.Instance;
+            bool hasPendingInquiry = inquirySortOrder > 0
+                ? progress.HasPendingInquiryAfterAsking(npc, inquirySortOrder)
+                : progress.HasPendingInquiry(npc);
+
+            return hasPendingInquiry
+                   || (npc == Day2InquiryNpc.Yuji && !progress.IsYujiFestivalTopicComplete)
+                   || (npc == Day2InquiryNpc.Junko && !progress.IsJunkoLastTrainTopicComplete);
+        }
+
+        private Action BuildInquiryCompletion(int inquirySortOrder, Action onComplete)
+        {
+            if (inquirySortOrder <= 0)
+                return onComplete;
+
+            return () =>
+            {
+                Day2InquiryProgress.Instance.TryMarkAsked(npc, inquirySortOrder);
+                onComplete?.Invoke();
+            };
         }
 
         private static DialogueChoice ActionChoice(string label, string actionKey)
@@ -499,6 +540,17 @@ namespace Otowa.Inquiry
             if (onEntered != null)
                 node.onEnter.AddListener(() => onEntered());
 
+            return node;
+        }
+
+        private DialogueNode CreateMenuBranch(string id, Action onEntered = null)
+        {
+            DialogueNode node = null;
+            node = CreateBranch(id, CreateMenuChoices(), () =>
+            {
+                onEntered?.Invoke();
+                node.choices = CreateMenuChoices();
+            });
             return node;
         }
 

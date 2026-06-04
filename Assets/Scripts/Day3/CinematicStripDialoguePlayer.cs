@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using Otowa.IndoorDialogue;
 using Otowa.UI;
@@ -26,6 +27,17 @@ namespace Otowa.Day3
         private const float SECONDARY_PORTRAIT_Y_MAX = 0.96f;
         private const float CENTERED_PORTRAIT_Y_MIN = -0.19f;
         private const float CENTERED_PORTRAIT_Y_MAX = 1.07f;
+        private static readonly Color BodyFg = new Color32(0xc8, 0xd4, 0xc8, 0xff);
+        private static readonly Color RinFg = new Color32(0x8f, 0xbc, 0x8f, 0xff);
+        private static readonly Color JunkoFg = new Color32(0xd4, 0xa0, 0x60, 0xff);
+        private static readonly Color YujiFg = new Color32(0x80, 0xb8, 0xe8, 0xff);
+        private static readonly Color JiroFg = new Color32(0x98, 0x98, 0xa8, 0xff);
+        private static readonly Color InspectorFg = new Color32(0xa0, 0xa8, 0xc0, 0xff);
+        private static readonly Color HikaruFg = new Color32(0xcf, 0x9a, 0x5d, 0xff);
+        private static readonly Color HachiFg = new Color32(0xcf, 0x76, 0x68, 0xff);
+        private static readonly Color MisakiFg = new Color32(0xc8, 0x70, 0x73, 0xff);
+        private static readonly Color PassengerFg = new Color32(0xd0, 0xb0, 0x82, 0xff);
+        private static readonly Color UnknownFg = new Color32(0xd2, 0xc5, 0xa8, 0xff);
 
         private GameObject _root;
         private Transform _stripTransform;
@@ -36,6 +48,9 @@ namespace Otowa.Day3
         private TextMeshProUGUI _speakerText;
         private TextMeshProUGUI _bodyText;
         private IndoorDialogueTextPlayer _textPlayer;
+        private Coroutine _rightPortraitFade;
+        private Color _speakerColorOverride;
+        private bool _hasSpeakerColorOverride;
 
         public bool IsTyping => _textPlayer != null && _textPlayer.IsTyping;
 
@@ -72,7 +87,7 @@ namespace Otowa.Day3
             _speakerText = CreateText("Speaker", subtitleBar.transform, font, new Vector2(0.08f, 0.57f), new Vector2(0.80f, 0.91f));
             _speakerText.fontSize = 34f;
             _speakerText.fontStyle = FontStyles.Bold;
-            _speakerText.color = new Color(0.97f, 0.79f, 0.47f);
+            _speakerText.color = PassengerFg;
 
             _bodyText = CreateText("Dialogue", subtitleBar.transform, font, new Vector2(0.08f, 0.15f), new Vector2(0.80f, 0.63f));
             _bodyText.fontSize = 31f;
@@ -148,6 +163,12 @@ namespace Otowa.Day3
             SetPassengerLayout(secondary != null);
         }
 
+        public void SetSpeakerColorOverride(Color color)
+        {
+            _speakerColorOverride = color;
+            _hasSpeakerColorOverride = true;
+        }
+
         public void SetCenteredFullBodyPortrait(Sprite portrait)
         {
             SetPortrait(_rightPortrait, portrait);
@@ -158,11 +179,16 @@ namespace Otowa.Day3
             rect.anchorMax = new Vector2(0.66f, CENTERED_PORTRAIT_Y_MAX);
         }
 
-        public void PlayLine(string speaker, string text, CinematicStripPortraitFocus focus)
+        public void PlayLine(string speaker, string text, CinematicStripPortraitFocus focus, bool fadeInFocusedPortrait = false)
         {
             _speakerText.text = speaker;
+            _speakerText.color = ResolveSpeakerColor(speaker);
+            _hasSpeakerColorOverride = false;
             SetPortraitAlpha(_leftPortrait, focus == CinematicStripPortraitFocus.Left || focus == CinematicStripPortraitFocus.Both);
-            SetPortraitAlpha(_rightPortrait, focus == CinematicStripPortraitFocus.Right || focus == CinematicStripPortraitFocus.Both);
+            SetPortraitAlpha(
+                _rightPortrait,
+                focus == CinematicStripPortraitFocus.Right || focus == CinematicStripPortraitFocus.Both,
+                fadeInFocusedPortrait);
             SetPortraitAlpha(_secondaryRightPortrait, focus == CinematicStripPortraitFocus.SecondaryRight || focus == CinematicStripPortraitFocus.Both);
             _textPlayer.Play(_bodyText, text);
         }
@@ -191,7 +217,7 @@ namespace Otowa.Day3
             image.enabled = sprite != null;
         }
 
-        private static void SetPortraitAlpha(Image image, bool active)
+        private void SetPortraitAlpha(Image image, bool active, bool fadeIn = false)
         {
             if (image == null)
                 return;
@@ -199,7 +225,66 @@ namespace Otowa.Day3
             if (!image.enabled)
                 return;
 
-            image.color = active ? Color.white : new Color(1f, 1f, 1f, 0.34f);
+            var target = active ? Color.white : new Color(1f, 1f, 1f, 0.34f);
+            if (fadeIn && active && image == _rightPortrait)
+            {
+                if (_rightPortraitFade != null)
+                    StopCoroutine(_rightPortraitFade);
+
+                var start = target;
+                start.a = 0f;
+                image.color = start;
+                _rightPortraitFade = StartCoroutine(FadeRightPortraitTo(target, 0.55f));
+                return;
+            }
+
+            if (image == _rightPortrait && _rightPortraitFade != null)
+            {
+                StopCoroutine(_rightPortraitFade);
+                _rightPortraitFade = null;
+            }
+
+            image.color = target;
+        }
+
+        private IEnumerator FadeRightPortraitTo(Color target, float duration)
+        {
+            var start = _rightPortrait.color;
+            var elapsed = 0f;
+            while (elapsed < duration && _rightPortrait != null)
+            {
+                elapsed += Time.deltaTime;
+                _rightPortrait.color = Color.Lerp(start, target, Mathf.Clamp01(elapsed / duration));
+                yield return null;
+            }
+
+            if (_rightPortrait != null)
+                _rightPortrait.color = target;
+            _rightPortraitFade = null;
+        }
+
+        private Color ResolveSpeakerColor(string speaker)
+        {
+            if (_hasSpeakerColorOverride)
+                return _speakerColorOverride;
+
+            if (string.IsNullOrWhiteSpace(speaker))
+                return BodyFg;
+
+            return speaker.Trim().ToLowerInvariant() switch
+            {
+                "rin" => RinFg,
+                "junko" => JunkoFg,
+                "yuji" => YujiFg,
+                "jiro" => JiroFg,
+                "inspector" => InspectorFg,
+                "hikaru" => HikaruFg,
+                "hachi" => HachiFg,
+                "misaki" => MisakiFg,
+                "passenger" => PassengerFg,
+                "???" => UnknownFg,
+                _ => BodyFg,
+            };
         }
 
         private void SetPassengerLayout(bool paired)

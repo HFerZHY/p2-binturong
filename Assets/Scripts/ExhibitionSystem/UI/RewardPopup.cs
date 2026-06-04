@@ -20,7 +20,7 @@ namespace ExhibitionSystem.UI
         [SerializeField] private TMP_FontAsset _popupFont;
 
         private const string SuccessHeadline = "Exhibition Complete!";
-        private const string ConfirmText = "yayyy";
+        private const string ConfirmText = "Continue";
         private const string SuccessBackgroundResource = "Exhibitions/Icons/success";
         private const string PopupFontResource = "Fonts/BreeSerif-Regular";
         private static TMP_FontAsset _cachedPopupFont;

@@ -83,7 +83,6 @@ namespace Otowa.HotSpring
 
             if (!Progress.IsNpcIntroduced(Day1InquiryNpc.Mizuki))
             {
-                Progress.MarkNpcIntroduced(Day1InquiryNpc.Mizuki);
                 PlaySequence(BuildIntroduction(), CompleteIntroduction);
             }
             else
@@ -163,6 +162,8 @@ namespace Otowa.HotSpring
 
         private void CompleteIntroduction()
         {
+            Progress.MarkNpcIntroduced(Day1InquiryNpc.Mizuki);
+
             if (!Progress.HasReceivedAmulet)
             {
                 Progress.ReceiveAmulet();
@@ -246,7 +247,11 @@ namespace Otowa.HotSpring
                 return;
             }
 
-            PlaySequence(BuildStoneInquiry(), Leave);
+            PlaySequence(BuildStoneInquiry(), () =>
+            {
+                Progress.TryMarkAsked(Day1InquiryNpc.Mizuki, sortOrder);
+                Leave();
+            });
         }
 
         private void Leave()
@@ -523,9 +528,12 @@ namespace Otowa.HotSpring
 
         private static void EnsureEventSystem()
         {
-            if (EventSystem.current != null) return;
+            var eventSystem = EventSystem.current;
+            if (eventSystem == null)
+                eventSystem = new GameObject("EventSystem").AddComponent<EventSystem>();
 
-            new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+            if (eventSystem.GetComponent<InputSystemUIInputModule>() == null)
+                eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
         }
 
         private readonly struct Beat

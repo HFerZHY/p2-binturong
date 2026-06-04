@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Otowa.SaveSystem;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -71,6 +72,83 @@ namespace Otowa.Inquiry
         public bool AreMizukiTopicsComplete => _mizukiCityTopicComplete
                                                && _mizukiFestivalTopicComplete;
 
+        public Day1InquirySaveData CaptureSaveData()
+        {
+            var data = new Day1InquirySaveData
+            {
+                initialized = _day1NightInitialized,
+                amuletReceived = _amuletReceived,
+                mizukiCityTopicComplete = _mizukiCityTopicComplete,
+                mizukiFestivalTopicComplete = _mizukiFestivalTopicComplete,
+                objectivePromptShown = _objectivePromptShown,
+                allInquiryThoughtShown = _allInquiryThoughtShown,
+            };
+
+            foreach (int sortOrder in _askedItemIds)
+                data.askedItemIds.Add(sortOrder);
+
+            foreach (var npc in _introducedNpcs)
+                data.introducedNpcs.Add(npc.ToString());
+
+            return data;
+        }
+
+        public void ApplySaveData(Day1InquirySaveData data)
+        {
+            ResetProgress(invokeChanged: false);
+            if (data == null)
+            {
+                OnProgressChanged?.Invoke();
+                return;
+            }
+
+            _day1NightInitialized = data.initialized;
+            _amuletReceived = data.amuletReceived;
+            _mizukiCityTopicComplete = data.mizukiCityTopicComplete;
+            _mizukiFestivalTopicComplete = data.mizukiFestivalTopicComplete;
+            _objectivePromptShown = data.objectivePromptShown;
+            _allInquiryThoughtShown = data.allInquiryThoughtShown;
+
+            if (data.askedItemIds != null)
+            {
+                foreach (int sortOrder in data.askedItemIds)
+                    _askedItemIds.Add(sortOrder);
+            }
+
+            if (data.introducedNpcs != null)
+            {
+                foreach (string npcName in data.introducedNpcs)
+                {
+                    if (Enum.TryParse(npcName, out Day1InquiryNpc npc) && npc != Day1InquiryNpc.None)
+                        _introducedNpcs.Add(npc);
+                }
+            }
+
+            OnProgressChanged?.Invoke();
+        }
+
+        public void ResetProgress()
+        {
+            ResetProgress(invokeChanged: true);
+        }
+
+        private void ResetProgress(bool invokeChanged)
+        {
+            _askedItemIds.Clear();
+            _introducedNpcs.Clear();
+            _day1NightInitialized = false;
+            _amuletReceived = false;
+            _mizukiCityTopicComplete = false;
+            _mizukiFestivalTopicComplete = false;
+            _objectivePromptShown = false;
+            _allInquiryThoughtShown = false;
+            _requestedMapSpawnObjectName = null;
+            _requestedMapSpawnOffset = Vector3.zero;
+
+            if (invokeChanged)
+                OnProgressChanged?.Invoke();
+        }
+
         private void Awake()
         {
             if (_instance != null && _instance != this)
@@ -141,6 +219,23 @@ namespace Otowa.Inquiry
 
             foreach (var pair in InquiryNpcByItem)
             {
+                if (pair.Value == npc && !_askedItemIds.Contains(pair.Key))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public bool HasPendingInquiryAfterAsking(Day1InquiryNpc npc, int completedSortOrder)
+        {
+            if (!_day1NightInitialized || npc == Day1InquiryNpc.None)
+                return false;
+
+            foreach (var pair in InquiryNpcByItem)
+            {
+                if (pair.Key == completedSortOrder)
+                    continue;
+
                 if (pair.Value == npc && !_askedItemIds.Contains(pair.Key))
                     return true;
             }

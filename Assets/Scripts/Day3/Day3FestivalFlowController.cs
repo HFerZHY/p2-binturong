@@ -4,6 +4,7 @@ using DialogueSystem.Core;
 using DialogueSystem.Data;
 using Otowa.Audio;
 using Otowa.IndoorDialogue;
+using Otowa.SaveSystem;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -263,6 +264,9 @@ namespace Otowa.Day3
 
         private static bool WasAdvancePressed()
         {
+            if (PauseMenuController.ShouldSuppressWorldAdvance)
+                return false;
+
             var mouseClicked = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
             var keyboard = Keyboard.current;
             var keyboardPressed = keyboard != null

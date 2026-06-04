@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DialogueSystem.Core;
 using DialogueSystem.Data;
 using Otowa.Audio;
+using Otowa.SaveSystem;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -23,22 +24,33 @@ namespace Otowa.Day3
 
         private static readonly string[] LetterPages =
         {
-            "To Rin, Acting Stationmaster, Otowa Station:\n\n" +
-            "Following internal review, the Company hereby issues the following notice regarding the continued operation of Otowa Station.",
+            "YAMADA RAIL GROUP\n" +
+            "Office of Network Strategy & Community Partnerships\n\n" +
+            "RE: Operational Status \u2014 Otowa Station\n\n" +
+            "Dear Rin,\n\n" +
+            "On behalf of everyone here at Yamada Rail, congratulations. It is not every day that one of our smaller stations captures the public imagination the way Otowa has this past week \u2014 and we wanted you to hear it from us first.",
 
-            "A track titled \"Otowa Blues\" has recently drawn considerable attention on social media.\n\n" +
-            "Our inquiry finds that travelers passing through filmed the station's exhibition of their own accord and posted the footage online, where its novelty won it wide circulation; other users have since cut that footage together with the track, fueling further high-volume discussion.",
+            "You may already be aware that a song titled \"Otowa Blues\" has been gaining extraordinary traction online.\n\n" +
+            "Travelers passing through your station have been sharing photos of the exhibition, and the response has been overwhelmingly positive.\n\n" +
+            "Many of these posts \u2014 a number of them setting the exhibition to the song \u2014 have reached truly impressive levels of engagement.",
 
-            "The Company assesses that this exposure carries significant potential to drive traffic, and is expected to attract visitors and generate substantial economic value.\n\n" +
-            "At the same time, platform data indicates that a considerable number of users, upon learning of the exhibition, have clearly expressed an intent to travel to Otowa, yet were unable to do so for lack of available tickets.",
+            "What has resonated most is the conversation it has inspired. Across the country, young people are talking about going back to the towns they grew up in.\n\n" +
+            "It is exactly the kind of heartfelt story our network was built to carry.\n\n" +
+            "It is also a trend our analytics team has followed closely. Interest in Otowa has risen sharply, and a meaningful number of users have signaled a clear intent to visit, many noting they were unable to find available tickets.",
 
-            "In light of the above, the Company has resolved as follows:\n\n" +
-            "1. Effective immediately, one additional night train shall be provisionally added to meet short-term passenger demand;\n\n" +
-            "2. The previously planned closure of Otowa Station shall be suspended until further notice.",
+            "In light of this momentum, we are pleased to share two updates.\n\n" +
+            "Effective immediately, we have provisionally added one evening service to Otowa Station to meet near-term demand.\n\n" +
+            "And the previously scheduled closure of Otowa Station has been placed on hold, pending further review.",
 
-            "The Company expects Otowa Station to continue generating economic value and to serve as a model case for rural tourism development, to be promoted across the Company's other stations and villages so as to improve overall profitability.",
+            "We would also like to extend an invitation. Your work at Otowa reflects precisely the kind of community-led revitalization we believe other towns could learn from.\n\n" +
+            "We would welcome the chance to speak with you about how you brought the station's story to life \u2014 what you chose to display, how you drew visitors in, and what made it all resonate.\n\n" +
+            "With your cooperation, we hope to develop Otowa into a model case: a blueprint to share with countless communities like yours, so that they, too, might flourish.",
 
-            "This notice is hereby issued.\n\nRespectfully,\nThe Railway Company",
+            "It is places like Otowa that remind us why we do what we do. We look forward to a long and rewarding partnership.\n\n" +
+            "Warm regards,\n\n" +
+            "Takashi Ota\n" +
+            "Senior Vice President, Network Strategy & Community Partnerships\n" +
+            "YAMADA Rail Group",
         };
 
         private GameObject _inspectorObject;
@@ -51,10 +63,17 @@ namespace Otowa.Day3
         private GameObject _letterCanvas;
         private TMP_Text _letterBody;
         private TMP_Text _letterPage;
+        private TMP_Text _letterPrevArrow;
+        private TMP_Text _letterNextArrow;
         private int _letterPageIndex;
         private bool _letterActive;
         private float _letterInputUnlockTime;
         private bool _loadingScene;
+
+        private static readonly Color LetterInk = new Color32(0x3a, 0x35, 0x2e, 0xFF);
+        private static readonly Color LetterAccent = new Color32(0x5a, 0x52, 0x48, 0xFF);
+        private static readonly Color LetterArrowC = new Color32(0x5a, 0x52, 0x48, 0xFF);
+        private static readonly Color LetterArrowDisabledC = new Color32(0x5a, 0x52, 0x48, 0x70);
 
         private void Awake()
         {
@@ -83,14 +102,49 @@ namespace Otowa.Day3
 
         private void Update()
         {
-            if (!_letterActive || Time.unscaledTime < _letterInputUnlockTime || !WasAdvancePressed())
+            if (!_letterActive
+                || Time.unscaledTime < _letterInputUnlockTime
+                || PauseMenuController.ShouldSuppressWorldAdvance)
                 return;
 
+            HandleLetterNavigationInput();
+        }
+
+        private void HandleLetterNavigationInput()
+        {
+            var mouse = Mouse.current;
+            if (mouse != null && mouse.leftButton.wasPressedThisFrame)
+            {
+                var position = mouse.position.ReadValue();
+                if (position.x < Screen.width * 0.5f)
+                    ShowPreviousLetterPage();
+                else
+                    ShowNextLetterPage();
+                return;
+            }
+
+            var keyboard = Keyboard.current;
+            if (keyboard != null
+                && (keyboard.spaceKey.wasPressedThisFrame || keyboard.enterKey.wasPressedThisFrame))
+                ShowNextLetterPage();
+        }
+
+        private void ShowNextLetterPage()
+        {
             _letterPageIndex++;
             if (_letterPageIndex < LetterPages.Length)
-                RefreshLetterPage();
+                RefreshLetterPage(true);
             else
                 CloseLetterAndContinue();
+        }
+
+        private void ShowPreviousLetterPage()
+        {
+            if (_letterPageIndex <= 0)
+                return;
+
+            _letterPageIndex--;
+            RefreshLetterPage(true);
         }
 
         private void OnDisable()
@@ -124,7 +178,9 @@ namespace Otowa.Day3
         {
             return BuildGraph("Day3InspectorDecision", new[]
             {
-                Rin("So... we proved this place is worth something, and Otowa Station isn't shutting down?"),
+                Inspector("So. Will you take the interview?"),
+                Rin("Depends on my mood. Who's to say it isn't some new scheme."),
+                Rin("Still... we proved our village is worth something, and Otowa Station isn't shutting down."),
                 Inspector("To be precise, the closure has been suspended. For now."),
                 Rin("...Would it kill you to say one nice thing?"),
                 Inspector("Heh..."),
@@ -180,14 +236,26 @@ namespace Otowa.Day3
             _letterActive = true;
             _letterInputUnlockTime = Time.unscaledTime + 0.20f;
             _letterCanvas.SetActive(true);
-            RefreshLetterPage();
+            RefreshLetterPage(false);
         }
 
-        private void RefreshLetterPage()
+        private void RefreshLetterPage(bool playPageTurn)
         {
-            GameAudioManager.Instance.PlaySfxOnce(AudioId.PageTurn);
+            if (playPageTurn)
+                GameAudioManager.Instance.PlaySfxOnce(AudioId.PageTurn);
+
             _letterBody.text = LetterPages[_letterPageIndex];
             _letterPage.text = $"{_letterPageIndex + 1}  /  {LetterPages.Length}";
+            UpdateLetterArrows();
+        }
+
+        private void UpdateLetterArrows()
+        {
+            if (_letterPrevArrow != null)
+                _letterPrevArrow.color = _letterPageIndex > 0 ? LetterArrowC : LetterArrowDisabledC;
+
+            if (_letterNextArrow != null)
+                _letterNextArrow.color = LetterArrowC;
         }
 
         private void CloseLetterAndContinue()
@@ -300,7 +368,7 @@ namespace Otowa.Day3
             paper.AddComponent<Image>().color = new Color32(0xc4, 0xb8, 0xa0, 0xFF);
 
             var title = MakeText(paper.transform, "Title", "[ Railway Company Notice ]",
-                23f, new Color32(0x5a, 0x52, 0x48, 0xFF), TextAlignmentOptions.Center,
+                23f, LetterAccent, TextAlignmentOptions.Center,
                 new Vector2(0.04f, 0.90f), new Vector2(0.96f, 0.98f));
             title.fontStyle = FontStyles.Bold;
 
@@ -309,20 +377,35 @@ namespace Otowa.Day3
             separator.AddComponent<Image>().color = new Color32(0x9a, 0x90, 0x80, 0xFF);
 
             _letterBody = MakeText(paper.transform, "Body", string.Empty,
-                31f, new Color32(0x3a, 0x35, 0x2e, 0xFF), TextAlignmentOptions.Left,
+                31f, LetterInk, TextAlignmentOptions.Left,
                 new Vector2(0.06f, 0.14f), new Vector2(0.94f, 0.85f));
             _letterBody.lineSpacing = 7f;
 
             _letterPage = MakeText(paper.transform, "Page", string.Empty,
-                18f, new Color32(0x5a, 0x52, 0x48, 0xFF), TextAlignmentOptions.Center,
+                26f, LetterAccent, TextAlignmentOptions.Center,
                 new Vector2(0.04f, 0.04f), new Vector2(0.96f, 0.11f));
 
-            var prompt = MakeText(paper.transform, "Prompt", "Click to continue  >",
-                18f, new Color32(0x5a, 0x52, 0x48, 0xCC), TextAlignmentOptions.Right,
-                new Vector2(0.60f, 0.04f), new Vector2(0.94f, 0.11f));
-            prompt.fontStyle = FontStyles.Italic;
+            _letterPrevArrow = MakeText(blocker.transform, "LetterPrevArrow", "<",
+                82f, LetterArrowDisabledC, TextAlignmentOptions.Center,
+                new Vector2(0.10f, 0.42f), new Vector2(0.18f, 0.58f));
+            _letterPrevArrow.fontStyle = FontStyles.Bold | FontStyles.Italic;
+            AddArrowGlow(_letterPrevArrow);
+
+            _letterNextArrow = MakeText(blocker.transform, "LetterNextArrow", ">",
+                82f, LetterArrowC, TextAlignmentOptions.Center,
+                new Vector2(0.82f, 0.42f), new Vector2(0.90f, 0.58f));
+            _letterNextArrow.fontStyle = FontStyles.Bold | FontStyles.Italic;
+            AddArrowGlow(_letterNextArrow);
 
             _letterCanvas.SetActive(false);
+        }
+
+        private static void AddArrowGlow(TMP_Text arrow)
+        {
+            var outline = arrow.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color32(0xff, 0xf1, 0xce, 0x78);
+            outline.effectDistance = new Vector2(2.2f, -2.2f);
+            outline.useGraphicAlpha = true;
         }
 
         private TMP_Text MakeText(Transform parent, string name, string text, float size,
@@ -402,16 +485,6 @@ namespace Otowa.Day3
             if (action != null)
                 unityEvent.AddListener(() => action());
             return unityEvent;
-        }
-
-        private static bool WasAdvancePressed()
-        {
-            var mouseClicked = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
-            var keyboard = Keyboard.current;
-            var keyboardPressed = keyboard != null
-                                  && (keyboard.spaceKey.wasPressedThisFrame
-                                      || keyboard.enterKey.wasPressedThisFrame);
-            return mouseClicked || keyboardPressed;
         }
 
         private static GameObject FindSceneObject(string objectName)

@@ -101,8 +101,7 @@ namespace Otowa.Inquiry
 
             if (!Progress.IsNpcIntroduced(Day2InquiryNpc.Mizuki))
             {
-                Progress.MarkNpcIntroduced(Day2InquiryNpc.Mizuki);
-                PlaySequence(BuildIntroduction(), ShowChoices);
+                PlaySequence(BuildIntroduction(), CompleteIntroduction);
                 yield break;
             }
 
@@ -185,6 +184,12 @@ namespace Otowa.Inquiry
             _textPlayer.Play(_bodyText, beat.Text);
         }
 
+        private void CompleteIntroduction()
+        {
+            Progress.MarkNpcIntroduced(Day2InquiryNpc.Mizuki);
+            ShowChoices();
+        }
+
         private void ShowChoices()
         {
             _sequenceActive = false;
@@ -241,13 +246,25 @@ namespace Otowa.Inquiry
             switch (sortOrder)
             {
                 case 5:
-                    PlaySequence(BuildDangoInquiry(), ShowChoices);
+                    PlaySequence(BuildDangoInquiry(), () =>
+                    {
+                        Progress.TryMarkAsked(Day2InquiryNpc.Mizuki, sortOrder);
+                        ShowChoices();
+                    });
                     break;
                 case 13:
-                    PlaySequence(BuildOctopusPotInquiry(), ShowChoices);
+                    PlaySequence(BuildOctopusPotInquiry(), () =>
+                    {
+                        Progress.TryMarkAsked(Day2InquiryNpc.Mizuki, sortOrder);
+                        ShowChoices();
+                    });
                     break;
                 case 15:
-                    PlaySequence(BuildPaintingRequest(), BeginPaintingReveal);
+                    PlaySequence(BuildPaintingRequest(), () =>
+                    {
+                        Progress.TryMarkAsked(Day2InquiryNpc.Mizuki, sortOrder);
+                        BeginPaintingReveal();
+                    });
                     break;
                 default:
                     Debug.LogWarning(
@@ -699,9 +716,12 @@ namespace Otowa.Inquiry
 
         private static void EnsureEventSystem()
         {
-            if (EventSystem.current != null) return;
+            var eventSystem = EventSystem.current;
+            if (eventSystem == null)
+                eventSystem = new GameObject("EventSystem").AddComponent<EventSystem>();
 
-            new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+            if (eventSystem.GetComponent<InputSystemUIInputModule>() == null)
+                eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
         }
 
         private readonly struct Beat

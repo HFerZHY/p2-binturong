@@ -12,6 +12,7 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.Tables;
 using UnityEngine.Serialization;
 using Otowa.IndoorDialogue;
+using Otowa.SaveSystem;
 using Otowa.UI;
 
 namespace DialogueSystem.UI
@@ -105,6 +106,7 @@ namespace DialogueSystem.UI
         private void Update()
         {
             RefreshPaginationIfLayoutChanged();
+            if (PauseMenuController.ShouldSuppressWorldAdvance) return;
 
             var mouse = Mouse.current;
             if (mouse == null || !mouse.leftButton.wasPressedThisFrame) return;

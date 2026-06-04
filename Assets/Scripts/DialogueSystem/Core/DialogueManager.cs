@@ -127,6 +127,7 @@ namespace DialogueSystem.Core
             // Lock state before processing the first node so IsActive returns
             // true immediately — even before ProcessNode sets Displaying.
             _state = ConversationState.Displaying;
+            dialogueUIController?.HideInteractPrompt();
             OnConversationStarted?.Invoke();
             ProcessNode(entry);
         }
@@ -419,7 +420,7 @@ namespace DialogueSystem.Core
 
         public void ShowInteractPrompt(IInteractable interactable)
         {
-            if (interactable != null)
+            if (interactable != null && !IsActive)
                 dialogueUIController.ShowInteractPrompt(interactable.InteractPrompt);
             else
                 dialogueUIController.HideInteractPrompt();

@@ -31,6 +31,7 @@ namespace Otowa.Minimap
         [SerializeField] private Vector2 panelSize      = new(820f, 600f);
         [SerializeField] private Vector2 iconSize        = new( 40f,  40f);
         [SerializeField] private Vector2 locationSize    = new( 32f,  32f);
+        [SerializeField] private Vector2 locationPortraitSize = new(72f, 104f);
         [SerializeField] [Range(0f, 1f)] private float panelAlpha = 0.70f;
         [SerializeField] private Sprite  mapBackground;
         [SerializeField] private Sprite  mapIconSprite;
@@ -166,19 +167,46 @@ namespace Otowa.Minimap
             go.transform.SetParent(_iconContainer, false);
 
             var rt = (RectTransform)go.transform;
-            rt.sizeDelta = loc.MarkerSize.sqrMagnitude > 0f ? loc.MarkerSize : locationSize;
+            var portrait = loc.LocationPortrait;
+            var visualSize = loc.MarkerSize.sqrMagnitude > 0f ? loc.MarkerSize : locationSize;
 
-            var img = go.AddComponent<Image>();
-            if (loc.MarkerIcon != null) { img.sprite = loc.MarkerIcon; img.preserveAspect = true; }
-            else img.color = loc.MarkerColor;
+            if (portrait != null)
+            {
+                visualSize = locationPortraitSize;
+                rt.sizeDelta = visualSize;
+                AttachLocationPortrait(go.transform, portrait, visualSize);
+            }
+            else
+            {
+                rt.sizeDelta = visualSize;
+                var img = go.AddComponent<Image>();
+                if (loc.MarkerIcon != null) { img.sprite = loc.MarkerIcon; img.preserveAspect = true; }
+                else img.color = loc.MarkerColor;
+            }
 
             if (!string.IsNullOrEmpty(loc.LocationName))
-                AttachLocationLabel(go.transform, loc.LocationName);
+                AttachLocationLabel(go.transform, loc.LocationName, visualSize);
 
             _locationRects[loc] = rt;
         }
 
-        private static void AttachLocationLabel(Transform parent, string text)
+        private static void AttachLocationPortrait(Transform parent, Sprite portrait, Vector2 visualSize)
+        {
+            var portraitGo = new GameObject("Portrait", typeof(RectTransform));
+            portraitGo.transform.SetParent(parent, false);
+
+            var image = portraitGo.AddComponent<Image>();
+            image.sprite = portrait;
+            image.preserveAspect = true;
+
+            var rt = (RectTransform)portraitGo.transform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = Vector2.zero;
+            rt.sizeDelta = visualSize;
+        }
+
+        private static void AttachLocationLabel(Transform parent, string text, Vector2 visualSize)
         {
             var labelGo = new GameObject("Label", typeof(RectTransform));
             labelGo.transform.SetParent(parent, false);
@@ -189,9 +217,9 @@ namespace Otowa.Minimap
             label.alignment = TextAlignmentOptions.Top;
             label.color     = Color.white;
             var lrt = (RectTransform)labelGo.transform;
-            lrt.anchorMin        = lrt.anchorMax = new Vector2(0.5f, 0f);
+            lrt.anchorMin        = lrt.anchorMax = new Vector2(0.5f, 0.5f);
             lrt.pivot            = new Vector2(0.5f, 1f);
-            lrt.anchoredPosition = new Vector2(0f, -4f);
+            lrt.anchoredPosition = new Vector2(0f, -visualSize.y * 0.5f - 6f);
             lrt.sizeDelta        = new Vector2(160f, 28f);
         }
 

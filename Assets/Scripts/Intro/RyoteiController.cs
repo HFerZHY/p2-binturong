@@ -9,6 +9,7 @@ using UnityEngine.EventSystems;
 using TMPro;
 using Otowa.Audio;
 using Otowa.IndoorDialogue;
+using Otowa.SaveSystem;
 using Otowa.UI;
 
 namespace Otowa.Intro
@@ -142,7 +143,7 @@ namespace Otowa.Intro
         {
             _fade.alpha = 0f;
             GameAudioManager.Instance.StopSfxLoop(AudioId.Wind, 0.25f);
-            GameAudioManager.Instance.PlayBgm(AudioId.Ryotei, fadeIn: 0.35f);
+            GameAudioManager.Instance.PlayBgm(AudioId.DayWalk, fadeIn: 0.35f);
             StartCoroutine(StartAfterFade());
         }
 
@@ -158,6 +159,7 @@ namespace Otowa.Intro
         private void Update()
         {
             if (_inputLock) return;
+            if (PauseMenuController.ShouldSuppressWorldAdvance) return;
             if (InspirationManager.IsJournalOpen) return; // journal blocks dialogue input
 
             var mouse = Mouse.current;
@@ -219,6 +221,7 @@ namespace Otowa.Intro
                 SetVillagersFacingInspector(false);
                 StartCoroutine(FadeOutInspector());
                 GameAudioManager.Instance.StopBgm(0.35f);
+                GameAudioManager.Instance.PlaySfxLoop(AudioId.Wind, fadeIn: 0.35f);
             }
             if (prev.UnlocksInspirations != null)
                 InspirationManager.Instance.UnlockBatch(
@@ -257,6 +260,12 @@ namespace Otowa.Intro
             if (b.Choices != null && b.Choices.Length > 0)
             {
                 ShowChoices(b);
+                return;
+            }
+
+            if (b.Id == "decision_resume_pause")
+            {
+                StartCoroutine(ResumeDecisionBgmAfterPause());
                 return;
             }
 
@@ -300,11 +309,13 @@ namespace Otowa.Intro
             _bodyTmp.color     = b.IsThought ? ThoughtC : BodyC;
             _bodyTmp.fontStyle = b.IsThought ? FontStyles.Italic : FontStyles.Normal;
 
-            // SFX triggers keyed to beat IDs
+            // SFX / BGM triggers keyed to beat IDs
             if (b.Id == "offer_sake")
                 GameAudioManager.Instance.PlaySfxOnce(AudioId.DrinkPour);
-            if (b.Id == "decision")
-                GameAudioManager.Instance.PlayBgm(AudioId.Decision, fadeIn: 0.45f);
+            if (b.Id == "decision" || b.Id == "decision_start")
+                PlayDecisionBgm();
+            if (b.Id == "decision_stop")
+                GameAudioManager.Instance.StopBgm(0.35f);
 
             if (b.Id == "inspire_moment")
                 _textPlayer.Play(_bodyTmp, b.Text,
@@ -330,6 +341,12 @@ namespace Otowa.Intro
             GameAudioManager.Instance.PlayBgm(AudioId.Crisis, fadeIn: 0.45f);
             ShowBeat(inspectorBeatIndex);
             _inputLock = false;
+        }
+
+        private void PlayDecisionBgm()
+        {
+            GameAudioManager.Instance.StopSfxLoop(AudioId.Wind, 0.35f);
+            GameAudioManager.Instance.PlayBgm(AudioId.Decision, fadeIn: 0.45f);
         }
 
         private IEnumerator FadeInInspector(float targetAlpha)
@@ -404,12 +421,22 @@ namespace Otowa.Intro
             _inspectorVisible = false;
         }
 
+        private IEnumerator ResumeDecisionBgmAfterPause()
+        {
+            _inputLock = true;
+            yield return new WaitForSeconds(1f);
+            PlayDecisionBgm();
+            AdvanceBeat();
+            _inputLock = false;
+        }
+
         // ── Transitions ───────────────────────────────────────────────────────
 
         private IEnumerator FadeAndLoad()
         {
             _inputLock = true;
             GameAudioManager.Instance.StopBgm(fadeDuration);
+            GameAudioManager.Instance.StopSfxLoop(AudioId.Wind, fadeDuration);
             yield return StartCoroutine(FadeTo(0f));
             SceneManager.LoadScene(nextSceneName);
         }
@@ -479,10 +506,12 @@ namespace Otowa.Intro
 
         private static void EnsureEventSystem()
         {
-            if (FindObjectOfType<EventSystem>() != null) return;
-            var go = new GameObject("EventSystem");
-            go.AddComponent<EventSystem>();
-            go.AddComponent<InputSystemUIInputModule>();
+            var eventSystem = FindFirstObjectByType<EventSystem>();
+            if (eventSystem == null)
+                eventSystem = new GameObject("EventSystem").AddComponent<EventSystem>();
+
+            if (eventSystem.GetComponent<InputSystemUIInputModule>() == null)
+                eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
         }
 
         private void BuildUI()
@@ -889,22 +918,35 @@ namespace Otowa.Intro
                 new Beat { Speaker = "Inspector", Text = "Excuse me.", HidesInspector = true },
 
                 // ── Aftermath ─────────────────────────────────────────────────
-                D("Rin",   true,  "(Silence. Yuji is tightly clenching his fists. Jiro has his head bowed without saying a word.)"),
-                D("Junko", false, "Rin... I am truly very sorry. You came full of expectations, and right away we dragged you into a massive mess."),
-                D("Junko", false, "Take the early train tomorrow and head back to the city. This shouldn't be yours to bear."),
-                D("Rin",   false, "It may not be time to give up yet."),
-                D("Rin",   false, "In his letter, Mr. Hikaru said he wanted to turn the station into a museum that showcases Otowa's charm."),
-                D("Rin",   false, "Even though he only collected a pile of \"junk,\" he asked me to be the curator.", id: "decision"),
-                D("Rin",   false, "If I can properly exhibit these items that carry the soul of Otowa, wouldn't that make the inspector change his mind?"),
-                D("Yuji",  false, "Turn the station into a museum? That guy Hikaru was doing something like that behind our backs?!"),
-                D("Jiro",  false, "Hmph, with Hikaru's brain, he wouldn't be able to display anything decent. But, if it's you..."),
+                D("Rin",   true,  "(Silence... Yuji is tightly clenching his fists, and Jiro has his head bowed without saying a word.)"),
+                D("Junko", false, "Rin... I am truly very sorry. You came here full of expectations, and right after you got off the train, we dragged you into such a massive mess."),
+                D("Junko", false, "Take the early train tomorrow and head back to the city. This mess shouldn't be yours to bear."),
+                D("Rin",   false, "Thank you for thinking of me, Chief. But I'm not leaving."),
+                D("Junko", false, "Eh?", id: "decision_start"),
+                D("Rin",   false, "This inspector reminds me of the men who ruined my hometown."),
+                D("Rin",   false, "The same suits, the same arrogance. They signed their contracts, cut down the trees, and built their factories."),
+                D("Rin",   false, "And then the whole village was filled with the smell of burning. My parents took me away with them, but my grandmother stayed behind... and her health only kept getting worse."),
+                D("Junko", false, "…I'm sorry to hear that, Rin. It must have been so hard — watching the place you grew up in change like that, and feeling there was nothing you could do."),
+                D("Rin",   false, "So... I don't want to stand by and watch these company suits run wild again."),
+                D("Rin",   false, "At the very least... I want to try to make the railway company take back this unreasonable decision."),
+                D("Rin",   false, "I know it won't be easy. But as the acting stationmaster... I'm willing to try."),
+                D("Junko", false, "...", id: "decision_stop"),
+                new Beat { Id = "decision_resume_pause" },
+                D("Yuji",  false, "Incredible, Rin. You coming here today is the luckiest thing that's ever happened to Otowa."),
+                D("Jiro",  false, "Unbelievable... that someone from the city could have this heart..."),
+                D("Rin",   false, "Since the inspector said there might be a turning point if we can prove the station's value, that means it's not time to give up entirely just yet."),
+                D("Rin",   false, "In his letter, Mr. Hikaru said he wanted to transform the station into a museum that showcases Otowa's charm."),
+                D("Rin",   false, "Even though he only collected a pile of cryptic odds and ends, he asked me to be the curator."),
+                D("Rin",   false, "If I can exhibit these items properly and show passengers the charm of Otowa, wouldn't that make the company change its mind?"),
+                D("Yuji",  false, "Turn the station into a museum? That guy Hikaru was actually doing something like that behind our backs?!"),
+                D("Jiro",  false, "Hmph, with that kid's brain, he wouldn't be able to display anything decent anyway. But, if it's you..."),
                 D("Yuji",  false, "Yeah! Rin! If even a picky guy like Jiro approves of your taste, you can definitely pull it off!"),
-                D("Junko", false, "Rin... are you really willing to help us with this?"),
-                D("Rin",   false, "Yeah. Just leave it to me."),
+                D("Junko", false, "That's a truly wonderful idea, Rin."),
+                D("Rin",   false, "Yeah. I'm starting to look forward to being a curator, actually."),
                 D("Junko", false, "No matter what happens... on behalf of all the villagers in Otowa, I thank you."),
-                D("Junko", false, "We will prepare for this year's Summer Festival... but for it to be held successfully, we are counting on you."),
+                D("Junko", false, "We will prepare properly for this year's Summer Festival... but for it to be held successfully, we are counting on you."),
                 D("Rin",   true,  "(The Summer Festival... what kind of day is that? Why do they value it so much?)"),
-                D("Rin",   false, "Then, I'll look around the village and gather some information for curating the exhibition."),
+                D("Rin",   false, "Anyway, I should explore for now."),
                 D("Junko", false, "All right, Rin. We'll do everything we can to support you!"),
             };
         }

@@ -1,6 +1,7 @@
 using System.Collections;
 using Otowa.Audio;
 using Otowa.Day3;
+using Otowa.SaveSystem;
 using Otowa.UI;
 using TMPro;
 using UnityEngine;
@@ -57,10 +58,10 @@ namespace Otowa.Intro
             Inspector("Inspector", "Let's hope that before I finish writing my report, you can present something a bit more convincing."),
             Inspector("Inspector", "Goodbye."),
             Rin("(He really just left...)", hidesInspector: true),
-            Rin("(Wait - evaluation report. What happens if we fail?)"),
-            Rin("(Hikaru, just how big of a mess have you dumped on me?)"),
-            Rin("Anyway, I should head to the ryotei for dinner first. Chief Junko said she'd be waiting for me there."),
-            Rin("I should let the chief know about this, too..."),
+            Rin("(Wait, did he say evaluation report just now? What happens if we fail?)"),
+            Rin("(I don't like this guy… Last time men in suits like him showed up in my hometown, bad things happened.)"),
+            Rin("(I need to find a way to let Chief Junko know about this…)"),
+            Rin("(Anyway, I should head to the ryotei and find her first.)"),
         };
 
         private CanvasGroup _canvasGroup;
@@ -81,6 +82,9 @@ namespace Otowa.Intro
 
         private void Update()
         {
+            if (PauseMenuController.ShouldSuppressWorldAdvance)
+                return;
+
             if (_inputLocked || _transitioning || (_mapPopup != null && _mapPopup.activeSelf) || !WasAdvancePressed())
                 return;
 
@@ -285,10 +289,14 @@ namespace Otowa.Intro
 
         private static void EnsureEventSystem()
         {
-            if (EventSystem.current != null)
-                return;
+            var eventSystem = EventSystem.current;
+            if (eventSystem == null)
+            {
+                eventSystem = new GameObject("EventSystem").AddComponent<EventSystem>();
+            }
 
-            new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+            if (eventSystem.GetComponent<InputSystemUIInputModule>() == null)
+                eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
         }
 
         private static Sprite LoadSprite(string resourcePath)

@@ -39,6 +39,7 @@ namespace Otowa.Audio
         Chopping,
         RunningWater,
         BluesBeat,
-        FaintInsectChirp
+        FaintInsectChirp,
+        Construction
     }
 }

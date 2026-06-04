@@ -115,8 +115,7 @@ namespace Otowa.Inquiry
 
             if (!Progress.IsNpcIntroduced(Day2InquiryNpc.Jiro))
             {
-                Progress.MarkNpcIntroduced(Day2InquiryNpc.Jiro);
-                PlaySequence(BuildIntroduction(), ShowChoices);
+                PlaySequence(BuildIntroduction(), CompleteIntroduction);
                 yield break;
             }
 
@@ -191,6 +190,12 @@ namespace Otowa.Inquiry
             _textPlayer.Play(_bodyText, beat.Text);
         }
 
+        private void CompleteIntroduction()
+        {
+            Progress.MarkNpcIntroduced(Day2InquiryNpc.Jiro);
+            ShowChoices();
+        }
+
         private void ShowChoices()
         {
             _sequenceActive = false;
@@ -263,7 +268,11 @@ namespace Otowa.Inquiry
                 return;
             }
 
-            PlaySequence(BuildDangoInquiry(), Leave);
+            PlaySequence(BuildDangoInquiry(), () =>
+            {
+                Progress.TryMarkAsked(Day2InquiryNpc.Jiro, sortOrder);
+                Leave();
+            });
         }
 
         private bool HasPendingJiroConversation()
@@ -523,9 +532,12 @@ namespace Otowa.Inquiry
 
         private static void EnsureEventSystem()
         {
-            if (EventSystem.current != null) return;
+            var eventSystem = EventSystem.current;
+            if (eventSystem == null)
+                eventSystem = new GameObject("EventSystem").AddComponent<EventSystem>();
 
-            new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+            if (eventSystem.GetComponent<InputSystemUIInputModule>() == null)
+                eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
         }
 
         private readonly struct Beat

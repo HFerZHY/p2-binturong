@@ -80,7 +80,6 @@ namespace Otowa.Inquiry
             }
             else
             {
-                progress.MarkNpcIntroduced(npc);
                 graph = BuildIntroductionGraph();
             }
 
@@ -170,7 +169,7 @@ namespace Otowa.Inquiry
                         Speaker("Whenever I listen to this music, I can feel the blues! The kind of blues that hits right in the soul!"),
                         Speaker("...Hahaha! Sorry, sorry - I had a couple too many today and said some weird things. Don't mind me!"),
                     },
-                    RestoreYujiIntroAudio),
+                    CompleteYujiIntroduction),
                 Day1InquiryNpc.Junko => BuildDialogueWithMenu(
                     "Day1JunkoIntroduction",
                     new[]
@@ -184,9 +183,21 @@ namespace Otowa.Inquiry
                         Speaker("By village tradition, on this day all the villagers who've gone away to work or study return home."),
                         Speaker("For all these years, they've come back to Otowa along these very rails. You could say the railway is just about Otowa's only link to the outside world."),
                         Speaker("So the trains absolutely cannot stop running at a time like this."),
-                    }),
+                    },
+                    CompleteIntroduction),
                 _ => null,
             };
+        }
+
+        private void CompleteIntroduction()
+        {
+            Day1InquiryProgress.Instance.MarkNpcIntroduced(npc);
+        }
+
+        private void CompleteYujiIntroduction()
+        {
+            RestoreYujiIntroAudio();
+            CompleteIntroduction();
         }
 
         private DialogueGraph BuildInquiryMenuGraph()
@@ -231,7 +242,7 @@ namespace Otowa.Inquiry
             var graph = CreateGraph(graphName);
             AppendLines(graph, lines, "line", "menu");
 
-            graph.nodes.Add(CreateBranch("menu", CreateMenuChoices(), onMenuEntered));
+            graph.nodes.Add(CreateMenuBranch("menu", onMenuEntered));
             graph.nodes.Add(CreateTerminal("leave"));
             return FinishGraph(graph, lines.Count > 0 ? "line_01" : "menu");
         }
@@ -265,7 +276,7 @@ namespace Otowa.Inquiry
                 {
                     Speaker("You're asking about my sake? Oh, I could go on for hours. The one that won me the award was called \"Thousand Cranes.\""),
                     Speaker("Eh, I just got lucky back then - happened to draw a judge who loved his drink. If it'd come down to pure craft, honestly, old Jiro's still got the edge on me."),
-                }, returnToMenuIfAvailable: true),
+                }, inquirySortOrder: sortOrder, returnToMenuIfAvailable: true),
                 8 => BuildSimpleStory("Day1YujiHerbs", new[]
                 {
                     Rin("In the stationmaster's office, I saw some air-dried herbs. These must be one of Otowa's local specialties."),
@@ -274,7 +285,7 @@ namespace Otowa.Inquiry
                     Speaker("Hahaha, bitter, really? Don't tell me my taste buds are on the fritz?"),
                     Speaker("Tell you what - next time I brew a batch, maybe I'll toss in some honey."),
                     Rin("(I'd really rather he didn't...)"),
-                }, returnToMenuIfAvailable: true),
+                }, inquirySortOrder: sortOrder, returnToMenuIfAvailable: true),
                 10 => BuildSimpleStory("Day1YujiFireworks", new[]
                 {
                     Rin("Mr. Yuji, is that a firework tube next to you? I saw one in the stationmaster's office, too."),
@@ -283,14 +294,16 @@ namespace Otowa.Inquiry
                     Speaker("Hah, mixing drinks and mixing fireworks are pretty much the same. Both are about precisely blending different ingredients together, and then - \"Boom!\" - they bloom in your mouth or up in the sky!"),
                     Speaker("Truth is, my real trade is fireworks artisan. Running the pub and mixing drinks is purely a personal hobby."),
                     Rin("So you had this hidden talent all along, Mr. Yuji. You've made me see you in a whole new light."),
-                }, new[] { 8 }, () => InspirationManager.Instance.CompleteTheme(YujiTheme), returnToMenuIfAvailable: true),
+                }, new[] { 8 }, () => InspirationManager.Instance.CompleteTheme(YujiTheme),
+                    inquirySortOrder: sortOrder, returnToMenuIfAvailable: true),
                 11 => BuildSimpleStory("Day1JunkoTrainTicket", new[]
                 {
                     Rin("Chief, since this railway is so important, I'd like to add a train ticket to the exhibition."),
                     Speaker("Mm, that would indeed be a fitting exhibit."),
                     Speaker("Many villagers are waiting for the Summer Festival too, hoping the people they long to see will come back. Take Jiro, for instance - he hasn't seen his son in a very long time."),
                     Rin("So Jiro's son has left Otowa..."),
-                }, new[] { 16 }, AddJunkoClosingIfComplete, returnToMenuIfAvailable: true, appendJunkoClosing: true),
+                }, new[] { 16 }, AddJunkoClosingIfComplete,
+                    inquirySortOrder: sortOrder, returnToMenuIfAvailable: true, appendJunkoClosing: true),
                 9 => BuildSimpleStory("Day1JunkoFan", new[]
                 {
                     Rin("Chief, I saw a fan in the stationmaster's office with a bird painted on it. I'm guessing... it might have something to do with the Summer Festival?"),
@@ -300,7 +313,9 @@ namespace Otowa.Inquiry
                     Speaker("Tomorrow, during the day, do go and take a look at the forest on the edge of the village."),
                     Speaker("Every summer, many migratory birds travel from afar to return to this forest - some of them quite rare."),
                     Speaker("Just like the children who've left home: no matter how far they fly, when summer comes, they always ride the wind back."),
-                }, new[] { 7 }, AddJunkoClosingIfComplete, returnToMenuIfAvailable: true, appendJunkoClosing: true),
+                    Rin("(At least they can still come back to Otowa. But my hometown... no one wants to go back anymore.)"),
+                }, new[] { 7 }, AddJunkoClosingIfComplete,
+                    inquirySortOrder: sortOrder, returnToMenuIfAvailable: true, appendJunkoClosing: true),
                 _ => null,
             };
         }
@@ -310,13 +325,15 @@ namespace Otowa.Inquiry
             IReadOnlyList<Line> lines,
             IReadOnlyList<int> inspirationUnlockIds = null,
             Action onComplete = null,
+            int inquirySortOrder = 0,
             bool returnToMenuIfAvailable = false,
             bool appendJunkoClosing = false)
         {
             var graph = CreateGraph(graphName);
             string terminalId = "end";
+            Action completion = BuildInquiryCompletion(inquirySortOrder, onComplete);
             bool shouldReturnToMenu = returnToMenuIfAvailable
-                                      && Day1InquiryProgress.Instance.HasPendingInquiry(npc);
+                                      && HasPendingInquiryAfterCompletion(inquirySortOrder);
             AppendLines(
                 graph,
                 lines,
@@ -325,7 +342,7 @@ namespace Otowa.Inquiry
                 inspirationUnlockIds);
 
             if (appendJunkoClosing
-                && !Day1InquiryProgress.Instance.HasPendingInquiry(Day1InquiryNpc.Junko))
+                && !HasPendingInquiryAfterCompletion(inquirySortOrder, Day1InquiryNpc.Junko))
             {
                 string closingStart = "closing_01";
                 graph.nodes[^1].nextNodeId = closingStart;
@@ -340,18 +357,40 @@ namespace Otowa.Inquiry
 
             if (shouldReturnToMenu)
             {
-                graph.nodes.Add(CreateBranch("menu", CreateMenuChoices(), onComplete));
+                graph.nodes.Add(CreateMenuBranch("menu", completion));
                 graph.nodes.Add(CreateTerminal("leave"));
             }
             else
             {
                 var terminal = CreateTerminal(terminalId);
-                if (onComplete != null)
-                    terminal.onEnter.AddListener(() => onComplete());
+                if (completion != null)
+                    terminal.onEnter.AddListener(() => completion());
                 graph.nodes.Add(terminal);
             }
 
             return FinishGraph(graph, "line_01");
+        }
+
+        private bool HasPendingInquiryAfterCompletion(
+            int inquirySortOrder,
+            Day1InquiryNpc targetNpc = Day1InquiryNpc.None)
+        {
+            var queryNpc = targetNpc == Day1InquiryNpc.None ? npc : targetNpc;
+            return inquirySortOrder > 0
+                ? Day1InquiryProgress.Instance.HasPendingInquiryAfterAsking(queryNpc, inquirySortOrder)
+                : Day1InquiryProgress.Instance.HasPendingInquiry(queryNpc);
+        }
+
+        private Action BuildInquiryCompletion(int inquirySortOrder, Action onComplete)
+        {
+            if (inquirySortOrder <= 0)
+                return onComplete;
+
+            return () =>
+            {
+                Day1InquiryProgress.Instance.TryMarkAsked(npc, inquirySortOrder);
+                onComplete?.Invoke();
+            };
         }
 
         private void AddJunkoClosingIfComplete()
@@ -434,6 +473,17 @@ namespace Otowa.Inquiry
             if (onEntered != null)
                 node.onEnter.AddListener(() => onEntered());
 
+            return node;
+        }
+
+        private DialogueNode CreateMenuBranch(string id, Action onEntered = null)
+        {
+            DialogueNode node = null;
+            node = CreateBranch(id, CreateMenuChoices(), () =>
+            {
+                onEntered?.Invoke();
+                node.choices = CreateMenuChoices();
+            });
             return node;
         }
 
