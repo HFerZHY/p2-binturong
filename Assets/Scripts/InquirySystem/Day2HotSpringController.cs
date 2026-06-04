@@ -559,12 +559,12 @@ namespace Otowa.Inquiry
 
             _speakerText = MakeText(panelObject.transform, "Speaker", string.Empty,
                 38f, MizukiColor, TextAlignmentOptions.Left,
-                new Vector2(0.04f, 0.68f), new Vector2(0.96f, 0.96f));
+                new Vector2(0.04f, 0.68f), new Vector2(0.81f, 0.96f));
             _speakerText.fontStyle = FontStyles.Bold;
 
             _bodyText = MakeText(panelObject.transform, "Body", string.Empty,
                 34f, BodyColor, TextAlignmentOptions.Left,
-                new Vector2(0.04f, 0.04f), new Vector2(0.96f, 0.65f));
+                new Vector2(0.04f, 0.04f), new Vector2(0.81f, 0.65f));
             _bodyText.lineSpacing = 6f;
         }
 

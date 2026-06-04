@@ -171,8 +171,8 @@ MonoBehaviour:
   promptColor: {r: 1, g: 1, b: 1, a: 1}
   titleFontSize: 110
   subtitleFontSize: 22
-  bodyFontSize: 30
-  letterFontSize: 28
+  bodyFontSize: 34
+  letterFontSize: 32
   itemsTitleSize: 34
   itemLabelSize: 24
   promptFontSize: 22

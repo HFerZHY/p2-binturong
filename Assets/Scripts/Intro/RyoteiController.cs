@@ -587,7 +587,7 @@ namespace Otowa.Intro
 
             _speakerTmp = MakeTMP(pt, "Speaker", "",
                 38f, RinGreen, TextAlignmentOptions.Left,
-                new Vector2(0.04f, 0.68f), new Vector2(0.96f, 0.96f));
+                new Vector2(0.04f, 0.68f), new Vector2(0.81f, 0.96f));
             _speakerTmp.fontStyle = FontStyles.Bold;
             UseFont(_speakerTmp);
 
@@ -608,7 +608,7 @@ namespace Otowa.Intro
 
             _bodyTmp = MakeTMP(pt, "Body", "",
                 34f, BodyC, TextAlignmentOptions.Left,
-                new Vector2(0.04f, 0.04f), new Vector2(0.96f, 0.65f));
+                new Vector2(0.04f, 0.04f), new Vector2(0.81f, 0.65f));
             _bodyTmp.lineSpacing = 6f;
             _bodyTmp.raycastTarget = false;
             UseFont(_bodyTmp);
@@ -732,7 +732,7 @@ namespace Otowa.Intro
             if (bodyRect == null)
                 return;
 
-            bodyRect.anchorMax = hasIcons ? new Vector2(0.96f, 0.42f) : new Vector2(0.96f, 0.65f);
+            bodyRect.anchorMax = hasIcons ? new Vector2(0.81f, 0.42f) : new Vector2(0.81f, 0.65f);
         }
 
         private Image GetItemIconImage(int index)

@@ -278,9 +278,9 @@ namespace Otowa.Day3
             _particleSprite = CreateGlowSprite(32);
 
             _body = MakeText(canvasObject.transform, "Narration", string.Empty,
-                36f, BodyColor, TextAlignmentOptions.Center,
+                40f, BodyColor, TextAlignmentOptions.Center,
                 new Vector2(0.16f, 0.20f), new Vector2(0.84f, 0.80f));
-            _body.lineSpacing = 14f;
+            _body.lineSpacing = 16f;
 
             _prompt = MakeText(canvasObject.transform, "Prompt", "Click to continue  >",
                 22f, PromptColor, TextAlignmentOptions.Center,

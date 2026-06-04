@@ -60,8 +60,8 @@ namespace Otowa.Intro
         [Header("Font Sizes")]
         [SerializeField] private float titleFontSize    = 110f;
         [SerializeField] private float subtitleFontSize = 22f;
-        [SerializeField] private float bodyFontSize     = 36f;
-        [SerializeField] private float letterFontSize   = 32f;
+        [SerializeField] private float bodyFontSize     = 40f;
+        [SerializeField] private float letterFontSize   = 35f;
         [SerializeField] private float itemsTitleSize   = 34f;
         [SerializeField] private float itemLabelSize    = 24f;
         [SerializeField] private float promptFontSize   = 22f;

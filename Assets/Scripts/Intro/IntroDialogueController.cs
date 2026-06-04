@@ -319,14 +319,14 @@ namespace Otowa.Intro
             // Speaker name — spans full width; alignment flips per speaker
             _speakerTmp = MakeTMP(pt, "SpeakerName", "",
                 speakerFontSize, rinNameColor, TextAlignmentOptions.Left,
-                new Vector2(0.04f, 0.68f), new Vector2(0.96f, 0.96f));
+                new Vector2(0.04f, 0.68f), new Vector2(0.81f, 0.96f));
             _speakerTmp.fontStyle = FontStyles.Bold;
             UseFont(_speakerTmp, serifFont);
 
             // Body text
             _bodyTmp = MakeTMP(pt, "Body", "",
                 bodyFontSize, bodyColor, TextAlignmentOptions.Left,
-                new Vector2(0.04f, 0.04f), new Vector2(0.96f, 0.65f));
+                new Vector2(0.04f, 0.04f), new Vector2(0.81f, 0.65f));
             _bodyTmp.lineSpacing = 6f;
             UseFont(_bodyTmp, serifFont);
 

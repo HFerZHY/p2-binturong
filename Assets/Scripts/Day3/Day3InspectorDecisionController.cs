@@ -368,7 +368,7 @@ namespace Otowa.Day3
             paper.AddComponent<Image>().color = new Color32(0xc4, 0xb8, 0xa0, 0xFF);
 
             var title = MakeText(paper.transform, "Title", "[ Railway Company Notice ]",
-                23f, LetterAccent, TextAlignmentOptions.Center,
+                25f, LetterAccent, TextAlignmentOptions.Center,
                 new Vector2(0.04f, 0.90f), new Vector2(0.96f, 0.98f));
             title.fontStyle = FontStyles.Bold;
 
@@ -377,9 +377,9 @@ namespace Otowa.Day3
             separator.AddComponent<Image>().color = new Color32(0x9a, 0x90, 0x80, 0xFF);
 
             _letterBody = MakeText(paper.transform, "Body", string.Empty,
-                31f, LetterInk, TextAlignmentOptions.Left,
+                33f, LetterInk, TextAlignmentOptions.Left,
                 new Vector2(0.06f, 0.14f), new Vector2(0.94f, 0.85f));
-            _letterBody.lineSpacing = 7f;
+            _letterBody.lineSpacing = 8f;
 
             _letterPage = MakeText(paper.transform, "Page", string.Empty,
                 26f, LetterAccent, TextAlignmentOptions.Center,

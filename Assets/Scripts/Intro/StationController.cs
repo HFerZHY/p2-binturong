@@ -529,7 +529,7 @@ namespace Otowa.Intro
             _narPanel = MakeRect(cv, "NarPanel", Vector2.zero, Vector2.one);
 
             _narText = MakeTMP(_narPanel.transform, "NarText", "",
-                36f, NarrationC, TextAlignmentOptions.Center,
+                40f, NarrationC, TextAlignmentOptions.Center,
                 new Vector2(0.18f, 0.32f), new Vector2(0.82f, 0.68f));
             _narText.lineSpacing = 8f;
             _narText.fontStyle   = FontStyles.Normal;
@@ -564,7 +564,7 @@ namespace Otowa.Intro
             sep.AddComponent<Image>().color = new Color32(0x9a, 0x90, 0x80, 0xFF);
 
             _ltBody = MakeTMP(pt, "LtBody", "",
-                34f, LetterTxt, TextAlignmentOptions.Left,
+                37f, LetterTxt, TextAlignmentOptions.Left,
                 new Vector2(0.06f, 0.10f), new Vector2(0.94f, 0.82f));
             _ltBody.lineSpacing = 6f;
             UseFont(_ltBody, handwrittenFont);
@@ -767,13 +767,13 @@ namespace Otowa.Intro
 
             _speakerTmp = MakeTMP(pt, "Speaker", "",
                 36f, RinGreen, TextAlignmentOptions.Left,
-                new Vector2(0.04f, 0.68f), new Vector2(0.96f, 0.96f));
+                new Vector2(0.04f, 0.68f), new Vector2(0.81f, 0.96f));
             _speakerTmp.fontStyle = FontStyles.Bold;
             UseFont(_speakerTmp, serifFont);
 
             _bodyTmp = MakeTMP(pt, "Body", "",
                 31f, BodyC, TextAlignmentOptions.Left,
-                new Vector2(0.04f, 0.04f), new Vector2(0.96f, 0.65f));
+                new Vector2(0.04f, 0.04f), new Vector2(0.81f, 0.65f));
             _bodyTmp.lineSpacing = 6f;
             UseFont(_bodyTmp, serifFont);
 
