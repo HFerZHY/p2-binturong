@@ -542,7 +542,7 @@ namespace Otowa.Inquiry
             IndoorDialogueChoiceStyle.ConfigureContainer(_choicesContainer);
             _choicesContainer.SetActive(false);
 
-            _promptText = MakeText(canvasObject.transform, "Prompt", "Click to continue  v",
+            _promptText = MakeText(canvasObject.transform, "Prompt", string.Empty,
                 22f, PromptColor, TextAlignmentOptions.Right,
                 new Vector2(0.60f, 0.02f), new Vector2(0.97f, 0.08f));
             _promptText.gameObject.SetActive(false);
@@ -606,6 +606,7 @@ namespace Otowa.Inquiry
             _paintingRevealButton = buttonObject.AddComponent<Button>();
             _paintingRevealButton.targetGraphic = buttonImage;
             _paintingRevealButton.onClick.AddListener(DismissPaintingReveal);
+            _paintingRevealWindow.AddComponent<ModalConfirmInput>().Configure(_paintingRevealButton);
             MakeText(buttonObject.transform, "Label", "Continue", 28f,
                 new Color(0.98f, 0.90f, 0.72f, 1f), TextAlignmentOptions.Center,
                 Vector2.zero, Vector2.one);
@@ -618,7 +619,7 @@ namespace Otowa.Inquiry
                 new Vector2(0.15f, 0.22f), new Vector2(0.85f, 0.78f));
             _paintingReflectionBody.lineSpacing = 14f;
             _paintingReflectionPrompt = MakeText(
-                _paintingReflectionObject.transform, "Prompt", "Click to continue  >",
+                _paintingReflectionObject.transform, "Prompt", string.Empty,
                 22f, new Color(0.76f, 0.84f, 0.92f, 0.92f), TextAlignmentOptions.Center,
                 new Vector2(0.30f, 0.035f), new Vector2(0.70f, 0.095f));
             _paintingReflectionPrompt.characterSpacing = 4f;

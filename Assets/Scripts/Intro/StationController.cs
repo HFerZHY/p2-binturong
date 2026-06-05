@@ -514,7 +514,7 @@ namespace Otowa.Intro
             BuildDialoguePanel(cvGo.transform);
             BuildChoicePanel(cvGo.transform);
 
-            _promptTmp = MakeTMP(cvGo.transform, "Prompt", "Click to continue  >",
+            _promptTmp = MakeTMP(cvGo.transform, "Prompt", string.Empty,
                 22f, PromptC, TextAlignmentOptions.Center,
                 new Vector2(0.30f, 0.035f), new Vector2(0.70f, 0.095f));
             _promptTmp.characterSpacing = 4f;

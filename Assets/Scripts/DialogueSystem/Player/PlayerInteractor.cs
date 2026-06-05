@@ -94,11 +94,9 @@ namespace DialogueSystem.Player
                 return;
 
             Debug.Log("Interact");
-            // If a dialogue is already running, let the manager handle advancing
+            // DialogueUIController owns dialogue advance keys once a conversation is open.
             if (DialogueManager.Instance != null && DialogueManager.Instance.IsActive)
             {
-                Debug.Log("Calling Dialogue Manager");
-                DialogueManager.Instance.AdvanceDialogue();
                 return;
             }
             Debug.Log("No Dialogue Manager");

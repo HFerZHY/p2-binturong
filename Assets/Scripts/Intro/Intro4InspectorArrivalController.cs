@@ -226,6 +226,7 @@ namespace Otowa.Intro
             _mapConfirmButton = confirmObject.AddComponent<Button>();
             _mapConfirmButton.targetGraphic = confirmImage;
             _mapConfirmButton.onClick.AddListener(ConfirmMapPopup);
+            _mapPopup.AddComponent<ModalConfirmInput>().Configure(_mapConfirmButton);
 
             MakeText(
                 confirmObject.transform,

@@ -32,7 +32,7 @@ namespace Otowa.Day1End
         private static readonly Color WakeText = new(0.20f, 0.18f, 0.15f, 1f);
         private static readonly Color RinText = new(0.30f, 0.43f, 0.48f, 1f);
         private static readonly Color PromptText = new(0.40f, 0.54f, 0.58f, 0.92f);
-        private static readonly Color CinematicSpeakerText = new(0.97f, 0.79f, 0.47f, 1f);
+        private static readonly Color CinematicSpeakerText = new Color32(0x8f, 0xbc, 0x8f, 0xff);
         private static readonly Color CinematicPromptText = new(1f, 1f, 1f, 0.66f);
 
         private const string CinematicBackgroundResource = "Exhibitions/Icons/passenger-background";
@@ -292,7 +292,7 @@ namespace Otowa.Day1End
             RuntimeFontLibrary.ApplyBreeSerif(_wakeBody, serifFont);
             _wakePanel.SetActive(false);
 
-            _prompt = MakeText(canvasObject.transform, "Prompt", "Click to continue  >",
+            _prompt = MakeText(canvasObject.transform, "Prompt", string.Empty,
                 22f, PromptText, TextAlignmentOptions.Center,
                 new Vector2(0.30f, 0.035f), new Vector2(0.70f, 0.095f));
             _prompt.characterSpacing = 4f;

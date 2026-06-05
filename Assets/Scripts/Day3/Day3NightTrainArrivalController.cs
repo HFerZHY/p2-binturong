@@ -221,7 +221,7 @@ namespace Otowa.Day3
             switch (cue)
             {
                 case AudioCue.StopEnding:
-                    GameAudioManager.Instance.StopBgm(0.35f);
+                    GameAudioManager.Instance.StopBgm(0.35f, savePosition: true);
                     break;
             }
         }
@@ -339,7 +339,7 @@ namespace Otowa.Day3
 
             var prompt = MakeText("Prompt", _whiteNarrationRoot.transform,
                 new Vector2(0.30f, 0.035f), new Vector2(0.70f, 0.095f));
-            prompt.text = "Click to continue  >";
+            prompt.text = string.Empty;
             prompt.fontSize = 22f;
             prompt.alignment = TextAlignmentOptions.Center;
             prompt.color = new Color(0.27f, 0.34f, 0.44f, 0.90f);

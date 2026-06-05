@@ -1,4 +1,5 @@
 using System;
+using Otowa.SaveSystem;
 using Otowa.UI;
 using TMPro;
 using UnityEngine;
@@ -59,8 +60,13 @@ namespace Otowa.IndoorDialogue
 
             var image = buttonObject.AddComponent<Image>();
             var button = buttonObject.AddComponent<Button>();
+            buttonObject.AddComponent<HoverConfirmButton>();
             button.targetGraphic = image;
-            button.onClick.AddListener(() => action?.Invoke());
+            button.onClick.AddListener(() =>
+            {
+                PauseMenuController.SuppressWorldAdvanceForInputFrame();
+                action?.Invoke();
+            });
 
             var labelObject = new GameObject("Label", typeof(RectTransform));
             labelObject.transform.SetParent(buttonObject.transform, false);

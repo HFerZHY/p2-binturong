@@ -84,7 +84,7 @@ namespace Otowa.Day3
             Black("Night falls, and still the Inspector never comes to deliver his final verdict."),
             Black("No miracle came."),
             Black("So this really is a lonely Summer Festival. This really is Otowa Station's last night."),
-            Black("Hikaru has fallen asleep at the desk, and you watch two trails of tears slide down his round face.", cue: AudioCue.StartSnoring),
+            Black("Hikaru has fallen asleep at the desk, and you watch two trails of tears slide down his face.", cue: AudioCue.StartSnoring),
             Black("Well then. Time to go check on the villagers in the square.", pauseBefore: true),
             Black("You drape a coat over Hikaru, then quietly pull the office door shut behind you.", cue: AudioCue.CloseDoorAndLeave),
         };
@@ -282,7 +282,7 @@ namespace Otowa.Day3
                 new Vector2(0.16f, 0.20f), new Vector2(0.84f, 0.80f));
             _body.lineSpacing = 16f;
 
-            _prompt = MakeText(canvasObject.transform, "Prompt", "Click to continue  >",
+            _prompt = MakeText(canvasObject.transform, "Prompt", string.Empty,
                 22f, PromptColor, TextAlignmentOptions.Center,
                 new Vector2(0.30f, 0.035f), new Vector2(0.70f, 0.095f));
             _prompt.characterSpacing = 4f;

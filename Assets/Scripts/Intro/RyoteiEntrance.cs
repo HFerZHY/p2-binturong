@@ -7,7 +7,7 @@ namespace Otowa.Intro
 {
     /// <summary>
     /// Attach to the Ryotei placeholder GameObject in TutorialToRyotei.
-    /// Player presses E to enter, which loads Intro-5 (the Ryotei banquet scene).
+    /// Player presses Space to enter, which loads Intro-5 (the Ryotei banquet scene).
     /// Requires a Collider2D on the same or child GameObject (on the Interactable layer).
     /// </summary>
     public class RyoteiEntrance : MonoBehaviour, IInteractable

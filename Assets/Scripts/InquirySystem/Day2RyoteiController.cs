@@ -420,7 +420,7 @@ namespace Otowa.Inquiry
             IndoorDialogueChoiceStyle.ConfigureContainer(_choicesContainer);
             _choicesContainer.SetActive(false);
 
-            _promptText = MakeText(canvasObject.transform, "Prompt", "Click to continue  v",
+            _promptText = MakeText(canvasObject.transform, "Prompt", string.Empty,
                 22f, PromptColor, TextAlignmentOptions.Right,
                 new Vector2(0.60f, 0.02f), new Vector2(0.97f, 0.08f));
             _promptText.gameObject.SetActive(false);

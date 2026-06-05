@@ -549,7 +549,7 @@ namespace Otowa.Intro
             BuildDialoguePanel(cvGo.transform);
             BuildChoicePanel(cvGo.transform);
 
-            _promptTmp = MakeTMP(cvGo.transform, "Prompt", "Click to continue  ▼",
+            _promptTmp = MakeTMP(cvGo.transform, "Prompt", string.Empty,
                 22f, PromptC, TextAlignmentOptions.Right,
                 new Vector2(0.60f, 0.02f), new Vector2(0.97f, 0.08f));
             UseFont(_promptTmp);
@@ -915,7 +915,7 @@ namespace Otowa.Intro
                 D("Junko",     false, "Two days from now is the Summer Festival! That is the most important day for us in Otowa! The trains absolutely cannot stop running then!"),
                 D("Inspector", false, "Unless you can prove to me within these two days that this station possesses irreplaceable value, our decision will not change."),
 
-                new Beat { Speaker = "Inspector", Text = "Excuse me.", HidesInspector = true },
+                new Beat { Speaker = "Inspector", Text = "Goodbye.", HidesInspector = true },
 
                 // ── Aftermath ─────────────────────────────────────────────────
                 D("Rin",   true,  "(Silence... Yuji is tightly clenching his fists, and Jiro has his head bowed without saying a word.)"),

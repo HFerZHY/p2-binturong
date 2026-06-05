@@ -1,5 +1,6 @@
 using ExhibitionSystem.Core;
 using ExhibitionSystem.Data;
+using Otowa.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -72,6 +73,7 @@ namespace ExhibitionSystem.UI
             if (_confirmButton != null)
                 _confirmButton.onClick.AddListener(HandleConfirmClicked);
 
+            ConfigureModalInput();
             ConfigureLayout();
             Hide();
         }
@@ -477,6 +479,18 @@ namespace ExhibitionSystem.UI
                 return selectText.font;
 
             return TMP_Settings.defaultFontAsset;
+        }
+
+        private void ConfigureModalInput()
+        {
+            if (_panel == null || _confirmButton == null)
+                return;
+
+            var modalInput = _panel.GetComponent<ModalConfirmInput>();
+            if (modalInput == null)
+                modalInput = _panel.AddComponent<ModalConfirmInput>();
+
+            modalInput.Configure(_confirmButton);
         }
 
         private static void StretchRuntime(RectTransform rt, float padding)

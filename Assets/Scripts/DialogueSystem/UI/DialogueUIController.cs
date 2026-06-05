@@ -13,7 +13,9 @@ using UnityEngine.Localization.Tables;
 using UnityEngine.Serialization;
 using Otowa.IndoorDialogue;
 using Otowa.SaveSystem;
+using Otowa.Controls;
 using Otowa.UI;
+using UnityEngine.EventSystems;
 
 namespace DialogueSystem.UI
 {
@@ -74,6 +76,7 @@ namespace DialogueSystem.UI
         private float _paginationWidth = -1f;
         private readonly List<Button> _choiceButtons = new();
         private LocalizationManager _localizationManager;
+        private int _suppressAdvanceUntilFrame = -1;
 
         private const int MAX_LINES_PER_PAGE = 3;
         private const float PAGINATION_WIDTH_EPSILON = 0.5f;
@@ -107,9 +110,9 @@ namespace DialogueSystem.UI
         {
             RefreshPaginationIfLayoutChanged();
             if (PauseMenuController.ShouldSuppressWorldAdvance) return;
+            if (Time.frameCount <= _suppressAdvanceUntilFrame) return;
 
-            var mouse = Mouse.current;
-            if (mouse == null || !mouse.leftButton.wasPressedThisFrame) return;
+            if (!UnifiedInput.WasAdvancePressed(respectPauseSuppression: false)) return;
             if (dialoguePanel == null || !dialoguePanel.activeInHierarchy) return;
             DialogueManager.Instance?.AdvanceDialogue();
         }
@@ -184,6 +187,9 @@ namespace DialogueSystem.UI
             {
                 var btn = Instantiate(choiceButtonPrefab, choicesContainer);
                 ApplyChoiceStyle(btn);
+                if (btn.GetComponent<HoverConfirmButton>() == null)
+                    btn.gameObject.AddComponent<HoverConfirmButton>();
+
                 var label = btn.GetComponentInChildren<TMP_Text>();
                 if (label != null)
                 {
@@ -195,7 +201,12 @@ namespace DialogueSystem.UI
 
                 // Capture for lambda
                 var captured = choice;
-                btn.onClick.AddListener(() => onChosen?.Invoke(captured));
+                btn.onClick.AddListener(() =>
+                {
+                    _suppressAdvanceUntilFrame = Time.frameCount;
+                    PauseMenuController.SuppressWorldAdvanceForInputFrame();
+                    onChosen?.Invoke(captured);
+                });
 
                 _choiceButtons.Add(btn);
             }
@@ -567,8 +578,18 @@ namespace DialogueSystem.UI
 
         private void ClearChoiceButtons()
         {
+            var selected = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
             foreach (var btn in _choiceButtons)
-                if (btn != null) Destroy(btn.gameObject);
+            {
+                if (btn == null)
+                    continue;
+
+                if (selected == btn.gameObject && EventSystem.current != null)
+                    EventSystem.current.SetSelectedGameObject(null);
+
+                Destroy(btn.gameObject);
+            }
+
             _choiceButtons.Clear();
             if (choicesContainer != null)
                 choicesContainer.gameObject.SetActive(false);

@@ -15,31 +15,31 @@ MonoBehaviour:
   _entries:
   - Id: 1
     Clip: {fileID: 8300000, guid: d6d0c80d6c72a1b43ac9a33843cb99a7, type: 3}
-    DefaultVolume: 1
+    DefaultVolume: 0.624
   - Id: 2
     Clip: {fileID: 8300000, guid: 2cb30a430e977f54ba46a4d8dd19f7a0, type: 3}
-    DefaultVolume: 0.47
+    DefaultVolume: 0.525
   - Id: 3
     Clip: {fileID: 8300000, guid: feba1108e944a0048bca52aa1607eab0, type: 3}
     DefaultVolume: 0.4
   - Id: 4
     Clip: {fileID: 8300000, guid: b3390a81308636e41b4737cf26d7fd79, type: 3}
-    DefaultVolume: 1
+    DefaultVolume: 0.668
   - Id: 5
     Clip: {fileID: 8300000, guid: c2de0fc130880a1469e387f3933ac5c7, type: 3}
-    DefaultVolume: 0.476
+    DefaultVolume: 0.596
   - Id: 6
     Clip: {fileID: 8300000, guid: be01060159606724a94c5704b4a74d34, type: 3}
-    DefaultVolume: 1
+    DefaultVolume: 0.479
   - Id: 7
     Clip: {fileID: 8300000, guid: c7a2fcb34cf2f7c46b64922c95dae4c0, type: 3}
-    DefaultVolume: 0.264
+    DefaultVolume: 0.417
   - Id: 8
     Clip: {fileID: 0}
     DefaultVolume: 0.28
   - Id: 9
     Clip: {fileID: 8300000, guid: aaaef64524498814cb317827167b215d, type: 3}
-    DefaultVolume: 0.861
+    DefaultVolume: 0.417
   - Id: 10
     Clip: {fileID: 8300000, guid: ebd7fbcd5057f7d4fb0c84af76228efe, type: 3}
     DefaultVolume: 0.45

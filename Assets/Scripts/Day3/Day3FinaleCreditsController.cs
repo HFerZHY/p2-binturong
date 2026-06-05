@@ -39,7 +39,7 @@ namespace Otowa.Day3
         [SerializeField] private float _charactersPerSecond = 38f;
         [SerializeField] private float _fadeDuration = 0.65f;
 
-        private const string AdvancePrompt = "Click to continue  >";
+        private const string AdvancePrompt = "";
         private const string QuitButtonLabel = "thanks for playing";
 
         private static readonly Color SkyBg = new Color(0.025f, 0.08f, 0.22f, 1f);

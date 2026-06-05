@@ -94,7 +94,7 @@ namespace Otowa.Day3
             _bodyText.color = Color.white;
 
             var prompt = CreateText("Prompt", subtitleBar.transform, font, new Vector2(0.78f, 0.04f), new Vector2(0.97f, 0.22f));
-            prompt.text = "click to continue";
+            prompt.text = string.Empty;
             prompt.fontSize = 18f;
             prompt.fontStyle = FontStyles.Italic;
             prompt.alignment = TextAlignmentOptions.BottomRight;

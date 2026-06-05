@@ -1,4 +1,5 @@
 using ExhibitionSystem.Core;
+using Otowa.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -42,6 +43,7 @@ namespace ExhibitionSystem.UI
             if (_confirmButton != null)
                 _confirmButton.onClick.AddListener(HandleConfirmClicked);
 
+            ConfigureModalInput();
             Hide();
         }
 
@@ -164,6 +166,18 @@ namespace ExhibitionSystem.UI
             popup._confirmButton = button;
             popup._canvasGroup = cg;
             return popup;
+        }
+
+        private void ConfigureModalInput()
+        {
+            if (_panel == null || _confirmButton == null)
+                return;
+
+            var modalInput = _panel.GetComponent<ModalConfirmInput>();
+            if (modalInput == null)
+                modalInput = _panel.AddComponent<ModalConfirmInput>();
+
+            modalInput.Configure(_confirmButton);
         }
 
         private static GameObject CreateRuntimeChild(Transform parent, string name)

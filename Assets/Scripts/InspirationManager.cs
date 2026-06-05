@@ -1284,6 +1284,7 @@ public class InspirationManager : MonoBehaviour
         var okButton = okGo.AddComponent<Button>();
         okButton.targetGraphic = okBg;
         okButton.onClick.AddListener(DismissThemeUnlockPopup);
+        _themeUnlockPopupGo.AddComponent<ModalConfirmInput>().Configure(okButton);
         var okText = Tmp(okGo.transform, "Text", "OK",
             27f, JournalHdr, TextAlignmentOptions.Center,
             Vector2.zero, Vector2.one);
@@ -1423,6 +1424,7 @@ public class InspirationManager : MonoBehaviour
         var okButton = okGo.AddComponent<Button>();
         okButton.targetGraphic = okBg;
         okButton.onClick.AddListener(DismissJournalGuide);
+        _journalGuideGo.AddComponent<ModalConfirmInput>().Configure(okButton);
         Tmp(okGo.transform, "Text", "Got it",
             20f, JournalHdr, TextAlignmentOptions.Center,
             Vector2.zero, Vector2.one);

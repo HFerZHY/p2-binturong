@@ -1,6 +1,7 @@
 using ExhibitionSystem.Core;
 using ExhibitionSystem.Data;
 using Otowa.SaveSystem;
+using Otowa.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -652,6 +653,7 @@ namespace ExhibitionSystem.UI
                 {
                     _clickDismissButton.onClick.RemoveListener(HandleClickDismissOverlayClicked);
                     _clickDismissButton.onClick.AddListener(HandleClickDismissOverlayClicked);
+                    ConfigureClickDismissModalInput();
                 }
 
                 return;
@@ -664,7 +666,10 @@ namespace ExhibitionSystem.UI
             _clickDismissOverlay = CreateClickDismissOverlay(parent);
             _clickDismissButton = _clickDismissOverlay.GetComponent<Button>();
             if (_clickDismissButton != null)
+            {
                 _clickDismissButton.onClick.AddListener(HandleClickDismissOverlayClicked);
+                ConfigureClickDismissModalInput();
+            }
 
             if (_panel != null)
             {
@@ -719,7 +724,22 @@ namespace ExhibitionSystem.UI
             popup._clickDismissOverlay = clickDismissOverlay;
             popup._clickDismissButton = clickDismissOverlay.GetComponent<Button>();
             if (popup._clickDismissButton != null)
+            {
                 popup._clickDismissButton.onClick.AddListener(popup.HandleClickDismissOverlayClicked);
+                popup.ConfigureClickDismissModalInput();
+            }
+        }
+
+        private void ConfigureClickDismissModalInput()
+        {
+            if (_clickDismissOverlay == null || _clickDismissButton == null)
+                return;
+
+            var modalInput = _clickDismissOverlay.GetComponent<ModalConfirmInput>();
+            if (modalInput == null)
+                modalInput = _clickDismissOverlay.AddComponent<ModalConfirmInput>();
+
+            modalInput.Configure(_clickDismissButton);
         }
 
         internal static GameObject CreateRuntimeVisual(

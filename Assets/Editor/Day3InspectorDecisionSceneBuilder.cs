@@ -78,7 +78,11 @@ public static class Day3InspectorDecisionSceneBuilder
             Object.DestroyImmediate(movement);
 
         inspector.transform.position = player.transform.position + new Vector3(2.0f, 0f, 0f);
+        var scale = inspector.transform.localScale;
+        scale.x = -Mathf.Abs(scale.x);
+        inspector.transform.localScale = scale;
         EditorUtility.SetDirty(inspector);
+        EditorUtility.SetDirty(inspector.transform);
     }
 
     private static void ConfigureController()

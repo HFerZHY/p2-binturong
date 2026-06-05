@@ -76,7 +76,7 @@ namespace Otowa.Intro
             public string     Title;     // null → no title block shown
             public string     Subtitle;
             public string     Body;      // TMP rich text; null → skip typewriter
-            public bool       IsLast;    // changes prompt text to "Click to begin"
+            public bool       IsLast;
             public Color      Background;
             public bool       HideBubbles;
             public bool       WaitForBackground;
@@ -214,7 +214,7 @@ namespace Otowa.Intro
             }
 
             SetPrompt(false);
-            _promptTmp.text = s.IsLast ? "Click to begin" : "Click to continue  >";
+            _promptTmp.text = string.Empty;
 
             if (s.WaitForBackground)
             {
@@ -411,7 +411,7 @@ namespace Otowa.Intro
 
             // Continue prompt  — sits at bottom, always above panels
             _promptTmp = MakeTMP(canvasGo.transform, "Prompt",
-                                 "Click to continue  >",
+                                 string.Empty,
                                  promptFontSize, promptColor, TextAlignmentOptions.Center,
                                  new Vector2(0.2f, 0.02f), new Vector2(0.8f, 0.08f));
             _promptTmp.characterSpacing = 4f;

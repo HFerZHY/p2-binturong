@@ -222,7 +222,7 @@ namespace Otowa.Day3
             _blackScreenBody = MakeText(canvasObject.transform, "Body", string.Empty,
                 38f, Color.white, TextAlignmentOptions.Center,
                 new Vector2(0.18f, 0.30f), new Vector2(0.82f, 0.70f));
-            _blackScreenPrompt = MakeText(canvasObject.transform, "Prompt", "Click to continue  >",
+            _blackScreenPrompt = MakeText(canvasObject.transform, "Prompt", string.Empty,
                 22f, new Color(0.70f, 0.80f, 0.94f, 0.88f), TextAlignmentOptions.Center,
                 new Vector2(0.30f, 0.035f), new Vector2(0.70f, 0.095f));
             _blackScreenPrompt.gameObject.SetActive(false);

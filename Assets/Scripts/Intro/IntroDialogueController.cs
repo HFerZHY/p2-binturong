@@ -249,7 +249,7 @@ namespace Otowa.Intro
             BuildDialoguePanel(canvasGo.transform);
 
             // Continue prompt — bottom-right, always above panels
-            _promptTmp = MakeTMP(canvasGo.transform, "Prompt", "Click to continue  >",
+            _promptTmp = MakeTMP(canvasGo.transform, "Prompt", string.Empty,
                 promptFontSize, promptColor, TextAlignmentOptions.Right,
                 new Vector2(0.60f, 0.02f), new Vector2(0.97f, 0.08f));
             UseFont(_promptTmp, serifFont);
@@ -296,8 +296,7 @@ namespace Otowa.Intro
 
             var txt = MakeTMP(go.transform, "TutorialText",
                 "Press <b>WASD</b> to move the protagonist\n" +
-                "Press <b>E</b> to interact with characters\n\n" +
-                "<size=78%><color=#8fbc8f>— Click to continue —</color></size>",
+                "Press <b>Space</b> to interact with characters",
                 tutorialFontSize, bodyColor, TextAlignmentOptions.Center,
                 new Vector2(0.06f, 0.06f), new Vector2(0.94f, 0.94f));
             UseFont(txt, serifFont);

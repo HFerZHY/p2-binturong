@@ -22,15 +22,15 @@ public static class GameAudioCatalogBuilder
 
         catalog.SetEntries(new List<AudioCatalog.Entry>
         {
-            Entry(AudioId.NightWalk, "Assets/Audio/Music/night-walk.mp3", 1f),
-            Entry(AudioId.OtowaBlues, "Assets/Audio/Music/otowa blues.mp3", 0.47f),
+            Entry(AudioId.NightWalk, "Assets/Audio/Music/night-walk.mp3", 0.624f),
+            Entry(AudioId.OtowaBlues, "Assets/Audio/Music/otowa blues.mp3", 0.525f),
             Entry(AudioId.Ending, "Assets/Audio/Music/ending.mp3", 0.4f),
-            Entry(AudioId.DayWalk, "Assets/Audio/Music/day-walk.mp3", 1f),
-            Entry(AudioId.Crisis, "Assets/Audio/Music/crisis.mp3", 0.476f),
-            Entry(AudioId.HotSpring, "Assets/Audio/Music/hot-spring.mp3", 1f),
-            Entry(AudioId.Gameplay, "Assets/Audio/Music/gameplay.mp3", 0.264f),
+            Entry(AudioId.DayWalk, "Assets/Audio/Music/day-walk.mp3", 0.668f),
+            Entry(AudioId.Crisis, "Assets/Audio/Music/crisis.mp3", 0.596f),
+            Entry(AudioId.HotSpring, "Assets/Audio/Music/hot-spring.mp3", 0.479f),
+            Entry(AudioId.Gameplay, "Assets/Audio/Music/gameplay.mp3", 0.417f),
             Entry(AudioId.Ryotei, "Assets/Audio/Music/ryotei.mp3", 0.28f),
-            Entry(AudioId.Decision, "Assets/Audio/Music/decision.mp3", 0.861f),
+            Entry(AudioId.Decision, "Assets/Audio/Music/decision.mp3", 0.417f),
             Entry(AudioId.ForestAtmosphere, "Assets/Audio/SoundEffects/forest-atmosphere.mp3", 0.45f),
             Entry(AudioId.LeatherFootsteps, "Assets/Audio/SoundEffects/leather footsteps.mp3", 0.8f),
             Entry(AudioId.LivelierBirdsong, "Assets/Audio/SoundEffects/livelier birdsong.mp3", 0.52f),

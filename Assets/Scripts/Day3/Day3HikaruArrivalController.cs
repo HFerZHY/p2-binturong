@@ -196,7 +196,7 @@ namespace Otowa.Day3
             UseFont(_narrationBody, _centeredFont);
 
             var prompt = CreateText("Prompt", _blackNarrationRoot.transform, new Vector2(0.72f, 0.08f), new Vector2(0.94f, 0.15f));
-            prompt.text = "click to continue";
+            prompt.text = string.Empty;
             prompt.fontSize = 19f;
             prompt.fontStyle = FontStyles.Italic;
             prompt.alignment = TextAlignmentOptions.BottomRight;
@@ -249,6 +249,7 @@ namespace Otowa.Day3
             var button = buttonObject.AddComponent<Button>();
             button.targetGraphic = buttonImage;
             button.onClick.AddListener(HandleRecordPopupConfirmed);
+            _recordPopup.AddComponent<ModalConfirmInput>().Configure(button);
 
             var buttonText = CreateText("Label", buttonObject.transform, Vector2.zero, Vector2.one);
             buttonText.text = "Continue";

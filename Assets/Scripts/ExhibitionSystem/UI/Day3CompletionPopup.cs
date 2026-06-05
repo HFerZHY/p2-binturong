@@ -1,4 +1,5 @@
 using ExhibitionSystem.Core;
+using Otowa.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -118,6 +119,7 @@ namespace ExhibitionSystem.UI
             _confirmButton = buttonObject.AddComponent<Button>();
             _confirmButton.targetGraphic = buttonImage;
             _confirmButton.onClick.AddListener(HandleConfirmClicked);
+            _popupRoot.AddComponent<ModalConfirmInput>().Configure(_confirmButton);
 
             var buttonLabel = CreateText("Label", buttonObject.transform, Vector2.zero, Vector2.one);
             buttonLabel.text = "Continue";

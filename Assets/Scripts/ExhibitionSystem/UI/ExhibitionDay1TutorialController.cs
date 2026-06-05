@@ -65,6 +65,7 @@ namespace ExhibitionSystem.UI
             _advanceButton = _tutorialRoot.AddComponent<Button>();
             _advanceButton.transition = Selectable.Transition.None;
             _advanceButton.onClick.AddListener(AdvanceTutorial);
+            _tutorialRoot.AddComponent<ModalConfirmInput>().Configure(_advanceButton);
 
             var tutorialPanelObject = TutorialPopup.CreateRuntimeVisual(
                 _tutorialRoot.transform,
@@ -110,6 +111,7 @@ namespace ExhibitionSystem.UI
             SetRect(confirmObject.GetComponent<RectTransform>(), new Vector2(0.35f, 0.06f), new Vector2(0.65f, 0.18f));
             _confirmButton = confirmObject.AddComponent<Button>();
             _confirmButton.onClick.AddListener(ConfirmReward);
+            _rewardRoot.AddComponent<ModalConfirmInput>().Configure(_confirmButton);
 
             var confirmLabel = CreateText("Text", confirmObject.transform, "Continue", 30f, TextAlignmentOptions.Center);
             Stretch(confirmLabel.rectTransform);

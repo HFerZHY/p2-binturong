@@ -235,7 +235,7 @@ namespace Otowa.SaveSystem
             }
         }
 
-        private static void SuppressWorldAdvanceForInputFrame()
+        public static void SuppressWorldAdvanceForInputFrame()
         {
             _suppressAdvanceUntilFrame = Mathf.Max(
                 _suppressAdvanceUntilFrame,

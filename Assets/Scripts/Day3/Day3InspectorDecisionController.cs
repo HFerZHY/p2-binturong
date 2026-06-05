@@ -82,6 +82,8 @@ namespace Otowa.Day3
             {
                 _inspectorAnimator = _inspectorObject.GetComponentInChildren<Animator>(true);
                 _inspectorBody = _inspectorObject.GetComponent<Rigidbody2D>();
+                FaceInspector(false);
+                SetInspectorMoving(false);
                 _inspectorObject.SetActive(true);
             }
 
@@ -263,7 +265,7 @@ namespace Otowa.Day3
             _letterActive = false;
             _letterCanvas.SetActive(false);
             GameAudioManager.Instance.StopSfxLoop(AudioId.Wind, 0.35f);
-            GameAudioManager.Instance.PlayBgm(AudioId.Ending, fadeIn: 0.75f);
+            GameAudioManager.Instance.PlayBgm(AudioId.Ending, fadeIn: 0.75f, resumePlayback: true);
             DialogueManager.Instance.TriggerDialogue(BuildEndingGraph());
         }
 
