@@ -26,6 +26,7 @@ namespace ExhibitionSystem.UI
         private bool _selected;
         private bool _invalid;
         private bool _interactable;
+        private bool _fixedMatch;
 
         public InspirationData Inspiration => _inspiration;
 
@@ -42,13 +43,15 @@ namespace ExhibitionSystem.UI
             bool invalid = false,
             bool animateInvalid = false,
             ExhibitItemData matchItem = null,
-            bool interactable = true)
+            bool interactable = true,
+            bool fixedMatch = false)
         {
             _inspiration = inspiration;
             _onClick = onClick;
             _selected = selected;
             _invalid = invalid;
             _interactable = interactable;
+            _fixedMatch = fixedMatch;
 
             if (_button != null)
                 _button.interactable = interactable;
@@ -93,7 +96,9 @@ namespace ExhibitionSystem.UI
             {
                 _selectionImage.color = !_interactable
                     ? _fixedMatchColor
-                    : _invalid
+                    : _fixedMatch
+                        ? _fixedMatchColor
+                        : _invalid
                         ? _invalidColor
                         : _selected
                             ? _selectedColor

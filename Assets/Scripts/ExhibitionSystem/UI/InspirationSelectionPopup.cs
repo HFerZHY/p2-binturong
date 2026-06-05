@@ -151,13 +151,19 @@ namespace ExhibitionSystem.UI
             var manager = ExhibitionManager.Instance;
             if (manager == null ||
                 inspiration == null ||
-                _targetSlotIndex < 0 ||
-                manager.IsInspirationMatchKnown(inspiration))
+                _targetSlotIndex < 0)
             {
                 return;
             }
 
             OnInspirationClicked?.Invoke();
+
+            if (manager.IsInspirationMatchKnown(inspiration))
+            {
+                ApplyKnownMatchToTargetSlot(manager, inspiration);
+                return;
+            }
+
             _pendingInspiration = inspiration;
             RefreshListItems();
             UpdateConfirmButton();
@@ -263,7 +269,30 @@ namespace ExhibitionSystem.UI
                 false,
                 false,
                 hintItem,
-                !knownMatch);
+                true,
+                knownMatch);
+        }
+
+        private void ApplyKnownMatchToTargetSlot(ExhibitionManager manager, InspirationData inspiration)
+        {
+            if (manager == null ||
+                inspiration == null ||
+                inspiration.mappedItem == null ||
+                _targetSlotIndex < 0 ||
+                _targetSlotIndex >= manager.SlotCount ||
+                manager.IsRunning ||
+                manager.IsSlotLocked(_targetSlotIndex) ||
+                manager.IsSlotInspirationFixed(_targetSlotIndex))
+            {
+                return;
+            }
+
+            manager.PlaceItem(_targetSlotIndex, inspiration.mappedItem);
+            if (_targetSlotIndex < manager.DisplaySlots.Count &&
+                manager.DisplaySlots[_targetSlotIndex] == inspiration.mappedItem)
+            {
+                Hide();
+            }
         }
 
         private void UpdateTargetItemIcon(ExhibitItemData item)
